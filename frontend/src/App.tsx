@@ -1,0 +1,60 @@
+import React from "react";
+import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
+import Signup from "./pages/auth pages/signup";
+import Login from "./pages/auth pages/login";
+import Login2 from "./pages/auth pages/login2";
+import Dashboard from "./pages/Dashboard";
+import ProjectBoard from "./pages/ProjectBoard";
+import Tasks from "./pages/Tasks";
+import Team from "./pages/Team";
+
+function Home() {
+  return (
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+      <div className="flex flex-col items-center gap-6 p-8 bg-white rounded-2xl shadow-xl">
+        <img
+          src="/logo.png"
+          alt="App Logo"
+          className="w-[173px] h-[42px]"
+        />
+        <h1 className="text-3xl font-bold text-gray-900">Welcome to Our App</h1>
+        <p className="text-gray-600 text-center max-w-md">
+          Get started by creating an account or logging in to continue
+        </p>
+        <div className="flex gap-4 mt-4">
+          <Link
+            to="/signup"
+            className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            Sign Up
+          </Link>
+          <Link
+            to="/login"
+            className="px-6 py-3 bg-white text-blue-600 font-semibold border-2 border-blue-600 rounded-lg hover:bg-blue-50 transition-colors"
+          >
+            Log In
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/signup" element={<Signup />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/login2" element={<Login2 />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/projectboard" element={<ProjectBoard />} />
+        <Route path="/tasks" element={<Tasks />} />
+        <Route path="/team" element={<Team />} />
+      </Routes>
+    </BrowserRouter>
+  );
+}
+
+export default App;
