@@ -1,12 +1,13 @@
 import React from "react";
 import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
-import Signup from "./pages/auth pages/signup";
-import Login from "./pages/auth pages/login";
-import Login2 from "./pages/auth pages/login2";
+import Signup from "./pages/auth pages/Register";
+import Login from "./pages/auth pages/Login";
+import Login2 from "./pages/auth pages/Welcome";
 import Dashboard from "./pages/Dashboard";
 import ProjectBoard from "./pages/ProjectBoard";
 import Tasks from "./pages/Tasks";
 import Team from "./pages/Team";
+import { useAuthListener } from "./hooks/useAuthListener";
 
 function Home() {
   return (
@@ -41,6 +42,7 @@ function Home() {
 }
 
 function App() {
+  useAuthListener();
   return (
     <BrowserRouter>
       <Routes>

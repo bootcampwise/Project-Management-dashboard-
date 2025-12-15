@@ -1,6 +1,10 @@
 import React, { useState } from 'react';
 import { X, User } from 'lucide-react';
 import { useTheme } from '../hooks/useTheme';
+import { useDispatch } from 'react-redux';
+import { signOut } from '../store/slices/authSlice';
+import type { AppDispatch } from '../store';
+import { useNavigate } from 'react-router-dom';
 
 interface SettingsModalProps {
     isOpen: boolean;
@@ -8,9 +12,18 @@ interface SettingsModalProps {
     initialTab?: string;
 }
 
+
 const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, initialTab = 'Profile' }) => {
     const [activeTab, setActiveTab] = useState(initialTab);
     const { theme, toggleTheme } = useTheme();
+    const dispatch = useDispatch<AppDispatch>();
+    const navigate = useNavigate();
+
+    const handleLogout = async () => {
+        await dispatch(signOut());
+        onClose();
+        navigate('/signup');
+    };
 
     React.useEffect(() => {
         if (isOpen) {
@@ -417,9 +430,17 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, initialT
                             </button>
                         </div>
                         {activeTab === 'Profile' && (
-                            <button className="px-4 py-2 text-red-500 rounded-md text-sm font-medium hover:bg-red-50 border border-red-200">
-                                Delete account
-                            </button>
+                            <div className="flex gap-2">
+                                <button
+                                    onClick={handleLogout}
+                                    className="px-4 py-2 text-red-500 rounded-md text-sm font-medium hover:bg-red-50 border border-red-200"
+                                >
+                                    Log out
+                                </button>
+                                <button className="px-4 py-2 text-red-500 rounded-md text-sm font-medium hover:bg-red-50 border border-red-200">
+                                    Delete account
+                                </button>
+                            </div>
                         )}
                     </div>
                 </div>

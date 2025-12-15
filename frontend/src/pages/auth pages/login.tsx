@@ -1,6 +1,15 @@
 import React from 'react';
+import { useDispatch } from 'react-redux';
+import { signInWithGoogle } from '../../store/slices/authSlice';
+import type { AppDispatch } from '../../store';
 
 const LoginPage: React.FC = () => {
+    const dispatch = useDispatch<AppDispatch>();
+
+    const handleGoogleSignIn = () => {
+        dispatch(signInWithGoogle());
+    };
+
     return (
         <>
             <style>{`
@@ -257,7 +266,11 @@ const LoginPage: React.FC = () => {
 
                             {/* Social Login */}
                             <div className="flex items-center justify-center gap-8 py-2">
-                                <button className="flex items-center gap-2 text-[#F57D2C] hover:text-gray-900 text-sm font-medium">
+                                <button
+                                    type="button"
+                                    onClick={handleGoogleSignIn}
+                                    className="flex items-center gap-2 text-[#F57D2C] hover:text-gray-900 text-sm font-medium"
+                                >
                                     <img src="/google.png" alt="Google" className="w-5 h-5" />
                                     Google
                                 </button>

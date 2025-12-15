@@ -1,6 +1,12 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 
 const WelcomeScreen: React.FC = () => {
+    const navigate = useNavigate();
+
+    const handleGetStarted = () => {
+        navigate("/dashboard");
+    };
     return (
         <div className="min-h-screen bg-white flex flex-col items-center justify-center p-4 font-sans text-gray-900">
 
@@ -72,6 +78,7 @@ const WelcomeScreen: React.FC = () => {
                         cursor: "pointer",
                     }}
                     className="hover:bg-blue-600 transition-all"
+                    onClick={handleGetStarted}
                 >
                     Get Started
                 </button>
