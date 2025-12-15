@@ -1,8 +1,9 @@
 import React from "react";
 import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
-import Signup from "./pages/auth pages/Register";
+import Register from "./pages/auth pages/Register";
 import Login from "./pages/auth pages/Login";
-import Login2 from "./pages/auth pages/Welcome";
+import WelcomeScreen from "./pages/auth pages/Welcome";
+import Signup from "./pages/auth pages/Signup";
 import Dashboard from "./pages/Dashboard";
 import ProjectBoard from "./pages/ProjectBoard";
 import Tasks from "./pages/Tasks";
@@ -24,7 +25,7 @@ function Home() {
         </p>
         <div className="flex gap-4 mt-4">
           <Link
-            to="/signup"
+            to="/register"
             className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors"
           >
             Sign Up
@@ -47,9 +48,10 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/register" element={<Register />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/login2" element={<Login2 />} />
+        <Route path="/welcome" element={<WelcomeScreen />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/projectboard" element={<ProjectBoard />} />
         <Route path="/tasks" element={<Tasks />} />

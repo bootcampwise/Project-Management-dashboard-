@@ -1,10 +1,11 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import AuthButton from "../../components/AuthButton";
 import { useDispatch } from "react-redux";
 import { signInWithGoogle, signInWithGithub } from "../../store/slices/authSlice";
 import type { AppDispatch } from "../../store";
 
-const SignIn: React.FC = () => {
+const Register: React.FC = () => {
     const dispatch = useDispatch<AppDispatch>();
     const [email, setEmail] = useState("");
 
@@ -60,6 +61,7 @@ const SignIn: React.FC = () => {
                         fontSize: "30px",
                         lineHeight: "38px",
                         marginBottom: "16px",
+                        color: 'var(--color-gray-900)'
                     }}
                 >
                     Sign in
@@ -85,7 +87,7 @@ const SignIn: React.FC = () => {
                         marginTop: "16px",
                     }}
                 >
-                    <div className="w-full" style={{ borderTop: "1px solid #ECEDF0" }}></div>
+                    <div className="w-full" style={{ borderTop: `1px solid var(--color-gray-divider)` }}></div>
                 </div>
 
                 {/* EMAIL INPUT */}
@@ -115,7 +117,7 @@ const SignIn: React.FC = () => {
                             maxWidth: "400px",
                             height: "36px",
                             padding: "7px 16px",
-                            border: "1px solid #D1D5DB",
+                            border: `1px solid var(--color-gray-border-input)`,
                             borderRadius: "4px",
                             fontFamily: "Inter, sans-serif",
                             fontSize: "14px",
@@ -132,7 +134,7 @@ const SignIn: React.FC = () => {
                             fontWeight: 400,
                             fontSize: "12px",
                             lineHeight: "18px",
-                            color: "#8F929C",
+                            color: 'var(--color-gray-text)',
                             opacity: 1,
                         }}
                     >
@@ -146,21 +148,29 @@ const SignIn: React.FC = () => {
                     style={{
                         maxWidth: "400px",
                         height: "36px",
-                        backgroundColor: "#6696F5",
+                        backgroundColor: 'var(--color-brand-blue)',
                         borderRadius: "4px",
                         padding: "7px 16px",
-                        color: "#FFFFFF",
+                        color: 'white', // Reverting to plain white or defining a white variable if strictly needed
                         fontFamily: "Inter, sans-serif",
                         fontSize: "14px",
                         fontWeight: 500,
                         lineHeight: "22px",
-                        marginBottom: "162px",
+                        marginBottom: "16px",
                     }}
                 >
                     Continue
                 </button>
 
+                <div className="flex gap-2 text-md text-gray-400 font-medium font-inter mb-[128px]">
+                    Already have account?
+                    <Link to="/login" className="text-blue-500 hover:text-blue-600">
+                        Login
+                    </Link>
+                </div>
+
             </div>
+
 
             {/* FOOTER */}
             <footer
@@ -168,7 +178,7 @@ const SignIn: React.FC = () => {
                 style={{
                     fontFamily: "Inter, sans-serif",
                     fontSize: "14px",
-                    color: "#8F929C",
+                    color: 'var(--color-gray-text)',
                     marginTop: "32px",
                     paddingBottom: "32px"
                 }}
@@ -183,4 +193,4 @@ const SignIn: React.FC = () => {
     );
 };
 
-export default SignIn;
+export default Register;

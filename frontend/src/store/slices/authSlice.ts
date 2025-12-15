@@ -4,6 +4,7 @@ import {
   type PayloadAction,
 } from "@reduxjs/toolkit";
 import { supabase } from "../../lib/supabase";
+import { apiClient } from "../../lib/apiClient";
 
 interface User {
   id: string;
@@ -58,6 +59,67 @@ export const signInWithGithub = createAsyncThunk(
 
       if (error) throw error;
       return data;
+    } catch (error: any) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+export const signUpWithEmail = createAsyncThunk(
+  "auth/signUpWithEmail",
+  async (
+    { email, password }: { email: string; password: string },
+    { rejectWithValue }
+  ) => {
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+      });
+
+      if (error) throw error;
+      return data.user;
+    } catch (error: any) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+export const signInWithEmail = createAsyncThunk(
+  "auth/signInWithEmail",
+  async (
+    { email, password }: { email: string; password: string },
+    { rejectWithValue }
+  ) => {
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) throw error;
+
+      // Create/get backend profile
+      if (data.user) {
+        await apiClient.post("/users/profile", {
+          name: data.user.user_metadata?.full_name,
+          avatar: data.user.user_metadata?.avatar_url,
+        });
+      }
+
+      return data.user;
+    } catch (error: any) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+export const createBackendProfile = createAsyncThunk(
+  "auth/createBackendProfile",
+  async (_, { rejectWithValue }) => {
+    try {
+      const user = await apiClient.post("/users/profile", {});
+      return user;
     } catch (error: any) {
       return rejectWithValue(error.message);
     }
@@ -160,6 +222,50 @@ const authSlice = createSlice({
       .addCase(signOut.fulfilled, (state) => {
         state.user = null;
         state.isAuthenticated = false;
+      })
+      // Sign Up with Email
+      .addCase(signUpWithEmail.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(signUpWithEmail.fulfilled, (state, action) => {
+        state.isLoading = false;
+        if (action.payload) {
+          const user = action.payload;
+          state.user = {
+            id: user.id,
+            email: user.email || "",
+            name: user.user_metadata?.full_name || user.email || "User",
+            avatar: user.user_metadata?.avatar_url,
+          };
+          state.isAuthenticated = true;
+        }
+      })
+      .addCase(signUpWithEmail.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+      })
+      // Sign In with Email
+      .addCase(signInWithEmail.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(signInWithEmail.fulfilled, (state, action) => {
+        state.isLoading = false;
+        if (action.payload) {
+          const user = action.payload;
+          state.user = {
+            id: user.id,
+            email: user.email || "",
+            name: user.user_metadata?.full_name || user.email || "User",
+            avatar: user.user_metadata?.avatar_url,
+          };
+          state.isAuthenticated = true;
+        }
+      })
+      .addCase(signInWithEmail.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
       });
   },
 });

@@ -1,13 +1,28 @@
-import React from 'react';
-import { useDispatch } from 'react-redux';
-import { signInWithGoogle } from '../../store/slices/authSlice';
-import type { AppDispatch } from '../../store';
+import React, { useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import { signInWithGoogle, signInWithEmail } from '../../store/slices/authSlice';
+import type { AppDispatch, RootState } from '../../store';
 
 const LoginPage: React.FC = () => {
     const dispatch = useDispatch<AppDispatch>();
+    const navigate = useNavigate();
+    const { isLoading, error } = useSelector((state: RootState) => state.auth);
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
 
     const handleGoogleSignIn = () => {
         dispatch(signInWithGoogle());
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        try {
+            await dispatch(signInWithEmail({ email, password })).unwrap();
+            navigate('/dashboard');
+        } catch (err) {
+            console.error('Login failed:', err);
+        }
     };
 
     return (
@@ -60,14 +75,14 @@ const LoginPage: React.FC = () => {
                         borderRadius: '8px',
                         borderWidth: '1px',
                         borderStyle: 'solid',
-                        borderColor: '#E5E7EB',
+                        borderColor: 'var(--color-gray-border)',
                     }}
                 >
                     {/* LEFT PANEL */}
                     <div
                         className="hidden md:flex flex-col md:w-1/2"
                         style={{
-                            backgroundColor: '#FCF9F7',
+                            backgroundColor: 'var(--color-bg-off-white)',
                             padding: '48px 36px 36px 36px',
                             position: 'relative'
                         }}
@@ -79,7 +94,7 @@ const LoginPage: React.FC = () => {
                                 <span
                                     className="inline-flex items-center gap-1 rounded-full text-xs font-bold text-white"
                                     style={{
-                                        backgroundColor: '#F57D2C',
+                                        backgroundColor: 'var(--color-brand-orange)',
                                         padding: '4px 10px',
                                         fontSize: '11px',
                                         fontWeight: 700
@@ -105,7 +120,7 @@ const LoginPage: React.FC = () => {
                                         fontFamily: 'Inter, sans-serif',
                                         fontSize: '18px',
                                         fontWeight: 700,
-                                        color: '#111827',
+                                        color: 'var(--color-gray-900)',
                                         letterSpacing: '-0.01em'
                                     }}
                                 >
@@ -121,7 +136,7 @@ const LoginPage: React.FC = () => {
                                     fontSize: '14.9px',
                                     lineHeight: '21px',
                                     letterSpacing: '0%',
-                                    color: '#000000',
+                                    color: 'var(--color-gray-900)',
                                     marginBottom: '0',
                                     maxWidth: '380px'
                                 }}
@@ -134,7 +149,7 @@ const LoginPage: React.FC = () => {
                                     href="#"
                                     className="font-semibold hover:underline"
                                     style={{
-                                        color: '#F57D2C',
+                                        color: 'var(--color-brand-orange)',
                                         textDecoration: 'none',
                                         fontWeight: 600
                                     }}
@@ -164,13 +179,13 @@ const LoginPage: React.FC = () => {
                                     width: '100%',
                                     height: '180px',
                                     borderRadius: '8px',
-                                    backgroundColor: '#FCF9F7',
+                                    backgroundColor: 'var(--color-bg-off-white)',
                                     position: 'relative',
                                     display: 'flex',
                                     alignItems: 'flex-end',
                                     justifyContent: 'center',
                                     paddingBottom: '0',
-                                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.06)'
+                                    boxShadow: `0 2px 8px var(--shadow-light), 0 1px 3px var(--shadow-dark)`
                                 }}
                             >
                                 {/* White box at bottom of middle container with soft glow */}
@@ -178,7 +193,7 @@ const LoginPage: React.FC = () => {
                                     style={{
                                         width: '180px',
                                         height: '36px',
-                                        backgroundColor: '#fcf9f9ff',
+                                        backgroundColor: 'var(--color-bg-white-glow)',
                                         borderRadius: '2px',
                                         boxShadow: '0 10px 40px 20px rgba(241, 241, 241, 1), 0 6px 25px 12px rgba(209, 213, 219, 0.5), 0 2px 10px 5px rgba(0, 0, 0, 0.05)',
                                         position: 'absolute',
@@ -202,7 +217,7 @@ const LoginPage: React.FC = () => {
                             Log in to your account
                         </h2>
 
-                        <form className="space-y-4">
+                        <form className="space-y-4" onSubmit={handleSubmit}>
                             {/* Email */}
                             <div>
                                 <label
@@ -213,7 +228,7 @@ const LoginPage: React.FC = () => {
                                         fontSize: '13.2px',
                                         lineHeight: '22.5px',
                                         letterSpacing: '0%',
-                                        color: '#000000'
+                                        color: 'var(--color-gray-900)'
                                     }}
                                 >
                                     Email Address <span className="text-black">*</span>
@@ -221,6 +236,9 @@ const LoginPage: React.FC = () => {
                                 <input
                                     type="email"
                                     placeholder="name@company.com"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    required
                                     className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-200 focus:border-blue-400 outline-none text-gray-700 placeholder-gray-400"
                                 />
                             </div>
@@ -251,17 +269,26 @@ const LoginPage: React.FC = () => {
                                 <input
                                     type="password"
                                     placeholder="Password"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    required
                                     className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-200 focus:border-blue-400 outline-none text-gray-700 placeholder-gray-400"
                                 />
                             </div>
 
                             {/* Login Button */}
+                            {error && (
+                                <div className="text-red-600 text-sm text-center">
+                                    {error}
+                                </div>
+                            )}
                             <button
-                                type="button"
-                                className="w-full py-3 rounded-md text-white font-bold text-sm shadow-sm hover:opacity-90 transition-opacity"
-                                style={{ backgroundColor: '#A5C2F8' }}
+                                type="submit"
+                                disabled={isLoading}
+                                className="w-full py-3 rounded-md text-white font-bold text-sm shadow-sm hover:opacity-90 transition-opacity disabled:opacity-50"
+                                style={{ backgroundColor: 'var(--color-brand-blue-light)' }}
                             >
-                                Log in
+                                {isLoading ? 'Logging in...' : 'Log in'}
                             </button>
 
                             {/* Social Login */}
@@ -269,13 +296,17 @@ const LoginPage: React.FC = () => {
                                 <button
                                     type="button"
                                     onClick={handleGoogleSignIn}
-                                    className="flex items-center gap-2 text-[#F57D2C] hover:text-gray-900 text-sm font-medium"
+                                    className="flex items-center gap-2 hover:text-gray-900 text-sm font-medium"
+                                    style={{ color: 'var(--color-brand-orange)' }}
                                 >
                                     <img src="/google.png" alt="Google" className="w-5 h-5" />
                                     Google
                                 </button>
                                 <div className="h-5 w-px bg-gray-300"></div>
-                                <button className="flex items-center gap-2 text-[#F57D2C] hover:text-gray-900 text-sm font-medium">
+                                <button
+                                    className="flex items-center gap-2 hover:text-gray-900 text-sm font-medium"
+                                    style={{ color: 'var(--color-brand-orange)' }}
+                                >
                                     <img src="/microsoft.png" alt="Microsoft" className="w-5 h-5" />
                                     Microsoft
                                 </button>
@@ -292,7 +323,7 @@ const LoginPage: React.FC = () => {
                                     lineHeight: '100%',
                                     letterSpacing: '0%',
                                     textAlign: 'center',
-                                    color: '#000000'
+                                    color: 'var(--color-gray-900)'
                                 }}
                             >
                                 Sign in with your identity provider (SSO/SAML)
@@ -310,7 +341,7 @@ const LoginPage: React.FC = () => {
                                         lineHeight: '16.5px',
                                         letterSpacing: '0%',
                                         textAlign: 'center',
-                                        color: '#000000'
+                                        color: 'var(--color-gray-900)'
                                     }}
                                 >
                                     OR
@@ -328,15 +359,16 @@ const LoginPage: React.FC = () => {
                                         lineHeight: '22.5px',
                                         letterSpacing: '0%',
                                         textAlign: 'center',
-                                        color: '#000000'
+                                        color: 'var(--color-gray-900)'
                                     }}
                                 >
                                     Don't have an account?
                                 </p>
                                 <button
                                     type="button"
+                                    onClick={() => navigate('/signup')}
                                     className="w-auto px-8 py-3 border-2 rounded-md font-bold text-sm transition-colors"
-                                    style={{ borderColor: '#E2E2E2', color: '#F57D2C' }}
+                                    style={{ borderColor: 'var(--color-gray-border-light)', color: 'var(--color-brand-orange)' }}
                                 >
                                     Sign up for free
                                 </button>
