@@ -11,4 +11,6 @@ export interface UpdateUserInput {
   jobTitle?: string;
   profileBio?: string;
   specificRole?: string;
+  department?: string;
+  hasCompletedOnboarding?: boolean;
 }

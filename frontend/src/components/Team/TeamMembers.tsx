@@ -1,17 +1,9 @@
 import React from 'react';
 
-interface Member {
-    id: number;
-    name: string;
-    email: string;
-    position: string;
-    groups: string[];
-    location: string;
-    avatar: string;
-}
+import type { TeamMember } from '../../types';
 
 const TeamMembers: React.FC = () => {
-    const members: Member[] = [
+    const members: TeamMember[] = [
         {
             id: 1,
             name: "Hanna Rodgers",

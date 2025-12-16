@@ -1,13 +1,15 @@
 import { Router } from "express";
-import { UserController } from "./user.controller";
-import { authMiddleware } from "../../middlewares/auth.middleware";
+import { UserController } from "../controllers/user.controller";
+import { authMiddleware as authenticate } from "../middlewares/auth.middleware";
 
 const router = Router();
-const userController = new UserController();
+const controller = new UserController();
 
-router.post("/profile", authMiddleware, userController.createOrGetProfile);
-router.get("/me", authMiddleware, userController.getMe);
-router.patch("/me", authMiddleware, userController.updateMe);
-router.delete("/me", authMiddleware, userController.deleteMe);
+router.use(authenticate);
+
+router.post("/profile", controller.createProfile.bind(controller));
+router.get("/profile", controller.getProfile.bind(controller));
+router.patch("/profile", controller.updateProfile);
+router.delete("/profile", controller.deleteAccount);
 
 export default router;

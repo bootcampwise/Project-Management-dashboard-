@@ -6,19 +6,7 @@ import {
 import { supabase } from "../../lib/supabase";
 import { apiClient } from "../../lib/apiClient";
 
-interface User {
-  id: string;
-  email: string;
-  name: string;
-  avatar?: string;
-}
-
-interface AuthState {
-  user: User | null;
-  isAuthenticated: boolean;
-  isLoading: boolean;
-  error: string | null;
-}
+import type { User, AuthState } from "../../types";
 
 const initialState: AuthState = {
   user: null,
@@ -34,14 +22,20 @@ export const signInWithGoogle = createAsyncThunk(
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/login2`,
+          redirectTo: `${window.location.origin}/welcome`,
         },
       });
 
       if (error) throw error;
       return data;
-    } catch (error: any) {
-      return rejectWithValue(error.message);
+    } catch (err: unknown) {
+      let message = "An unexpected error occurred";
+      if (err instanceof Error) {
+        message = err.message;
+      } else if (typeof err === "string") {
+        message = err;
+      }
+      return rejectWithValue(message);
     }
   }
 );
@@ -53,14 +47,20 @@ export const signInWithGithub = createAsyncThunk(
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: "github",
         options: {
-          redirectTo: `${window.location.origin}/login2`,
+          redirectTo: `${window.location.origin}/welcome`,
         },
       });
 
       if (error) throw error;
       return data;
-    } catch (error: any) {
-      return rejectWithValue(error.message);
+    } catch (err: unknown) {
+      let message = "An unexpected error occurred";
+      if (err instanceof Error) {
+        message = err.message;
+      } else if (typeof err === "string") {
+        message = err;
+      }
+      return rejectWithValue(message);
     }
   }
 );
@@ -78,9 +78,36 @@ export const signUpWithEmail = createAsyncThunk(
       });
 
       if (error) throw error;
+
+      // Create backend profile
+      if (data.user) {
+        // Initial create/ensure profile exists
+        await apiClient.post("/users/profile", {
+          name: data.user.user_metadata?.full_name || email.split("@")[0],
+          avatar: data.user.user_metadata?.avatar_url,
+          email: email,
+        });
+
+        // Now fetch full profile to get hasCompletedOnboarding
+        const backendUser = await apiClient.get<User>("/users/profile");
+        return {
+          ...data.user,
+          ...backendUser,
+          id: data.user.id,
+          email: data.user.email,
+          createdAt: data.user.created_at,
+        };
+      }
+
       return data.user;
-    } catch (error: any) {
-      return rejectWithValue(error.message);
+    } catch (err: unknown) {
+      let message = "An unexpected error occurred";
+      if (err instanceof Error) {
+        message = err.message;
+      } else if (typeof err === "string") {
+        message = err;
+      }
+      return rejectWithValue(message);
     }
   }
 );
@@ -101,15 +128,32 @@ export const signInWithEmail = createAsyncThunk(
 
       // Create/get backend profile
       if (data.user) {
+        // Initial create/ensure profile exists
         await apiClient.post("/users/profile", {
           name: data.user.user_metadata?.full_name,
           avatar: data.user.user_metadata?.avatar_url,
         });
+
+        // Now fetch full profile to get hasCompletedOnboarding
+        const backendUser = await apiClient.get<User>("/users/profile");
+        return {
+          ...data.user,
+          ...backendUser,
+          id: data.user.id,
+          email: data.user.email,
+          createdAt: data.user.created_at,
+        };
       }
 
       return data.user;
-    } catch (error: any) {
-      return rejectWithValue(error.message);
+    } catch (err: unknown) {
+      let message = "An unexpected error occurred";
+      if (err instanceof Error) {
+        message = err.message;
+      } else if (typeof err === "string") {
+        message = err;
+      }
+      return rejectWithValue(message);
     }
   }
 );
@@ -120,8 +164,14 @@ export const createBackendProfile = createAsyncThunk(
     try {
       const user = await apiClient.post("/users/profile", {});
       return user;
-    } catch (error: any) {
-      return rejectWithValue(error.message);
+    } catch (err: unknown) {
+      let message = "An unexpected error occurred";
+      if (err instanceof Error) {
+        message = err.message;
+      } else if (typeof err === "string") {
+        message = err;
+      }
+      return rejectWithValue(message);
     }
   }
 );
@@ -135,9 +185,60 @@ export const checkSession = createAsyncThunk(
         error,
       } = await supabase.auth.getSession();
       if (error) throw error;
-      return session?.user || null;
-    } catch (error: any) {
-      return rejectWithValue(error.message);
+
+      if (!session?.user) return null;
+
+      try {
+        // Fetch backend profile to get full user data including hasCompletedOnboarding
+        const response = await apiClient.get<User>("/users/profile");
+        const backendUser = response;
+
+        return {
+          ...session.user,
+          ...backendUser,
+          id: session.user.id,
+          email: session.user.email,
+          createdAt: session.user.created_at,
+        };
+      } catch (err) {
+        // Fallback if backend profile fetch fails
+        return {
+          id: session.user.id,
+          email: session.user.email,
+          name:
+            session.user.user_metadata?.full_name ||
+            session.user.email ||
+            "User",
+          avatar: session.user.user_metadata?.avatar_url,
+          createdAt: session.user.created_at,
+        };
+      }
+    } catch (err: unknown) {
+      let message = "An unexpected error occurred";
+      if (err instanceof Error) {
+        message = err.message;
+      } else if (typeof err === "string") {
+        message = err;
+      }
+      return rejectWithValue(message);
+    }
+  }
+);
+
+export const updateUserProfile = createAsyncThunk(
+  "auth/updateUserProfile",
+  async (userData: Partial<User>, { rejectWithValue }) => {
+    try {
+      const data = await apiClient.patch<User>("/users/profile", userData);
+      return data;
+    } catch (err: unknown) {
+      let message = "An unexpected error occurred";
+      if (err instanceof Error) {
+        message = err.message;
+      } else if (typeof err === "string") {
+        message = err;
+      }
+      return rejectWithValue(message);
     }
   }
 );
@@ -148,8 +249,14 @@ export const signOut = createAsyncThunk(
     try {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
-    } catch (error: any) {
-      return rejectWithValue(error.message);
+    } catch (err: unknown) {
+      let message = "An unexpected error occurred";
+      if (err instanceof Error) {
+        message = err.message;
+      } else if (typeof err === "string") {
+        message = err;
+      }
+      return rejectWithValue(message);
     }
   }
 );
@@ -201,13 +308,9 @@ const authSlice = createSlice({
       .addCase(checkSession.fulfilled, (state, action) => {
         state.isLoading = false;
         if (action.payload) {
-          const user = action.payload;
-          state.user = {
-            id: user.id,
-            email: user.email || "",
-            name: user.user_metadata?.full_name || user.email || "User",
-            avatar: user.user_metadata?.avatar_url,
-          };
+          // payload is now the merged user object
+          // @ts-ignore
+          state.user = action.payload;
           state.isAuthenticated = true;
         } else {
           state.user = null;
@@ -215,6 +318,20 @@ const authSlice = createSlice({
         }
       })
       .addCase(checkSession.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+      })
+      // Update User Profile
+      .addCase(updateUserProfile.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(updateUserProfile.fulfilled, (state, action) => {
+        state.isLoading = false;
+        if (state.user) {
+          state.user = { ...state.user, ...action.payload };
+        }
+      })
+      .addCase(updateUserProfile.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string;
       })
@@ -253,13 +370,8 @@ const authSlice = createSlice({
       .addCase(signInWithEmail.fulfilled, (state, action) => {
         state.isLoading = false;
         if (action.payload) {
-          const user = action.payload;
-          state.user = {
-            id: user.id,
-            email: user.email || "",
-            name: user.user_metadata?.full_name || user.email || "User",
-            avatar: user.user_metadata?.avatar_url,
-          };
+          // @ts-ignore
+          state.user = action.payload;
           state.isAuthenticated = true;
         }
       })

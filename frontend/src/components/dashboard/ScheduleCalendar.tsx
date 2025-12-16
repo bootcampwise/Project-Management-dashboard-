@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
-type Tab = 'Events' | 'Meetings' | 'Holidays';
+import type { ScheduleCalendarTab } from '../../types';
 
 const ScheduleCalendar: React.FC = () => {
-    const [activeTab, setActiveTab] = useState<Tab>('Meetings');
+    const [activeTab, setActiveTab] = useState<ScheduleCalendarTab>('Meetings');
     const [currentMonthIndex, setCurrentMonthIndex] = useState(7); // 7 = August (0-indexed)
 
     const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
@@ -83,7 +83,7 @@ const ScheduleCalendar: React.FC = () => {
 
             {/* Tabs */}
             <div className="bg-gray-50 p-1 rounded-lg flex mb-3 shrink-0">
-                {(['Events', 'Meetings', 'Holidays'] as Tab[]).map((tab) => (
+                {(['Events', 'Meetings', 'Holidays'] as ScheduleCalendarTab[]).map((tab) => (
                     <button
                         key={tab}
                         onClick={() => setActiveTab(tab)}

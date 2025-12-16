@@ -1,11 +1,6 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 
-interface ProjectState {
-  activeTab: string;
-  isCreateModalOpen: boolean;
-  isTeamModalOpen: boolean;
-  isTemplateLibraryOpen: boolean;
-}
+import type { ProjectState } from "../../types";
 
 const initialState: ProjectState = {
   activeTab: "Board",

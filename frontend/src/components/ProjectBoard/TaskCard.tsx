@@ -1,17 +1,9 @@
 import React from 'react';
 import { MessageSquare, Paperclip } from 'lucide-react';
 
-interface TaskCardProps {
-    title: string;
-    tags?: { text: string; color: string; bg: string }[];
-    assignee: { name: string; avatar?: string };
-    comments: number;
-    attachments: number;
-    date: string;
-    onClick?: () => void;
-}
+import type { TaskCardComponentProps } from '../../types';
 
-const TaskCard: React.FC<TaskCardProps> = ({ title, tags = [], assignee, comments, attachments, date, onClick }) => {
+const TaskCard: React.FC<TaskCardComponentProps> = ({ title, tags = [], assignee, comments, attachments, date, onClick }) => {
     // Generate initials if no avatar
     const initials = assignee.name
         .split(' ')

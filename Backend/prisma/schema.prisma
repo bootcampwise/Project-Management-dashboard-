@@ -81,8 +81,10 @@ model User {
   role          Role           @default(MEMBER)
   specificRole  SpecificRole?
   jobTitle      String?
+  department    String?
   profileBio    String?
   isActive      Boolean        @default(true)
+  hasCompletedOnboarding Boolean @default(false)
 
   settings      UserSettings?
 

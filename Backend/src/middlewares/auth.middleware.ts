@@ -26,7 +26,7 @@ export interface AuthRequest extends Request {
     sub: string; // Supabase user ID
     email?: string;
     role?: string;
-    [key: string]: any;
+    [key: string]: unknown;
   };
 }
 
@@ -49,7 +49,6 @@ export function authMiddleware(
     getKey,
     {
       audience: "authenticated",
-      issuer: `${env.SUPABASE_URL}/auth/v1`,
       algorithms: ["RS256"],
     },
     (err, decoded) => {

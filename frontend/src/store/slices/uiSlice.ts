@@ -1,14 +1,6 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 
-interface UiState {
-  sidebarOpen: boolean;
-  isSettingsOpen: boolean;
-  sidebarSections: {
-    mobileApp: boolean;
-    diadora: boolean;
-  };
-  theme: "light" | "dark";
-}
+import type { UiState } from "../../types";
 
 const initialState: UiState = {
   sidebarOpen: window.innerWidth >= 768,

@@ -1,28 +1,28 @@
-import { prisma } from "../../config/prisma";
-import { AppError } from "../../middlewares/error.middleware";
-import { CreateUserInput, UpdateUserInput } from "./user.types";
+import { AppError } from "../middlewares/error.middleware";
+import { CreateUserInput, UpdateUserInput } from "../types/user.types";
+import { UserRepository } from "../repositories/user.repository";
 
 export class UserService {
+  private userRepository: UserRepository;
+
+  constructor() {
+    this.userRepository = new UserRepository();
+  }
+
   async findOrCreateUser(
     supabaseId: string,
     email: string,
     name?: string,
     avatar?: string
   ) {
-    let user = await prisma.user.findUnique({
-      where: { supabaseId },
-      include: { settings: true },
-    });
+    let user = await this.userRepository.findUnique({ supabaseId });
 
     if (!user) {
-      user = await prisma.user.create({
-        data: {
-          supabaseId,
-          email,
-          name,
-          avatar,
-        },
-        include: { settings: true },
+      user = await this.userRepository.create({
+        supabaseId,
+        email,
+        name,
+        avatar,
       });
     }
 
@@ -30,20 +30,9 @@ export class UserService {
   }
 
   async getUserBySupabaseId(supabaseId: string) {
-    const user = await prisma.user.findUnique({
-      where: { supabaseId },
-      include: {
-        settings: true,
-        ownedProjects: {
-          select: {
-            id: true,
-            name: true,
-            key: true,
-            status: true,
-          },
-        },
-      },
-    });
+    const user = await this.userRepository.findBySupabaseIdWithProjects(
+      supabaseId
+    );
 
     if (!user) {
       throw new AppError(404, "User not found");
@@ -53,17 +42,10 @@ export class UserService {
   }
 
   async updateUser(supabaseId: string, data: UpdateUserInput) {
-    const user = await prisma.user.update({
-      where: { supabaseId },
-      data,
-    });
-
-    return user;
+    return this.userRepository.update(supabaseId, data);
   }
 
   async deleteUser(supabaseId: string) {
-    await prisma.user.delete({
-      where: { supabaseId },
-    });
+    await this.userRepository.delete(supabaseId);
   }
 }

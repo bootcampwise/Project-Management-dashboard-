@@ -1,12 +1,9 @@
 import React from 'react';
 import { X, FileText } from 'lucide-react';
 
-interface NotificationProps {
-    isOpen: boolean;
-    onClose: () => void;
-}
+import type { NotificationsPopupProps } from '../../types';
 
-const NotificationsPopup: React.FC<NotificationProps> = ({ isOpen, onClose }) => {
+const NotificationsPopup: React.FC<NotificationsPopupProps> = ({ isOpen, onClose }) => {
     if (!isOpen) return null;
 
     return (

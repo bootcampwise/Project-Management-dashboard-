@@ -1,13 +1,5 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
-import type { Task, BoardColumn } from "../../types";
-
-interface TaskState {
-  activeView: "kanban" | "list";
-  columns: BoardColumn[];
-  selectedTask: Task | null;
-  isCreateTaskModalOpen: boolean;
-  modalInitialStatus: string | undefined;
-}
+import type { Task, BoardColumn, TaskState } from "../../types";
 
 // Initial Mock Data
 const initialColumns: BoardColumn[] = [

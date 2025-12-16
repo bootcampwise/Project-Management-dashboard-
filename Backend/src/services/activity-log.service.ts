@@ -1,4 +1,49 @@
-// ActivityLog Service - TODO: Implement activity log business logic
+import { ActivityLogRepository } from "../repositories/activity-log.repository";
+
 export class ActivityLogService {
-  // TODO: Add service methods
+  private activityLogRepository: ActivityLogRepository;
+
+  constructor() {
+    this.activityLogRepository = new ActivityLogRepository();
+  }
+
+  async logActivity(data: {
+    userId: string;
+    action: string;
+    entityType: string;
+    entityId: string;
+    message?: string;
+    metadata?: any;
+    projectId?: string;
+  }) {
+    const {
+      userId,
+      action,
+      message,
+      entityType,
+      entityId,
+      metadata,
+      projectId,
+    } = data;
+
+    return this.activityLogRepository.create({
+      userId,
+      action,
+      message: message || `${action} on ${entityType}`,
+      metadata: {
+        ...metadata,
+        entityType,
+        entityId,
+        projectId,
+      },
+    });
+  }
+
+  async getUserActivity(userId: string, limit?: number) {
+    return this.activityLogRepository.findByUserId(userId);
+  }
+
+  async getRecentActivity(limit?: number) {
+    return this.activityLogRepository.findRecent(limit);
+  }
 }

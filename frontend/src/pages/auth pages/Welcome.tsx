@@ -1,12 +1,8 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import { useWelcome } from "../../hooks/useWelcome";
 
 const WelcomeScreen: React.FC = () => {
-    const navigate = useNavigate();
-
-    const handleGetStarted = () => {
-        navigate("/dashboard");
-    };
+    const { handleGetStarted } = useWelcome();
     return (
         <div className="min-h-screen bg-white flex flex-col items-center justify-center p-4 font-sans text-gray-900">
 

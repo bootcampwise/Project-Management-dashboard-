@@ -12,7 +12,6 @@ import {
     Calendar
 } from "lucide-react";
 import { useDashboard } from "../hooks/useDashboard";
-
 const Dashboard: React.FC = () => {
     const { sidebarOpen, setSidebarOpen } = useDashboard();
 
