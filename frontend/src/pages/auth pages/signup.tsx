@@ -281,12 +281,6 @@ const Signup: React.FC = () => {
                                         >
                                             Password <span className="text-black">*</span>
                                         </label>
-                                        <a
-                                            href="#"
-                                            className="text-sm text-blue-500 hover:text-blue-600 font-medium"
-                                        >
-                                            Forgot password?
-                                        </a>
                                     </div>
                                     <input
                                         type="password"
