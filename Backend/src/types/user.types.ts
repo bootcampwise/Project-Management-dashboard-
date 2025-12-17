@@ -1,3 +1,5 @@
+import { SpecificRole } from "@prisma/client";
+
 export interface CreateUserInput {
   supabaseId: string;
   email: string;
@@ -10,7 +12,8 @@ export interface UpdateUserInput {
   avatar?: string;
   jobTitle?: string;
   profileBio?: string;
-  specificRole?: string;
+  specificRole?: SpecificRole;
   department?: string;
+  supabaseId?: string;
   hasCompletedOnboarding?: boolean;
 }

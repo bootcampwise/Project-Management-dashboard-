@@ -20,4 +20,5 @@ export const env = {
 
   SUPABASE_URL: getEnv("SUPABASE_URL"),
   SUPABASE_ANON_KEY: getEnv("SUPABASE_ANON_KEY"),
+  SUPABASE_JWT_SECRET: getEnv("SUPABASE_JWT_SECRET"),
 };

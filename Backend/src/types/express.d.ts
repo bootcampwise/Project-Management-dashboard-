@@ -7,6 +7,8 @@ declare global {
         sub: string;
         email?: string;
         role?: string;
+        name?: string;
+        avatar?: string;
         [key: string]: unknown;
       };
     }

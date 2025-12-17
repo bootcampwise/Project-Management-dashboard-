@@ -1,5 +1,6 @@
 import React from "react";
 import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
+import { Toaster } from "react-hot-toast";
 import Register from "./pages/auth pages/Register";
 import Login from "./pages/auth pages/Login";
 import WelcomeScreen from "./pages/auth pages/Welcome";
@@ -46,6 +47,7 @@ function App() {
   useAuthListener();
   return (
     <BrowserRouter>
+      <Toaster position="top-right" />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/register" element={<Register />} />

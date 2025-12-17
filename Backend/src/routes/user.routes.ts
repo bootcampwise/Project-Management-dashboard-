@@ -7,9 +7,10 @@ const controller = new UserController();
 
 router.use(authenticate);
 
-router.post("/profile", controller.createProfile.bind(controller));
+router.post("/profile", controller.getProfile.bind(controller));
 router.get("/profile", controller.getProfile.bind(controller));
 router.patch("/profile", controller.updateProfile);
 router.delete("/profile", controller.deleteAccount);
+router.get("/", controller.getAllUsers.bind(controller));
 
 export default router;

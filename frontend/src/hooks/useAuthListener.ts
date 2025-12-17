@@ -16,17 +16,9 @@ export const useAuthListener = () => {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (_event, session) => {
       if (session?.user) {
-        dispatch(
-          setUser({
-            id: session.user.id,
-            email: session.user.email || "",
-            name:
-              session.user.user_metadata?.full_name ||
-              session.user.email ||
-              "User",
-            avatar: session.user.user_metadata?.avatar_url,
-          })
-        );
+        // Fetch full profile from backend to ensure we have custom fields (jobTitle, department)
+        // and the correct avatar, rather than relying on potentially stale Supabase metadata.
+        dispatch(checkSession());
       } else {
         dispatch(setUser(null));
       }

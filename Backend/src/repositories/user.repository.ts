@@ -1,5 +1,5 @@
 import { prisma } from "../config/prisma";
-import { CreateUserInput, UpdateUserInput } from "../types/user";
+import { CreateUserInput, UpdateUserInput } from "../types/user.types";
 
 export class UserRepository {
   async findUnique(
@@ -8,6 +8,19 @@ export class UserRepository {
     return prisma.user.findUnique({
       where,
       include: { settings: true },
+    });
+  }
+
+  async findAll() {
+    return prisma.user.findMany({
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        jobTitle: true,
+        department: true,
+        avatar: true,
+      },
     });
   }
 
@@ -39,6 +52,14 @@ export class UserRepository {
     return prisma.user.update({
       where: { supabaseId },
       data,
+    });
+  }
+
+  async updateById(id: string, data: UpdateUserInput) {
+    return prisma.user.update({
+      where: { id },
+      data,
+      include: { settings: true },
     });
   }
 

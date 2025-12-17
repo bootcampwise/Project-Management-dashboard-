@@ -232,7 +232,7 @@ export interface AuthState {
 }
 
 export interface TeamMember {
-  id: number;
+  id: number | string;
   name: string;
   email: string;
   position: string;

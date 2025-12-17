@@ -11,6 +11,8 @@ const LoginPage: React.FC = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 
+    const [isHovered, setIsHovered] = useState(false);
+
     const handleGoogleSignIn = () => {
         dispatch(signInWithGoogle());
     };
@@ -285,8 +287,10 @@ const LoginPage: React.FC = () => {
                             <button
                                 type="submit"
                                 disabled={isLoading}
-                                className="w-full py-3 rounded-md text-white font-bold text-sm shadow-sm hover:opacity-90 transition-opacity disabled:opacity-50"
-                                style={{ backgroundColor: 'var(--color-brand-blue-light)' }}
+                                onMouseEnter={() => setIsHovered(true)}
+                                onMouseLeave={() => setIsHovered(false)}
+                                className="w-full py-3 rounded-md text-white font-bold text-sm shadow-sm transition-colors disabled:opacity-50"
+                                style={{ backgroundColor: isHovered ? 'var(--color-blue-700)' : 'var(--color-brand-blue-light)' }}
                             >
                                 {isLoading ? 'Logging in...' : 'Log in'}
                             </button>

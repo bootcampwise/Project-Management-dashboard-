@@ -4,20 +4,13 @@ const API_BASE_URL =
   import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
 class ApiClient {
+  // Get headers with Supabase access token
   private async getAuthHeaders(): Promise<HeadersInit> {
     const {
       data: { session },
     } = await supabase.auth.getSession();
-    const token = session?.access_token;
 
-    if (token) {
-      try {
-        const header = JSON.parse(atob(token.split(".")[0]));
-        console.log("ACCESS TOKEN ALG:", header);
-      } catch (e) {
-        console.error("Error parsing token header:", e);
-      }
-    }
+    const token = session?.access_token;
 
     return {
       "Content-Type": "application/json",
@@ -25,65 +18,57 @@ class ApiClient {
     };
   }
 
+  // GET request
   async get<T>(endpoint: string): Promise<T> {
     const headers = await this.getAuthHeaders();
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    const res = await fetch(`${API_BASE_URL}${endpoint}`, {
       method: "GET",
       headers,
+      cache: "no-store",
     });
-
-    if (!response.ok) {
-      throw new Error(`API Error: ${response.statusText}`);
-    }
-
-    const data = await response.json();
+    if (!res.ok) throw new Error(`API Error: ${res.statusText}`);
+    const data = await res.json();
     return data.data || data;
   }
 
-  async post<T>(endpoint: string, body?: any): Promise<T> {
+  // POST request
+  async post<T>(endpoint: string, body?: object): Promise<T> {
     const headers = await this.getAuthHeaders();
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    const res = await fetch(`${API_BASE_URL}${endpoint}`, {
       method: "POST",
       headers,
       body: JSON.stringify(body),
+      cache: "no-store",
     });
-
-    if (!response.ok) {
-      throw new Error(`API Error: ${response.statusText}`);
-    }
-
-    const data = await response.json();
+    if (!res.ok) throw new Error(`API Error: ${res.statusText}`);
+    const data = await res.json();
     return data.data || data;
   }
 
-  async patch<T>(endpoint: string, body?: any): Promise<T> {
+  // PATCH request
+  async patch<T>(endpoint: string, body?: object): Promise<T> {
     const headers = await this.getAuthHeaders();
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    const res = await fetch(`${API_BASE_URL}${endpoint}`, {
       method: "PATCH",
       headers,
       body: JSON.stringify(body),
+      cache: "no-store",
     });
-
-    if (!response.ok) {
-      throw new Error(`API Error: ${response.statusText}`);
-    }
-
-    const data = await response.json();
+    if (!res.ok) throw new Error(`API Error: ${res.statusText}`);
+    const data = await res.json();
     return data.data || data;
   }
 
+  // DELETE request
   async delete<T>(endpoint: string): Promise<T> {
     const headers = await this.getAuthHeaders();
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    const res = await fetch(`${API_BASE_URL}${endpoint}`, {
       method: "DELETE",
       headers,
+      cache: "no-store",
     });
-
-    if (!response.ok) {
-      throw new Error(`API Error: ${response.statusText}`);
-    }
-
-    const data = await response.json();
+    if (!res.ok) throw new Error(`API Error: ${res.statusText}`);
+    const data = await res.json();
     return data.data || data;
   }
 }

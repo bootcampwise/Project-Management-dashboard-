@@ -3,6 +3,7 @@ import uiReducer from "./slices/uiSlice";
 import projectReducer from "./slices/projectSlice";
 import taskReducer from "./slices/taskSlice";
 import authReducer from "./slices/authSlice";
+import teamReducer from "./slices/teamSlice";
 
 export const store = configureStore({
   reducer: {
@@ -10,6 +11,7 @@ export const store = configureStore({
     project: projectReducer,
     task: taskReducer,
     auth: authReducer,
+    team: teamReducer,
   },
 });
 

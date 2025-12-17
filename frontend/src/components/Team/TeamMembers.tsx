@@ -1,64 +1,14 @@
 import React from 'react';
-
-import type { TeamMember } from '../../types';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import { fetchTeamMembers } from '../../store/slices/teamSlice';
 
 const TeamMembers: React.FC = () => {
-    const members: TeamMember[] = [
-        {
-            id: 1,
-            name: "Hanna Rodgers",
-            email: "hanna.r@defcon.com",
-            position: "QA Lead",
-            groups: ["QA", "Admin"],
-            location: "Warsaw, Poland",
-            avatar: "https://i.pravatar.cc/150?u=hanna"
-        },
-        {
-            id: 2,
-            name: "Henry Rollins",
-            email: "henry.rol@defcon.com",
-            position: "Support",
-            groups: ["Support"],
-            location: "Berlin, Germany",
-            avatar: "https://i.pravatar.cc/150?u=henry1"
-        },
-        {
-            id: 3,
-            name: "William Atkins",
-            email: "william.atk@defcon.com",
-            position: "Product Marketing",
-            groups: ["Marketing", "Dev"],
-            location: "Warsaw, Poland",
-            avatar: "https://i.pravatar.cc/150?u=william"
-        },
-        {
-            id: 4,
-            name: "Mandy Harley",
-            email: "mandy@defcon.com",
-            position: "QA",
-            groups: ["QA"],
-            location: "Lisbon, Portugal",
-            avatar: "https://i.pravatar.cc/150?u=mandy1"
-        },
-        {
-            id: 5,
-            name: "Henry Rollins",
-            email: "henry@defcon.com",
-            position: "API Lead",
-            groups: ["Dev", "Admin"],
-            location: "Warsaw, Poland",
-            avatar: "https://i.pravatar.cc/150?u=henry2"
-        },
-        {
-            id: 6,
-            name: "Mandy Harley",
-            email: "mandy@defcon.com",
-            position: "Frontend",
-            groups: ["Dev"],
-            location: "Lisbon, Portugal",
-            avatar: "https://i.pravatar.cc/150?u=mandy2"
-        }
-    ];
+    const dispatch = useAppDispatch();
+    const { members, isLoading } = useAppSelector((state) => state.team);
+
+    React.useEffect(() => {
+        dispatch(fetchTeamMembers());
+    }, [dispatch]);
 
     const getGroupStyle = (group: string) => {
         switch (group) {

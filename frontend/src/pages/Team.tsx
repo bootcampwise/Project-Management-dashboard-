@@ -14,6 +14,7 @@ import TeamTableView from "../components/Team/TeamTableView";
 import TeamDashboard from "../components/Team/TeamDashboard";
 import TeamMembers from "../components/Team/TeamMembers";
 import TeamFiles from "../components/Team/TeamFiles";
+import CreateTeamModal from "../components/ProjectBoard/CreateTeamModal";
 import SearchPopup from "../components/SearchPopup";
 
 const Team: React.FC = () => {
@@ -21,6 +22,7 @@ const Team: React.FC = () => {
     const [sidebarOpen, setSidebarOpen] = useState(window.innerWidth >= 768);
     const [activeTab, setActiveTab] = useState("Projects");
     const [isSearchOpen, setIsSearchOpen] = useState(false);
+    const [isCreateTeamModalOpen, setIsCreateTeamModalOpen] = useState(false);
 
     React.useEffect(() => {
         const handleResize = () => {
@@ -71,7 +73,10 @@ const Team: React.FC = () => {
                                 <Share2 size={16} />
                                 <span>Share</span>
                             </button>
-                            <button className="flex items-center gap-2 px-3 py-1.5 bg-blue-600 rounded-md text-white text-sm hover:bg-blue-700">
+                            <button
+                                className="flex items-center gap-2 px-3 py-1.5 bg-blue-600 rounded-md text-white text-sm hover:bg-blue-700"
+                                onClick={() => setIsCreateTeamModalOpen(true)}
+                            >
                                 <span>Create</span>
                                 <ChevronDown size={14} className="border-l border-blue-500 pl-1 ml-1 h-4 w-auto" />
                             </button>
@@ -128,6 +133,7 @@ const Team: React.FC = () => {
                 </div>
             </main>
             <SearchPopup isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
+            <CreateTeamModal isOpen={isCreateTeamModalOpen} onClose={() => setIsCreateTeamModalOpen(false)} />
         </div>
     );
 };

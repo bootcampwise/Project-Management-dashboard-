@@ -1,5 +1,8 @@
-import React, { useState } from 'react';
-import { X, ChevronDown } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { X, ChevronDown, Check } from 'lucide-react';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import { fetchTeamMembers } from '../../store/slices/teamSlice';
+import type { TeamMember } from '../../types';
 
 interface CreateTeamModalProps {
     isOpen: boolean;
@@ -7,8 +10,32 @@ interface CreateTeamModalProps {
 }
 
 const CreateTeamModal: React.FC<CreateTeamModalProps> = ({ isOpen, onClose }) => {
+    const dispatch = useAppDispatch();
+    const { members, isLoading } = useAppSelector((state) => state.team);
+
     const [teamName, setTeamName] = useState('');
     const [membersInput, setMembersInput] = useState('');
+    const [selectedMembers, setSelectedMembers] = useState<TeamMember[]>([]);
+    const [showSuggestions, setShowSuggestions] = useState(false);
+
+    useEffect(() => {
+        if (isOpen) {
+            dispatch(fetchTeamMembers());
+        }
+    }, [isOpen, dispatch]);
+
+    const filteredMembers = members.filter(member =>
+        member.name.toLowerCase().includes(membersInput.toLowerCase()) ||
+        member.email.toLowerCase().includes(membersInput.toLowerCase())
+    );
+
+    const toggleMemberSelection = (member: TeamMember) => {
+        if (selectedMembers.find(m => m.id === member.id)) {
+            setSelectedMembers(selectedMembers.filter(m => m.id !== member.id));
+        } else {
+            setSelectedMembers([...selectedMembers, member]);
+        }
+    };
 
     if (!isOpen) return null;
 
@@ -51,47 +78,54 @@ const CreateTeamModal: React.FC<CreateTeamModalProps> = ({ isOpen, onClose }) =>
                     </div>
 
                     {/* Members Input */}
-                    <div className="mb-6">
+                    <div className="mb-6 relative">
                         <label className="block text-xs font-medium text-gray-400 mb-1.5 uppercase">
                             Members
                         </label>
                         <input
                             type="text"
                             value={membersInput}
-                            onChange={(e) => setMembersInput(e.target.value)}
+                            onChange={(e) => {
+                                setMembersInput(e.target.value);
+                                setShowSuggestions(true);
+                            }}
+                            onFocus={() => setShowSuggestions(true)}
                             className="w-full px-3 py-2 border border-gray-200 rounded-md text-sm placeholder-gray-300 focus:outline-none focus:border-gray-300"
-                            placeholder="Add members by name or email"
+                            placeholder="Search members by name or email"
                         />
                     </div>
 
-                    {/* Members List */}
-                    <div className="space-y-4">
-                        <div className="flex items-center justify-between py-2 border-b border-gray-100">
-                            <div className="flex items-center gap-3">
-                                <img src="https://i.pravatar.cc/150?u=12" alt="Mehrab" className="w-10 h-10 rounded-full" />
-                                <div>
-                                    <h4 className="text-sm font-semibold text-gray-800">Mehrab Murtaza</h4>
-                                    <p className="text-xs text-gray-500">Lead Designer</p>
-                                </div>
-                            </div>
-                            <button className="flex items-center gap-1 text-xs text-gray-600 font-medium">
-                                <span>Owner</span>
-                                <ChevronDown size={14} />
-                            </button>
-                        </div>
-                        <div className="flex items-center justify-between py-2 border-b border-gray-100">
-                            <div className="flex items-center gap-3">
-                                <img src="https://i.pravatar.cc/150?u=24" alt="Ahmad" className="w-10 h-10 rounded-full" />
-                                <div>
-                                    <h4 className="text-sm font-semibold text-gray-800">Ahmad</h4>
-                                    <p className="text-xs text-gray-500">UI Designer</p>
-                                </div>
-                            </div>
-                            <button className="flex items-center gap-1 text-xs text-gray-600 font-medium">
-                                <span>Editor</span>
-                                <ChevronDown size={14} />
-                            </button>
-                        </div>
+                    {/* Members List - showing actual members from Redux */}
+                    <div className="space-y-4 max-h-[200px] overflow-y-auto">
+                        <h4 className="text-xs font-medium text-gray-500 uppercase">Available Members</h4>
+                        {isLoading ? (
+                            <div className="text-center py-4 text-gray-400 text-sm">Loading members...</div>
+                        ) : filteredMembers.length > 0 ? (
+                            filteredMembers.map((member) => {
+                                const isSelected = selectedMembers.some(m => m.id === member.id);
+                                return (
+                                    <div
+                                        key={member.id}
+                                        className={`flex items-center justify-between py-2 border-b border-gray-100 cursor-pointer hover:bg-gray-50 px-2 rounded ${isSelected ? 'bg-blue-50' : ''}`}
+                                        onClick={() => toggleMemberSelection(member)}
+                                    >
+                                        <div className="flex items-center gap-3">
+                                            <img src={member.avatar || `https://i.pravatar.cc/150?u=${member.id}`} alt={member.name} className="w-8 h-8 rounded-full" />
+                                            <div>
+                                                <h4 className="text-sm font-semibold text-gray-800">{member.name}</h4>
+                                                <p className="text-xs text-gray-500">{member.position}</p>
+                                            </div>
+                                        </div>
+                                        <button className={`flex items-center gap-1 text-xs font-medium ${isSelected ? 'text-blue-600' : 'text-gray-400'}`}>
+                                            {isSelected && <Check size={14} />}
+                                            <span>{isSelected ? 'Selected' : 'Select'}</span>
+                                        </button>
+                                    </div>
+                                );
+                            })
+                        ) : (
+                            <div className="text-center py-4 text-gray-400 text-sm">No members found</div>
+                        )}
                     </div>
                 </div>
 

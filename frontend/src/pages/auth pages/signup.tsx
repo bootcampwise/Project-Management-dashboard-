@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-hot-toast';
 import { signUpWithEmail } from '../../store/slices/authSlice';
 import type { AppDispatch, RootState } from '../../store';
 
@@ -132,9 +133,11 @@ const Signup: React.FC = () => {
         e.preventDefault();
         try {
             await dispatch(signUpWithEmail({ email, password })).unwrap();
-            navigate('/welcome');
+            toast.success("Your account has been created successfully");
+            navigate('/login');
         } catch (err) {
             console.error('Signup failed:', err);
+            toast.error("Signup failed. Please try again.");
         }
     };
 
