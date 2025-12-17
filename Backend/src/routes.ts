@@ -14,20 +14,15 @@ import activityLogRoutes from "./routes/activity-log.routes";
 
 const router = Router();
 
-// Register all routes
 router.use("/users", userRoutes);
 router.use("/projects", projectRoutes);
 router.use("/tasks", taskRoutes);
-// router.use("/budgets", budgetRoutes);
 router.use("/teams", teamRoutes);
 router.use("/notifications", notificationRoutes);
 router.use("/comments", commentRoutes);
 router.use("/attachments", attachmentRoutes);
 router.use("/time-tracking", timeTrackingRoutes);
 router.use("/calendar", calendarRoutes);
-// router.use("/tags", tagRoutes);
-// router.use("/labels", labelRoutes);
 router.use("/activity-logs", activityLogRoutes);
-// router.use("/search-history", searchHistoryRoutes);
 
 export default router;

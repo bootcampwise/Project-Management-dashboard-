@@ -1,65 +1,24 @@
 import { Request, Response, NextFunction } from "express";
-import jwt from "jsonwebtoken";
-import jwksClient from "jwks-rsa";
-import { env } from "../config/env";
-import { logger } from "../config/logger";
 
-const client = jwksClient({
-  jwksUri: `${env.SUPABASE_URL}/auth/v1/.well-known/jwks.json`,
-  cache: true,
-  rateLimit: true,
-});
-
-function getKey(header: jwt.JwtHeader, callback: jwt.SigningKeyCallback) {
-  client.getSigningKey(header.kid, (err, key) => {
-    if (err) {
-      callback(err);
-      return;
-    }
-    const signingKey = key?.getPublicKey();
-    callback(null, signingKey);
-  });
-}
-
-export interface AuthRequest extends Request {
-  user?: {
-    sub: string; // Supabase user ID
-    email?: string;
-    role?: string;
-    [key: string]: unknown;
-  };
-}
-
-export function authMiddleware(
-  req: AuthRequest,
+/**
+ * Authentication middleware
+ * Checks for Bearer token in Authorization header
+ */
+export const authMiddleware = (
+  req: Request,
   res: Response,
   next: NextFunction
-): void {
+) => {
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    res.status(401).json({ error: "Unauthorized: No token provided" });
-    return;
+    return res.status(401).json({ error: "Unauthorized" });
   }
 
   const token = authHeader.split(" ")[1];
 
-  jwt.verify(
-    token,
-    getKey,
-    {
-      audience: "authenticated",
-      algorithms: ["RS256"],
-    },
-    (err, decoded) => {
-      if (err) {
-        logger.error("JWT verification failed:", err.message);
-        res.status(401).json({ error: "Unauthorized: Invalid token" });
-        return;
-      }
+  // Attach token to the user object (declared in express.d.ts)
+  req.user = { sub: token }; // you can add email, role, etc. if available
 
-      req.user = decoded as AuthRequest["user"];
-      next();
-    }
-  );
-}
+  next();
+};

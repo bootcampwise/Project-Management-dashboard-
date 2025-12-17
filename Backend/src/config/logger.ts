@@ -1,42 +1,33 @@
-type LogLevel = "debug" | "info" | "warn" | "error";
+export type LogLevel = "debug" | "info" | "warn" | "error";
 
 class Logger {
-  private log(level: LogLevel, message: string, ...args: any[]) {
+  private log(level: LogLevel, message: string, data?: object) {
     const timestamp = new Date().toISOString();
     const prefix = `[${timestamp}] [${level.toUpperCase()}]`;
 
-    switch (level) {
-      case "debug":
-        console.debug(prefix, message, ...args);
-        break;
-      case "info":
-        console.info(prefix, message, ...args);
-        break;
-      case "warn":
-        console.warn(prefix, message, ...args);
-        break;
-      case "error":
-        console.error(prefix, message, ...args);
-        break;
+    if (data) {
+      console[level](prefix, message, data);
+    } else {
+      console[level](prefix, message);
     }
   }
 
-  debug(message: string, ...args: any[]) {
+  debug(message: string, data?: object) {
     if (process.env.NODE_ENV === "development") {
-      this.log("debug", message, ...args);
+      this.log("debug", message, data);
     }
   }
 
-  info(message: string, ...args: any[]) {
-    this.log("info", message, ...args);
+  info(message: string, data?: object) {
+    this.log("info", message, data);
   }
 
-  warn(message: string, ...args: any[]) {
-    this.log("warn", message, ...args);
+  warn(message: string, data?: object) {
+    this.log("warn", message, data);
   }
 
-  error(message: string, ...args: any[]) {
-    this.log("error", message, ...args);
+  error(message: string, data?: object) {
+    this.log("error", message, data);
   }
 }
 

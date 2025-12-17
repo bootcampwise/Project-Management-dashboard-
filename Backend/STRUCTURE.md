@@ -11,7 +11,28 @@ Backend/
 ├── src/
 │   ├── config/                    # Configuration files
 │   │   ├── prisma.ts             # Prisma client instance
-│   │   └── env.ts                # Environment variables
+│   │   ├── env.ts                # Environment variables
+│   │   └── logger.ts             # Logger configuration
+│   │
+│   ├── controllers/               # Route controllers (Request handling)
+│   │   ├── user.controller.ts
+│   │   ├── project.controller.ts
+│   │   └── ...
+│   │
+│   ├── services/                  # Business logic layer
+│   │   ├── user.service.ts
+│   │   ├── project.service.ts
+│   │   └── ...
+│   │
+│   ├── repositories/              # Data access layer (Prisma calls)
+│   │   ├── user.repository.ts
+│   │   ├── project.repository.ts
+│   │   └── ...
+│   │
+│   ├── routes/                    # API route definitions
+│   │   ├── user.routes.ts
+│   │   ├── project.routes.ts
+│   │   └── ...
 │   │
 │   ├── middlewares/               # Express middlewares
 │   │   ├── auth.middleware.ts    # JWT authentication
@@ -20,27 +41,7 @@ Backend/
 │   │   ├── logger.middleware.ts  # Request/response logging
 │   │   └── rateLimit.middleware.ts   # Rate limiting
 │   │
-│   ├── modules/                   # Feature modules (MVC pattern)
-│   │   ├── users/
-│   │   │   ├── user.controller.ts
-│   │   │   ├── user.service.ts
-│   │   │   ├── user.routes.ts
-│   │   │   └── user.types.ts
-│   │   ├── projects/
-│   │   ├── tasks/
-│   │   ├── budget/
-│   │   ├── team/
-│   │   ├── notification/
-│   │   ├── comment/
-│   │   ├── attachment/
-│   │   ├── time-tracking/
-│   │   ├── calendar/
-│   │   ├── tag/
-│   │   ├── label/
-│   │   ├── activity-log/
-│   │   └── search-history/
-│   │
-│   ├── types/                     # Shared TypeScript types
+│   ├── types/                     # TypeScript types and interfaces
 │   │   └── index.ts
 │   │
 │   ├── utils/                     # Utility functions
@@ -50,21 +51,43 @@ Backend/
 │   │   └── pagination.ts         # Pagination helpers
 │   │
 │   ├── routes.ts                  # Central route registration
-│   ├── index.ts                   # Main entry point
-│   └── server.ts                  # Server configuration
+│   ├── app.ts                     # Express app configuration
+│   └── server.ts                  # Server entry point
 │
 ├── package.json
-└── tsconfig.json
+├── tsconfig.json
+└── .env
 ```
 
 ## 🏗️ Architecture Pattern
 
-Each module follows the **MVC (Model-View-Controller)** pattern:
+This project follows a **Layered Architecture** (Controller-Service-Repository) pattern:
 
-- **Controller** (`*.controller.ts`): Handles HTTP requests and responses
-- **Service** (`*.service.ts`): Contains business logic and database operations
-- **Routes** (`*.routes.ts`): Defines API endpoints and middleware
-- **Types** (`*.types.ts`): TypeScript interfaces and types
+- **Controller Layer** (`src/controllers/*.controller.ts`):
+
+  - Handles incoming HTTP requests
+  - Validates input data
+  - Calls schema validation
+  - Delegates business logic to services
+  - Sends HTTP responses (using standardized format)
+
+- **Service Layer** (`src/services/*.service.ts`):
+
+  - Contains all business logic
+  - Orchestrates data operations
+  - Handles complex validations and calculations
+  - Independent of HTTP layer (req/res)
+
+- **Repository Layer** (`src/repositories/*.repository.ts`):
+
+  - Handles direct database interactions using Prisma
+  - Abducts database queries from business logic
+  - Provides clean data access methods
+
+- **Routes Layer** (`src/routes/*.routes.ts`):
+  - Defines API endpoints
+  - Maps URLs to controllers
+  - Applies middlewares (auth, validation)
 
 ## 📋 Modules Overview
 
@@ -174,12 +197,17 @@ All routes are prefixed with `/api`:
 
 ## 🛠️ Development Guidelines
 
-1. **Follow the existing pattern**: Each module should have controller, service, routes, and types files
-2. **Use TypeScript**: Maintain strong typing throughout
-3. **Error handling**: Use the error middleware for consistent error responses
-4. **Authentication**: Protect routes with `authMiddleware` where needed
-5. **Validation**: Implement request validation in controllers
-6. **Business logic**: Keep business logic in service files, not controllers
+1. **Follow the Layered Architecture**:
+   - **Controllers**: Parsing request, validation, sending response. NO business logic.
+   - **Services**: Business logic, data manipulation. NO HTTP references (res, req).
+   - **Repositories**: Database queries only.
+2. **Use TypeScript**: Maintain strong typing throughout. Use shared types in `src/types`.
+3. **Error handling**: Throw `AppError` in services/controllers. Use `errorMiddleware` for global handling.
+4. **Authentication**: Protect private routes with `authMiddleware`.
+5. **Validation**: Use Zod schemas in controllers/middlewares.
+6. **Naming Conventions**:
+   - Files: `feature.type.ts` (e.g., `user.controller.ts`)
+   - Classes: `FeatureType` (e.g., `UserController`)
 
 ## 📚 Additional Resources
 

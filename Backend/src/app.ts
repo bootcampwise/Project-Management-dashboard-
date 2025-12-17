@@ -1,4 +1,4 @@
-import express from "express";
+import express, { Request, Response, NextFunction } from "express";
 import cors from "cors";
 import routes from "./routes";
 import { errorMiddleware } from "./middlewares/error.middleware";
@@ -6,26 +6,25 @@ import { logger } from "./config/logger";
 
 const app = express();
 
-// Middlewares
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Request logging
-app.use((req, res, next) => {
+app.use((req: Request, res: Response, next: NextFunction) => {
   logger.info(`${req.method} ${req.path}`);
   next();
 });
 
-// Health check
-app.get("/health", (req, res) => {
-  res.json({ status: "ok", message: "Server is running" });
+app.get("/health", (_req: Request, res: Response) => {
+  res.json({
+    status: "ok",
+    message: "Server is running",
+    timestamp: new Date().toISOString(),
+  });
 });
 
-// API Routes
 app.use("/api", routes);
 
-// Error handling
 app.use(errorMiddleware);
 
 export default app;

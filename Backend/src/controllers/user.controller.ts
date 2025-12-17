@@ -36,7 +36,12 @@ export class UserController {
     try {
       const { sub: currentUserId } = req.user!;
       const updateData: UpdateUserInput = req.body;
+      console.log("Updating Profile for:", currentUserId);
+      console.log("Update Data:", JSON.stringify(updateData, null, 2));
+
       const user = await userService.updateUser(currentUserId, updateData);
+      console.log("Updated User Result:", JSON.stringify(user, null, 2));
+
       sendSuccess(res, user, "Profile updated successfully");
     } catch (error) {
       next(error);

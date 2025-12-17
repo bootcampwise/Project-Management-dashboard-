@@ -10,6 +10,15 @@ class ApiClient {
     } = await supabase.auth.getSession();
     const token = session?.access_token;
 
+    if (token) {
+      try {
+        const header = JSON.parse(atob(token.split(".")[0]));
+        console.log("ACCESS TOKEN ALG:", header);
+      } catch (e) {
+        console.error("Error parsing token header:", e);
+      }
+    }
+
     return {
       "Content-Type": "application/json",
       ...(token && { Authorization: `Bearer ${token}` }),

@@ -1,14 +1,10 @@
 import { Request, Response, NextFunction } from "express";
+import { Prisma } from "@prisma/client";
 import { logger } from "../config/logger";
 
 export class AppError extends Error {
-  constructor(
-    public statusCode: number,
-    public message: string,
-    public isOperational = true
-  ) {
+  constructor(public message: string, public statusCode: number) {
     super(message);
-    Object.setPrototypeOf(this, AppError.prototype);
   }
 }
 
@@ -18,26 +14,24 @@ export function errorMiddleware(
   res: Response,
   next: NextFunction
 ) {
-  logger.error("Error:", err);
+  logger.error(err.message);
 
   if (err instanceof AppError) {
     return res.status(err.statusCode).json({
-      error: err.message,
-      status: err.statusCode,
+      status: "error",
+      message: err.message,
     });
   }
 
-  // Prisma errors
-  if (err.name === "PrismaClientKnownRequestError") {
+  if (err instanceof Prisma.PrismaClientKnownRequestError) {
     return res.status(400).json({
-      error: "Database error",
-      status: 400,
+      status: "error",
+      message: "Database error",
     });
   }
 
-  // Default error
-  res.status(500).json({
-    error: "Internal server error",
-    status: 500,
+  return res.status(500).json({
+    status: "error",
+    message: "Internal server error",
   });
 }

@@ -1,9 +1,13 @@
-import { Request, Response, NextFunction } from "express";
+import rateLimit from "express-rate-limit";
 
-// Rate Limit Middleware - TODO: Implement rate limiting
-export const rateLimit = (options?: any) => {
-  return (req: Request, res: Response, next: NextFunction) => {
-    // TODO: Implement rate limiting logic
-    next();
-  };
-};
+export const rateLimitMiddleware = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+  message: {
+    status: "error",
+    message:
+      "Too many requests from this IP, please try again after 15 minutes",
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+});

@@ -76,11 +76,17 @@ export const useSettingsModalLogic = (
       const {
         data: { publicUrl },
       } = supabase.storage.from("avatars").getPublicUrl(filePath);
+      console.log("Generated Avatar URL:", publicUrl);
 
-      await dispatch(updateUserProfile({ avatar: publicUrl }));
+      const publicUrlWithTimestamp = `${publicUrl}?t=${new Date().getTime()}`;
+      await dispatch(updateUserProfile({ avatar: publicUrlWithTimestamp }));
     } catch (error) {
       console.error("Error uploading avatar:", error);
-      alert("Error uploading avatar!");
+      if (error instanceof Error) {
+        alert(`Error uploading avatar: ${error.message}`);
+      } else {
+        alert("Error uploading avatar!");
+      }
     } finally {
       setUploading(false);
     }
