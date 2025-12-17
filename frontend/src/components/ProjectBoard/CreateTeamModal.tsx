@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { X, ChevronDown, Check } from 'lucide-react';
-import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import { fetchTeamMembers } from '../../store/slices/teamSlice';
+import { useCreateTeamModal } from '../../hooks/useCreateTeamModal';
 import type { TeamMember } from '../../types';
 
 interface CreateTeamModalProps {
@@ -10,32 +9,17 @@ interface CreateTeamModalProps {
 }
 
 const CreateTeamModal: React.FC<CreateTeamModalProps> = ({ isOpen, onClose }) => {
-    const dispatch = useAppDispatch();
-    const { members, isLoading } = useAppSelector((state) => state.team);
-
-    const [teamName, setTeamName] = useState('');
-    const [membersInput, setMembersInput] = useState('');
-    const [selectedMembers, setSelectedMembers] = useState<TeamMember[]>([]);
-    const [showSuggestions, setShowSuggestions] = useState(false);
-
-    useEffect(() => {
-        if (isOpen) {
-            dispatch(fetchTeamMembers());
-        }
-    }, [isOpen, dispatch]);
-
-    const filteredMembers = members.filter(member =>
-        member.name.toLowerCase().includes(membersInput.toLowerCase()) ||
-        member.email.toLowerCase().includes(membersInput.toLowerCase())
-    );
-
-    const toggleMemberSelection = (member: TeamMember) => {
-        if (selectedMembers.find(m => m.id === member.id)) {
-            setSelectedMembers(selectedMembers.filter(m => m.id !== member.id));
-        } else {
-            setSelectedMembers([...selectedMembers, member]);
-        }
-    };
+    const {
+        teamName,
+        setTeamName,
+        membersInput,
+        setMembersInput,
+        selectedMembers,
+        setShowSuggestions,
+        isLoading,
+        filteredMembers,
+        toggleMemberSelection
+    } = useCreateTeamModal(isOpen);
 
     if (!isOpen) return null;
 

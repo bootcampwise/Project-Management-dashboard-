@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React from "react";
+import { useTeam } from "../hooks/useTeam";
 import Sidebar from "../components/Sidebar/index";
 import {
     Menu,
@@ -18,26 +19,17 @@ import CreateTeamModal from "../components/ProjectBoard/CreateTeamModal";
 import SearchPopup from "../components/SearchPopup";
 
 const Team: React.FC = () => {
-    // Initialize based on screen width
-    const [sidebarOpen, setSidebarOpen] = useState(window.innerWidth >= 768);
-    const [activeTab, setActiveTab] = useState("Projects");
-    const [isSearchOpen, setIsSearchOpen] = useState(false);
-    const [isCreateTeamModalOpen, setIsCreateTeamModalOpen] = useState(false);
-
-    React.useEffect(() => {
-        const handleResize = () => {
-            if (window.innerWidth < 768) {
-                setSidebarOpen(false);
-            } else {
-                setSidebarOpen(true);
-            }
-        };
-
-        window.addEventListener('resize', handleResize);
-        return () => window.removeEventListener('resize', handleResize);
-    }, []);
-
-    const tabs = ["Projects", "Dashboard", "Members", "Files"];
+    const {
+        sidebarOpen,
+        setSidebarOpen,
+        activeTab,
+        setActiveTab,
+        isSearchOpen,
+        setIsSearchOpen,
+        isCreateTeamModalOpen,
+        setIsCreateTeamModalOpen,
+        tabs
+    } = useTeam();
 
     return (
         <div className="flex h-screen bg-white relative font-sans">

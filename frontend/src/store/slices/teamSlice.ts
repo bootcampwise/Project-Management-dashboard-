@@ -4,13 +4,7 @@ import {
   type PayloadAction,
 } from "@reduxjs/toolkit";
 import { apiClient } from "../../lib/apiClient";
-import type { TeamMember } from "../../types";
-
-interface TeamState {
-  members: TeamMember[];
-  isLoading: boolean;
-  error: string | null;
-}
+import type { TeamMember, TeamState } from "../../types";
 
 const initialState: TeamState = {
   members: [],

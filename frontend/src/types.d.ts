@@ -247,3 +247,14 @@ export interface NotificationsPopupProps {
   isOpen: boolean;
   onClose: () => void;
 }
+
+export interface TeamState {
+  members: TeamMember[];
+  isLoading: boolean;
+  error: string | null;
+}
+
+export interface SearchPopupProps {
+  isOpen: boolean;
+  onClose: () => void;
+}

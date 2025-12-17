@@ -1,10 +1,8 @@
 import React from 'react';
 import { Search, CheckCircle2, User, SortAsc, Calendar, LayoutGrid } from 'lucide-react';
+import type { SearchPopupProps } from '../types';
 
-interface SearchPopupProps {
-    isOpen: boolean;
-    onClose: () => void;
-}
+
 
 const SearchPopup: React.FC<SearchPopupProps> = ({ isOpen, onClose }) => {
     if (!isOpen) return null;
