@@ -1,11 +1,12 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
-import type { RootState } from "../store";
+import { useDispatch, useSelector } from "react-redux";
+import type { RootState, AppDispatch } from "../store";
+import { updateUserProfile } from "../store/slices/authSlice";
 
 export const useWelcome = () => {
   const navigate = useNavigate();
-  const { user } = useSelector((state: RootState) => state.auth);
+  const { user, isLoading } = useSelector((state: RootState) => state.auth);
 
   useEffect(() => {
     if (!user) return;
@@ -29,11 +30,15 @@ export const useWelcome = () => {
     }
   }, [user, navigate]);
 
+  const dispatch = useDispatch<AppDispatch>();
+
   const handleGetStarted = () => {
+    dispatch(updateUserProfile({ hasCompletedOnboarding: true }));
     navigate("/dashboard", { state: { openOnboarding: true } });
   };
 
   return {
     handleGetStarted,
+    isLoading,
   };
 };
