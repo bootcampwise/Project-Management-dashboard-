@@ -34,7 +34,23 @@ export class ProjectController {
     try {
       const { sub: supabaseId } = req.user!;
       const user = await userService.getUserBySupabaseId(supabaseId);
-      const project = await projectService.createProject(req.body, user.id);
+
+      // Extract and sanitize input
+      const { name, description, dueDate, startDate, teamId, icon, color } =
+        req.body;
+
+      // Map definitions to match CreateProjectInput
+      const payload = {
+        name,
+        description,
+        icon,
+        color,
+        startDate: startDate ? new Date(startDate) : undefined,
+        endDate: dueDate ? new Date(dueDate) : undefined, // Map dueDate -> endDate
+        teamIds: teamId ? [teamId] : [], // Map teamId -> teamIds array
+      };
+
+      const project = await projectService.createProject(payload, user.id);
       sendSuccess(res, project, "Project created successfully", 201);
     } catch (error) {
       next(error);
