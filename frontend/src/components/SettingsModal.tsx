@@ -3,11 +3,9 @@ import { X, User } from 'lucide-react';
 import { useTheme } from '../hooks/useTheme';
 import { useSettingsModalLogic } from '../hooks/useSettingsModalLogic';
 
-interface SettingsModalProps {
-    isOpen: boolean;
-    onClose: () => void;
-    initialTab?: string;
-}
+import type { SettingsModalProps } from '../types';
+
+
 
 const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, initialTab = 'Profile' }) => {
     const {

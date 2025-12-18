@@ -1,11 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { X, ChevronDown, Check } from 'lucide-react';
 import { useCreateTeamModal } from '../../hooks/useCreateTeamModal';
-import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import { fetchProjects } from '../../store/slices/projectSlice';
-import { createTeam, fetchTeams } from '../../store/slices/teamSlice';
-import type { TeamMember, Project } from '../../types';
-import { toast } from 'react-hot-toast';
 
 interface CreateTeamModalProps {
     isOpen: boolean;
@@ -13,13 +8,6 @@ interface CreateTeamModalProps {
 }
 
 const CreateTeamModal: React.FC<CreateTeamModalProps> = ({ isOpen, onClose }) => {
-    const dispatch = useAppDispatch();
-    const { projects, isLoading: isProjectsLoading } = useAppSelector(state => state.project);
-
-    // Local state for selected projects
-    const [selectedProjectIds, setSelectedProjectIds] = useState<string[]>([]);
-    const [isProjectDropdownOpen, setIsProjectDropdownOpen] = useState(false);
-
     const {
         teamName,
         setTeamName,
@@ -27,55 +15,20 @@ const CreateTeamModal: React.FC<CreateTeamModalProps> = ({ isOpen, onClose }) =>
         setMembersInput,
         selectedMembers,
         setShowSuggestions,
-        isLoading: isMembersLoading,
+        isMembersLoading,
         filteredMembers,
-        toggleMemberSelection
-    } = useCreateTeamModal(isOpen);
-
-    useEffect(() => {
-        if (isOpen) {
-            dispatch(fetchProjects());
-        }
-    }, [isOpen, dispatch]);
-
-    const handleProjectToggle = (projectId: string) => {
-        if (selectedProjectIds.includes(projectId)) {
-            setSelectedProjectIds(selectedProjectIds.filter(id => id !== projectId));
-        } else {
-            setSelectedProjectIds([...selectedProjectIds, projectId]);
-        }
-    };
-
-    const [isCreating, setIsCreating] = useState(false);
-
-    const handleCreateTeam = async () => {
-        if (!teamName.trim()) {
-            toast.error("Please enter a team name");
-            return;
-        }
-
-        try {
-            setIsCreating(true);
-
-            await dispatch(createTeam({
-                name: teamName,
-                memberIds: selectedMembers.map(m => String(m.id)),
-                projectIds: selectedProjectIds
-            })).unwrap();
-
-            toast.success("Team created successfully!");
-
-            // Refresh teams list so it appears in other modals
-            dispatch(fetchTeams());
-            dispatch(fetchProjects());
-            onClose();
-        } catch (error: any) {
-            console.error("Failed to create team:", error);
-            toast.error(error.message || error || "Failed to create team");
-        } finally {
-            setIsCreating(false);
-        }
-    };
+        toggleMemberSelection,
+        // Projects
+        projects,
+        isProjectsLoading,
+        selectedProjectIds,
+        isProjectDropdownOpen,
+        setIsProjectDropdownOpen,
+        handleProjectToggle,
+        // Creation
+        isCreating,
+        handleCreateTeam
+    } = useCreateTeamModal(isOpen, onClose);
 
     if (!isOpen) return null;
 

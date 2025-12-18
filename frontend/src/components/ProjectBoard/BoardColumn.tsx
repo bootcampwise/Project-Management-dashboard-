@@ -1,17 +1,9 @@
 import React from 'react';
 import { Plus } from 'lucide-react';
 import TaskCard from './TaskCard';
-import type { Task } from '../../types';
+import type { BoardColumnProps } from '../../types';
 
-interface BoardColumnProps {
-    title: string;
-    count: number;
-    color: string; // CSS color string for the dot (e.g. "bg-gray-400")
-    tasks: Task[];
-    collapsed?: boolean;
-    onTaskClick?: (task: Task) => void;
-    onAddTask?: (status: string) => void;
-}
+
 
 const BoardColumn: React.FC<BoardColumnProps> = ({ title, count, color, tasks, collapsed = false, onTaskClick, onAddTask }) => {
     if (collapsed) {

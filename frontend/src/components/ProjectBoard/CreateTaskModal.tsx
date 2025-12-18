@@ -1,16 +1,10 @@
 import React from 'react';
 import { X, Upload, File } from 'lucide-react';
 
-import type { CreateTaskPayload } from '../../types';
+import type { CreateTaskPayload, CreateTaskModalProps } from '../../types';
 
 import { useCreateTaskModal } from '../../hooks/useCreateTaskModal';
 
-interface CreateTaskModalProps {
-    isOpen: boolean;
-    onClose: () => void;
-    onCreate?: (taskData: CreateTaskPayload) => void;
-    initialStatus?: string;
-}
 
 const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ isOpen, onClose, onCreate, initialStatus }) => {
     const {

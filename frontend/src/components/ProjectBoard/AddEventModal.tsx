@@ -1,15 +1,11 @@
 import React from 'react';
 import { X, Calendar, Clock, AlignLeft, Type } from 'lucide-react';
 
-import type { CalendarEvent } from '../../types';
+import type { AddEventModalProps } from '../../types';
+
 
 import { useAddEventModal } from '../../hooks/useAddEventModal';
 
-interface AddEventModalProps {
-    isOpen: boolean;
-    onClose: () => void;
-    onAdd?: (event: CalendarEvent) => void;
-}
 
 const AddEventModal: React.FC<AddEventModalProps> = ({ isOpen, onClose, onAdd }) => {
     const {

@@ -1,17 +1,7 @@
 import React from 'react';
 import { MoreHorizontal, FileText, Image, File } from 'lucide-react';
+import type { TeamFile } from '../../types';
 
-interface TeamFile {
-    id: number;
-    name: string;
-    type: 'pdf' | 'image' | 'ppt';
-    size: string;
-    date: string;
-    author: {
-        name: string;
-        avatar: string;
-    };
-}
 
 const TeamFiles: React.FC = () => {
     const files: TeamFile[] = [

@@ -1,13 +1,7 @@
 import React from 'react';
 import { ChevronDown, List, Calendar, Layout } from 'lucide-react';
+import type { ProjectEarning } from '../../types';
 
-interface ProjectEarning {
-    id: string;
-    name: string;
-    completedTasks: number;
-    earning: number;
-    iconColor: 'teal' | 'blue' | 'orange' | 'gray';
-}
 
 const TopEarning: React.FC = () => {
     const projects: ProjectEarning[] = [

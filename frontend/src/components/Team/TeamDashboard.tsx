@@ -4,13 +4,8 @@ import TeamOverviewChart from './TeamOverviewChart';
 import TopCompletedTasks from './TopCompletedTasks';
 import TimelineView from '../ProjectBoard/TimelineView';
 import TopEarning from './TopEarning';
+import type { TeamStatCardProps } from '../../types';
 
-interface TeamStatCardProps {
-    title: string;
-    value: string | number;
-    percentage: string;
-    percentageColor: 'blue' | 'red' | 'gray';
-}
 
 const TeamStatCard: React.FC<TeamStatCardProps> = ({ title, value, percentage, percentageColor }) => {
     const getPercentageColor = () => {

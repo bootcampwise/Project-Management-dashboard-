@@ -318,3 +318,62 @@ export interface SearchPopupProps {
   isOpen: boolean;
   onClose: () => void;
 }
+export interface SettingsModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  initialTab?: string;
+}
+
+export interface AddEventModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onAdd?: (event: CalendarEvent) => void;
+}
+
+export interface CreateTaskModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onCreate?: (taskData: CreateTaskPayload) => void;
+  initialStatus?: string;
+}
+
+export interface TeamFile {
+  id: number;
+  name: string;
+  type: "pdf" | "image" | "ppt";
+  size: string;
+  date: string;
+  author: {
+    name: string;
+    avatar: string;
+  };
+}
+
+export interface ProjectEarning {
+  id: string;
+  name: string;
+  completedTasks: number;
+  earning: number;
+  iconColor: "teal" | "blue" | "orange" | "gray";
+}
+
+export interface TeamStatCardProps {
+  title: string;
+  value: string | number;
+  percentage: string;
+  percentageColor: "blue" | "red" | "gray";
+}
+
+export interface BoardColumnProps {
+  title: string;
+  count: number;
+  color: string;
+  tasks: Task[];
+  collapsed?: boolean;
+  onTaskClick?: (task: Task) => void;
+  onAddTask?: (status: string) => void;
+}
+
+export interface TeamTableViewProps {
+  projectId?: string;
+}
