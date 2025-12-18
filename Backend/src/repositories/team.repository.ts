@@ -6,9 +6,39 @@ export class TeamRepository {
     projectIds: string[];
     memberIds: string[];
   }) {
-    return prisma.team.create({
-      data,
+    const { name, projectIds, memberIds } = data;
+
+    // 1. Create the team
+    const team = await prisma.team.create({
+      data: {
+        name,
+        projects: {
+          connect: projectIds.map((id) => ({ id })),
+        },
+        members: {
+          connect: memberIds.map((id) => ({ id })),
+        },
+      },
     });
+
+    // 2. Explicitly update the projects to include this team
+    // (Required because the relations are defined separately in the schema)
+    if (projectIds.length > 0) {
+      await Promise.all(
+        projectIds.map((projectId) =>
+          prisma.project.update({
+            where: { id: projectId },
+            data: {
+              teams: {
+                connect: { id: team.id },
+              },
+            },
+          })
+        )
+      );
+    }
+
+    return team;
   }
 
   async findById(id: string) {

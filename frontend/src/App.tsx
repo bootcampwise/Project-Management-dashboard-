@@ -56,6 +56,7 @@ function App() {
         <Route path="/welcome" element={<WelcomeScreen />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/projectboard" element={<ProjectBoard />} />
+        <Route path="/project/:projectId" element={<ProjectBoard />} />
         <Route path="/tasks" element={<Tasks />} />
         <Route path="/team" element={<Team />} />
       </Routes>

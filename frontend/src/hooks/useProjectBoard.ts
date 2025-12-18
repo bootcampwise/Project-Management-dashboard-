@@ -29,6 +29,7 @@ export const useProjectBoard = () => {
     { id: "Table", icon: Table },
     { id: "Calendar", icon: Calendar },
     { id: "Timeline", icon: List },
+    { id: "Dashboard", icon: Layout },
   ];
 
   const handleCreateProject = (data: CreateProjectPayload) => {

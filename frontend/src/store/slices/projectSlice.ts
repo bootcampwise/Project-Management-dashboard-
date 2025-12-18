@@ -15,6 +15,7 @@ const initialState: ProjectState = {
   isCreateModalOpen: false,
   isTeamModalOpen: false,
   isTemplateLibraryOpen: false,
+  activeProject: null,
 };
 
 export const fetchProjects = createAsyncThunk(
@@ -70,6 +71,9 @@ const projectSlice = createSlice({
     setTemplateLibraryOpen: (state, action: PayloadAction<boolean>) => {
       state.isTemplateLibraryOpen = action.payload;
     },
+    setActiveProject: (state, action: PayloadAction<Project | null>) => {
+      state.activeProject = action.payload;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -82,6 +86,25 @@ const projectSlice = createSlice({
         (state, action: PayloadAction<Project[]>) => {
           state.isLoading = false;
           state.projects = action.payload;
+
+          if (state.projects.length > 0) {
+            if (!state.activeProject) {
+              state.activeProject = state.projects[0];
+            } else {
+              // Refresh active project data to ensure nested fields (like teams) are up to date
+              const updatedActive = state.projects.find(
+                (p) => p.id === state.activeProject?.id
+              );
+              if (updatedActive) {
+                state.activeProject = updatedActive;
+              } else {
+                // If active project was deleted/not found, switch to first available
+                state.activeProject = state.projects[0];
+              }
+            }
+          } else {
+            state.activeProject = null;
+          }
         }
       )
       .addCase(fetchProjects.rejected, (state, action) => {})
@@ -111,6 +134,7 @@ export const {
   setCreateModalOpen,
   setTeamModalOpen,
   setTemplateLibraryOpen,
+  setActiveProject,
 } = projectSlice.actions;
 
 export default projectSlice.reducer;

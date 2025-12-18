@@ -93,6 +93,7 @@ model User {
   projectIds    String[]       @db.ObjectId
   projects      Project[]      @relation("ProjectMembers", fields: [projectIds], references: [id])
   teamIds       String[]       @db.ObjectId
+  teams         Team[]         @relation("TeamMembers", fields: [teamIds], references: [id])
 
   assignedTasks Task[]         @relation("TaskAssignee")
   createdTasks  Task[]         @relation("TaskCreator")
@@ -155,6 +156,7 @@ model Project {
   members     User[]            @relation("ProjectMembers", fields: [memberIds], references: [id])
   tasks       Task[]
   teamIds     String[]          @db.ObjectId
+  teams       Team[]            @relation(fields: [teamIds], references: [id])
   events      CalendarEvent[]
   snapshots   ProjectSnapshot[]
 
@@ -372,7 +374,14 @@ model Team {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
   name      String
   projectIds String[] @db.ObjectId
+  projects   Project[] @relation(fields: [projectIds], references: [id])
   memberIds String[] @db.ObjectId
+  members   User[]   @relation("TeamMembers", fields: [memberIds], references: [id])
+  status      String?        @default("On track") // On track, At risk, On hold
+  priority    String?        @default("Medium") // High, Medium, Low
+  startDate   DateTime?
+  endDate     DateTime?
+  progress    Int?           @default(0)
   createdAt DateTime @default(now())
 }
 

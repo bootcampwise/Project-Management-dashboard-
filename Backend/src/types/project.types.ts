@@ -20,4 +20,5 @@ export interface UpdateProjectInput {
   endDate?: Date;
   status?: ProjectStatus;
   progress?: number;
+  teamIds?: string[];
 }

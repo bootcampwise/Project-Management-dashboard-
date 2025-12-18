@@ -67,6 +67,7 @@ const CreateTeamModal: React.FC<CreateTeamModalProps> = ({ isOpen, onClose }) =>
 
             // Refresh teams list so it appears in other modals
             dispatch(fetchTeams());
+            dispatch(fetchProjects());
             onClose();
         } catch (error: any) {
             console.error("Failed to create team:", error);

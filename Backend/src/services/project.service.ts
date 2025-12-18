@@ -1,16 +1,23 @@
 import { AppError } from "../middlewares/error.middleware";
 import { CreateProjectInput, UpdateProjectInput } from "../types/project.types";
 import { ProjectRepository } from "../repositories/project.repository";
+import { TeamService } from "./team.service";
 
 export class ProjectService {
   private projectRepository: ProjectRepository;
+  private teamService: TeamService;
 
   constructor() {
     this.projectRepository = new ProjectRepository();
+    this.teamService = new TeamService();
   }
 
   async getUserProjects(userId: string) {
     return this.projectRepository.findManyByUserId(userId);
+  }
+
+  async getAllProjects() {
+    return this.projectRepository.findAll();
   }
 
   async getProjectById(projectId: string, userId: string) {
@@ -27,7 +34,26 @@ export class ProjectService {
   }
 
   async createProject(data: CreateProjectInput, ownerId: string) {
-    return this.projectRepository.create(data, ownerId);
+    // Create the project first
+    const project = await this.projectRepository.create(data, ownerId);
+
+    // If no teams provided, create a default 'Development' team and attach it
+    const hasTeamIds = Array.isArray(data.teamIds) && data.teamIds.length > 0;
+    if (!hasTeamIds) {
+      const team = await this.teamService.createTeam(
+        "Development",
+        [project.id],
+        [ownerId]
+      );
+
+      // Update project to include the created team id (teamIds array)
+      await this.projectRepository.update(project.id, {
+        teamIds: [team.id],
+      });
+    }
+
+    // Return project with teams populated by fetching by id
+    return this.projectRepository.findByIdAndUserId(project.id, ownerId);
   }
 
   async updateProject(

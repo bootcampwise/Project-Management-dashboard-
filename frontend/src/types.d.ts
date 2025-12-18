@@ -14,7 +14,7 @@ export interface Task {
   subtasks: string | number;
   status: "To-Do" | "Completed" | "In Progress";
   priority: "High" | "Medium" | "Low";
-  0;
+
   startDate: string;
   endDate: string;
   dueDate?: string;
@@ -116,6 +116,7 @@ export interface TaskDetailModalProps {
 export interface CreateProjectModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onOpenTemplateLibrary: () => void;
 }
 
 export interface CreateTeamModalProps {
@@ -126,6 +127,7 @@ export interface CreateTeamModalProps {
 export interface TemplateLibraryModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onSelectTemplate: () => void;
 }
 
 // ============================================
@@ -210,7 +212,21 @@ export interface Project {
   color?: string;
   progress?: number;
   status?: string;
-  createdAt?: string;
+  members?: { id: string; name: string; avatar?: string }[];
+  teams?: {
+    id: string;
+    name: string;
+    avatar?: string;
+    members?: { avatar?: string }[];
+    status?: string;
+    priority?: string;
+    startDate?: string;
+    endDate?: string;
+    progress?: number;
+  }[];
+  startDate?: string;
+  endDate?: string;
+  priority?: "High" | "Medium" | "Low";
   createdAt?: string;
   updatedAt?: string;
 }
@@ -231,6 +247,7 @@ export interface ProjectState {
   isCreateModalOpen: boolean;
   isTeamModalOpen: boolean;
   isTemplateLibraryOpen: boolean;
+  activeProject: Project | null;
 }
 
 export interface TaskState {
@@ -265,6 +282,11 @@ export interface Team {
   projectId?: string;
   memberIds: string[];
   members?: TeamMember[];
+  status?: string;
+  priority?: string;
+  startDate?: string;
+  endDate?: string;
+  progress?: number;
   createdAt: string;
 }
 

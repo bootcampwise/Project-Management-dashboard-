@@ -3,9 +3,19 @@ import { CreateProjectInput, UpdateProjectInput } from "../types/project.types";
 
 export class ProjectRepository {
   async findManyByUserId(userId: string) {
+    const userTeams = await prisma.team.findMany({
+      where: { memberIds: { has: userId } },
+      select: { id: true },
+    });
+    const teamIds = userTeams.map((t) => t.id);
+
     return prisma.project.findMany({
       where: {
-        OR: [{ ownerId: userId }, { members: { some: { id: userId } } }],
+        OR: [
+          { ownerId: userId },
+          { members: { some: { id: userId } } },
+          { teamIds: { hasSome: teamIds } },
+        ],
       },
       include: {
         owner: {
@@ -24,11 +34,63 @@ export class ProjectRepository {
             avatar: true,
           },
         },
+        teams: {
+          select: {
+            id: true,
+            name: true,
+            status: true,
+            priority: true,
+            startDate: true,
+            endDate: true,
+            progress: true,
+            members: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+                avatar: true,
+              },
+            },
+          },
+        },
         _count: {
           select: {
             tasks: true,
           },
         },
+      },
+    });
+  }
+
+  async findAll() {
+    return prisma.project.findMany({
+      include: {
+        owner: {
+          select: { id: true, name: true, email: true, avatar: true },
+        },
+        members: {
+          select: { id: true, name: true, email: true, avatar: true },
+        },
+        teams: {
+          select: {
+            id: true,
+            name: true,
+            status: true,
+            priority: true,
+            startDate: true,
+            endDate: true,
+            progress: true,
+            members: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+                avatar: true,
+              },
+            },
+          },
+        },
+        _count: { select: { tasks: true } },
       },
     });
   }
@@ -42,6 +104,25 @@ export class ProjectRepository {
       include: {
         owner: true,
         members: true,
+        teams: {
+          select: {
+            id: true,
+            name: true,
+            status: true,
+            priority: true,
+            startDate: true,
+            endDate: true,
+            progress: true,
+            members: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+                avatar: true,
+              },
+            },
+          },
+        },
         tasks: {
           where: { isDeleted: false },
         },

@@ -10,9 +10,19 @@ export class ProjectController {
   async getProjects(req: Request, res: Response, next: NextFunction) {
     try {
       const { sub: supabaseId } = req.user!;
-      const user = await userService.getUserBySupabaseId(supabaseId);
-      const projects = await projectService.getUserProjects(user.id);
-      sendSuccess(res, projects);
+      try {
+        const user = await userService.getUserBySupabaseId(supabaseId);
+        const projects = await projectService.getUserProjects(user.id);
+        return sendSuccess(res, projects);
+      } catch (err) {
+        // If user not found and we're in development, return all projects as a
+        // developer-friendly fallback so the UI can show existing projects.
+        if (process.env.NODE_ENV === "development") {
+          const projects = await projectService.getAllProjects();
+          return sendSuccess(res, projects);
+        }
+        throw err;
+      }
     } catch (error) {
       next(error);
     }
