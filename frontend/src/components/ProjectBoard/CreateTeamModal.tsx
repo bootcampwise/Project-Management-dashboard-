@@ -1,7 +1,11 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { X, ChevronDown, Check } from 'lucide-react';
 import { useCreateTeamModal } from '../../hooks/useCreateTeamModal';
-import type { TeamMember } from '../../types';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import { fetchProjects } from '../../store/slices/projectSlice';
+import { createTeam, fetchTeams } from '../../store/slices/teamSlice';
+import type { TeamMember, Project } from '../../types';
+import { toast } from 'react-hot-toast';
 
 interface CreateTeamModalProps {
     isOpen: boolean;
@@ -9,6 +13,13 @@ interface CreateTeamModalProps {
 }
 
 const CreateTeamModal: React.FC<CreateTeamModalProps> = ({ isOpen, onClose }) => {
+    const dispatch = useAppDispatch();
+    const { projects, isLoading: isProjectsLoading } = useAppSelector(state => state.project);
+
+    // Local state for selected projects
+    const [selectedProjectIds, setSelectedProjectIds] = useState<string[]>([]);
+    const [isProjectDropdownOpen, setIsProjectDropdownOpen] = useState(false);
+
     const {
         teamName,
         setTeamName,
@@ -16,10 +27,54 @@ const CreateTeamModal: React.FC<CreateTeamModalProps> = ({ isOpen, onClose }) =>
         setMembersInput,
         selectedMembers,
         setShowSuggestions,
-        isLoading,
+        isLoading: isMembersLoading,
         filteredMembers,
         toggleMemberSelection
     } = useCreateTeamModal(isOpen);
+
+    useEffect(() => {
+        if (isOpen) {
+            dispatch(fetchProjects());
+        }
+    }, [isOpen, dispatch]);
+
+    const handleProjectToggle = (projectId: string) => {
+        if (selectedProjectIds.includes(projectId)) {
+            setSelectedProjectIds(selectedProjectIds.filter(id => id !== projectId));
+        } else {
+            setSelectedProjectIds([...selectedProjectIds, projectId]);
+        }
+    };
+
+    const [isCreating, setIsCreating] = useState(false);
+
+    const handleCreateTeam = async () => {
+        if (!teamName.trim()) {
+            toast.error("Please enter a team name");
+            return;
+        }
+
+        try {
+            setIsCreating(true);
+
+            await dispatch(createTeam({
+                name: teamName,
+                memberIds: selectedMembers.map(m => String(m.id)),
+                projectIds: selectedProjectIds
+            })).unwrap();
+
+            toast.success("Team created successfully!");
+
+            // Refresh teams list so it appears in other modals
+            dispatch(fetchTeams());
+            onClose();
+        } catch (error: any) {
+            console.error("Failed to create team:", error);
+            toast.error(error.message || error || "Failed to create team");
+        } finally {
+            setIsCreating(false);
+        }
+    };
 
     if (!isOpen) return null;
 
@@ -51,14 +106,45 @@ const CreateTeamModal: React.FC<CreateTeamModalProps> = ({ isOpen, onClose }) =>
                     </div>
 
                     {/* Projects */}
-                    <div className="mb-5">
+                    <div className="mb-5 relative">
                         <label className="block text-xs font-medium text-gray-400 mb-1.5 uppercase">
                             Projects
                         </label>
-                        <button className="w-full flex items-center justify-between px-3 py-2.5 border border-dashed border-gray-300 rounded-md text-gray-500 hover:border-gray-400 transition-colors">
-                            <span className="text-sm"></span>
-                            <span className="text-gray-400 text-lg">›</span>
+                        <button
+                            onClick={() => setIsProjectDropdownOpen(!isProjectDropdownOpen)}
+                            className="w-full flex items-center justify-between px-3 py-2.5 border border-dashed border-gray-300 rounded-md text-gray-500 hover:border-gray-400 transition-colors"
+                        >
+                            <span className="text-sm">
+                                {selectedProjectIds.length > 0
+                                    ? `${selectedProjectIds.length} projects selected`
+                                    : "Select projects"}
+                            </span>
+                            <ChevronDown size={16} className={`text-gray-400 transition-transform ${isProjectDropdownOpen ? 'rotate-180' : ''}`} />
                         </button>
+
+                        {/* Projects Dropdown */}
+                        {isProjectDropdownOpen && (
+                            <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg max-h-[200px] overflow-y-auto">
+                                {isProjectsLoading ? (
+                                    <div className="p-3 text-center text-sm text-gray-400">Loading projects...</div>
+                                ) : projects.length > 0 ? (
+                                    projects.map(project => (
+                                        <div
+                                            key={project.id}
+                                            onClick={() => handleProjectToggle(project.id)}
+                                            className="flex items-center justify-between px-3 py-2 hover:bg-gray-50 cursor-pointer text-sm"
+                                        >
+                                            <span className="text-gray-700">{project.name}</span>
+                                            {selectedProjectIds.includes(project.id) && (
+                                                <Check size={14} className="text-blue-500" />
+                                            )}
+                                        </div>
+                                    ))
+                                ) : (
+                                    <div className="p-3 text-center text-sm text-gray-400">No projects found</div>
+                                )}
+                            </div>
+                        )}
                     </div>
 
                     {/* Members Input */}
@@ -74,7 +160,7 @@ const CreateTeamModal: React.FC<CreateTeamModalProps> = ({ isOpen, onClose }) =>
                                 setShowSuggestions(true);
                             }}
                             onFocus={() => setShowSuggestions(true)}
-                            className="w-full px-3 py-2 border border-gray-200 rounded-md text-sm placeholder-gray-300 focus:outline-none focus:border-gray-300"
+                            className="w-full px-3 py-2 border border-blue-300 rounded-md text-sm placeholder-gray-300 focus:outline-none focus:ring-1 focus:ring-blue-100 focus:border-blue-400"
                             placeholder="Search members by name or email"
                         />
                     </div>
@@ -82,7 +168,7 @@ const CreateTeamModal: React.FC<CreateTeamModalProps> = ({ isOpen, onClose }) =>
                     {/* Members List - showing actual members from Redux */}
                     <div className="space-y-4 max-h-[200px] overflow-y-auto">
                         <h4 className="text-xs font-medium text-gray-500 uppercase">Available Members</h4>
-                        {isLoading ? (
+                        {isMembersLoading ? (
                             <div className="text-center py-4 text-gray-400 text-sm">Loading members...</div>
                         ) : filteredMembers.length > 0 ? (
                             filteredMembers.map((member) => {
@@ -116,8 +202,13 @@ const CreateTeamModal: React.FC<CreateTeamModalProps> = ({ isOpen, onClose }) =>
                 {/* Footer Buttons */}
                 <div className="px-6 py-4 border-t border-dashed border-blue-200">
                     <div className="flex items-center gap-3">
-                        <button className="px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium rounded-md shadow-sm shadow-blue-200 transition-colors">
-                            Create Team
+                        <button
+                            onClick={handleCreateTeam}
+                            disabled={isCreating || !teamName.trim()}
+                            className={`px-6 py-2 bg-blue-500 text-white text-sm font-medium rounded-md shadow-sm shadow-blue-200 transition-colors ${isCreating || !teamName.trim() ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-600'
+                                }`}
+                        >
+                            {isCreating ? 'Creating...' : 'Create Team'}
                         </button>
                         <button onClick={onClose} className="px-6 py-2 bg-white border border-gray-200 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-50 transition-colors">
                             Cancel

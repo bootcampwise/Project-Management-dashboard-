@@ -20,10 +20,14 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ isOpen, onClose, onCr
         tags, setTags,
         description, setDescription,
         attachments,
+        selectedProjectId, setSelectedProjectId,
+        projects, isLoading,
         fileInputRef,
         handleFileChange,
         handleCreate,
-        removeAttachment
+        removeAttachment,
+        dueDate,
+        setDueDate
     } = useCreateTaskModal({ isOpen, onClose, onCreate, initialStatus });
 
     if (!isOpen) return null;
@@ -44,6 +48,38 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ isOpen, onClose, onCr
 
                 {/* Body */}
                 <div className="p-6 overflow-y-auto space-y-5">
+
+                    {/* Project Selection */}
+                    <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+                            Select Project
+                        </label>
+                        <div className="relative">
+                            <select
+                                value={selectedProjectId}
+                                onChange={(e) => setSelectedProjectId(e.target.value)}
+                                disabled={isLoading || projects.length === 0}
+                                className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm appearance-none bg-white focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-50 transition-all cursor-pointer text-gray-700 disabled:bg-gray-50 disabled:cursor-not-allowed"
+                            >
+                                {isLoading ? (
+                                    <option>Loading projects...</option>
+                                ) : projects.length === 0 ? (
+                                    <option>No projects found</option>
+                                ) : (
+                                    projects.map((project) => (
+                                        <option key={project.id} value={project.id}>
+                                            {project.name}
+                                        </option>
+                                    ))
+                                )}
+                            </select>
+                            <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none text-gray-400">
+                                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M2.5 4.5L6 8L9.5 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
 
                     {/* Title */}
                     <div>

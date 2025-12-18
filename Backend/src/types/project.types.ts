@@ -1,3 +1,5 @@
+import { ProjectStatus } from "@prisma/client";
+
 export interface CreateProjectInput {
   name: string;
   key: string;
@@ -15,6 +17,6 @@ export interface UpdateProjectInput {
   color?: string;
   startDate?: Date;
   endDate?: Date;
-  status?: string;
+  status?: ProjectStatus;
   progress?: number;
 }

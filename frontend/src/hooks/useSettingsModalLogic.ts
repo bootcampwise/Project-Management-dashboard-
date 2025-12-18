@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import type { RootState, AppDispatch } from "../store";
 import { updateUserProfile, signOut } from "../store/slices/authSlice";
+import { fetchTeams } from "../store/slices/teamSlice";
 import { supabase } from "../lib/supabase";
 
 export const useSettingsModalLogic = (
@@ -12,6 +13,7 @@ export const useSettingsModalLogic = (
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const { user } = useSelector((state: RootState) => state.auth);
+  const { teams } = useSelector((state: RootState) => state.team);
 
   const [activeTab, setActiveTab] = useState("Profile");
   const [uploading, setUploading] = useState(false);
@@ -20,21 +22,23 @@ export const useSettingsModalLogic = (
   const [formData, setFormData] = useState({
     name: "",
     jobTitle: "",
-    department: "Product Design",
+    department: "",
   });
 
   useEffect(() => {
     if (initialTab) {
       setActiveTab(initialTab);
     }
-  }, [initialTab]);
+    // Fetch teams when modal opens
+    dispatch(fetchTeams());
+  }, [initialTab, dispatch]);
 
   useEffect(() => {
     if (user) {
       setFormData({
         name: user.name || "",
         jobTitle: user.jobTitle || "",
-        department: user.department || "Product Design",
+        department: user.department || "",
       });
     }
   }, [user]);
@@ -110,10 +114,6 @@ export const useSettingsModalLogic = (
       })
     );
     onClose();
-    // Redirect to dashboard if this was part of onboarding?
-    // The dashboard useEffect will handle the "openOnboarding" state cleanup,
-    // but if we want to force a refresh/navigation we could.
-    // For now, closing the modal is sufficient as the user is already on the dashboard.
   };
 
   const handleLogout = async () => {
@@ -128,6 +128,7 @@ export const useSettingsModalLogic = (
     formData,
     uploading,
     fileInputRef,
+    teams,
     handleTabChange,
     handleInputChange,
     handlePhotoUpload,

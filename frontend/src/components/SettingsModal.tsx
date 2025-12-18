@@ -16,14 +16,13 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, initialT
         formData,
         uploading,
         fileInputRef,
-        handleTabChange, // Note: Hook returns handleTabChange, but component expects setActiveTab usage? 
-        // Check hook definition: const handleTabChange = (tab: string) => setActiveTab(tab);
-        // So we can use handleTabChange(tab).
-        handleInputChange, // Hook wrapper for input changes
+        handleTabChange,
+        handleInputChange,
         handlePhotoUpload,
         handleRemovePhoto,
         handleSave,
-        handleLogout
+        handleLogout,
+        teams
     } = useSettingsModalLogic(initialTab, onClose);
 
     const { theme, toggleTheme } = useTheme();
@@ -161,10 +160,14 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, initialT
                                             onChange={handleInputChange}
                                             className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-gray-900 appearance-none bg-white"
                                         >
-                                            <option value="Designer Team">Designer Team</option>
-                                            <option value="Development Team">Development Team</option>
-                                            <option value="Marketing Team">Marketing Team</option>
-                                            <option value="Product Team">Product Team</option>
+                                            <option value="">Select a team</option>
+                                            {teams && teams.length > 0 ? (
+                                                teams.map(team => (
+                                                    <option key={team.id} value={team.name}>{team.name}</option>
+                                                ))
+                                            ) : (
+                                                <option disabled>No teams found</option>
+                                            )}
                                         </select>
                                     </div>
                                 </div>

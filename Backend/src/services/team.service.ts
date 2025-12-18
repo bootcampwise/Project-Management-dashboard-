@@ -7,15 +7,17 @@ export class TeamService {
     this.teamRepository = new TeamRepository();
   }
 
-  async createTeam(data: {
-    name: string;
-    projectId?: string;
-    memberIds: string[];
-  }) {
-    if (!data.name) {
+  async createTeam(name: string, projectIds: string[], memberIds: string[]) {
+    // Validate inputs
+    if (!name) {
       throw new Error("Team name is required");
     }
-    return this.teamRepository.create(data);
+
+    return this.teamRepository.create({
+      name,
+      projectIds,
+      memberIds,
+    });
   }
 
   async getTeamById(id: string) {
@@ -28,6 +30,10 @@ export class TeamService {
 
   async getProjectTeams(projectId: string) {
     return this.teamRepository.findByProjectId(projectId);
+  }
+
+  async getUserTeams(userId: string) {
+    return this.teamRepository.findByMemberId(userId);
   }
 
   async updateTeam(id: string, data: { name?: string; memberIds?: string[] }) {

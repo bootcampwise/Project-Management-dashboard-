@@ -14,6 +14,7 @@ export interface Task {
   subtasks: string | number;
   status: "To-Do" | "Completed" | "In Progress";
   priority: "High" | "Medium" | "Low";
+  0;
   startDate: string;
   endDate: string;
   dueDate?: string;
@@ -160,6 +161,8 @@ export interface CreateTaskPayload {
   tags: string[];
   description: string;
   attachments: File[];
+  projectId: string;
+  dueDate?: string;
 }
 
 export interface CalendarEvent {
@@ -198,7 +201,32 @@ export interface TaskCardComponentProps {
   onClick?: () => void;
 }
 
+export interface Project {
+  id: string;
+  name: string;
+  key: string;
+  description?: string;
+  icon?: string;
+  color?: string;
+  progress?: number;
+  status?: string;
+  createdAt?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface CreateProjectPayload {
+  name: string;
+  description: string;
+  dueDate?: string;
+  teamId?: string;
+  privacy: "public" | "private" | "team";
+}
+
 export interface ProjectState {
+  projects: Project[];
+  isLoading: boolean;
+  error: string | null;
   activeTab: string;
   isCreateModalOpen: boolean;
   isTeamModalOpen: boolean;
@@ -231,6 +259,15 @@ export interface AuthState {
   error: string | null;
 }
 
+export interface Team {
+  id: string;
+  name: string;
+  projectId?: string;
+  memberIds: string[];
+  members?: TeamMember[];
+  createdAt: string;
+}
+
 export interface TeamMember {
   id: number | string;
   name: string;
@@ -250,6 +287,7 @@ export interface NotificationsPopupProps {
 
 export interface TeamState {
   members: TeamMember[];
+  teams: Team[];
   isLoading: boolean;
   error: string | null;
 }

@@ -1,5 +1,5 @@
 import { prisma } from "../config/prisma";
-import { CreateProjectInput, UpdateProjectInput } from "../types/project";
+import { CreateProjectInput, UpdateProjectInput } from "../types/project.types";
 
 export class ProjectRepository {
   async findManyByUserId(userId: string) {
@@ -51,10 +51,20 @@ export class ProjectRepository {
   }
 
   async create(data: CreateProjectInput, ownerId: string) {
+    // Generate a simple key from the name + random number
+    const prefix = data.name
+      ? data.name
+          .replace(/[^a-zA-Z0-9]/g, "")
+          .substring(0, 3)
+          .toUpperCase()
+      : "PRJ";
+    const key = `${prefix}-${Date.now().toString(36).toUpperCase()}`;
+
     return prisma.project.create({
       data: {
         ...data,
         ownerId,
+        key,
       },
     });
   }

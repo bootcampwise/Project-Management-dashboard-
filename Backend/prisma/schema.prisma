@@ -371,7 +371,7 @@ model SearchHistory {
 model Team {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
   name      String
-  projectId String?  @db.ObjectId
+  projectIds String[] @db.ObjectId
   memberIds String[] @db.ObjectId
   createdAt DateTime @default(now())
 }

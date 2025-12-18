@@ -3,7 +3,7 @@ import { prisma } from "../config/prisma";
 export class TeamRepository {
   async create(data: {
     name: string;
-    projectId?: string;
+    projectIds: string[];
     memberIds: string[];
   }) {
     return prisma.team.create({
@@ -19,7 +19,21 @@ export class TeamRepository {
 
   async findByProjectId(projectId: string) {
     return prisma.team.findMany({
-      where: { projectId },
+      where: {
+        projectIds: {
+          has: projectId,
+        },
+      },
+    });
+  }
+
+  async findByMemberId(userId: string) {
+    return prisma.team.findMany({
+      where: {
+        memberIds: {
+          has: userId,
+        },
+      },
     });
   }
 

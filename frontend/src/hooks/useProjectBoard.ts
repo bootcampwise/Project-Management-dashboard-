@@ -8,7 +8,8 @@ import {
   setTemplateLibraryOpen,
 } from "../store/slices/projectSlice";
 import { setSidebarOpen } from "../store/slices/uiSlice";
-import { setSelectedTask } from "../store/slices/taskSlice"; // Assuming selectedTask is shared or moved to taskSlice
+import { setSelectedTask } from "../store/slices/taskSlice";
+import type { CreateProjectPayload } from "../types";
 
 export const useProjectBoard = () => {
   const dispatch = useAppDispatch();
@@ -30,7 +31,8 @@ export const useProjectBoard = () => {
     { id: "Timeline", icon: List },
   ];
 
-  const handleCreateProject = () => {
+  const handleCreateProject = (data: CreateProjectPayload) => {
+    console.log("Create Project Data:", data);
     dispatch(setCreateModalOpen(false));
     dispatch(setTeamModalOpen(true));
   };

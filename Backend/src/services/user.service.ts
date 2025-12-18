@@ -44,6 +44,15 @@ export class UserService {
     return user;
   }
 
+  // Get user by Supabase ID
+  async getUserBySupabaseId(supabaseId: string) {
+    const user = await this.userRepository.findUnique({ supabaseId });
+    if (!user) {
+      throw new AppError("User not found", 404);
+    }
+    return user;
+  }
+
   // Get all users
   async getAllUsers() {
     return this.userRepository.findAll();

@@ -1,5 +1,5 @@
 import { AppError } from "../middlewares/error.middleware";
-import { CreateProjectInput, UpdateProjectInput } from "../types/project";
+import { CreateProjectInput, UpdateProjectInput } from "../types/project.types";
 import { ProjectRepository } from "../repositories/project.repository";
 
 export class ProjectService {
@@ -20,7 +20,7 @@ export class ProjectService {
     );
 
     if (!project) {
-      throw new AppError(404, "Project not found or access denied");
+      throw new AppError("Project not found or access denied", 404);
     }
 
     return project;
@@ -42,7 +42,7 @@ export class ProjectService {
     );
 
     if (!project) {
-      throw new AppError(403, "Only project owner can update project");
+      throw new AppError("Only project owner can update project", 403);
     }
 
     const updated = await this.projectRepository.update(projectId, data);
@@ -57,7 +57,7 @@ export class ProjectService {
     );
 
     if (!project) {
-      throw new AppError(403, "Only project owner can delete project");
+      throw new AppError("Only project owner can delete project", 403);
     }
 
     await this.projectRepository.delete(projectId);

@@ -1,16 +1,62 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, Sparkles, ChevronDown } from 'lucide-react';
+
+import type { CreateProjectPayload } from '../../types';
+
+import { useAppSelector, useAppDispatch } from '../../store/hooks';
+import { fetchTeams } from '../../store/slices/teamSlice';
+import { createProject } from '../../store/slices/projectSlice';
+import { toast } from 'react-hot-toast';
 
 interface CreateProjectModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onCreate: () => void;
     onOpenTemplateLibrary: () => void;
 }
 
-const CreateProjectModal: React.FC<CreateProjectModalProps> = ({ isOpen, onClose, onCreate, onOpenTemplateLibrary }) => {
+const CreateProjectModal: React.FC<CreateProjectModalProps> = ({ isOpen, onClose, onOpenTemplateLibrary }) => {
+    const dispatch = useAppDispatch();
+    const { teams } = useAppSelector(state => state.team);
+
     const [projectName, setProjectName] = useState('');
     const [description, setDescription] = useState('');
+    const [dueDate, setDueDate] = useState('');
+    const [selectedTeamId, setSelectedTeamId] = useState<string>('');
+    const [privacy, setPrivacy] = useState<"public" | "private" | "team">("public");
+
+    const [isCreating, setIsCreating] = useState(false);
+
+    useEffect(() => {
+        if (isOpen) {
+            dispatch(fetchTeams());
+        }
+    }, [isOpen, dispatch]);
+
+    const handleCreate = async () => {
+        if (!projectName.trim()) {
+            toast.error("Please enter a project name");
+            return;
+        }
+
+        try {
+            setIsCreating(true);
+            await dispatch(createProject({
+                name: projectName,
+                description,
+                dueDate: dueDate || undefined,
+                teamId: selectedTeamId || undefined,
+                privacy,
+            })).unwrap();
+
+            toast.success("Create project successfully");
+            onClose();
+        } catch (error: any) {
+            console.error("Failed to create project:", error);
+            toast.error(error.message || error || "Failed to create project");
+        } finally {
+            setIsCreating(false);
+        }
+    };
 
     if (!isOpen) return null;
 
@@ -68,10 +114,17 @@ const CreateProjectModal: React.FC<CreateProjectModalProps> = ({ isOpen, onClose
                                 Select a team
                             </label>
                             <div className="relative">
-                                <button className="w-full flex items-center justify-between px-3 py-2 border border-gray-200 rounded-md bg-white text-gray-800 text-sm hover:border-gray-300">
-                                    <span>Design team</span>
-                                    <ChevronDown size={14} className="text-gray-400" />
-                                </button>
+                                <select
+                                    value={selectedTeamId}
+                                    onChange={(e) => setSelectedTeamId(e.target.value)}
+                                    className="w-full appearance-none px-3 py-2 border border-gray-200 rounded-md bg-white text-gray-800 text-sm hover:border-gray-300 focus:outline-none focus:border-blue-500 pr-8"
+                                >
+                                    <option value="" disabled>Select a team</option>
+                                    {teams.map(team => (
+                                        <option key={team.id} value={team.id}>{team.name}</option>
+                                    ))}
+                                </select>
+                                <ChevronDown size={14} className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none" />
                             </div>
                         </div>
 
@@ -81,12 +134,31 @@ const CreateProjectModal: React.FC<CreateProjectModalProps> = ({ isOpen, onClose
                                 Privacy
                             </label>
                             <div className="relative">
-                                <button className="w-full flex items-center justify-between px-3 py-2 border border-gray-200 rounded-md bg-white text-gray-800 text-sm hover:border-gray-300">
-                                    <span>Shared with team</span>
-                                    <ChevronDown size={14} className="text-gray-400" />
-                                </button>
+                                <select
+                                    value={privacy}
+                                    onChange={(e) => setPrivacy(e.target.value as any)}
+                                    className="w-full appearance-none px-3 py-2 border border-gray-200 rounded-md bg-white text-gray-800 text-sm hover:border-gray-300 focus:outline-none focus:border-blue-500 pr-8"
+                                >
+                                    <option value="public">Public to team</option>
+                                    <option value="private">Private to members</option>
+                                    <option value="team">Shared with team</option>
+                                </select>
+                                <ChevronDown size={14} className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none" />
                             </div>
                         </div>
+                    </div>
+
+                    {/* Due Date */}
+                    <div className="mb-5">
+                        <label className="block text-xs font-medium text-gray-400 mb-1.5 uppercase">
+                            Due Date
+                        </label>
+                        <input
+                            type="date"
+                            value={dueDate}
+                            onChange={(e) => setDueDate(e.target.value)}
+                            className="w-full px-3 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 text-sm"
+                        />
                     </div>
 
                     {/* Description */}
@@ -108,10 +180,11 @@ const CreateProjectModal: React.FC<CreateProjectModalProps> = ({ isOpen, onClose
                 <div className="px-6 py-4 border-t border-dashed border-blue-200">
                     <div className="flex items-center gap-3">
                         <button
-                            onClick={onCreate}
-                            className="px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium rounded-md shadow-sm shadow-blue-200 transition-colors"
+                            onClick={handleCreate}
+                            disabled={isCreating || !projectName.trim()}
+                            className="px-6 py-2 bg-blue-500 hover:bg-blue-600 disabled:bg-blue-300 text-white text-sm font-medium rounded-md shadow-sm shadow-blue-200 transition-colors"
                         >
-                            Create project
+                            {isCreating ? "Creating..." : "Create project"}
                         </button>
                         <button onClick={onClose} className="px-6 py-2 bg-white border border-gray-200 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-50 transition-colors">
                             Cancel
