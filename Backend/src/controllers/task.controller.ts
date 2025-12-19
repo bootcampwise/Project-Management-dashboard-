@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { TaskService } from "../services/task.service";
 import { sendSuccess } from "../utils/response";
-import { CreateTaskInput, UpdateTaskInput } from "../types/task";
+import { CreateTaskInput, UpdateTaskInput } from "../types/task.types";
 import { UserService } from "../services/user.service";
 
 const taskService = new TaskService();
@@ -35,9 +35,18 @@ export class TaskController {
     try {
       const { sub: supabaseId } = req.user!;
       const user = await userService.getUserBySupabaseId(supabaseId);
-      const task = await taskService.createTask(req.body, user.id, user.id);
+      console.log("Creating task for user:", user.id);
+      console.log("Task Body:", req.body);
+
+      // Pass req.body.projectId as the 3rd argument if it exists in body
+      const task = await taskService.createTask(
+        req.body,
+        user.id,
+        req.body.projectId
+      );
       sendSuccess(res, task, "Task created successfully", 201);
     } catch (error) {
+      console.error("Error creating task:", error);
       next(error);
     }
   }

@@ -1,111 +1,61 @@
-import { useState } from "react";
-import type { TableGroup } from "../types";
+import { useState, useEffect } from "react";
+import type { TableGroup, Task } from "../types";
 
-export const useTableView = () => {
-  // Mock Data matching BoardView data source
-  const initialGroups: TableGroup[] = [
-    {
-      id: "1",
-      title: "In progress",
-      count: 3,
-      color: "green",
-      isCollapsed: false,
-      tasks: [
-        {
-          id: "1",
-          name: "Contact customers with failed new payments",
-          assignee: {
-            name: "John Doe",
-            avatar: "https://i.pravatar.cc/150?u=1",
-          },
-          dueDate: "Oct 24",
-          labels: [
-            { text: "design", color: "text-orange-600", bg: "bg-orange-100" },
-            { text: "web", color: "text-blue-600", bg: "bg-blue-100" },
-          ],
-          comments: 3,
-          attachments: 2,
-        },
-        {
-          id: "2",
-          name: "Dashboard: concept",
-          assignee: {
-            name: "Jane Smith",
-            avatar: "https://i.pravatar.cc/150?u=2",
-          },
-          dueDate: "Oct 25",
-          labels: [
-            { text: "ui", color: "text-purple-600", bg: "bg-purple-100" },
-          ],
-          comments: 5,
-        },
-      ],
-    },
-    {
-      id: "2",
-      title: "To Do",
-      count: 2,
-      color: "gray",
-      isCollapsed: false,
-      tasks: [
-        {
-          id: "3",
-          name: "Extension: show totals",
-          assignee: { name: "Mike Johnson" },
-          dueDate: "Oct 26",
-          labels: [
-            { text: "feature", color: "text-green-600", bg: "bg-green-100" },
-          ],
-        },
-        {
-          id: "4",
-          name: "Task detail modal",
-          assignee: {
-            name: "Sarah Wilson",
-            avatar: "https://i.pravatar.cc/150?u=3",
-          },
-          dueDate: "Oct 27",
-          labels: [
-            { text: "design", color: "text-orange-600", bg: "bg-orange-100" },
-          ],
-          attachments: 1,
-        },
-      ],
-    },
-    {
-      id: "3",
-      title: "Completed",
-      count: 1,
-      color: "blue",
-      isCollapsed: false,
-      tasks: [
-        {
-          id: "5",
-          name: "Reporting: Design concept of visual dashboard",
-          assignee: {
-            name: "Alex Brown",
-            avatar: "https://i.pravatar.cc/150?u=4",
-          },
-          dueDate: "Oct 20",
-          labels: [
-            {
-              text: "analytics",
-              color: "text-indigo-600",
-              bg: "bg-indigo-100",
-            },
-          ],
-          comments: 8,
-          attachments: 3,
-        },
-      ],
-    },
-  ];
+export const useTableView = (tasks: Task[] = []) => {
+  const [groups, setGroups] = useState<TableGroup[]>([]);
 
-  const [groups, setGroups] = useState<TableGroup[]>(initialGroups);
+  useEffect(() => {
+    const statusGroups: Record<string, Task[]> = {
+      "In Progress": [],
+      "To-Do": [],
+      Completed: [],
+      Backlog: [],
+      Cancelled: [],
+    };
+
+    tasks.forEach((task) => {
+      const status = task.status || "To-Do";
+      if (statusGroups[status]) {
+        statusGroups[status].push(task);
+      } else {
+        // Handle unknown status if any, maybe put in To-Do or generic
+        statusGroups["To-Do"].push(task);
+      }
+    });
+
+    const newGroups: TableGroup[] = [
+      {
+        id: "1",
+        title: "In Progress",
+        count: statusGroups["In Progress"].length,
+        color: "green",
+        isCollapsed: false,
+        tasks: statusGroups["In Progress"].map(mapTaskToTableTask),
+      },
+      {
+        id: "2",
+        title: "To Do",
+        count: statusGroups["To-Do"].length,
+        color: "gray",
+        isCollapsed: false,
+        tasks: statusGroups["To-Do"].map(mapTaskToTableTask),
+      },
+      {
+        id: "3",
+        title: "Completed",
+        count: statusGroups["Completed"].length,
+        color: "blue",
+        isCollapsed: false,
+        tasks: statusGroups["Completed"].map(mapTaskToTableTask),
+      },
+    ];
+
+    setGroups(newGroups);
+  }, [tasks]);
 
   const toggleGroup = (groupId: string) => {
-    setGroups(
-      groups.map((g) =>
+    setGroups((prev) =>
+      prev.map((g) =>
         g.id === groupId ? { ...g, isCollapsed: !g.isCollapsed } : g
       )
     );
@@ -116,3 +66,14 @@ export const useTableView = () => {
     toggleGroup,
   };
 };
+
+// Helper to map Task to TableTask
+const mapTaskToTableTask = (task: Task) => ({
+  id: String(task.id),
+  name: task.name || task.title || "Untitled",
+  assignee: task.assignee || { name: "Unassigned" },
+  dueDate: task.dueDate || task.endDate || "",
+  labels: task.labels || task.tags || [],
+  comments: task.comments || 0,
+  attachments: task.attachments || 0,
+});

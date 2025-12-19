@@ -12,6 +12,8 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ isOpen, onClose, onCr
         status, setStatus,
         priority, setPriority,
         tags, setTags,
+        tagInput, setTagInput,
+        handleAddTag, handleRemoveTag,
         description, setDescription,
         attachments,
         selectedProjectId, setSelectedProjectId,
@@ -21,7 +23,13 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ isOpen, onClose, onCr
         handleCreate,
         removeAttachment,
         dueDate,
-        setDueDate
+        setDueDate,
+        assigneeIds,
+        assigneeSearch,
+        setAssigneeSearch,
+        filteredMembers,
+        handleToggleAssignee,
+        uniqueMembers
     } = useCreateTaskModal({ isOpen, onClose, onCreate, initialStatus });
 
     if (!isOpen) return null;
@@ -89,8 +97,8 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ isOpen, onClose, onCr
                         />
                     </div>
 
-                    {/* Status, Priority & Tags Row */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                    {/* Status, Priority, Due Date & Assignee Grid */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                         {/* Status */}
                         <div>
                             <label className="block text-sm font-semibold text-gray-700 mb-1.5">
@@ -141,18 +149,119 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ isOpen, onClose, onCr
                             </div>
                         </div>
 
-                        {/* Tags */}
+                        {/* Due Date */}
                         <div>
                             <label className="block text-sm font-semibold text-gray-700 mb-1.5">
-                                Tags
+                                Due Date
                             </label>
                             <input
+                                type="date"
+                                value={dueDate}
+                                onChange={(e) => setDueDate(e.target.value)}
+                                className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-50 transition-all text-gray-700"
+                            />
+                        </div>
+
+                        {/* Assignees */}
+                        <div className="relative">
+                            <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+                                Assignees
+                            </label>
+
+                            {/* Selected Assignees List */}
+                            <div className="flex flex-wrap gap-2 mb-2">
+                                {assigneeIds.length > 0 && assigneeIds.map(id => {
+                                    const member = uniqueMembers.find(m => m.id === id);
+                                    if (!member) return null;
+                                    return (
+                                        <div key={id} className="flex items-center gap-1.5 pl-1 pr-2 py-0.5 bg-blue-50 border border-blue-100 rounded-full">
+                                            <div className="w-5 h-5 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-[10px] overflow-hidden">
+                                                {member.avatar ? <img src={member.avatar} alt={member.name} className="w-full h-full object-cover" /> : (member.name?.[0] || 'U')}
+                                            </div>
+                                            <span className="text-xs font-medium text-gray-700">{member.name}</span>
+                                            <button
+                                                onClick={() => handleToggleAssignee(id)}
+                                                className="ml-0.5 text-gray-400 hover:text-red-500 transition-colors"
+                                            >
+                                                <X size={12} />
+                                            </button>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+
+                            {/* Search Input and Dropdown */}
+                            <div className="relative group">
+                                <input
+                                    type="text"
+                                    value={assigneeSearch}
+                                    onChange={(e) => setAssigneeSearch(e.target.value)}
+                                    placeholder={assigneeIds.length > 0 ? "Add more..." : "Search member..."}
+                                    className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-50 transition-all placeholder-gray-400"
+                                />
+                                {/* Dropdown Results */}
+                                {assigneeSearch && (
+                                    <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-48 overflow-y-auto">
+                                        {filteredMembers.length > 0 ? (
+                                            filteredMembers.map(member => {
+                                                const isSelected = assigneeIds.includes(member.id);
+                                                return (
+                                                    <div
+                                                        key={member.id}
+                                                        onClick={() => {
+                                                            handleToggleAssignee(member.id);
+                                                            setAssigneeSearch("");
+                                                        }}
+                                                        className={`px-4 py-2 hover:bg-gray-50 cursor-pointer flex items-center justify-between transition-colors ${isSelected ? 'bg-blue-50/50' : ''}`}
+                                                    >
+                                                        <div className="flex items-center gap-2">
+                                                            <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-xs overflow-hidden">
+                                                                {member.avatar ? <img src={member.avatar} alt={member.name} className="w-full h-full object-cover" /> : (member.name?.[0] || 'U')}
+                                                            </div>
+                                                            <span className="text-sm text-gray-700">{member.name}</span>
+                                                        </div>
+                                                        {isSelected && <div className="w-2 h-2 rounded-full bg-blue-500"></div>}
+                                                    </div>
+                                                );
+                                            })
+                                        ) : (
+                                            <div className="px-4 py-2 text-sm text-gray-500">No members found</div>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Tags */}
+                    <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+                            Tags
+                        </label>
+                        <div className="space-y-2">
+                            <input
                                 type="text"
-                                value={tags}
-                                onChange={(e) => setTags(e.target.value)}
-                                placeholder="design, web, etc"
+                                value={tagInput}
+                                onChange={(e) => setTagInput(e.target.value)}
+                                onKeyDown={handleAddTag}
+                                placeholder="Type and press Enter to add tags..."
                                 className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-50 transition-all placeholder-gray-400"
                             />
+                            {tags.length > 0 && (
+                                <div className="flex flex-wrap gap-2">
+                                    {tags.map((tag, index) => (
+                                        <div key={index} className="flex items-center gap-1.5 px-2.5 py-1 bg-blue-50 text-blue-600 rounded-full text-xs font-medium border border-blue-100">
+                                            <span>{tag}</span>
+                                            <button
+                                                onClick={() => handleRemoveTag(tag)}
+                                                className="p-0.5 hover:bg-blue-100 rounded-full transition-colors"
+                                            >
+                                                <X size={12} />
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
                         </div>
                     </div>
 
@@ -229,9 +338,13 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ isOpen, onClose, onCr
                     </button>
                     <button
                         onClick={handleCreate}
-                        className="px-5 py-2.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-800 rounded-lg shadow-sm hover:shadow-md transition-all flex items-center gap-2"
+                        disabled={!title.trim() || isLoading}
+                        className={`px-5 py-2.5 text-sm font-medium text-white rounded-lg shadow-sm transition-all flex items-center gap-2 ${!title.trim() || isLoading
+                                ? "bg-gray-300 cursor-not-allowed"
+                                : "bg-blue-600 hover:bg-blue-700 active:bg-blue-800 hover:shadow-md"
+                            }`}
                     >
-                        Create Task
+                        {isLoading ? "Creating..." : "Create Task"}
                     </button>
                 </div>
             </div>

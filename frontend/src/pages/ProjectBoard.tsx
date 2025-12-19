@@ -34,12 +34,21 @@ import AddEventModal from "../components/ProjectBoard/AddEventModal";
 import { useProjectBoard } from "../hooks/useProjectBoard";
 import type { Task } from "../types";
 
+import { fetchTasks, createTask } from "../store/slices/taskSlice";
+import toast from "react-hot-toast";
+
 const ProjectBoard: React.FC = () => {
     const { projectId } = useParams();
     const navigate = useNavigate();
     const dispatch = useAppDispatch();
 
     const { projects, activeProject } = useAppSelector(state => state.project);
+    const { tasks } = useAppSelector(state => state.task);
+
+    // Fetch tasks on mount
+    React.useEffect(() => {
+        dispatch(fetchTasks());
+    }, [dispatch]);
 
     // Sync URL param with active project, or default to first project
     React.useEffect(() => {
@@ -54,6 +63,12 @@ const ProjectBoard: React.FC = () => {
     }, [projectId, projects, activeProject, dispatch]);
 
     const project = activeProject;
+
+    // Filter tasks for the active project
+    const projectTasks = tasks.filter(task => {
+        if (typeof task.project === 'string') return task.project === project?.name;
+        return task.project?.id === project?.id;
+    });
 
     const {
         sidebarOpen,
@@ -119,12 +134,13 @@ const ProjectBoard: React.FC = () => {
         setIsAddEventModalOpen(true);
     };
 
+
     const renderContent = () => {
         switch (activeTab) {
             case 'Board':
-                return <BoardView onTaskClick={setSelectedTask} onAddTask={handleAddTask} />;
+                return <BoardView tasks={projectTasks} onTaskClick={setSelectedTask} onAddTask={handleAddTask} />;
             case 'Table':
-                return <TableView onTaskClick={handleTableTaskClick} />;
+                return <TableView tasks={projectTasks} onTaskClick={handleTableTaskClick} />;
             case 'Calendar':
                 return <CalendarView />;
             case 'Timeline':
@@ -391,7 +407,28 @@ const ProjectBoard: React.FC = () => {
                 isOpen={isCreateTaskModalOpen}
                 onClose={() => setIsCreateTaskModalOpen(false)}
                 initialStatus={modalInitialStatus}
-                onCreate={(task) => console.log('New task created:', task)}
+                onCreate={async (taskData) => {
+                    console.log("onCreate called with:", taskData);
+                    try {
+                        const finalProjectId = taskData.projectId || activeProject?.id;
+                        console.log("finalProjectId:", finalProjectId);
+
+                        if (finalProjectId) {
+                            const payload = { ...taskData, projectId: finalProjectId };
+                            console.log("Dispatching createTask with payload:", payload);
+
+                            await (dispatch as any)(createTask(payload)).unwrap();
+                            console.log("Task created successfully");
+                            toast.success("Task created successfully");
+                        } else {
+                            console.warn("No project ID selected");
+                            toast.error("Please select a project");
+                        }
+                    } catch (err: any) {
+                        console.error("Failed to create task:", err);
+                        toast.error(`Failed to create task: ${err}`);
+                    }
+                }}
             />
 
             {/* Add Event Modal */}

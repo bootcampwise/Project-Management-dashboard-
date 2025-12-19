@@ -6,10 +6,11 @@ export interface CreateTaskInput {
   projectId: string;
   priority?: Priority;
   status?: TaskStatus;
-  dueDate?: Date;
-  assigneeId?: string;
+  dueDate?: string; // Changed from Date to string
+  assigneeIds?: string[]; // Added this line
   estimatedHours?: number;
   estimatedCost?: number;
+  tags?: string[];
 }
 
 export interface UpdateTaskInput {
@@ -18,7 +19,8 @@ export interface UpdateTaskInput {
   priority?: Priority;
   status?: TaskStatus;
   dueDate?: Date;
-  assigneeId?: string;
+  assigneeIds?: string[];
   actualHours?: number;
   actualCost?: number;
+  tags?: string[];
 }

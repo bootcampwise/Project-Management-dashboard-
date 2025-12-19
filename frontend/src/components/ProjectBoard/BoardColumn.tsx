@@ -38,11 +38,14 @@ const BoardColumn: React.FC<BoardColumnProps> = ({ title, count, color, tasks, c
                     <TaskCard
                         key={task.id}
                         title={task.title || task.name}
+                        project={typeof task.project === 'string' ? task.project : task.project?.name}
+                        description={task.description}
+                        priority={task.priority}
                         tags={task.tags}
                         assignee={task.assignee || { name: 'Unassigned' }}
                         comments={task.comments || 0}
                         attachments={task.attachments || 0}
-                        date={task.date || ''}
+                        date={task.date || task.dueDate || ''}
                         onClick={() => onTaskClick && onTaskClick(task)}
                     />
                 ))}

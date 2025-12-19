@@ -10,7 +10,7 @@ export interface Task {
   id: number | string;
   name: string;
   title?: string; // Alias for name, used in some components
-  project: string;
+  project: string | { id: string; name: string };
   subtasks: string | number;
   status: "To-Do" | "Completed" | "In Progress";
   priority: "High" | "Medium" | "Low";
@@ -72,7 +72,9 @@ export interface CalendarTask {
 // ============================================
 
 export interface BoardViewProps {
+  tasks: Task[];
   onTaskClick?: (task: Task) => void;
+  onAddTask?: (status: string) => void;
 }
 
 export interface BoardColumn {
@@ -165,6 +167,7 @@ export interface CreateTaskPayload {
   attachments: File[];
   projectId: string;
   dueDate?: string;
+  assigneeIds?: string[];
 }
 
 export interface CalendarEvent {
@@ -195,11 +198,15 @@ export interface UiState {
 
 export interface TaskCardComponentProps {
   title: string;
+  project?: string;
+  description?: string;
+  priority: "High" | "Medium" | "Low";
   tags?: { text: string; color: string; bg: string }[];
   assignee: { name: string; avatar?: string };
-  comments: number;
-  attachments: number;
-  date: string;
+  assignees?: { name: string; avatar?: string }[];
+  comments?: number;
+  attachments?: number;
+  date?: string;
   onClick?: () => void;
 }
 
@@ -217,7 +224,7 @@ export interface Project {
     id: string;
     name: string;
     avatar?: string;
-    members?: { avatar?: string }[];
+    members?: { id: string; name: string; avatar?: string }[];
     status?: string;
     priority?: string;
     startDate?: string;

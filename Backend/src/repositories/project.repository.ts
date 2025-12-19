@@ -96,10 +96,20 @@ export class ProjectRepository {
   }
 
   async findByIdAndUserId(projectId: string, userId: string) {
+    const userTeams = await prisma.team.findMany({
+      where: { memberIds: { has: userId } },
+      select: { id: true },
+    });
+    const teamIds = userTeams.map((t) => t.id);
+
     return prisma.project.findFirst({
       where: {
         id: projectId,
-        OR: [{ ownerId: userId }, { members: { some: { id: userId } } }],
+        OR: [
+          { ownerId: userId },
+          { members: { some: { id: userId } } },
+          { teamIds: { hasSome: teamIds } },
+        ],
       },
       include: {
         owner: true,

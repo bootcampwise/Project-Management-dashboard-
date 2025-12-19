@@ -1,10 +1,14 @@
 import React from 'react';
-import { ChevronRight, ChevronDown, Plus, MoreHorizontal, Calendar, MessageSquare, Paperclip, CheckCircle2 } from 'lucide-react';
-import type { TableViewProps } from '../../types';
+import { ChevronRight, ChevronDown, Plus, MoreHorizontal, CheckCircle2 } from 'lucide-react';
+import type { TableViewProps, Task } from '../../types';
 import { useTableView } from '../../hooks/useTableView';
 
-const TableView: React.FC<TableViewProps> = ({ onTaskClick }) => {
-    const { groups, toggleGroup } = useTableView();
+interface ExtendedTableViewProps extends TableViewProps {
+    tasks?: Task[];
+}
+
+const TableView: React.FC<ExtendedTableViewProps> = ({ onTaskClick, tasks }) => {
+    const { groups, toggleGroup } = useTableView(tasks);
 
     return (
         <div className="flex flex-col h-full bg-white">

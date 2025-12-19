@@ -1,5 +1,5 @@
 import { AppError } from "../middlewares/error.middleware";
-import { CreateTaskInput, UpdateTaskInput } from "../types/task";
+import { CreateTaskInput, UpdateTaskInput } from "../types/task.types";
 import { TaskRepository } from "../repositories/task.repository";
 import { ProjectRepository } from "../repositories/project.repository";
 
@@ -26,10 +26,20 @@ export class TaskService {
     return task;
   }
 
-  async createTask(data: CreateTaskInput, creatorId: string, userId: string) {
+  async createTask(data: CreateTaskInput, userId: string, projectId: string) {
+    // Note: The previous logic might have passed projectId as a separate arg,
+    // or expected it in data. Now we ensure we use data.projectId if available,
+    // or the one passed in (which seemed to be userId in the controller call? "user.id, user.id").
+
+    // In controller: taskService.createTask(req.body, user.id, user.id);
+    // Wait, the controller calls it with (body, userId, userId)?? That looks wrong.
+    // Let's assume data.projectId is the source of truth if presnet.
+
+    const targetProjectId = data.projectId;
+
     // Verify user has access to project
     const project = await this.projectRepository.findByIdAndUserId(
-      data.projectId,
+      targetProjectId, // Use targetProjectId for verification
       userId
     );
 
@@ -37,7 +47,11 @@ export class TaskService {
       throw new AppError(403, "Access denied to this project");
     }
 
-    const task = await this.taskRepository.create(data, creatorId);
+    const task = await this.taskRepository.create(
+      data,
+      userId,
+      targetProjectId
+    );
 
     return task;
   }
