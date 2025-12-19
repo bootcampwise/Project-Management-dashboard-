@@ -29,8 +29,8 @@ export const useCreateTaskModal = ({
   );
 
   const [title, setTitle] = useState("");
-  const [status, setStatus] = useState(initialStatus || "In Progress");
-  const [priority, setPriority] = useState("Medium");
+  const [status, setStatus] = useState(initialStatus || "IN_PROGRESS");
+  const [priority, setPriority] = useState("MEDIUM");
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState("");
   const [description, setDescription] = useState("");
@@ -202,8 +202,8 @@ export const useCreateTaskModal = ({
 
       // Reset form
       setTitle("");
-      setStatus("In Progress");
-      setPriority("Medium");
+      setStatus("IN_PROGRESS");
+      setPriority("MEDIUM");
       setTags([]);
       setTagInput("");
       setDescription("");

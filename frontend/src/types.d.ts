@@ -12,8 +12,15 @@ export interface Task {
   title?: string; // Alias for name, used in some components
   project: string | { id: string; name: string };
   subtasks: string | number;
-  status: "To-Do" | "Completed" | "In Progress";
-  priority: "High" | "Medium" | "Low";
+  status:
+    | "BACKLOG"
+    | "TODO"
+    | "IN_PROGRESS"
+    | "IN_REVIEW"
+    | "QA"
+    | "COMPLETED"
+    | "CANCELED";
+  priority: "LOW" | "MEDIUM" | "HIGH" | "URGENT";
 
   startDate: string;
   endDate: string;
@@ -21,7 +28,7 @@ export interface Task {
   tags?: { text: string; color: string; bg: string }[];
   labels?: { text: string; color: string; bg: string }[];
   assignee?: { name: string; avatar?: string };
-  assignees?: string[]; // For Tasks page with multiple assignees
+  assignees?: { id: string; name: string; avatar?: string; email?: string }[];
   comments?: number;
   attachments?: number;
   date?: string;
@@ -200,7 +207,7 @@ export interface TaskCardComponentProps {
   title: string;
   project?: string;
   description?: string;
-  priority: "High" | "Medium" | "Low";
+  priority: "LOW" | "MEDIUM" | "HIGH" | "URGENT";
   tags?: { text: string; color: string; bg: string }[];
   assignee: { name: string; avatar?: string };
   assignees?: { name: string; avatar?: string }[];
@@ -233,7 +240,7 @@ export interface Project {
   }[];
   startDate?: string;
   endDate?: string;
-  priority?: "High" | "Medium" | "Low";
+  priority?: "LOW" | "MEDIUM" | "HIGH" | "URGENT";
   createdAt?: string;
   updatedAt?: string;
 }

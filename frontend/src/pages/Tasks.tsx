@@ -138,13 +138,13 @@ const Tasks: React.FC = () => {
                                                     {/* Project Tag */}
                                                     {task.project && (
                                                         <div className="text-xs text-blue-600 mb-2 font-medium">
-                                                            {task.project}
+                                                            {typeof task.project === 'string' ? task.project : task.project.name}
                                                         </div>
                                                     )}
 
                                                     {/* Title */}
                                                     <h4 className="font-semibold text-gray-900 mb-2 text-sm leading-tight">
-                                                        {task.title}
+                                                        {task.title || task.name}
                                                     </h4>
 
                                                     {/* Description */}
@@ -154,31 +154,83 @@ const Tasks: React.FC = () => {
                                                         </p>
                                                     )}
 
-                                                    {/* Assignees */}
-                                                    <div className="flex items-center mb-3">
-                                                        <div className="flex -space-x-2">
-                                                            {(task.assignees || []).map((avatar, idx) => (
-                                                                <img
-                                                                    key={idx}
-                                                                    src={avatar}
-                                                                    alt="Assignee"
-                                                                    className="w-6 h-6 rounded-full border-2 border-white object-cover"
-                                                                />
-                                                            ))}
+                                                    {/* Tags */}
+                                                    {task.tags && task.tags.length > 0 && (
+                                                        <div className="flex flex-wrap gap-1 mb-3">
+                                                            {task.tags.map((tag, idx) => {
+                                                                const getTagClasses = (color?: string) => {
+                                                                    const colorMap: Record<string, string> = {
+                                                                        'blue': 'bg-blue-100 text-blue-600',
+                                                                        'green': 'bg-green-100 text-green-600',
+                                                                        'red': 'bg-red-100 text-red-600',
+                                                                        'yellow': 'bg-yellow-100 text-yellow-600',
+                                                                        'purple': 'bg-purple-100 text-purple-600',
+                                                                        'pink': 'bg-pink-100 text-pink-600',
+                                                                        'gray': 'bg-gray-100 text-gray-600',
+                                                                        'orange': 'bg-orange-100 text-orange-600',
+                                                                    };
+                                                                    return colorMap[color || 'blue'] || 'bg-blue-100 text-blue-600';
+                                                                };
+
+                                                                return (
+                                                                    <span
+                                                                        key={idx}
+                                                                        className={`px-2 py-0.5 rounded text-xs font-medium ${getTagClasses(tag.color)}`}
+                                                                    >
+                                                                        {tag.text}
+                                                                    </span>
+                                                                );
+                                                            })}
                                                         </div>
-                                                    </div>
+                                                    )}
+
+                                                    {/* Assignees */}
+                                                    {task.assignees && task.assignees.length > 0 && (
+                                                        <div className="flex items-center mb-3">
+                                                            <div className="flex -space-x-2">
+                                                                {task.assignees.map((assignee, idx) => (
+                                                                    <div
+                                                                        key={idx}
+                                                                        className="w-6 h-6 rounded-full border-2 border-white bg-blue-100 flex items-center justify-center text-[10px] font-bold text-blue-600 overflow-hidden"
+                                                                        title={assignee.name}
+                                                                    >
+                                                                        {assignee.avatar ? (
+                                                                            <img
+                                                                                src={assignee.avatar}
+                                                                                alt={assignee.name}
+                                                                                className="w-full h-full object-cover"
+                                                                            />
+                                                                        ) : (
+                                                                            (assignee.name || 'U').charAt(0).toUpperCase()
+                                                                        )}
+                                                                    </div>
+                                                                ))}
+                                                            </div>
+                                                        </div>
+                                                    )}
+
 
                                                     {/* Footer */}
                                                     <div className="flex items-center justify-between text-xs text-gray-500">
                                                         <div className="flex items-center gap-3">
-                                                            <div className="flex items-center gap-1">
-                                                                <Calendar size={12} />
-                                                                <span>{task.dueDate}</span>
-                                                            </div>
+                                                            {task.dueDate && (
+                                                                <div className="flex items-center gap-1">
+                                                                    <Calendar size={12} />
+                                                                    <span>
+                                                                        {new Date(task.dueDate).toLocaleDateString('en-US', {
+                                                                            month: 'short',
+                                                                            day: 'numeric',
+                                                                            year: 'numeric'
+                                                                        })}
+                                                                    </span>
+                                                                </div>
+                                                            )}
                                                         </div>
-                                                        <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${getPriorityColor(task.priority)}`}>
-                                                            {task.priority}
-                                                        </span>
+                                                        {task.priority && (
+                                                            <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${getPriorityColor(task.priority)}`}>
+                                                                {task.priority.charAt(0) + task.priority.slice(1).toLowerCase()}
+                                                            </span>
+                                                        )}
                                                     </div>
 
                                                     {/* Stats */}
@@ -234,7 +286,7 @@ const Tasks: React.FC = () => {
                                             >
                                                 {/* Task Name */}
                                                 <div>
-                                                    <div className="font-medium text-gray-900 mb-1">{task.title}</div>
+                                                    <div className="font-medium text-gray-900 mb-1">{task.title || task.name}</div>
                                                     {task.description && (
                                                         <div className="text-xs text-gray-500 line-clamp-1">{task.description}</div>
                                                     )}
@@ -262,31 +314,56 @@ const Tasks: React.FC = () => {
                                                 </div>
 
                                                 {/* Project */}
-                                                <div className="text-blue-600 text-xs font-medium">{task.project || '-'}</div>
+                                                <div className="text-blue-600 text-xs font-medium">
+                                                    {typeof task.project === 'string' ? task.project : task.project?.name || '-'}
+                                                </div>
 
                                                 {/* Assignee */}
                                                 <div className="flex -space-x-2">
-                                                    {(task.assignees || []).map((avatar, idx) => (
-                                                        <img
+                                                    {(task.assignees || []).map((assignee, idx) => (
+                                                        <div
                                                             key={idx}
-                                                            src={avatar}
-                                                            alt="Assignee"
-                                                            className="w-6 h-6 rounded-full border-2 border-white object-cover"
-                                                        />
+                                                            className="w-6 h-6 rounded-full border-2 border-white bg-blue-100 flex items-center justify-center text-[10px] font-bold text-blue-600 overflow-hidden"
+                                                            title={assignee.name}
+                                                        >
+                                                            {assignee.avatar ? (
+                                                                <img
+                                                                    src={assignee.avatar}
+                                                                    alt={assignee.name}
+                                                                    className="w-full h-full object-cover"
+                                                                />
+                                                            ) : (
+                                                                (assignee.name || 'U').charAt(0).toUpperCase()
+                                                            )}
+                                                        </div>
                                                     ))}
                                                 </div>
 
                                                 {/* Due Date */}
                                                 <div className="flex items-center gap-1 text-gray-600 text-xs">
-                                                    <Calendar size={12} />
-                                                    <span>{task.dueDate}</span>
+                                                    {task.dueDate ? (
+                                                        <>
+                                                            <Calendar size={12} />
+                                                            <span>
+                                                                {new Date(task.dueDate).toLocaleDateString('en-US', {
+                                                                    month: 'short',
+                                                                    day: 'numeric',
+                                                                    year: 'numeric'
+                                                                })}
+                                                            </span>
+                                                        </>
+                                                    ) : (
+                                                        <span className="text-gray-400">-</span>
+                                                    )}
                                                 </div>
 
                                                 {/* Priority */}
                                                 <div>
-                                                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${getPriorityColor(task.priority)}`}>
-                                                        {task.priority}
-                                                    </span>
+                                                    {task.priority && (
+                                                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${getPriorityColor(task.priority)}`}>
+                                                            {task.priority.charAt(0) + task.priority.slice(1).toLowerCase()}
+                                                        </span>
+                                                    )}
                                                 </div>
 
                                                 {/* Status */}

@@ -3,7 +3,7 @@ import { CreateTaskInput, UpdateTaskInput } from "../types/task.types";
 
 export class TaskRepository {
   async findManyByUserId(userId: string) {
-    return prisma.task.findMany({
+    const tasks = await prisma.task.findMany({
       where: {
         project: {
           OR: [{ ownerId: userId }, { memberIds: { has: userId } }],
@@ -26,8 +26,27 @@ export class TaskRepository {
             key: true,
           },
         },
+        comments: true,
+        attachments: true,
       },
     });
+
+    // Fetch tags for all tasks
+    const tasksWithTags = await Promise.all(
+      tasks.map(async (task) => {
+        const tags = await prisma.tag.findMany({
+          where: { id: { in: task.tagIds } },
+        });
+        return {
+          ...task,
+          tags,
+          comments: task.comments?.length || 0,
+          attachments: task.attachments?.length || 0,
+        };
+      })
+    );
+
+    return tasksWithTags;
   }
 
   async findByIdAndUserId(taskId: string, userId: string) {

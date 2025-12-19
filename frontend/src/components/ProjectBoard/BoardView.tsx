@@ -6,11 +6,11 @@ import type { BoardViewProps } from '../../types';
 const BoardView: React.FC<BoardViewProps> = ({ tasks, onTaskClick, onAddTask }) => {
 
     const columnConfig = [
-        { id: 'To-Do', title: 'To-Do', color: 'bg-blue-500' },
-        { id: 'In Progress', title: 'In Progress', color: 'bg-yellow-500' },
-        { id: 'Completed', title: 'Completed', color: 'bg-green-500' },
-        { id: 'Cancelled', title: 'Cancelled', color: 'bg-red-500' },
-        { id: 'Backlog', title: 'Backlog', color: 'bg-gray-500' },
+        { id: 'TODO', title: 'To Do', color: 'bg-blue-500' },
+        { id: 'IN_PROGRESS', title: 'In Progress', color: 'bg-yellow-500' },
+        { id: 'COMPLETED', title: 'Completed', color: 'bg-green-500' },
+        { id: 'CANCELED', title: 'Cancelled', color: 'bg-red-500' },
+        { id: 'BACKLOG', title: 'Backlog', color: 'bg-gray-500' },
     ];
 
     const getTasksByStatus = (status: string) => {
@@ -27,7 +27,7 @@ const BoardView: React.FC<BoardViewProps> = ({ tasks, onTaskClick, onAddTask }) 
                         color={col.color}
                         tasks={getTasksByStatus(col.id)}
                         onTaskClick={onTaskClick}
-                        onAddTask={onAddTask}
+                        onAddTask={() => onAddTask && onAddTask(col.id)}
                     />
                 </div>
             ))}

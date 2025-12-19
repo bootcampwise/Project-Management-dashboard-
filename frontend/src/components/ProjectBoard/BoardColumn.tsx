@@ -43,6 +43,7 @@ const BoardColumn: React.FC<BoardColumnProps> = ({ title, count, color, tasks, c
                         priority={task.priority}
                         tags={task.tags}
                         assignee={task.assignee || { name: 'Unassigned' }}
+                        assignees={task.assignees}
                         comments={task.comments || 0}
                         attachments={task.attachments || 0}
                         date={task.date || task.dueDate || ''}

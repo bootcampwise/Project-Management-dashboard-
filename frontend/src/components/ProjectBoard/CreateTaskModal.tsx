@@ -110,13 +110,13 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ isOpen, onClose, onCr
                                     onChange={(e) => setStatus(e.target.value)}
                                     className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm appearance-none bg-white focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-50 transition-all cursor-pointer text-gray-700"
                                 >
-                                    <option value="In Progress">In Progress</option>
-                                    <option value="Backlog">Backlog</option>
+                                    <option value="IN_PROGRESS">In Progress</option>
+                                    <option value="BACKLOG">Backlog</option>
                                     <option value="QA">QA</option>
-                                    <option value="Completed">Completed</option>
-                                    <option value="Cancelled">Cancelled</option>
-                                    <option value="To Do">To Do</option>
-                                    <option value="Postponed">Postponed</option>
+                                    <option value="COMPLETED">Completed</option>
+                                    <option value="CANCELED">Cancelled</option>
+                                    <option value="TODO">To Do</option>
+                                    <option value="IN_REVIEW">In Review</option>
                                 </select>
                                 <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none text-gray-400">
                                     <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -137,9 +137,10 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ isOpen, onClose, onCr
                                     onChange={(e) => setPriority(e.target.value)}
                                     className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm appearance-none bg-white focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-50 transition-all cursor-pointer text-gray-700"
                                 >
-                                    <option value="Low">Low</option>
-                                    <option value="Medium">Medium</option>
-                                    <option value="High">High</option>
+                                    <option value="LOW">Low</option>
+                                    <option value="MEDIUM">Medium</option>
+                                    <option value="HIGH">High</option>
+                                    <option value="URGENT">Urgent</option>
                                 </select>
                                 <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none text-gray-400">
                                     <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -340,8 +341,8 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ isOpen, onClose, onCr
                         onClick={handleCreate}
                         disabled={!title.trim() || isLoading}
                         className={`px-5 py-2.5 text-sm font-medium text-white rounded-lg shadow-sm transition-all flex items-center gap-2 ${!title.trim() || isLoading
-                                ? "bg-gray-300 cursor-not-allowed"
-                                : "bg-blue-600 hover:bg-blue-700 active:bg-blue-800 hover:shadow-md"
+                            ? "bg-gray-300 cursor-not-allowed"
+                            : "bg-blue-600 hover:bg-blue-700 active:bg-blue-800 hover:shadow-md"
                             }`}
                     >
                         {isLoading ? "Creating..." : "Create Task"}

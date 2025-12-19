@@ -111,8 +111,8 @@ const ProjectBoard: React.FC = () => {
             name: tableTask.name,
             project: project?.name || 'Default Project', // Use actual project name
             subtasks: 0, // TableTask doesn't track subtasks
-            status: 'In Progress', // Default status
-            priority: 'Medium', // Default priority
+            status: 'IN_PROGRESS', // Default status
+            priority: 'MEDIUM', // Default priority
             startDate: new Date().toISOString().split('T')[0],
             endDate: tableTask.dueDate,
             dueDate: tableTask.dueDate,
