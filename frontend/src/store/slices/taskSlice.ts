@@ -37,33 +37,9 @@ export const createTask = createAsyncThunk(
   "task/createTask",
   async (taskData: CreateTaskPayload, { rejectWithValue }) => {
     try {
-      let body: any = taskData;
-
-      if (taskData.attachments && taskData.attachments.length > 0) {
-        const formData = new FormData();
-        formData.append("title", taskData.title);
-        formData.append("status", taskData.status);
-        formData.append("priority", taskData.priority);
-        formData.append("description", taskData.description);
-        formData.append("projectId", taskData.projectId);
-
-        if (taskData.dueDate) formData.append("dueDate", taskData.dueDate);
-
-        // Handle arrays
-        if (taskData.tags && taskData.tags.length > 0) {
-          formData.append("tags", JSON.stringify(taskData.tags));
-        }
-        if (taskData.assigneeIds && taskData.assigneeIds.length > 0) {
-          formData.append("assigneeIds", JSON.stringify(taskData.assigneeIds));
-        }
-
-        // Handle files
-        taskData.attachments.forEach((file) => {
-          formData.append("attachments", file);
-        });
-
-        body = formData;
-      }
+      // Use JSON body directly. Frontend (useCreateTaskModal) will handle file uploads to Supabase
+      // and pass attachment metadata in taskData.attachments.
+      const body = taskData;
 
       const response = await apiClient.post<Task>("/tasks", body);
       return response;

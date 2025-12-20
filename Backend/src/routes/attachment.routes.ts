@@ -7,8 +7,8 @@ const controller = new AttachmentController();
 
 router.use(authenticate);
 
-import { upload } from "../middlewares/upload.middleware";
-router.post("/", upload.single("file"), controller.createAttachment);
+// Upload handled via frontend to Supabase
+router.post("/", controller.createAttachment);
 router.delete("/:id", controller.deleteAttachment);
 router.get("/task/:taskId", controller.getTaskAttachments);
 

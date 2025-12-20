@@ -1,14 +1,19 @@
 import React from 'react';
-import { Plus } from 'lucide-react';
-import TaskCard from './TaskCard';
+import { Plus, MoreHorizontal, EyeOff } from 'lucide-react';
+import { useState } from 'react';
 import type { BoardColumnProps } from '../../types';
+import TaskCard from './TaskCard';
 
+const BoardColumn: React.FC<BoardColumnProps> = ({ title, count, color, tasks, status, collapsed = false, onTaskClick, onAddTask, onToggle, onHide }) => {
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-
-const BoardColumn: React.FC<BoardColumnProps> = ({ title, count, color, tasks, status, collapsed = false, onTaskClick, onAddTask }) => {
     if (collapsed) {
         return (
-            <div className="w-12 flex flex-col items-center py-4 h-full bg-[#F3F4F6] rounded-lg">
+            <div
+                className="w-12 flex flex-col items-center py-4 h-full bg-[#F3F4F6] rounded-lg cursor-pointer hover:bg-gray-200 transition-colors"
+                onClick={onToggle}
+                title="Click to expand"
+            >
                 <div className="flex flex-col items-center gap-4 mt-2 h-full">
                     <div className={`w-2 h-2 rounded-full ${color}`}></div>
                     <span
@@ -26,10 +31,47 @@ const BoardColumn: React.FC<BoardColumnProps> = ({ title, count, color, tasks, s
     return (
         <div className="flex-1 min-w-0 flex flex-col h-full">
             {/* Header */}
-            <div className="flex items-center gap-2 mb-4 px-1">
-                <div className={`w-2 h-2 rounded-full ${color}`}></div>
-                <h2 className="font-semibold text-gray-700 whitespace-nowrap">{title}</h2>
-                <span className="text-gray-400 font-medium">{count}</span>
+            <div className="flex items-center justify-between mb-4 px-1 group">
+                <div className="flex items-center gap-2 cursor-pointer flex-1" onClick={onToggle}>
+                    <div className={`w-2 h-2 rounded-full ${color}`}></div>
+                    <h2 className="font-semibold text-gray-700 whitespace-nowrap">{title}</h2>
+                    <span className="text-gray-400 font-medium">{count}</span>
+                </div>
+
+                {/* Column Menu */}
+                <div className="relative">
+                    <button
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            setIsMenuOpen(!isMenuOpen);
+                        }}
+                        className="opacity-0 group-hover:opacity-100 p-1 hover:bg-gray-100 rounded text-gray-400 hover:text-gray-600 transition-all"
+                    >
+                        <MoreHorizontal size={16} />
+                    </button>
+
+                    {isMenuOpen && (
+                        <>
+                            <div
+                                className="fixed inset-0 z-10"
+                                onClick={() => setIsMenuOpen(false)}
+                            />
+                            <div className="absolute right-0 top-full mt-1 w-40 bg-white border border-gray-200 rounded-lg shadow-lg z-20 py-1">
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setIsMenuOpen(false);
+                                        onHide && onHide();
+                                    }}
+                                    className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+                                >
+                                    <EyeOff size={14} />
+                                    <span>Hide section</span>
+                                </button>
+                            </div>
+                        </>
+                    )}
+                </div>
             </div>
 
             {/* Task List */}

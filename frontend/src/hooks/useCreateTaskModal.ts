@@ -8,6 +8,7 @@ import {
   setError,
 } from "../store/slices/projectSlice";
 import { apiClient } from "../lib/apiClient";
+import { supabase } from "../lib/supabase";
 import toast from "react-hot-toast";
 
 interface UseCreateTaskModalProps {
@@ -226,6 +227,7 @@ export const useCreateTaskModal = ({
     );
   };
 
+  /* eslint-disable @typescript-eslint/no-unused-vars */
   const handleCreate = async () => {
     if (!title.trim()) {
       toast.error("Please enter a task title");
@@ -240,22 +242,71 @@ export const useCreateTaskModal = ({
       setSelectedProjectId(projects[0].id);
     }
 
-    // Prepare payload for the API
-    const payload: any = {
-      title,
-      status,
-      priority,
-      tags,
-      description,
-      projectId: selectedProjectId || projects[0]?.id,
-      dueDate,
-      assigneeIds,
-      attachments,
-    };
-
-    console.log("Payload prepared:", payload);
-
     try {
+      // Upload files to Supabase first
+      const uploadedAttachments: {
+        name: string;
+        filePath: string;
+        size: number;
+        mimeType: string;
+      }[] = [];
+
+      if (attachments.length > 0) {
+        // Need user ID for path - assuming auth state is available or we can get it from supabase session
+        // For now, we will use 'anonymous' if not found, but it should be protected by RLS anyway.
+        // Best to use the actual user ID.
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+
+        if (!user) {
+          throw new Error("User not authenticated");
+        }
+
+        for (const file of attachments) {
+          // Skip if it's already an uploaded attachment (checking if it has metadata structure)
+          // But here attachments state is File[], so we assume new uploads.
+
+          const fileExt = file.name.split(".").pop();
+          const fileName = `${Date.now()}-${file.name.replace(
+            /[^a-zA-Z0-9.-]/g,
+            "_"
+          )}`;
+          const filePath = `${user.id}/${fileName}`;
+
+          const { error: uploadError } = await supabase.storage
+            .from("attachments")
+            .upload(filePath, file);
+
+          if (uploadError) {
+            console.error("Supabase upload error:", uploadError);
+            throw new Error(`Failed to upload ${file.name}`);
+          }
+
+          uploadedAttachments.push({
+            name: file.name,
+            filePath: filePath, // Store the path relative to bucket
+            size: file.size,
+            mimeType: file.type,
+          });
+        }
+      }
+
+      // Prepare payload for the API
+      const payload: any = {
+        title,
+        status,
+        priority,
+        tags,
+        description,
+        projectId: selectedProjectId || projects[0]?.id,
+        dueDate,
+        assigneeIds,
+        attachments: uploadedAttachments, // Send metadata
+      };
+
+      console.log("Payload prepared:", payload);
+
       if (task && onUpdate) {
         // Edit Mode
         await onUpdate(String(task.id), payload);
@@ -277,8 +328,9 @@ export const useCreateTaskModal = ({
       setDueDate("");
       setAssigneeIds([]);
       setAssigneeSearch("");
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error in onCreate:", error);
+      toast.error(error.message || "Failed to create task");
     } finally {
       setIsSubmitting(false);
     }

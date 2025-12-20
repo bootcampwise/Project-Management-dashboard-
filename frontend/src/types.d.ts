@@ -193,13 +193,20 @@ export interface StatCardProps {
 // CREATE TASK & EVENT TYPES
 // ============================================
 
+export interface AttachmentMetadata {
+  name: string;
+  filePath: string;
+  size: number;
+  mimeType: string;
+}
+
 export interface CreateTaskPayload {
   title: string;
   status: string;
   priority: string;
   tags: string[];
   description: string;
-  attachments: File[];
+  attachments: File[] | AttachmentMetadata[];
   projectId: string;
   dueDate?: string;
   assigneeIds?: string[];
@@ -420,6 +427,8 @@ export interface BoardColumnProps {
   collapsed?: boolean;
   onTaskClick?: (task: Task) => void;
   onAddTask?: (status: string) => void;
+  onToggle?: () => void;
+  onHide?: () => void;
 }
 
 export interface TeamTableViewProps {

@@ -18,6 +18,7 @@ import type { Task, User } from '../../types';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { getTaskDetails, fetchTasks } from '../../store/slices/taskSlice';
 import { apiClient } from '../../lib/apiClient';
+import { supabase } from '../../lib/supabase';
 
 
 interface TaskDetailModalProps {
@@ -95,18 +96,39 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
         const file = e.target.files?.[0];
         if (!file || !task) return;
 
-        const formData = new FormData();
-        formData.append('file', file);
-        formData.append('taskId', String(task.id));
-
         const toastId = toast.loading('Uploading attachment...');
         try {
-            await apiClient.post('/attachments', formData);
+            // 1. Upload to Supabase
+            const { data: { user: currentUser } } = await supabase.auth.getUser();
+            if (!currentUser) throw new Error("Authentication required");
+
+            const fileExt = file.name.split('.').pop();
+            const fileName = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+            const filePath = `${currentUser.id}/${fileName}`;
+
+            const { error: uploadError } = await supabase.storage
+                .from('attachments')
+                .upload(filePath, file);
+
+            if (uploadError) throw uploadError;
+
+            // 2. Sync metadata with backend
+            // We can now send JSON directly to the attachments endpoint
+            const attachmentData = {
+                taskId: String(task.id),
+                name: file.name,
+                url: filePath,
+                size: file.size,
+                mimeType: file.type
+            };
+
+            await apiClient.post('/attachments', attachmentData);
+
             dispatch(getTaskDetails(String(task.id)));
             toast.success('Attachment uploaded', { id: toastId });
-        } catch (error) {
+        } catch (error: any) {
             console.error('Failed to upload attachment:', error);
-            toast.error('Failed to upload attachment', { id: toastId });
+            toast.error(error.message || 'Failed to upload attachment', { id: toastId });
         }
     };
 
@@ -182,6 +204,45 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
 
     const formatStatus = (status: string) => {
         return status.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ');
+    };
+
+    const handleDownload = async (e: React.MouseEvent, attachment: any) => {
+        e.stopPropagation();
+        try {
+            // Check if it's a Supabase file (has filePath or looks like a path)
+            // Legacy files might be full URLs or different format, but we are moving to Supabase paths.
+            // Our schema change suggests 'url' field now holds the filePath.
+
+            // If it starts with http/https, it implies legacy or public URL
+            if (attachment.url.startsWith('http')) {
+                window.open(attachment.url, '_blank');
+                return;
+            }
+
+            // Generate signed URL
+            const { data, error } = await supabase.storage
+                .from('attachments')
+                .createSignedUrl(attachment.url, 60); // 1 minute expiry
+
+            if (error) {
+                console.error("Error creating signed URL:", error);
+                throw error;
+            }
+
+            if (data?.signedUrl) {
+                // Trigger download
+                const link = document.createElement('a');
+                link.href = data.signedUrl;
+                link.download = attachment.name;
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+                toast.success('Download started');
+            }
+        } catch (error) {
+            console.error('Download failed:', error);
+            toast.error('Failed to download file');
+        }
     };
 
     return (
@@ -360,7 +421,11 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
                         </div>
                         <div className="flex flex-wrap gap-4">
                             {Array.isArray(task.attachments) && task.attachments.map((att: any) => (
-                                <div key={att.id} className="flex items-center gap-3 p-3 border border-gray-200 rounded-xl min-w-[200px] hover:bg-gray-50 hover:border-gray-300 transition-all cursor-pointer group">
+                                <div
+                                    key={att.id}
+                                    className="flex items-center gap-3 p-3 border border-gray-200 rounded-xl min-w-[200px] hover:bg-gray-50 hover:border-gray-300 transition-all cursor-pointer group"
+                                    onClick={(e) => handleDownload(e, att)}
+                                >
                                     <div className="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center text-blue-500 group-hover:scale-110 transition-transform">
                                         <FileText size={20} />
                                     </div>

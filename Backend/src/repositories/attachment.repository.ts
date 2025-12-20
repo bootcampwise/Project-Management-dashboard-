@@ -7,6 +7,7 @@ export class AttachmentRepository {
     size?: number;
     mimeType?: string;
     taskId: string;
+    userId: string;
   }) {
     return prisma.attachment.create({
       data,

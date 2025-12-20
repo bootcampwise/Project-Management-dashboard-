@@ -175,10 +175,11 @@ export class TaskRepository {
         attachments: {
           create:
             files?.map((file) => ({
-              name: file.originalname,
-              url: `/uploads/${file.filename}`,
+              name: file.name,
+              url: file.filePath, // We store the relative path/key from Supabase
               size: file.size,
-              mimeType: file.mimetype,
+              mimeType: file.mimeType,
+              userId: creatorId,
             })) || [],
         },
       },

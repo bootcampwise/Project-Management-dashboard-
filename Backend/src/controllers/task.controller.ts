@@ -58,7 +58,10 @@ export class TaskController {
         }
       }
 
-      const files = req.files as Express.Multer.File[];
+      // Handle attachments metadata from body (Supabase uploads)
+      const files = data.attachments || [];
+
+      // No longer using req.files as uploads are handled by frontend
 
       const task = await taskService.createTask(
         data,

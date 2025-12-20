@@ -13,6 +13,7 @@ export class AttachmentService {
     size: number;
     mimeType: string;
     taskId: string;
+    userId: string;
   }) {
     return this.attachmentRepository.create({
       name: data.filename,
@@ -20,6 +21,7 @@ export class AttachmentService {
       size: data.size,
       mimeType: data.mimeType,
       taskId: data.taskId,
+      userId: data.userId,
     });
   }
 
