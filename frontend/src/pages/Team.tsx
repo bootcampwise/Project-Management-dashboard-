@@ -14,9 +14,11 @@ import {
     ArrowUpDown,
     Check,
     Plus,
-    Settings,
     ChevronRight,
+    Trash2,
 } from "lucide-react";
+import toast from "react-hot-toast";
+import { deleteProject } from "../store/slices/projectSlice";
 import TeamTableView from "../components/Team/TeamTableView";
 import TeamDashboard from "../components/Team/TeamDashboard";
 import TeamMembers from "../components/Team/TeamMembers";
@@ -168,9 +170,54 @@ const Team: React.FC = () => {
                                                 <ChevronRight size={14} />
                                                 Switch Project
                                             </button>
-                                            <button className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2">
-                                                <Settings size={14} />
-                                                Project Settings
+                                            <button
+                                                className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+                                                onClick={() => {
+                                                    setIsMenuDropdownOpen(false);
+                                                    toast((t) => (
+                                                        <div className="flex flex-col gap-3 min-w-[250px]">
+                                                            <div>
+                                                                <h3 className="font-medium text-gray-900">Delete Project?</h3>
+                                                                <p className="text-sm text-gray-500 mt-1">
+                                                                    Are you sure you want to delete <span className="font-semibold">{activeProject?.name}</span>? This action cannot be undone.
+                                                                </p>
+                                                            </div>
+                                                            <div className="flex items-center justify-end gap-3 mt-1">
+                                                                <button
+                                                                    onClick={() => toast.dismiss(t.id)}
+                                                                    className="px-3 py-1.5 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors"
+                                                                >
+                                                                    Cancel
+                                                                </button>
+                                                                <button
+                                                                    onClick={async () => {
+                                                                        toast.dismiss(t.id);
+                                                                        if (activeProject) {
+                                                                            try {
+                                                                                await dispatch(deleteProject(activeProject.id)).unwrap();
+                                                                                toast.success("Project deleted successfully");
+                                                                            } catch (error) {
+                                                                                toast.error("Failed to delete project");
+                                                                            }
+                                                                        }
+                                                                    }}
+                                                                    className="px-3 py-1.5 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors"
+                                                                >
+                                                                    Delete
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    ), {
+                                                        duration: Infinity,
+                                                        position: "top-center",
+                                                        style: {
+                                                            minWidth: '300px',
+                                                        }
+                                                    });
+                                                }}
+                                            >
+                                                <Trash2 size={14} />
+                                                Delete Project
                                             </button>
                                         </div>
                                     )}

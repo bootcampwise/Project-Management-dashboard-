@@ -17,7 +17,6 @@ import {
     User,
     Check,
     LogOut,
-    Settings,
     ChevronRight,
 } from "lucide-react";
 import BoardView from "../components/ProjectBoard/BoardView";
@@ -35,7 +34,9 @@ import { useProjectBoard } from "../hooks/useProjectBoard";
 import type { Task } from "../types";
 
 import { fetchTasks, createTask } from "../store/slices/taskSlice";
+import { deleteProject } from "../store/slices/projectSlice";
 import toast from "react-hot-toast";
+import { Trash2 } from "lucide-react";
 
 const ProjectBoard: React.FC = () => {
     const { projectId } = useParams();
@@ -264,9 +265,55 @@ const ProjectBoard: React.FC = () => {
                                                 <ChevronRight size={14} />
                                                 Switch Project
                                             </button>
-                                            <button className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2">
-                                                <Settings size={14} />
-                                                Project Settings
+                                            <button
+                                                className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+                                                onClick={() => {
+                                                    setIsMenuDropdownOpen(false); // Close menu immediately
+                                                    toast((t) => (
+                                                        <div className="flex flex-col gap-3 min-w-[250px]">
+                                                            <div>
+                                                                <h3 className="font-medium text-gray-900">Delete Project?</h3>
+                                                                <p className="text-sm text-gray-500 mt-1">
+                                                                    Are you sure you want to delete <span className="font-semibold">{project?.name}</span>? This action cannot be undone.
+                                                                </p>
+                                                            </div>
+                                                            <div className="flex items-center justify-end gap-3 mt-1">
+                                                                <button
+                                                                    onClick={() => toast.dismiss(t.id)}
+                                                                    className="px-3 py-1.5 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors"
+                                                                >
+                                                                    Cancel
+                                                                </button>
+                                                                <button
+                                                                    onClick={async () => {
+                                                                        toast.dismiss(t.id); // Dismiss confirmation toast
+                                                                        if (project) {
+                                                                            try {
+                                                                                await dispatch(deleteProject(project.id)).unwrap();
+                                                                                toast.success("Project deleted successfully");
+                                                                                navigate("/");
+                                                                            } catch (error) {
+                                                                                toast.error("Failed to delete project");
+                                                                            }
+                                                                        }
+                                                                    }}
+                                                                    className="px-3 py-1.5 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors"
+                                                                >
+                                                                    Delete
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    ), {
+                                                        duration: Infinity, // Don't auto-close
+                                                        position: "top-center",
+                                                        style: {
+                                                            minWidth: '300px',
+                                                        }
+                                                    });
+                                                }}
+                                            >
+                                                <Trash2 size={14} />
+                                                Delete Project
                                             </button>
                                         </div>
                                     )}

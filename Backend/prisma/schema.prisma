@@ -187,7 +187,7 @@ model Budget {
 model ProjectSnapshot {
   id           String   @id @default(auto()) @map("_id") @db.ObjectId
   projectId    String   @db.ObjectId
-  project      Project  @relation(fields: [projectId], references: [id])
+  project      Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
   totalTasks   Int      @default(0)
   completed    Int      @default(0)
@@ -217,7 +217,7 @@ model Task {
   dueDate        DateTime?
 
   projectId      String      @db.ObjectId
-  project        Project     @relation(fields: [projectId], references: [id])
+  project        Project     @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
   assigneeIds    String[]    @db.ObjectId
   assignees      User[]      @relation("TaskAssignees", fields: [assigneeIds], references: [id])
@@ -266,7 +266,7 @@ model TaskHistory {
   from        TaskStatus
   to          TaskStatus
   taskId      String     @db.ObjectId
-  task        Task       @relation(fields: [taskId], references: [id])
+  task        Task       @relation(fields: [taskId], references: [id], onDelete: Cascade)
   changedById String     @db.ObjectId
   changedBy   User       @relation("TaskHistoryChanger", fields: [changedById], references: [id])
   changedAt   DateTime   @default(now())
@@ -280,7 +280,7 @@ model Comment {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
   content   String
   taskId    String   @db.ObjectId
-  task      Task     @relation(fields: [taskId], references: [id])
+  task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
   authorId  String   @db.ObjectId
   author    User     @relation(fields: [authorId], references: [id])
   createdAt DateTime @default(now())
@@ -308,7 +308,7 @@ model Attachment {
 model TimeTracking {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
   taskId    String   @db.ObjectId
-  task      Task     @relation(fields: [taskId], references: [id])
+  task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
   userId    String   @db.ObjectId
   user      User     @relation(fields: [userId], references: [id])
 
@@ -397,7 +397,7 @@ model CalendarEvent {
   end         DateTime?
   description String?
   projectId   String?    @db.ObjectId
-  project     Project?   @relation(fields: [projectId], references: [id])
+  project     Project?   @relation(fields: [projectId], references: [id], onDelete: Cascade)
   createdAt   DateTime   @default(now())
 }
 

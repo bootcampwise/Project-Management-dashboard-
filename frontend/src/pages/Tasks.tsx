@@ -241,16 +241,16 @@ const Tasks: React.FC = () => {
                                                                 <span>{task.subtasks}</span>
                                                             </div>
                                                         )}
-                                                        {(task.comments || 0) > 0 && (
+                                                        {(typeof task.comments === 'number' ? task.comments : task.comments?.length || 0) > 0 && (
                                                             <div className="flex items-center gap-1">
                                                                 <MessageSquare size={12} />
-                                                                <span>{task.comments}</span>
+                                                                <span>{typeof task.comments === 'number' ? task.comments : task.comments?.length}</span>
                                                             </div>
                                                         )}
-                                                        {(task.attachments || 0) > 0 && (
+                                                        {(typeof task.attachments === 'number' ? task.attachments : task.attachments?.length || 0) > 0 && (
                                                             <div className="flex items-center gap-1">
                                                                 <Paperclip size={12} />
-                                                                <span>{task.attachments}</span>
+                                                                <span>{typeof task.attachments === 'number' ? task.attachments : task.attachments?.length}</span>
                                                             </div>
                                                         )}
                                                     </div>
@@ -298,16 +298,16 @@ const Tasks: React.FC = () => {
                                                                 <span>{task.subtasks}</span>
                                                             </div>
                                                         )}
-                                                        {(task.comments || 0) > 0 && (
+                                                        {(typeof task.comments === 'number' ? task.comments : task.comments?.length || 0) > 0 && (
                                                             <div className="flex items-center gap-1">
                                                                 <MessageSquare size={11} />
-                                                                <span>{task.comments}</span>
+                                                                <span>{typeof task.comments === 'number' ? task.comments : task.comments?.length}</span>
                                                             </div>
                                                         )}
-                                                        {(task.attachments || 0) > 0 && (
+                                                        {(typeof task.attachments === 'number' ? task.attachments : task.attachments?.length || 0) > 0 && (
                                                             <div className="flex items-center gap-1">
                                                                 <Paperclip size={11} />
-                                                                <span>{task.attachments}</span>
+                                                                <span>{typeof task.attachments === 'number' ? task.attachments : task.attachments?.length}</span>
                                                             </div>
                                                         )}
                                                     </div>

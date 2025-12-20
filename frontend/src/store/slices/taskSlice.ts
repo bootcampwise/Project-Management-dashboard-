@@ -27,10 +27,50 @@ export const createTask = createAsyncThunk(
   "task/createTask",
   async (taskData: CreateTaskPayload, { rejectWithValue }) => {
     try {
-      const response = await apiClient.post<Task>("/tasks", taskData);
+      let body: any = taskData;
+
+      if (taskData.attachments && taskData.attachments.length > 0) {
+        const formData = new FormData();
+        formData.append("title", taskData.title);
+        formData.append("status", taskData.status);
+        formData.append("priority", taskData.priority);
+        formData.append("description", taskData.description);
+        formData.append("projectId", taskData.projectId);
+
+        if (taskData.dueDate) formData.append("dueDate", taskData.dueDate);
+
+        // Handle arrays
+        if (taskData.tags && taskData.tags.length > 0) {
+          formData.append("tags", JSON.stringify(taskData.tags));
+        }
+        if (taskData.assigneeIds && taskData.assigneeIds.length > 0) {
+          formData.append("assigneeIds", JSON.stringify(taskData.assigneeIds));
+        }
+
+        // Handle files
+        taskData.attachments.forEach((file) => {
+          formData.append("attachments", file);
+        });
+
+        body = formData;
+      }
+
+      const response = await apiClient.post<Task>("/tasks", body);
       return response;
     } catch (error: any) {
       return rejectWithValue(error.message || "Failed to create task");
+    }
+  }
+);
+
+export const getTaskDetails = createAsyncThunk(
+  "task/getTaskDetails",
+  async (taskId: string, { rejectWithValue }) => {
+    try {
+      const response = await apiClient.get<Task>(`/tasks/${taskId}`);
+      return response;
+    } catch (error: any) {
+      return rejectWithValue(error.message || "Failed to fetch task details");
     }
   }
 );
@@ -95,6 +135,26 @@ const taskSlice = createSlice({
       state.tasks.push(action.payload);
     });
     builder.addCase(createTask.rejected, (state, action) => {
+      state.isLoading = false;
+      state.error = action.payload as string;
+    });
+
+    // Get Task Details
+    builder.addCase(getTaskDetails.pending, (state) => {
+      state.isLoading = true;
+      state.error = null;
+    });
+    builder.addCase(getTaskDetails.fulfilled, (state, action) => {
+      state.isLoading = false;
+      const index = state.tasks.findIndex((t) => t.id === action.payload.id);
+      if (index !== -1) {
+        state.tasks[index] = action.payload;
+      } else {
+        state.tasks.push(action.payload);
+      }
+      state.selectedTask = action.payload;
+    });
+    builder.addCase(getTaskDetails.rejected, (state, action) => {
       state.isLoading = false;
       state.error = action.payload as string;
     });

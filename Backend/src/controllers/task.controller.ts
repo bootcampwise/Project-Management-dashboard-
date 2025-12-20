@@ -35,14 +35,36 @@ export class TaskController {
     try {
       const { sub: supabaseId } = req.user!;
       const user = await userService.getUserBySupabaseId(supabaseId);
-      console.log("Creating task for user:", user.id);
-      console.log("Task Body:", req.body);
 
-      // Pass req.body.projectId as the 3rd argument if it exists in body
+      // Handle multipart/form-data parsing for arrays/objects
+      const data = { ...req.body };
+
+      // Parse tags if it's a string (from FormData)
+      if (typeof data.tags === "string") {
+        try {
+          data.tags = JSON.parse(data.tags);
+        } catch (e) {
+          // If comma separated string
+          data.tags = data.tags.split(",").map((t: string) => t.trim());
+        }
+      }
+
+      // Parse assigneeIds if it's a string
+      if (typeof data.assigneeIds === "string") {
+        try {
+          data.assigneeIds = JSON.parse(data.assigneeIds);
+        } catch (e) {
+          data.assigneeIds = [data.assigneeIds];
+        }
+      }
+
+      const files = req.files as Express.Multer.File[];
+
       const task = await taskService.createTask(
-        req.body,
+        data,
         user.id,
-        req.body.projectId
+        data.projectId,
+        files
       );
       sendSuccess(res, task, "Task created successfully", 201);
     } catch (error) {
@@ -70,6 +92,19 @@ export class TaskController {
       const user = await userService.getUserBySupabaseId(supabaseId);
       await taskService.deleteTask(id, user.id);
       sendSuccess(res, null, "Task deleted successfully");
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async addSubtask(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { id } = req.params;
+      const { title } = req.body;
+      const { sub: supabaseId } = req.user!;
+      const user = await userService.getUserBySupabaseId(supabaseId);
+      const subtask = await taskService.addSubtask(id, user.id, title);
+      sendSuccess(res, subtask, "Subtask added successfully");
     } catch (error) {
       next(error);
     }

@@ -5,9 +5,10 @@ export class TaskRepository {
   async findManyByUserId(userId: string) {
     const tasks = await prisma.task.findMany({
       where: {
-        project: {
-          OR: [{ ownerId: userId }, { memberIds: { has: userId } }],
-        },
+        // REMOVED project visibility filter to allow ALL tasks to be seen by logged in users
+        // project: {
+        //   OR: [{ ownerId: userId }, { memberIds: { has: userId } }],
+        // },
         isDeleted: false,
       },
       include: {
@@ -26,36 +27,59 @@ export class TaskRepository {
             key: true,
           },
         },
-        comments: true,
-        attachments: true,
+        _count: {
+          select: {
+            comments: true,
+            attachments: true,
+            subtasks: true,
+          },
+        },
+      },
+      orderBy: {
+        updatedAt: "desc", // Good practice to have predictable order
       },
     });
 
-    // Fetch tags for all tasks
-    const tasksWithTags = await Promise.all(
-      tasks.map(async (task) => {
-        const tags = await prisma.tag.findMany({
-          where: { id: { in: task.tagIds } },
-        });
-        return {
-          ...task,
-          tags,
-          comments: task.comments?.length || 0,
-          attachments: task.attachments?.length || 0,
-        };
-      })
-    );
+    // 1. Collect all unique tag IDs from all tasks
+    const allTagIds = Array.from(new Set(tasks.flatMap((task) => task.tagIds)));
 
-    return tasksWithTags;
+    // 2. Fetch all required tags in a single query
+    const allTags = await prisma.tag.findMany({
+      where: {
+        id: { in: allTagIds },
+      },
+    });
+
+    // 3. Create a lookup map for faster access
+    const tagMap = new Map(allTags.map((tag) => [tag.id, tag]));
+
+    // 4. Map the results
+    return tasks.map((task) => {
+      // Resolve tags from map
+      const tags = task.tagIds
+        .map((tagId) => tagMap.get(tagId))
+        .filter((tag) => tag !== undefined);
+
+      return {
+        ...task,
+        tags,
+        // Map counts to the flat properties expected by frontend
+        comments: task._count.comments,
+        attachments: task._count.attachments,
+        subtasks: task._count.subtasks,
+
+        // Remove _count from the final object if needed,
+        // though spreading task includes it.
+        // We explicitly overwrite the counting props.
+      };
+    });
   }
 
   async findByIdAndUserId(taskId: string, userId: string) {
-    return prisma.task.findFirst({
+    const task = await prisma.task.findFirst({
       where: {
         id: taskId,
-        project: {
-          OR: [{ ownerId: userId }, { memberIds: { has: userId } }],
-        },
+        // Removed project ownership check to match global visibility
         isDeleted: false,
       },
       include: {
@@ -63,6 +87,7 @@ export class TaskRepository {
         creator: true,
         project: true,
         subtasks: true,
+        attachments: true,
         comments: {
           include: {
             author: {
@@ -73,9 +98,26 @@ export class TaskRepository {
               },
             },
           },
+          orderBy: {
+            createdAt: "desc",
+          },
         },
       },
     });
+
+    if (!task) return null;
+
+    // Fetch tags manually
+    const tags = await prisma.tag.findMany({
+      where: {
+        id: { in: task.tagIds },
+      },
+    });
+
+    return {
+      ...task,
+      tags,
+    };
   }
 
   async findByIdAndProjectAccess(taskId: string, userId: string) {
@@ -89,7 +131,12 @@ export class TaskRepository {
     });
   }
 
-  async create(data: CreateTaskInput, creatorId: string, projectId: string) {
+  async create(
+    data: CreateTaskInput,
+    creatorId: string,
+    projectId: string,
+    files?: any[]
+  ) {
     // Basic validations or transformations can happen here if needed.
     // data.dueDate is a string, we might need to cast to Date if not handled by Prisma automatically (Prisma usually expects Date object for DateTime fields).
 
@@ -119,6 +166,15 @@ export class TaskRepository {
         projectId: projectId,
         creatorId: creatorId,
         tagIds: processedTagIds,
+        attachments: {
+          create:
+            files?.map((file) => ({
+              name: file.originalname,
+              url: `/uploads/${file.filename}`,
+              size: file.size,
+              mimeType: file.mimetype,
+            })) || [],
+        },
       },
       include: {
         assignees: {
@@ -136,6 +192,7 @@ export class TaskRepository {
             key: true,
           },
         },
+        attachments: true,
       },
     });
 
@@ -148,9 +205,32 @@ export class TaskRepository {
   }
 
   async update(taskId: string, data: UpdateTaskInput) {
+    const updateData: any = { ...data };
+
+    // Handle Tags: convert ["tag1"] to tagIds
+    if (data.tags && Array.isArray(data.tags)) {
+      const processedTagIds: string[] = [];
+      for (const tagText of data.tags) {
+        let tag = await prisma.tag.findFirst({ where: { text: tagText } });
+        if (!tag) {
+          tag = await prisma.tag.create({
+            data: { text: tagText, color: "blue", bg: "bg-blue-100" },
+          });
+        }
+        processedTagIds.push(tag.id);
+      }
+      updateData.tagIds = processedTagIds;
+      delete updateData.tags;
+    }
+
+    // Handle Date
+    if (data.dueDate) {
+      updateData.dueDate = new Date(data.dueDate);
+    }
+
     return prisma.task.update({
       where: { id: taskId },
-      data,
+      data: updateData,
     });
   }
 
@@ -158,6 +238,15 @@ export class TaskRepository {
     return prisma.task.update({
       where: { id: taskId },
       data: { isDeleted: true },
+    });
+  }
+  async createSubtask(taskId: string, title: string) {
+    return prisma.subTask.create({
+      data: {
+        title,
+        taskId,
+        completed: false,
+      },
     });
   }
 }

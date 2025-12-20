@@ -20,37 +20,35 @@ export class TaskService {
     const task = await this.taskRepository.findByIdAndUserId(taskId, userId);
 
     if (!task) {
-      throw new AppError(404, "Task not found or access denied");
+      throw new AppError("Task not found or access denied", 404);
     }
 
     return task;
   }
 
-  async createTask(data: CreateTaskInput, userId: string, projectId: string) {
-    // Note: The previous logic might have passed projectId as a separate arg,
-    // or expected it in data. Now we ensure we use data.projectId if available,
-    // or the one passed in (which seemed to be userId in the controller call? "user.id, user.id").
-
-    // In controller: taskService.createTask(req.body, user.id, user.id);
-    // Wait, the controller calls it with (body, userId, userId)?? That looks wrong.
-    // Let's assume data.projectId is the source of truth if presnet.
-
-    const targetProjectId = data.projectId;
+  async createTask(
+    data: CreateTaskInput,
+    userId: string,
+    projectId: string,
+    files?: Express.Multer.File[]
+  ) {
+    const targetProjectId = data.projectId || projectId;
 
     // Verify user has access to project
     const project = await this.projectRepository.findByIdAndUserId(
-      targetProjectId, // Use targetProjectId for verification
+      targetProjectId,
       userId
     );
 
     if (!project) {
-      throw new AppError(403, "Access denied to this project");
+      throw new AppError("Access denied to this project", 403);
     }
 
     const task = await this.taskRepository.create(
       data,
       userId,
-      targetProjectId
+      targetProjectId,
+      files
     );
 
     return task;
@@ -64,7 +62,7 @@ export class TaskService {
     );
 
     if (!task) {
-      throw new AppError(403, "Access denied to this task");
+      throw new AppError("Access denied to this task", 403);
     }
 
     const updated = await this.taskRepository.update(taskId, data);
@@ -80,10 +78,26 @@ export class TaskService {
     );
 
     if (!task) {
-      throw new AppError(403, "Access denied to this task");
+      throw new AppError("Access denied to this task", 403);
     }
 
     // Soft delete
     await this.taskRepository.softDelete(taskId);
+  }
+
+  async addSubtask(taskId: string, userId: string, title: string) {
+    const task = await this.taskRepository.findByIdAndProjectAccess(
+      taskId,
+      userId
+    );
+    if (!task) {
+      throw new AppError("Access denied to this task", 403);
+    }
+
+    // We need a repository method to create subtask or use prisma directly.
+    // Since TaskRepository wrapper is used, I should add a method there or use update.
+    // However, I can't access prisma directly easily if not exposed.
+    // I'll add createSubtask to TaskRepository.
+    return this.taskRepository.createSubtask(taskId, title);
   }
 }

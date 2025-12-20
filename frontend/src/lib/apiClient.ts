@@ -32,12 +32,21 @@ class ApiClient {
   }
 
   // POST request
-  async post<T>(endpoint: string, body?: object): Promise<T> {
-    const headers = await this.getAuthHeaders();
+  async post<T>(endpoint: string, body?: object | FormData): Promise<T> {
+    const headers = (await this.getAuthHeaders()) as Record<string, string>;
+
+    let requestBody: BodyInit | undefined;
+    if (body instanceof FormData) {
+      delete headers["Content-Type"];
+      requestBody = body;
+    } else {
+      requestBody = JSON.stringify(body);
+    }
+
     const res = await fetch(`${API_BASE_URL}${endpoint}`, {
       method: "POST",
       headers,
-      body: JSON.stringify(body),
+      body: requestBody,
       cache: "no-store",
     });
     if (!res.ok) throw new Error(`API Error: ${res.statusText}`);

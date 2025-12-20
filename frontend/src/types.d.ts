@@ -6,12 +6,38 @@ import React from "react";
 // TASK TYPES
 // ============================================
 
+export interface Attachment {
+  id: string;
+  name: string;
+  url: string;
+  size?: number | string;
+  mimeType?: string;
+  createdAt?: string;
+}
+
+export interface SubTask {
+  id: string;
+  title: string;
+  completed: boolean;
+  createdAt?: string;
+}
+
+export interface Comment {
+  id: string;
+  content: string;
+  author?: {
+    name: string;
+    avatar?: string;
+  };
+  createdAt: string;
+}
+
 export interface Task {
   id: number | string;
   name: string;
-  title?: string; // Alias for name, used in some components
+  title?: string;
   project: string | { id: string; name: string };
-  subtasks: string | number;
+  subtasks: number | SubTask[];
   status:
     | "BACKLOG"
     | "TODO"
@@ -25,12 +51,12 @@ export interface Task {
   startDate: string;
   endDate: string;
   dueDate?: string;
-  tags?: { text: string; color: string; bg: string }[];
+  tags?: { id: string; text: string; color: string; bg: string }[];
   labels?: { text: string; color: string; bg: string }[];
   assignee?: { name: string; avatar?: string };
-  assignees?: { id: string; name: string; avatar?: string; email?: string }[];
-  comments?: number;
-  attachments?: number;
+  assignees?: User[];
+  comments?: number | Comment[];
+  attachments?: number | Attachment[];
   date?: string;
   description?: string;
 }

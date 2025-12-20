@@ -7,7 +7,17 @@ const attachmentService = new AttachmentService();
 export class AttachmentController {
   async createAttachment(req: Request, res: Response, next: NextFunction) {
     try {
-      const attachment = await attachmentService.createAttachment(req.body);
+      if (!req.file) {
+        throw new Error("No file uploaded");
+      }
+      const { taskId } = req.body;
+      const attachment = await attachmentService.createAttachment({
+        filename: req.file.originalname,
+        url: `/uploads/${req.file.filename}`,
+        size: req.file.size,
+        mimeType: req.file.mimetype,
+        taskId,
+      });
       sendSuccess(res, attachment, "Attachment uploaded successfully", 201);
     } catch (error) {
       next(error);

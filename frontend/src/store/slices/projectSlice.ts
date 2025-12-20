@@ -46,6 +46,20 @@ export const createProject = createAsyncThunk(
   }
 );
 
+export const deleteProject = createAsyncThunk(
+  "project/deleteProject",
+  async (projectId: string, { rejectWithValue }) => {
+    try {
+      await apiClient.delete(`/projects/${projectId}`);
+      return projectId;
+    } catch (err: any) {
+      return rejectWithValue(
+        err.response?.data?.error || "Failed to delete project"
+      );
+    }
+  }
+);
+
 const projectSlice = createSlice({
   name: "project",
   initialState,
@@ -120,6 +134,22 @@ const projectSlice = createSlice({
         }
       )
       .addCase(createProject.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+      })
+      .addCase(deleteProject.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(deleteProject.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.projects = state.projects.filter((p) => p.id !== action.payload);
+        if (state.activeProject?.id === action.payload) {
+          state.activeProject =
+            state.projects.length > 0 ? state.projects[0] : null;
+        }
+      })
+      .addCase(deleteProject.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string;
       });

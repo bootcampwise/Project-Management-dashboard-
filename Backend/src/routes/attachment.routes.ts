@@ -7,7 +7,8 @@ const controller = new AttachmentController();
 
 router.use(authenticate);
 
-router.post("/", controller.createAttachment);
+import { upload } from "../middlewares/upload.middleware";
+router.post("/", upload.single("file"), controller.createAttachment);
 router.delete("/:id", controller.deleteAttachment);
 router.get("/task/:taskId", controller.getTaskAttachments);
 
