@@ -19,11 +19,14 @@ const Tasks: React.FC = () => {
 
     const {
         selectedTask,
+        taskToEdit,
         isCreateTaskModalOpen,
         modalInitialStatus,
         handleTaskClick,
         handleOpenCreateTask,
         handleCreateTask,
+        handleEditTask,
+        handleUpdateTask,
         closeTaskDetail,
         closeCreateTaskModal
     } = useTasksPage();
@@ -389,6 +392,7 @@ const Tasks: React.FC = () => {
                 isOpen={!!selectedTask}
                 onClose={closeTaskDetail}
                 task={selectedTask}
+                onEdit={handleEditTask}
             />
 
             {/* Create Task Modal */}
@@ -397,6 +401,8 @@ const Tasks: React.FC = () => {
                 initialStatus={modalInitialStatus}
                 onClose={closeCreateTaskModal}
                 onCreate={handleCreateTask}
+                task={taskToEdit}
+                onUpdate={handleUpdateTask}
             />
         </div>
     );

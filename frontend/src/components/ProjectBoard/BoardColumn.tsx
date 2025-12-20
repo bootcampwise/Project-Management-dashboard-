@@ -5,7 +5,7 @@ import type { BoardColumnProps } from '../../types';
 
 
 
-const BoardColumn: React.FC<BoardColumnProps> = ({ title, count, color, tasks, collapsed = false, onTaskClick, onAddTask }) => {
+const BoardColumn: React.FC<BoardColumnProps> = ({ title, count, color, tasks, status, collapsed = false, onTaskClick, onAddTask }) => {
     if (collapsed) {
         return (
             <div className="w-12 flex flex-col items-center py-4 h-full bg-[#F3F4F6] rounded-lg">
@@ -43,9 +43,9 @@ const BoardColumn: React.FC<BoardColumnProps> = ({ title, count, color, tasks, c
                         priority={task.priority}
                         tags={task.tags}
                         assignee={task.assignee || { name: 'Unassigned' }}
-                        assignees={task.assignees}
-                        comments={task.comments || 0}
-                        attachments={task.attachments || 0}
+                        assignees={task.assignees?.map(a => ({ name: a.name, avatar: a.avatar || undefined }))}
+                        comments={typeof task.comments === 'number' ? task.comments : (Array.isArray(task.comments) ? task.comments.length : 0)}
+                        attachments={typeof task.attachments === 'number' ? task.attachments : (Array.isArray(task.attachments) ? task.attachments.length : 0)}
                         date={task.date || task.dueDate || ''}
                         onClick={() => onTaskClick && onTaskClick(task)}
                     />
@@ -53,7 +53,7 @@ const BoardColumn: React.FC<BoardColumnProps> = ({ title, count, color, tasks, c
 
                 {/* Add Task Button at bottom of list */}
                 <button
-                    onClick={() => onAddTask && onAddTask(title)}
+                    onClick={() => onAddTask && onAddTask(status || title)}
                     className="flex items-center gap-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 p-2 rounded-md transition-colors mt-2 text-sm font-medium w-full text-left"
                 >
                     <Plus size={16} />

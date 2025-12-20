@@ -124,9 +124,15 @@ export class TaskRepository {
     return prisma.task.findFirst({
       where: {
         id: taskId,
-        project: {
-          OR: [{ ownerId: userId }, { memberIds: { has: userId } }],
-        },
+        OR: [
+          { project: { ownerId: userId } },
+          { project: { memberIds: { has: userId } } },
+          { creatorId: userId },
+          { assigneeIds: { has: userId } },
+        ],
+      },
+      include: {
+        project: { select: { id: true, memberIds: true, ownerId: true } },
       },
     });
   }
@@ -227,6 +233,9 @@ export class TaskRepository {
     if (data.dueDate) {
       updateData.dueDate = new Date(data.dueDate);
     }
+
+    // Attachments should not be updated via direct array assignment here
+    delete updateData.attachments;
 
     return prisma.task.update({
       where: { id: taskId },

@@ -51,6 +51,7 @@ enum TaskStatus {
   QA
   COMPLETED
   CANCELED
+  POSTPONE
 }
 
 enum Priority {

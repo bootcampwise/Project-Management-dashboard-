@@ -1,10 +1,14 @@
 import { CommentRepository } from "../repositories/comment.repository";
+import { UserRepository } from "../repositories/user.repository";
+import { AppError } from "../middlewares/error.middleware";
 
 export class CommentService {
   private commentRepository: CommentRepository;
+  private userRepository: UserRepository;
 
   constructor() {
     this.commentRepository = new CommentRepository();
+    this.userRepository = new UserRepository();
   }
 
   async createComment(data: {
@@ -15,7 +19,19 @@ export class CommentService {
     if (!data.content) {
       throw new Error("Comment content is required");
     }
-    return this.commentRepository.create(data);
+
+    // Resolve Supabase ID to Internal User ID
+    const user = await this.userRepository.findUnique({
+      supabaseId: data.authorId,
+    });
+    if (!user) {
+      throw new AppError("User not found", 404);
+    }
+
+    return this.commentRepository.create({
+      ...data,
+      authorId: user.id,
+    });
   }
 
   async getTaskComments(taskId: string) {

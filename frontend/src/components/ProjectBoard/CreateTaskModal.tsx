@@ -6,7 +6,7 @@ import type { CreateTaskPayload, CreateTaskModalProps } from '../../types';
 import { useCreateTaskModal } from '../../hooks/useCreateTaskModal';
 
 
-const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ isOpen, onClose, onCreate, initialStatus }) => {
+const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ isOpen, onClose, onCreate, onUpdate, initialStatus, task }) => {
     const {
         title, setTitle,
         status, setStatus,
@@ -30,7 +30,9 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ isOpen, onClose, onCr
         filteredMembers,
         handleToggleAssignee,
         uniqueMembers
-    } = useCreateTaskModal({ isOpen, onClose, onCreate, initialStatus });
+    } = useCreateTaskModal({ isOpen, onClose, onCreate, onUpdate, initialStatus, task });
+
+    console.log("CreateTaskModal render:", { isOpen, task });
 
     if (!isOpen) return null;
 
@@ -42,7 +44,7 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ isOpen, onClose, onCr
             >
                 {/* Header */}
                 <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-                    <h2 className="text-xl font-bold text-gray-800">Create New Task</h2>
+                    <h2 className="text-xl font-bold text-gray-800">{task ? 'Edit Task' : 'Create New Task'}</h2>
                     <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition-colors">
                         <X size={20} />
                     </button>
@@ -345,7 +347,7 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ isOpen, onClose, onCr
                             : "bg-blue-600 hover:bg-blue-700 active:bg-blue-800 hover:shadow-md"
                             }`}
                     >
-                        {isLoading ? "Creating..." : "Create Task"}
+                        {isLoading ? (task ? "Updating..." : "Creating...") : (task ? "Update Task" : "Create Task")}
                     </button>
                 </div>
             </div>

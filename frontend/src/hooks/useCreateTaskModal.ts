@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import type { CreateTaskPayload, Project } from "../types";
+import type { CreateTaskPayload, Project, Task } from "../types";
 import type { RootState } from "../store";
 import {
   setProjects,
@@ -14,14 +14,21 @@ interface UseCreateTaskModalProps {
   isOpen: boolean;
   onClose: () => void;
   onCreate?: (taskData: CreateTaskPayload) => void | Promise<void>;
+  onUpdate?: (
+    taskId: string,
+    taskData: CreateTaskPayload
+  ) => void | Promise<void>;
   initialStatus?: string;
+  task?: Task | null;
 }
 
 export const useCreateTaskModal = ({
   isOpen,
   onClose,
   onCreate,
+  onUpdate,
   initialStatus,
+  task,
 }: UseCreateTaskModalProps) => {
   const dispatch = useDispatch();
   const { projects, isLoading } = useSelector(
@@ -37,6 +44,61 @@ export const useCreateTaskModal = ({
   const [attachments, setAttachments] = useState<File[]>([]);
   const [selectedProjectId, setSelectedProjectId] = useState("");
   const [dueDate, setDueDate] = useState("");
+
+  // Populate state when task prop changes (Edit Mode)
+  useEffect(() => {
+    if (isOpen && task) {
+      setTitle(task.name || task.title || ""); // Handle both name/title
+      setStatus(task.status || initialStatus || "IN_PROGRESS");
+      setPriority(task.priority || "MEDIUM");
+      setTags(
+        task.tags
+          ? task.tags.map((t) => (typeof t === "string" ? t : t.text))
+          : []
+      );
+      setDescription(task.description || "");
+      // Attachments handled separately or just new ones? Usually users want to see existing and add new.
+      // For simplicity, we assume this hook manages NEW attachments to upload. Existing ones are displayed in detail view.
+      // If we want to allow deleting existing attachments in edit, we need more logic.
+      // For now, let's keep attachments state for NEW files.
+      setAttachments([]);
+
+      if (typeof task.project === "string") {
+        // Need to find project ID from name? Or maybe task.project is just ID sometimes?
+        // If it's a string name, we might not find it easily if duplicates.
+        const p = projects.find((p) => p.name === task.project);
+        if (p) setSelectedProjectId(p.id);
+      } else if (task.project?.id) {
+        setSelectedProjectId(task.project.id);
+      }
+
+      setDueDate(task.dueDate || task.endDate || "");
+
+      // Populate assignees
+      if (task.assignees) {
+        setAssigneeIds(task.assignees.map((a) => a.id));
+      } else if (task.assignee) {
+        // If legacy single assignee, try to find in members
+        // This uses name, which is flaky. Better if task has assignee ID.
+      }
+    } else if (isOpen && !task) {
+      // Reset if opening in Create Mode
+      setTitle("");
+      setStatus(initialStatus || "IN_PROGRESS");
+      setPriority("MEDIUM");
+      setTags([]);
+      setTagInput("");
+      setDescription("");
+      setAttachments([]);
+      setDueDate("");
+      setAssigneeIds([]);
+      if (projects.length > 0 && !selectedProjectId)
+        setSelectedProjectId(projects[0].id);
+    }
+  }, [isOpen, task, projects, initialStatus]); // StartLine: 40 (Inserting after state declarations) -> Actually simpler to append separate useEffect.
+
+  // NOTE: I am replacing the existing state usage lines with the above block combined? No, that's messy.
+  // I will just add the useEffect.
 
   // Assignee Logic
   const [assigneeIds, setAssigneeIds] = useState<string[]>([]);
@@ -179,8 +241,6 @@ export const useCreateTaskModal = ({
     }
 
     // Prepare payload for the API
-    // We EXCLUDE attachments for now because the backend doesn't support them
-    // and sending File objects via JSON causes issues.
     const payload: any = {
       title,
       status,
@@ -190,12 +250,17 @@ export const useCreateTaskModal = ({
       projectId: selectedProjectId || projects[0]?.id,
       dueDate,
       assigneeIds,
+      attachments,
     };
 
     console.log("Payload prepared:", payload);
 
     try {
-      if (onCreate) {
+      if (task && onUpdate) {
+        // Edit Mode
+        await onUpdate(String(task.id), payload);
+      } else if (onCreate) {
+        // Create Mode
         await onCreate(payload);
       }
       onClose();

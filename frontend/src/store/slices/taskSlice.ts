@@ -3,13 +3,23 @@ import {
   createAsyncThunk,
   type PayloadAction,
 } from "@reduxjs/toolkit";
-import type {
-  Task,
-  BoardColumn,
-  TaskState,
-  CreateTaskPayload,
-} from "../../types";
+import type { Task, TaskState, CreateTaskPayload } from "../../types";
 import { apiClient } from "../../lib/apiClient";
+
+export const updateTask = createAsyncThunk(
+  "task/updateTask",
+  async (
+    { id, data }: { id: string; data: Partial<CreateTaskPayload> },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await apiClient.patch<Task>(`/tasks/${id}`, data);
+      return response;
+    } catch (error: any) {
+      return rejectWithValue(error.message || "Failed to update task");
+    }
+  }
+);
 
 export const fetchTasks = createAsyncThunk(
   "task/fetchTasks",
@@ -135,6 +145,26 @@ const taskSlice = createSlice({
       state.tasks.push(action.payload);
     });
     builder.addCase(createTask.rejected, (state, action) => {
+      state.isLoading = false;
+      state.error = action.payload as string;
+    });
+
+    // Update Task
+    builder.addCase(updateTask.pending, (state) => {
+      state.isLoading = true;
+      state.error = null;
+    });
+    builder.addCase(updateTask.fulfilled, (state, action) => {
+      state.isLoading = false;
+      const index = state.tasks.findIndex((t) => t.id === action.payload.id);
+      if (index !== -1) {
+        state.tasks[index] = action.payload;
+      }
+      if (state.selectedTask?.id === action.payload.id) {
+        state.selectedTask = action.payload;
+      }
+    });
+    builder.addCase(updateTask.rejected, (state, action) => {
       state.isLoading = false;
       state.error = action.payload as string;
     });

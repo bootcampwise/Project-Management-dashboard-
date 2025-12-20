@@ -1,7 +1,7 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
+import { toast } from 'react-hot-toast';
 import {
     X,
-    Share2,
     Star,
     Link,
     MoreHorizontal,
@@ -9,26 +9,87 @@ import {
     Plus,
     FileText,
     ChevronsRight,
-    Download
+    Download,
+    Send,
+    Edit,
+    Trash2
 } from 'lucide-react';
 import type { Task, User } from '../../types';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import { getTaskDetails } from '../../store/slices/taskSlice';
+import { getTaskDetails, fetchTasks } from '../../store/slices/taskSlice';
 import { apiClient } from '../../lib/apiClient';
-import { useState, useRef } from 'react';
+
 
 interface TaskDetailModalProps {
     isOpen: boolean;
     onClose: () => void;
     task: Task | null;
+    onEdit?: (task: Task) => void;
 }
 
-const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task }) => {
+const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task: initialTask, onEdit }) => {
     const dispatch = useAppDispatch();
     const { user } = useAppSelector((state) => state.auth);
+    const { tasks } = useAppSelector((state) => state.task);
+
+    // Get the latest task data from Redux, falling back to the initial prop
+    const task = tasks.find(t => String(t.id) === String(initialTask?.id)) || initialTask;
+
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [newSubtask, setNewSubtask] = useState('');
     const [newComment, setNewComment] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+    const handleDeleteTask = () => {
+        if (!task) return;
+
+        toast((t) => (
+            <div className="flex flex-col gap-3 min-w-[250px]">
+                <div>
+                    <h3 className="font-medium text-gray-900">Delete Task?</h3>
+                    <p className="text-sm text-gray-500 mt-1">
+                        Are you sure you want to delete <span className="font-semibold">{task.name}</span>?
+                    </p>
+                </div>
+                <div className="flex items-center justify-end gap-3 mt-1">
+                    <button
+                        onClick={() => toast.dismiss(t.id)}
+                        className="px-3 py-1.5 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors"
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        onClick={async () => {
+                            toast.dismiss(t.id);
+                            try {
+                                await apiClient.delete(`/tasks/${task.id}`);
+                                dispatch(fetchTasks());
+                                toast.success('Task deleted successfully');
+                                onClose();
+                            } catch (error) {
+                                console.error('Failed to delete task:', error);
+                                toast.error('Failed to delete task');
+                            }
+                        }}
+                        className="px-3 py-1.5 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors"
+                    >
+                        Delete
+                    </button>
+                </div>
+            </div>
+        ), {
+            duration: Infinity,
+            position: "top-center"
+        });
+    };
+
+    const handleEditTask = () => {
+        if (task && onEdit) {
+            onEdit(task);
+            setIsMenuOpen(false);
+        }
+    };
 
     const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -38,11 +99,14 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
         formData.append('file', file);
         formData.append('taskId', String(task.id));
 
+        const toastId = toast.loading('Uploading attachment...');
         try {
             await apiClient.post('/attachments', formData);
             dispatch(getTaskDetails(String(task.id)));
+            toast.success('Attachment uploaded', { id: toastId });
         } catch (error) {
             console.error('Failed to upload attachment:', error);
+            toast.error('Failed to upload attachment', { id: toastId });
         }
     };
 
@@ -52,21 +116,28 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
                 await apiClient.post(`/tasks/${task.id}/subtasks`, { title: newSubtask });
                 setNewSubtask('');
                 dispatch(getTaskDetails(String(task.id)));
+                toast.success('Subtask added');
             } catch (error) {
                 console.error('Failed to add subtask:', error);
+                toast.error('Failed to add subtask');
             }
         }
     };
 
     const handleAddComment = async () => {
-        if (newComment.trim() && task) {
-            try {
-                await apiClient.post(`/comments`, { taskId: String(task.id), content: newComment });
-                setNewComment('');
-                dispatch(getTaskDetails(String(task.id)));
-            } catch (error) {
-                console.error('Failed to add comment:', error);
-            }
+        if (!newComment.trim() || !task || isSubmitting) return;
+
+        setIsSubmitting(true);
+        try {
+            await apiClient.post(`/comments`, { taskId: String(task.id), content: newComment });
+            setNewComment('');
+            dispatch(getTaskDetails(String(task.id)));
+            toast.success('Comment added');
+        } catch (error) {
+            console.error('Failed to add comment:', error);
+            toast.error('Failed to add comment');
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -91,10 +162,10 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
     };
 
     useEffect(() => {
-        if (isOpen && task?.id) {
-            dispatch(getTaskDetails(String(task.id)));
+        if (isOpen && initialTask?.id) {
+            dispatch(getTaskDetails(String(initialTask.id)));
         }
-    }, [isOpen, task?.id, dispatch]);
+    }, [isOpen, initialTask?.id, dispatch]);
 
     if (!isOpen || !task) return null;
 
@@ -129,7 +200,35 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
                     <div className="flex items-center gap-4 text-gray-500">
                         <button className="hover:text-gray-700 transition-colors"><Star size={18} /></button>
                         <button className="hover:text-gray-700 transition-colors"><Link size={18} /></button>
-                        <button className="hover:text-gray-700 transition-colors"><MoreHorizontal size={18} /></button>
+
+                        <div className="relative">
+                            <button
+                                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                                className={`hover:text-gray-700 transition-colors p-1 rounded ${isMenuOpen ? 'bg-gray-100 text-gray-800' : ''}`}
+                            >
+                                <MoreHorizontal size={18} />
+                            </button>
+
+                            {isMenuOpen && (
+                                <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl border border-gray-100 py-1 z-50 animate-in fade-in zoom-in-95 duration-100 origin-top-right">
+                                    <button
+                                        onClick={handleEditTask}
+                                        className="w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                                    >
+                                        <Edit size={16} />
+                                        Update Task
+                                    </button>
+                                    <button
+                                        onClick={handleDeleteTask}
+                                        className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                                    >
+                                        <Trash2 size={16} />
+                                        Delete Task
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+
                         <button onClick={onClose} className="hover:text-red-500 transition-colors ml-2">
                             <X size={20} />
                         </button>
@@ -152,6 +251,29 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
                                 <div className={`w-2.5 h-2.5 rounded-full ${getStatusColor(task.status)}`}></div>
                                 <span className="text-gray-700 font-medium">{formatStatus(task.status)}</span>
                             </div>
+                        </div>
+
+                        {/* Created By */}
+                        <div className="text-gray-500 font-medium py-1">Created By</div>
+                        <div>
+                            {task.creator ? (
+                                <div className="flex items-center gap-2 px-1 py-1 rounded hover:bg-gray-50 transition-colors cursor-pointer">
+                                    {task.creator.avatar ? (
+                                        <img
+                                            src={task.creator.avatar}
+                                            alt={task.creator.name}
+                                            className="w-6 h-6 rounded-full border border-gray-200"
+                                        />
+                                    ) : (
+                                        <div className="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center text-xs font-bold text-gray-600">
+                                            {task.creator.name?.charAt(0)}
+                                        </div>
+                                    )}
+                                    <span className="text-gray-700 font-medium">{task.creator.name}</span>
+                                </div>
+                            ) : (
+                                <span className="text-gray-400 italic px-1">Unknown</span>
+                            )}
                         </div>
 
                         {/* Assignee */}
@@ -234,7 +356,7 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
                     <div className="mb-8">
                         <div className="flex items-center gap-2 mb-4">
                             <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wide">Attachments</h3>
-                            <span className="text-gray-400 text-xs font-medium">· {Array.isArray(task.attachments) ? task.attachments.length : task.attachments || 0}</span>
+                            <span className="text-gray-400 text-xs font-medium">· {Array.isArray(task.attachments) ? task.attachments.length : 0}</span>
                         </div>
                         <div className="flex flex-wrap gap-4">
                             {Array.isArray(task.attachments) && task.attachments.map((att: any) => (
@@ -345,8 +467,12 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
                                 onChange={(e) => setNewComment(e.target.value)}
                                 onKeyDown={handleKeyDownComment}
                             />
-                            <button onClick={handleAddComment} className="text-gray-400 hover:text-blue-600 transition-colors p-1">
-                                <Share2 size={16} />
+                            <button
+                                onClick={handleAddComment}
+                                disabled={!newComment.trim() || isSubmitting}
+                                className={`p-1 transition-colors ${!newComment.trim() || isSubmitting ? 'text-gray-300 cursor-not-allowed' : 'text-gray-400 hover:text-blue-600'}`}
+                            >
+                                <Send size={16} />
                             </button>
                         </div>
                     </div>

@@ -33,7 +33,7 @@ import AddEventModal from "../components/ProjectBoard/AddEventModal";
 import { useProjectBoard } from "../hooks/useProjectBoard";
 import type { Task } from "../types";
 
-import { fetchTasks, createTask } from "../store/slices/taskSlice";
+import { fetchTasks, createTask, updateTask } from "../store/slices/taskSlice";
 import { deleteProject } from "../store/slices/projectSlice";
 import toast from "react-hot-toast";
 import { Trash2 } from "lucide-react";
@@ -93,6 +93,18 @@ const ProjectBoard: React.FC = () => {
     const [isCreateTaskModalOpen, setIsCreateTaskModalOpen] = useState(false);
     const [isAddEventModalOpen, setIsAddEventModalOpen] = useState(false);
     const [modalInitialStatus, setModalInitialStatus] = useState<string | undefined>(undefined);
+
+
+    // Edit Task State
+    const [taskToEdit, setTaskToEdit] = useState<Task | null>(null);
+    const handleEditTask = (task: Task) => {
+        console.log("ProjectBoard: handleEditTask called", task);
+        setTaskToEdit(task);
+        setSelectedTask(null);
+        setIsCreateTaskModalOpen(true);
+    };
+
+    // Header Dropdown States
 
     // Header Dropdown States
     const [isProjectDropdownOpen, setIsProjectDropdownOpen] = useState(false);
@@ -442,38 +454,54 @@ const ProjectBoard: React.FC = () => {
                 onSelectTemplate={handleSelectTemplate}
             />
 
+
+
             {/* Task Detail Modal */}
             <TaskDetailModal
                 isOpen={!!selectedTask}
                 onClose={() => setSelectedTask(null)}
                 task={selectedTask}
+                onEdit={handleEditTask}
             />
 
-            {/* Create Task Modal */}
+            {/* Create Task Modal (Reused for Edit) */}
             <CreateTaskModal
                 isOpen={isCreateTaskModalOpen}
-                onClose={() => setIsCreateTaskModalOpen(false)}
+                onClose={() => {
+                    setIsCreateTaskModalOpen(false);
+                    setTaskToEdit(null); // Reset edit state on close
+                }}
                 initialStatus={modalInitialStatus}
+                task={taskToEdit} // Pass task to edit
                 onCreate={async (taskData) => {
-                    console.log("onCreate called with:", taskData);
+                    // Create Mode
+                    const finalProjectId = taskData.projectId || activeProject?.id;
+                    if (finalProjectId) {
+                        const payload = { ...taskData, projectId: finalProjectId };
+                        await (dispatch as any)(createTask(payload)).unwrap();
+                        toast.success("Task created successfully");
+                    } else {
+                        toast.error("Please select a project");
+                    }
+                }}
+                onUpdate={async (taskId, taskData) => {
+                    // Edit Mode
                     try {
-                        const finalProjectId = taskData.projectId || activeProject?.id;
-                        console.log("finalProjectId:", finalProjectId);
-
-                        if (finalProjectId) {
-                            const payload = { ...taskData, projectId: finalProjectId };
-                            console.log("Dispatching createTask with payload:", payload);
-
-                            await (dispatch as any)(createTask(payload)).unwrap();
-                            console.log("Task created successfully");
-                            toast.success("Task created successfully");
-                        } else {
-                            console.warn("No project ID selected");
-                            toast.error("Please select a project");
-                        }
+                        // We don't need projectId if it's not changed, but payload has it.
+                        // Ensure we pass only what's needed or partial? 
+                        // Our updateTask thunk takes CreateTaskPayload (basically full object) 
+                        // effectively doing a PATCH with what's provided.
+                        await (dispatch as any)(updateTask({ id: taskId, data: taskData })).unwrap();
+                        toast.success("Task updated successfully");
+                        // Refresh board handled by thunk updating state? 
+                        // Yes, updateTask.fulfilled updates the task in the list.
+                        // But we might want to refresh to be sure or if other things changed?
+                        // Nah, optimistic/local update in slice is enough usually.
+                        // But let's re-fetch if we suspect side-effects? 
+                        // For now rely on slice.
                     } catch (err: any) {
-                        console.error("Failed to create task:", err);
-                        toast.error(`Failed to create task: ${err}`);
+                        console.error("Failed to update task:", err);
+                        toast.error(`Failed to update task: ${err}`);
                     }
                 }}
             />
@@ -485,6 +513,7 @@ const ProjectBoard: React.FC = () => {
                 onAdd={(event) => console.log('New event:', event)}
             />
 
+            {/* Search Popup */}
             <SearchPopup isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
         </div>
     );

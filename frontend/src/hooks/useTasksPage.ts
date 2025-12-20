@@ -1,13 +1,14 @@
 import { useState } from "react";
 import type { Task, CreateTaskPayload } from "../types";
 import { useAppDispatch } from "../store/hooks";
-import { createTask } from "../store/slices/taskSlice";
+import { createTask, updateTask } from "../store/slices/taskSlice";
 import toast from "react-hot-toast";
 
 export const useTasksPage = () => {
   const dispatch = useAppDispatch();
 
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [taskToEdit, setTaskToEdit] = useState<Task | null>(null);
   const [isCreateTaskModalOpen, setIsCreateTaskModalOpen] = useState(false);
   const [modalInitialStatus, setModalInitialStatus] = useState<
     string | undefined
@@ -27,6 +28,7 @@ export const useTasksPage = () => {
 
   const handleOpenCreateTask = (status?: string) => {
     setModalInitialStatus(status);
+    setTaskToEdit(null); // Ensure not in edit mode
     setIsCreateTaskModalOpen(true);
   };
 
@@ -45,16 +47,45 @@ export const useTasksPage = () => {
     }
   };
 
+  const handleEditTask = (task: Task) => {
+    setTaskToEdit(task);
+    setSelectedTask(null);
+    setIsCreateTaskModalOpen(true);
+  };
+
+  const handleUpdateTask = async (
+    taskId: string,
+    taskData: CreateTaskPayload
+  ) => {
+    try {
+      // @ts-ignore
+      await dispatch(updateTask({ id: taskId, data: taskData })).unwrap();
+      toast.success("Task updated successfully");
+      setIsCreateTaskModalOpen(false);
+      setTaskToEdit(null);
+    } catch (error: any) {
+      console.error("Failed to update task:", error);
+      toast.error(`Failed to update task: ${error.message || error}`);
+    }
+  };
+
   const closeTaskDetail = () => setSelectedTask(null);
-  const closeCreateTaskModal = () => setIsCreateTaskModalOpen(false);
+
+  const closeCreateTaskModal = () => {
+    setIsCreateTaskModalOpen(false);
+    setTaskToEdit(null);
+  };
 
   return {
     selectedTask,
+    taskToEdit,
     isCreateTaskModalOpen,
     modalInitialStatus,
     handleTaskClick,
     handleOpenCreateTask,
     handleCreateTask,
+    handleEditTask,
+    handleUpdateTask,
     closeTaskDetail,
     closeCreateTaskModal,
   };

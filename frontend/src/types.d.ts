@@ -45,7 +45,8 @@ export interface Task {
     | "IN_REVIEW"
     | "QA"
     | "COMPLETED"
-    | "CANCELED";
+    | "CANCELED"
+    | "POSTPONE";
   priority: "LOW" | "MEDIUM" | "HIGH" | "URGENT";
 
   startDate: string;
@@ -59,6 +60,7 @@ export interface Task {
   attachments?: number | Attachment[];
   date?: string;
   description?: string;
+  creator?: { id: string; name: string; avatar?: string };
 }
 
 // ============================================
@@ -374,7 +376,12 @@ export interface CreateTaskModalProps {
   isOpen: boolean;
   onClose: () => void;
   onCreate?: (taskData: CreateTaskPayload) => void;
+  onUpdate?: (
+    taskId: string,
+    taskData: CreateTaskPayload
+  ) => void | Promise<void>;
   initialStatus?: string;
+  task?: Task | null;
 }
 
 export interface TeamFile {
@@ -409,6 +416,7 @@ export interface BoardColumnProps {
   count: number;
   color: string;
   tasks: Task[];
+  status?: string; // Added status ID prop
   collapsed?: boolean;
   onTaskClick?: (task: Task) => void;
   onAddTask?: (status: string) => void;
