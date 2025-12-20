@@ -41,9 +41,11 @@ export const useTasksPage = () => {
       await dispatch(createTask(newTask)).unwrap();
       toast.success("Task created successfully");
       setIsCreateTaskModalOpen(false);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Failed to create task:", err);
-      toast.error(err?.message || "Failed to create task");
+      const errorMessage =
+        err instanceof Error ? err.message : "Failed to create task";
+      toast.error(errorMessage);
     }
   };
 
@@ -63,9 +65,11 @@ export const useTasksPage = () => {
       toast.success("Task updated successfully");
       setIsCreateTaskModalOpen(false);
       setTaskToEdit(null);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Failed to update task:", error);
-      toast.error(`Failed to update task: ${error.message || error}`);
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+      toast.error(`Failed to update task: ${errorMessage}`);
     }
   };
 

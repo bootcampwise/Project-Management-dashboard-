@@ -15,8 +15,10 @@ export const updateTask = createAsyncThunk(
     try {
       const response = await apiClient.patch<Task>(`/tasks/${id}`, data);
       return response;
-    } catch (error: any) {
-      return rejectWithValue(error.message || "Failed to update task");
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : "Failed to update task";
+      return rejectWithValue(message);
     }
   }
 );
@@ -27,8 +29,10 @@ export const fetchTasks = createAsyncThunk(
     try {
       const response = await apiClient.get<Task[]>("/tasks");
       return response;
-    } catch (error: any) {
-      return rejectWithValue(error.message || "Failed to fetch tasks");
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : "Failed to fetch tasks";
+      return rejectWithValue(message);
     }
   }
 );
@@ -43,8 +47,10 @@ export const createTask = createAsyncThunk(
 
       const response = await apiClient.post<Task>("/tasks", body);
       return response;
-    } catch (error: any) {
-      return rejectWithValue(error.message || "Failed to create task");
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : "Failed to create task";
+      return rejectWithValue(message);
     }
   }
 );
@@ -55,8 +61,10 @@ export const getTaskDetails = createAsyncThunk(
     try {
       const response = await apiClient.get<Task>(`/tasks/${taskId}`);
       return response;
-    } catch (error: any) {
-      return rejectWithValue(error.message || "Failed to fetch task details");
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : "Failed to fetch task details";
+      return rejectWithValue(message);
     }
   }
 );
@@ -193,8 +201,10 @@ export const updateTaskStatus = createAsyncThunk(
         status,
       });
       return response;
-    } catch (error: any) {
-      return rejectWithValue(error.message || "Failed to update task status");
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : "Failed to update task status";
+      return rejectWithValue(message);
     }
   }
 );

@@ -24,9 +24,10 @@ export const fetchProjects = createAsyncThunk(
     try {
       const response = await apiClient.get<Project[]>("/projects");
       return response;
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { error?: string } } };
       return rejectWithValue(
-        err.response?.data?.error || "Failed to fetch projects"
+        error.response?.data?.error || "Failed to fetch projects"
       );
     }
   }
@@ -38,9 +39,10 @@ export const createProject = createAsyncThunk(
     try {
       const response = await apiClient.post<Project>("/projects", payload);
       return response;
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { error?: string } } };
       return rejectWithValue(
-        err.response?.data?.error || "Failed to create project"
+        error.response?.data?.error || "Failed to create project"
       );
     }
   }
@@ -52,9 +54,10 @@ export const deleteProject = createAsyncThunk(
     try {
       await apiClient.delete(`/projects/${projectId}`);
       return projectId;
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { error?: string } } };
       return rejectWithValue(
-        err.response?.data?.error || "Failed to delete project"
+        error.response?.data?.error || "Failed to delete project"
       );
     }
   }
@@ -121,7 +124,7 @@ const projectSlice = createSlice({
           }
         }
       )
-      .addCase(fetchProjects.rejected, (state, action) => {})
+      .addCase(fetchProjects.rejected, () => {})
       .addCase(createProject.pending, (state) => {
         state.isLoading = true;
         state.error = null;

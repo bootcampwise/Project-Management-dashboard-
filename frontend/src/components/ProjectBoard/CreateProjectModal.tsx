@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, Sparkles, ChevronDown } from 'lucide-react';
 
-import type { CreateProjectPayload } from '../../types';
+
 
 import { useAppSelector, useAppDispatch } from '../../store/hooks';
 import { fetchTeams } from '../../store/slices/teamSlice';
@@ -50,9 +50,10 @@ const CreateProjectModal: React.FC<CreateProjectModalProps> = ({ isOpen, onClose
 
             toast.success("Create project successfully");
             onClose();
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error("Failed to create project:", error);
-            toast.error(error.message || error || "Failed to create project");
+            const message = error instanceof Error ? error.message : "Failed to create project";
+            toast.error(message);
         } finally {
             setIsCreating(false);
         }
@@ -136,7 +137,7 @@ const CreateProjectModal: React.FC<CreateProjectModalProps> = ({ isOpen, onClose
                             <div className="relative">
                                 <select
                                     value={privacy}
-                                    onChange={(e) => setPrivacy(e.target.value as any)}
+                                    onChange={(e) => setPrivacy(e.target.value as "public" | "private" | "team")}
                                     className="w-full appearance-none px-3 py-2 border border-gray-200 rounded-md bg-white text-gray-800 text-sm hover:border-gray-300 focus:outline-none focus:border-blue-500 pr-8"
                                 >
                                     <option value="public">Public to team</option>

@@ -478,7 +478,7 @@ const ProjectBoard: React.FC = () => {
                     const finalProjectId = taskData.projectId || activeProject?.id;
                     if (finalProjectId) {
                         const payload = { ...taskData, projectId: finalProjectId };
-                        await (dispatch as any)(createTask(payload)).unwrap();
+                        await dispatch(createTask(payload)).unwrap();
                         toast.success("Task created successfully");
                     } else {
                         toast.error("Please select a project");
@@ -491,7 +491,7 @@ const ProjectBoard: React.FC = () => {
                         // Ensure we pass only what's needed or partial? 
                         // Our updateTask thunk takes CreateTaskPayload (basically full object) 
                         // effectively doing a PATCH with what's provided.
-                        await (dispatch as any)(updateTask({ id: taskId, data: taskData })).unwrap();
+                        await dispatch(updateTask({ id: taskId, data: taskData })).unwrap();
                         toast.success("Task updated successfully");
                         // Refresh board handled by thunk updating state? 
                         // Yes, updateTask.fulfilled updates the task in the list.
@@ -499,9 +499,10 @@ const ProjectBoard: React.FC = () => {
                         // Nah, optimistic/local update in slice is enough usually.
                         // But let's re-fetch if we suspect side-effects? 
                         // For now rely on slice.
-                    } catch (err: any) {
+                    } catch (err: unknown) {
                         console.error("Failed to update task:", err);
-                        toast.error(`Failed to update task: ${err}`);
+                        const errorMessage = err instanceof Error ? err.message : String(err);
+                        toast.error(`Failed to update task: ${errorMessage}`);
                     }
                 }}
             />

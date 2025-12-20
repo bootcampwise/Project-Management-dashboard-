@@ -14,7 +14,7 @@ import {
     Edit,
     Trash2
 } from 'lucide-react';
-import type { Task, User } from '../../types';
+import type { Task, User, Attachment, SubTask, Comment } from '../../types';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { getTaskDetails, fetchTasks } from '../../store/slices/taskSlice';
 import { apiClient } from '../../lib/apiClient';
@@ -126,9 +126,10 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
 
             dispatch(getTaskDetails(String(task.id)));
             toast.success('Attachment uploaded', { id: toastId });
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error('Failed to upload attachment:', error);
-            toast.error(error.message || 'Failed to upload attachment', { id: toastId });
+            const message = error instanceof Error ? error.message : 'Failed to upload attachment';
+            toast.error(message, { id: toastId });
         }
     };
 
@@ -174,7 +175,7 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
         const tagText = prompt("Enter tag name:");
         if (tagText && task) {
             try {
-                const currentTags = task.tags?.map((t: any) => t.text) || [];
+                const currentTags = task.tags?.map((t: NonNullable<Task['tags']>[number]) => t.text) || [];
                 await apiClient.patch(`/tasks/${task.id}`, { tags: [...currentTags, tagText] });
                 dispatch(getTaskDetails(String(task.id)));
             } catch (error) {
@@ -206,7 +207,7 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
         return status.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ');
     };
 
-    const handleDownload = async (e: React.MouseEvent, attachment: any) => {
+    const handleDownload = async (e: React.MouseEvent, attachment: Attachment) => {
         e.stopPropagation();
         try {
             // Check if it's a Supabase file (has filePath or looks like a path)
@@ -382,7 +383,7 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
                         {/* Tags */}
                         <div className="text-gray-500 font-medium py-1">Tags</div>
                         <div className="flex flex-wrap items-center gap-2">
-                            {task.tags && task.tags.map((tag: any) => (
+                            {task.tags && task.tags.map((tag: NonNullable<Task['tags']>[number]) => (
                                 <span key={tag.id} className={`px-2.5 py-1 ${tag.bg || 'bg-gray-100'} ${tag.color ? `text-${tag.color}-600` : 'text-gray-600'} rounded text-xs font-medium`}>
                                     {tag.text}
                                 </span>
@@ -420,7 +421,7 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
                             <span className="text-gray-400 text-xs font-medium">· {Array.isArray(task.attachments) ? task.attachments.length : 0}</span>
                         </div>
                         <div className="flex flex-wrap gap-4">
-                            {Array.isArray(task.attachments) && task.attachments.map((att: any) => (
+                            {Array.isArray(task.attachments) && task.attachments.map((att: Attachment) => (
                                 <div
                                     key={att.id}
                                     className="flex items-center gap-3 p-3 border border-gray-200 rounded-xl min-w-[200px] hover:bg-gray-50 hover:border-gray-300 transition-all cursor-pointer group"
@@ -461,14 +462,14 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
                             <span className="text-gray-400 text-xs font-medium">- {Array.isArray(task.subtasks) ? task.subtasks.length : task.subtasks || 0}</span>
                         </div>
                         <div className="space-y-1">
-                            {Array.isArray(task.subtasks) && task.subtasks.map((subtask: any) => (
+                            {Array.isArray(task.subtasks) && task.subtasks.map((subtask: SubTask) => (
                                 <div key={subtask.id} className="flex items-center justify-between group py-2.5 hover:bg-gray-50 px-3 -mx-3 rounded-lg transition-colors cursor-pointer">
                                     <div className="flex items-center gap-3">
                                         <CheckCircle2 size={18} className={`cursor-pointer transition-colors ${subtask.completed ? 'text-green-500' : 'text-gray-300 group-hover:text-gray-400'}`} />
                                         <span className={`text-sm ${subtask.completed ? 'text-gray-400 line-through' : 'text-gray-700 font-medium'}`}>{subtask.title}</span>
                                     </div>
                                     <div className="flex items-center gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                                        <span className="text-xs text-gray-400">{new Date(subtask.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
+                                        <span className="text-xs text-gray-400">{new Date(subtask.createdAt || Date.now()).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
                                         <div className="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center text-[10px] text-gray-500">U</div>
                                     </div>
                                 </div>
@@ -494,7 +495,7 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
                         {/* List of comments */}
                         {Array.isArray(task.comments) && task.comments.length > 0 && (
                             <div className="space-y-6 mb-8">
-                                {task.comments.map((comment: any) => (
+                                {task.comments.map((comment: Comment) => (
                                     <div key={comment.id} className="flex gap-4">
                                         {comment.author?.avatar ? (
                                             <img src={comment.author.avatar} alt={comment.author.name} className="w-8 h-8 rounded-full mt-1" />

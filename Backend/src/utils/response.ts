@@ -17,7 +17,7 @@ export const sendError = (
   res: Response,
   message: string,
   statusCode = 400,
-  errors?: any
+  errors?: unknown
 ) => {
   return res.status(statusCode).json({
     success: false,

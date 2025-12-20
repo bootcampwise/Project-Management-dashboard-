@@ -293,7 +293,7 @@ export const useCreateTaskModal = ({
       }
 
       // Prepare payload for the API
-      const payload: any = {
+      const payload: CreateTaskPayload = {
         title,
         status,
         priority,
@@ -328,9 +328,11 @@ export const useCreateTaskModal = ({
       setDueDate("");
       setAssigneeIds([]);
       setAssigneeSearch("");
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error in onCreate:", error);
-      toast.error(error.message || "Failed to create task");
+      const message =
+        error instanceof Error ? error.message : "Failed to create task";
+      toast.error(message);
     } finally {
       setIsSubmitting(false);
     }

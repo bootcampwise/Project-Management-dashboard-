@@ -1,7 +1,7 @@
 // Shared Types - TODO: Add common TypeScript interfaces and types
 
 // Common request/response types
-export interface ApiResponse<T = any> {
+export interface ApiResponse<T = unknown> {
   success: boolean;
   data?: T;
   message?: string;

@@ -1,5 +1,9 @@
 import { AppError } from "../middlewares/error.middleware";
-import { CreateTaskInput, UpdateTaskInput } from "../types/task.types";
+import {
+  CreateTaskInput,
+  UpdateTaskInput,
+  AttachmentMetadata,
+} from "../types/task.types";
 import { TaskRepository } from "../repositories/task.repository";
 import { ProjectRepository } from "../repositories/project.repository";
 
@@ -30,7 +34,7 @@ export class TaskService {
     data: CreateTaskInput,
     userId: string,
     projectId: string,
-    files?: Express.Multer.File[]
+    files?: AttachmentMetadata[]
   ) {
     const targetProjectId = data.projectId || projectId;
 

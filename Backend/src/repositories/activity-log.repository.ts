@@ -5,10 +5,13 @@ export class ActivityLogRepository {
     action: string;
     message: string;
     userId: string;
-    metadata?: any;
+    metadata?: Record<string, unknown>;
   }) {
     return prisma.activityLog.create({
-      data,
+      data: {
+        ...data,
+        metadata: data.metadata as any,
+      },
     });
   }
 

@@ -1,6 +1,10 @@
-import { TaskStatus } from "@prisma/client";
+import { TaskStatus, Prisma } from "@prisma/client";
 import { prisma } from "../config/prisma";
-import { CreateTaskInput, UpdateTaskInput } from "../types/task.types";
+import {
+  CreateTaskInput,
+  UpdateTaskInput,
+  AttachmentMetadata,
+} from "../types/task.types";
 
 // ... existing imports
 
@@ -146,7 +150,7 @@ export class TaskRepository {
     data: CreateTaskInput,
     creatorId: string,
     projectId: string,
-    files?: any[]
+    files?: AttachmentMetadata[]
   ) {
     // Basic validations or transformations can happen here if needed.
     // data.dueDate is a string, we might need to cast to Date if not handled by Prisma automatically (Prisma usually expects Date object for DateTime fields).
@@ -217,12 +221,17 @@ export class TaskRepository {
   }
 
   async update(taskId: string, data: UpdateTaskInput) {
-    const updateData: any = { ...data };
+    const { tags, dueDate, attachments, ...rest } = data as any;
+
+    // Explicitly construct updateData to avoid 'any'
+    const updateData: Prisma.TaskUpdateInput = {
+      ...rest,
+    };
 
     // Handle Tags: convert ["tag1"] to tagIds
-    if (data.tags && Array.isArray(data.tags)) {
+    if (tags && Array.isArray(tags)) {
       const processedTagIds: string[] = [];
-      for (const tagText of data.tags) {
+      for (const tagText of tags) {
         let tag = await prisma.tag.findFirst({ where: { text: tagText } });
         if (!tag) {
           tag = await prisma.tag.create({
@@ -232,16 +241,14 @@ export class TaskRepository {
         processedTagIds.push(tag.id);
       }
       updateData.tagIds = processedTagIds;
-      delete updateData.tags;
     }
 
     // Handle Date
-    if (data.dueDate) {
-      updateData.dueDate = new Date(data.dueDate);
+    if (dueDate) {
+      updateData.dueDate = new Date(dueDate);
     }
 
-    // Attachments should not be updated via direct array assignment here
-    delete updateData.attachments;
+    // Attachments are removed from rest via destructuring, so no need to delete
 
     return prisma.task.update({
       where: { id: taskId },

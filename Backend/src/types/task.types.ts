@@ -24,3 +24,10 @@ export interface UpdateTaskInput {
   actualCost?: number;
   tags?: string[];
 }
+
+export interface AttachmentMetadata {
+  name: string;
+  filePath: string;
+  size: number;
+  mimeType: string;
+}

@@ -13,7 +13,7 @@ export class ActivityLogService {
     entityType: string;
     entityId: string;
     message?: string;
-    metadata?: any;
+    metadata?: Record<string, unknown>;
     projectId?: string;
   }) {
     const {

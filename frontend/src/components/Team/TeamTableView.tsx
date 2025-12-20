@@ -1,6 +1,6 @@
 import React from 'react';
 import { useTeamTableView } from '../../hooks/useTeamTableView';
-import type { TeamTableViewProps } from '../../types';
+import type { TeamTableViewProps, Project } from '../../types';
 
 
 const TeamTableView: React.FC<TeamTableViewProps> = ({ projectId }) => {
@@ -37,7 +37,7 @@ const TeamTableView: React.FC<TeamTableViewProps> = ({ projectId }) => {
                     // Show teams for the active project
                     // Show teams for the active project
                     // Show teams for the active project
-                    (activeProject.teams || []).map((team: any) => {
+                    (activeProject.teams || []).map((team: NonNullable<Project['teams']>[number]) => {
                         const status = team.status || "On track";
                         const priority = team.priority || "Medium";
                         const progress = team.progress || 0;
@@ -107,7 +107,7 @@ const TeamTableView: React.FC<TeamTableViewProps> = ({ projectId }) => {
                                 </div>
                                 <div>
                                     <div className="flex -space-x-2">
-                                        {(team.members || []).slice(0, 4).map((member: any, i: number) => (
+                                        {(team.members || []).slice(0, 4).map((member: { id: string; name: string; avatar?: string }, i: number) => (
                                             <div
                                                 key={i}
                                                 className="w-7 h-7 rounded-full border-2 border-white bg-gray-200 overflow-hidden flex items-center justify-center text-xs font-medium text-gray-600"
@@ -126,7 +126,7 @@ const TeamTableView: React.FC<TeamTableViewProps> = ({ projectId }) => {
                                         ))}
                                         {(team.members?.length || 0) > 4 && (
                                             <div className="w-7 h-7 rounded-full border-2 border-white bg-gray-50 flex items-center justify-center text-[10px] font-medium text-gray-500">
-                                                +{team.members.length - 4}
+                                                +{(team.members?.length || 0) - 4}
                                             </div>
                                         )}
                                     </div>

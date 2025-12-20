@@ -4,7 +4,7 @@ import {
   type PayloadAction,
 } from "@reduxjs/toolkit";
 import { apiClient } from "../../lib/apiClient";
-import type { TeamMember, TeamState, Team } from "../../types";
+import type { TeamMember, TeamState, Team, User } from "../../types";
 
 const initialState: TeamState = {
   members: [],
@@ -17,14 +17,14 @@ export const fetchTeamMembers = createAsyncThunk(
   "team/fetchTeamMembers",
   async (_, { rejectWithValue }) => {
     try {
-      const users = await apiClient.get<any[]>("/users/");
+      const users = await apiClient.get<User[]>("/users/");
       const mappedMembers: TeamMember[] = users.map((user) => ({
         id: user.id,
         name: user.name || "Unknown",
         email: user.email,
         position: user.jobTitle || "Member",
         groups: user.department ? [user.department] : [],
-        location: user.location || "Faisalabad",
+        location: "Faisalabad",
         avatar: user.avatar || `https://i.pravatar.cc/150?u=${user.id}`,
       }));
       return mappedMembers;
@@ -46,9 +46,10 @@ export const fetchTeams = createAsyncThunk(
     try {
       const response = await apiClient.get<Team[]>("/teams/my-teams");
       return response;
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { error?: string } } };
       return rejectWithValue(
-        err.response?.data?.error || "Failed to fetch teams"
+        error.response?.data?.error || "Failed to fetch teams"
       );
     }
   }
@@ -63,12 +64,16 @@ export const createTeam = createAsyncThunk(
     try {
       const response = await apiClient.post<Team>("/teams", teamData);
       return response;
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Create Team Error:", err);
+      const error = err as {
+        response?: { data?: { message?: string; error?: string } };
+        message?: string;
+      };
       const errorMessage =
-        err.response?.data?.message ||
-        err.response?.data?.error ||
-        err.message ||
+        error.response?.data?.message ||
+        error.response?.data?.error ||
+        error.message ||
         "Failed to create team";
       return rejectWithValue(errorMessage);
     }
