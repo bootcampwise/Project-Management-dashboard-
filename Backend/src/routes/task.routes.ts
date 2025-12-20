@@ -9,6 +9,7 @@ router.get("/", authMiddleware, taskController.getTasks);
 router.post("/", authMiddleware, taskController.createTask);
 router.get("/:id", authMiddleware, taskController.getTask);
 router.patch("/:id", authMiddleware, taskController.updateTask);
+router.patch("/:id/status", authMiddleware, taskController.updateStatus);
 router.delete("/:id", authMiddleware, taskController.deleteTask);
 
 // Attachments handled via multipart on creation, or separate attachment route

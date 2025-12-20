@@ -164,8 +164,40 @@ const taskSlice = createSlice({
       state.isLoading = false;
       state.error = action.payload as string;
     });
+
+    // Update Task Status
+    builder.addCase(updateTaskStatus.pending, (state) => {
+      // Optimistic update can happen in component, or here if we pass full task
+      // state.isLoading = true;
+    });
+    builder.addCase(updateTaskStatus.fulfilled, (state, action) => {
+      const index = state.tasks.findIndex((t) => t.id === action.payload.id);
+      if (index !== -1) {
+        state.tasks[index] = action.payload;
+      }
+      if (state.selectedTask?.id === action.payload.id) {
+        state.selectedTask = action.payload;
+      }
+    });
   },
 });
+
+export const updateTaskStatus = createAsyncThunk(
+  "task/updateTaskStatus",
+  async (
+    { id, status }: { id: string; status: string },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await apiClient.patch<Task>(`/tasks/${id}/status`, {
+        status,
+      });
+      return response;
+    } catch (error: any) {
+      return rejectWithValue(error.message || "Failed to update task status");
+    }
+  }
+);
 
 export const {
   setActiveView,

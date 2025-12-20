@@ -1,7 +1,12 @@
+import { TaskStatus } from "@prisma/client";
 import { prisma } from "../config/prisma";
 import { CreateTaskInput, UpdateTaskInput } from "../types/task.types";
 
+// ... existing imports
+
 export class TaskRepository {
+  // ... existing methods
+
   async findManyByUserId(userId: string) {
     const tasks = await prisma.task.findMany({
       where: {
@@ -257,6 +262,12 @@ export class TaskRepository {
         taskId,
         completed: false,
       },
+    });
+  }
+  async updateStatus(taskId: string, status: string) {
+    return prisma.task.update({
+      where: { id: taskId },
+      data: { status: status as TaskStatus },
     });
   }
 }

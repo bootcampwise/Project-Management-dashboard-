@@ -1,19 +1,25 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Sidebar from '../components/Sidebar/index';
-import { Menu, Search, Filter, ArrowUpDown, Plus, MoreHorizontal, Calendar, MessageSquare, Paperclip, FileText, Layout, List } from 'lucide-react';
+import { Menu, Search, Filter, ArrowUpDown, Plus, Calendar, MessageSquare, Paperclip, FileText, Layout, List } from 'lucide-react';
 import { useTasks } from '../hooks/useTasks';
 import TaskDetailModal from '../components/ProjectBoard/TaskDetailModal';
 import CreateTaskModal from '../components/ProjectBoard/CreateTaskModal';
-
+import BoardColumn from '../components/ProjectBoard/BoardColumn';
 import { useTasksPage } from '../hooks/useTasksPage';
 
+import { DragDropContext } from '@hello-pangea/dnd';
+import { useDispatch } from 'react-redux';
+import type { AppDispatch } from '../store';
+import { updateTaskStatus } from '../store/slices/taskSlice';
+
 const Tasks: React.FC = () => {
+    const dispatch = useDispatch<AppDispatch>();
     const {
         sidebarOpen,
         setSidebarOpen,
         activeView,
         setActiveView,
-        columns,
+        tasks,
         getPriorityColor,
     } = useTasks();
 
@@ -30,6 +36,46 @@ const Tasks: React.FC = () => {
         closeTaskDetail,
         closeCreateTaskModal
     } = useTasksPage();
+
+    // Initial column configuration with visibility state
+    const [columns, setColumns] = useState([
+        { id: 'BACKLOG', title: 'Backlog', color: 'bg-gray-400', collapsed: false, isVisible: true },
+        { id: 'TODO', title: 'Todo', color: 'bg-blue-500', collapsed: false, isVisible: true },
+        { id: 'IN_PROGRESS', title: 'In progress', color: 'bg-green-500', collapsed: false, isVisible: true },
+        { id: 'IN_REVIEW', title: 'In Review', color: 'bg-purple-500', collapsed: false, isVisible: true },
+        { id: 'QA', title: 'QA', color: 'bg-yellow-500', collapsed: false, isVisible: true },
+        { id: 'COMPLETED', title: 'Completed', color: 'bg-indigo-500', collapsed: false, isVisible: true },
+        { id: 'POSTPONE', title: 'Postpone', color: 'bg-red-400', collapsed: true, isVisible: true },
+        { id: 'CANCELED', title: 'Canceled', color: 'bg-gray-500', collapsed: false, isVisible: true },
+    ]);
+
+    const [isAddSectionOpen, setIsAddSectionOpen] = useState(false);
+
+    const getTasksByStatus = (status: string) => {
+        return tasks.filter(task => task.status === status);
+    };
+
+    const handleToggleColumn = (columnId: string) => {
+        setColumns(prev => prev.map(col =>
+            col.id === columnId ? { ...col, collapsed: !col.collapsed } : col
+        ));
+    };
+
+    const handleHideColumn = (columnId: string) => {
+        setColumns(prev => prev.map(col =>
+            col.id === columnId ? { ...col, isVisible: false } : col
+        ));
+    };
+
+    const handleShowColumn = (columnId: string) => {
+        setColumns(prev => prev.map(col =>
+            col.id === columnId ? { ...col, isVisible: true } : col
+        ));
+        setIsAddSectionOpen(false);
+    };
+
+    const visibleColumns = columns.filter(col => col.isVisible);
+    const hiddenColumns = columns.filter(col => !col.isVisible);
 
     return (
         <div className="flex h-screen bg-white relative font-sans">
@@ -104,166 +150,91 @@ const Tasks: React.FC = () => {
 
                     {/* Kanban Board */}
                     {activeView === 'kanban' ? (
-                        <div className="p-6 h-full">
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 h-full">
-                                {columns.map((column) => (
-                                    <div key={column.id} className="flex flex-col min-w-0">
-                                        {/* Column Header */}
-                                        <div className="flex items-center justify-between mb-4">
-                                            <div className="flex items-center gap-2">
+                        <DragDropContext onDragEnd={(result) => {
+                            const { destination, source, draggableId } = result;
+
+                            if (!destination) return;
+
+                            if (
+                                destination.droppableId === source.droppableId &&
+                                destination.index === source.index
+                            ) {
+                                return;
+                            }
+
+                            const newStatus = destination.droppableId;
+                            dispatch(updateTaskStatus({ id: draggableId, status: newStatus }));
+
+                        }}>
+                            <div className="p-6 h-full overflow-x-auto">
+                                <div className="flex h-full w-full gap-4 pb-4">
+                                    {visibleColumns.map((col) => (
+                                        <div
+                                            key={col.id}
+                                            className={`h-full transition-all duration-300 ${col.collapsed ? 'w-12 min-w-[48px]' : 'flex-1 min-w-0'}`}
+                                        >
+                                            <BoardColumn
+                                                title={col.title}
+                                                count={getTasksByStatus(col.id).length}
+                                                color={col.color}
+                                                tasks={getTasksByStatus(col.id)}
+                                                status={col.id}
+                                                collapsed={col.collapsed}
+                                                onTaskClick={handleTaskClick}
+                                                onAddTask={(status) => handleOpenCreateTask(status)}
+                                                onToggle={() => handleToggleColumn(col.id)}
+                                                onHide={() => handleHideColumn(col.id)}
+                                            />
+                                        </div>
+                                    ))}
+
+                                    {/* Add Section Button & Dropdown */}
+                                    <div className="relative min-w-[120px] pt-1">
+                                        <button
+                                            onClick={() => setIsAddSectionOpen(!isAddSectionOpen)}
+                                            className="flex items-center gap-2 text-gray-400 hover:text-gray-600 transition-colors text-sm font-medium whitespace-nowrap"
+                                        >
+                                            <Plus size={16} />
+                                            <span>Add section</span>
+                                        </button>
+
+                                        {/* Dropdown Menu */}
+                                        {isAddSectionOpen && hiddenColumns.length > 0 && (
+                                            <>
                                                 <div
-                                                    className="w-2 h-2 rounded-full"
-                                                    style={{ backgroundColor: column.color }}
+                                                    className="fixed inset-0 z-10"
+                                                    onClick={() => setIsAddSectionOpen(false)}
                                                 />
-                                                <h3 className="font-semibold text-gray-900">{column.title}</h3>
-                                            </div>
-                                            <div className="flex items-center gap-2">
-                                                <button
-                                                    className="text-gray-400 hover:text-gray-600"
-                                                    onClick={() => handleOpenCreateTask(column.title)}
-                                                >
-                                                    <Plus size={16} />
-                                                </button>
-                                                <button className="text-gray-400 hover:text-gray-600">
-                                                    <MoreHorizontal size={16} />
-                                                </button>
-                                            </div>
-                                        </div>
-
-                                        {/* Task Cards */}
-                                        <div className="space-y-3 overflow-y-auto">
-                                            {column.tasks.map((task) => (
-                                                <div
-                                                    key={task.id}
-                                                    onClick={() => handleTaskClick(task)}
-                                                    className="bg-white rounded-lg border border-gray-200 p-4 hover:shadow-md transition-shadow cursor-pointer"
-                                                >
-                                                    {/* Project Tag */}
-                                                    {task.project && (
-                                                        <div className="text-xs text-blue-600 mb-2 font-medium">
-                                                            {typeof task.project === 'string' ? task.project : task.project.name}
-                                                        </div>
-                                                    )}
-
-                                                    {/* Title */}
-                                                    <h4 className="font-semibold text-gray-900 mb-2 text-sm leading-tight">
-                                                        {task.title || task.name}
-                                                    </h4>
-
-                                                    {/* Description */}
-                                                    {task.description && (
-                                                        <p className="text-xs text-gray-500 mb-3 line-clamp-2">
-                                                            {task.description}
-                                                        </p>
-                                                    )}
-
-                                                    {/* Tags */}
-                                                    {task.tags && task.tags.length > 0 && (
-                                                        <div className="flex flex-wrap gap-1 mb-3">
-                                                            {task.tags.map((tag, idx) => {
-                                                                const getTagClasses = (color?: string) => {
-                                                                    const colorMap: Record<string, string> = {
-                                                                        'blue': 'bg-blue-100 text-blue-600',
-                                                                        'green': 'bg-green-100 text-green-600',
-                                                                        'red': 'bg-red-100 text-red-600',
-                                                                        'yellow': 'bg-yellow-100 text-yellow-600',
-                                                                        'purple': 'bg-purple-100 text-purple-600',
-                                                                        'pink': 'bg-pink-100 text-pink-600',
-                                                                        'gray': 'bg-gray-100 text-gray-600',
-                                                                        'orange': 'bg-orange-100 text-orange-600',
-                                                                    };
-                                                                    return colorMap[color || 'blue'] || 'bg-blue-100 text-blue-600';
-                                                                };
-
-                                                                return (
-                                                                    <span
-                                                                        key={idx}
-                                                                        className={`px-2 py-0.5 rounded text-xs font-medium ${getTagClasses(tag.color)}`}
-                                                                    >
-                                                                        {tag.text}
-                                                                    </span>
-                                                                );
-                                                            })}
-                                                        </div>
-                                                    )}
-
-                                                    {/* Assignees */}
-                                                    {task.assignees && task.assignees.length > 0 && (
-                                                        <div className="flex items-center mb-3">
-                                                            <div className="flex -space-x-2">
-                                                                {task.assignees.map((assignee, idx) => (
-                                                                    <div
-                                                                        key={idx}
-                                                                        className="w-6 h-6 rounded-full border-2 border-white bg-blue-100 flex items-center justify-center text-[10px] font-bold text-blue-600 overflow-hidden"
-                                                                        title={assignee.name}
-                                                                    >
-                                                                        {assignee.avatar ? (
-                                                                            <img
-                                                                                src={assignee.avatar}
-                                                                                alt={assignee.name}
-                                                                                className="w-full h-full object-cover"
-                                                                            />
-                                                                        ) : (
-                                                                            (assignee.name || 'U').charAt(0).toUpperCase()
-                                                                        )}
-                                                                    </div>
-                                                                ))}
-                                                            </div>
-                                                        </div>
-                                                    )}
-
-
-                                                    {/* Footer */}
-                                                    <div className="flex items-center justify-between text-xs text-gray-500">
-                                                        <div className="flex items-center gap-3">
-                                                            {task.dueDate && (
-                                                                <div className="flex items-center gap-1">
-                                                                    <Calendar size={12} />
-                                                                    <span>
-                                                                        {new Date(task.dueDate).toLocaleDateString('en-US', {
-                                                                            month: 'short',
-                                                                            day: 'numeric',
-                                                                            year: 'numeric'
-                                                                        })}
-                                                                    </span>
-                                                                </div>
-                                                            )}
-                                                        </div>
-                                                        {task.priority && (
-                                                            <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${getPriorityColor(task.priority)}`}>
-                                                                {task.priority.charAt(0) + task.priority.slice(1).toLowerCase()}
-                                                            </span>
-                                                        )}
-                                                    </div>
-
-                                                    {/* Stats */}
-                                                    <div className="flex items-center gap-3 mt-3 text-xs text-gray-500">
-                                                        {typeof task.subtasks === 'number' && task.subtasks > 0 && (
-                                                            <div className="flex items-center gap-1">
-                                                                <FileText size={12} />
-                                                                <span>{task.subtasks}</span>
-                                                            </div>
-                                                        )}
-                                                        {(typeof task.comments === 'number' ? task.comments : task.comments?.length || 0) > 0 && (
-                                                            <div className="flex items-center gap-1">
-                                                                <MessageSquare size={12} />
-                                                                <span>{typeof task.comments === 'number' ? task.comments : task.comments?.length}</span>
-                                                            </div>
-                                                        )}
-                                                        {(typeof task.attachments === 'number' ? task.attachments : task.attachments?.length || 0) > 0 && (
-                                                            <div className="flex items-center gap-1">
-                                                                <Paperclip size={12} />
-                                                                <span>{typeof task.attachments === 'number' ? task.attachments : task.attachments?.length}</span>
-                                                            </div>
-                                                        )}
-                                                    </div>
+                                                <div className="absolute left-0 top-8 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-20 py-1">
+                                                    {hiddenColumns.map(col => (
+                                                        <button
+                                                            key={col.id}
+                                                            onClick={() => handleShowColumn(col.id)}
+                                                            className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                                                        >
+                                                            <div className={`w-2 h-2 rounded-full ${col.color}`}></div>
+                                                            {col.title}
+                                                        </button>
+                                                    ))}
                                                 </div>
-                                            ))}
-                                        </div>
+                                            </>
+                                        )}
+
+                                        {isAddSectionOpen && hiddenColumns.length === 0 && (
+                                            <>
+                                                <div
+                                                    className="fixed inset-0 z-10"
+                                                    onClick={() => setIsAddSectionOpen(false)}
+                                                />
+                                                <div className="absolute left-0 top-8 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-20 py-2 px-4 text-sm text-gray-500">
+                                                    All sections visible
+                                                </div>
+                                            </>
+                                        )}
                                     </div>
-                                ))}
+                                </div>
                             </div>
-                        </div>
+                        </DragDropContext>
                     ) : (
                         /* List View */
                         <div className="p-6">
@@ -280,8 +251,8 @@ const Tasks: React.FC = () => {
 
                                 {/* Table Rows */}
                                 <div className="divide-y divide-gray-100">
-                                    {columns.flatMap((column) =>
-                                        column.tasks.map((task) => (
+                                    {visibleColumns.flatMap((column) =>
+                                        getTasksByStatus(column.id).map((task) => (
                                             <div
                                                 key={task.id}
                                                 onClick={() => handleTaskClick(task)}

@@ -100,6 +100,20 @@ export class TaskController {
     }
   }
 
+  async updateStatus(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { id } = req.params;
+      const { status } = req.body;
+      const { sub: supabaseId } = req.user!;
+      const user = await userService.getUserBySupabaseId(supabaseId);
+
+      const task = await taskService.updateTaskStatus(id, user.id, status);
+      sendSuccess(res, task, "Task status updated successfully");
+    } catch (error) {
+      next(error);
+    }
+  }
+
   async addSubtask(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = req.params;

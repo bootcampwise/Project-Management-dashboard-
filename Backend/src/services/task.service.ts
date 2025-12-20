@@ -85,6 +85,17 @@ export class TaskService {
     await this.taskRepository.softDelete(taskId);
   }
 
+  async updateTaskStatus(taskId: string, userId: string, status: string) {
+    const task = await this.taskRepository.findByIdAndProjectAccess(
+      taskId,
+      userId
+    );
+    if (!task) {
+      throw new AppError("Access denied to this task", 403);
+    }
+    return this.taskRepository.updateStatus(taskId, status);
+  }
+
   async addSubtask(taskId: string, userId: string, title: string) {
     const task = await this.taskRepository.findByIdAndProjectAccess(
       taskId,

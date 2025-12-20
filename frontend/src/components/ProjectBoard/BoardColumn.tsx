@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Plus, MoreHorizontal, EyeOff } from 'lucide-react';
-import { useState } from 'react';
+import { Droppable, Draggable } from '@hello-pangea/dnd';
 import type { BoardColumnProps } from '../../types';
 import TaskCard from './TaskCard';
 
@@ -75,33 +75,52 @@ const BoardColumn: React.FC<BoardColumnProps> = ({ title, count, color, tasks, s
             </div>
 
             {/* Task List */}
-            <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
-                {tasks.map((task) => (
-                    <TaskCard
-                        key={task.id}
-                        title={task.title || task.name}
-                        project={typeof task.project === 'string' ? task.project : task.project?.name}
-                        description={task.description}
-                        priority={task.priority}
-                        tags={task.tags}
-                        assignee={task.assignee || { name: 'Unassigned' }}
-                        assignees={task.assignees?.map(a => ({ name: a.name, avatar: a.avatar || undefined }))}
-                        comments={typeof task.comments === 'number' ? task.comments : (Array.isArray(task.comments) ? task.comments.length : 0)}
-                        attachments={typeof task.attachments === 'number' ? task.attachments : (Array.isArray(task.attachments) ? task.attachments.length : 0)}
-                        date={task.date || task.dueDate || ''}
-                        onClick={() => onTaskClick && onTaskClick(task)}
-                    />
-                ))}
+            <Droppable droppableId={status || title}>
+                {(provided) => (
+                    <div
+                        className="flex-1 overflow-y-auto pr-2 custom-scrollbar"
+                        ref={provided.innerRef}
+                        {...provided.droppableProps}
+                    >
+                        {tasks.map((task, index) => (
+                            <Draggable key={task.id} draggableId={String(task.id)} index={index}>
+                                {(provided) => (
+                                    <div
+                                        ref={provided.innerRef}
+                                        {...provided.draggableProps}
+                                        {...provided.dragHandleProps}
+                                        style={{ ...provided.draggableProps.style, marginBottom: '0.75rem' }}
+                                    >
+                                        <TaskCard
+                                            title={task.title || task.name}
+                                            project={typeof task.project === 'string' ? task.project : task.project?.name}
+                                            description={task.description}
+                                            priority={task.priority}
+                                            tags={task.tags}
+                                            assignee={task.assignee || { name: 'Unassigned' }}
+                                            assignees={task.assignees?.map(a => ({ name: a.name, avatar: a.avatar || undefined }))}
+                                            comments={typeof task.comments === 'number' ? task.comments : (Array.isArray(task.comments) ? task.comments.length : 0)}
+                                            attachments={typeof task.attachments === 'number' ? task.attachments : (Array.isArray(task.attachments) ? task.attachments.length : 0)}
+                                            date={task.date || task.dueDate || ''}
+                                            onClick={() => onTaskClick && onTaskClick(task)}
+                                        />
+                                    </div>
+                                )}
+                            </Draggable>
+                        ))}
+                        {provided.placeholder}
 
-                {/* Add Task Button at bottom of list */}
-                <button
-                    onClick={() => onAddTask && onAddTask(status || title)}
-                    className="flex items-center gap-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 p-2 rounded-md transition-colors mt-2 text-sm font-medium w-full text-left"
-                >
-                    <Plus size={16} />
-                    <span>Add task</span>
-                </button>
-            </div>
+                        {/* Add Task Button at bottom of list */}
+                        <button
+                            onClick={() => onAddTask && onAddTask(status || title)}
+                            className="flex items-center gap-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 p-2 rounded-md transition-colors mt-2 text-sm font-medium w-full text-left"
+                        >
+                            <Plus size={16} />
+                            <span>Add task</span>
+                        </button>
+                    </div>
+                )}
+            </Droppable>
         </div>
     );
 };
