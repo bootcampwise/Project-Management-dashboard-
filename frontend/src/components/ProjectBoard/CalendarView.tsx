@@ -1,100 +1,40 @@
-import React, { useState } from 'react';
-import {
-    format,
-    startOfMonth,
-    endOfMonth,
-    startOfWeek,
-    endOfWeek,
-    eachDayOfInterval,
-    isSameDay,
-    addMonths,
-    subMonths,
-    addDays,
-    subDays,
-    setMonth,
-    setYear
-} from 'date-fns';
+import React from 'react';
+import { format, isSameDay } from 'date-fns';
 import { ChevronLeft, ChevronRight, ChevronDown } from 'lucide-react';
 import type { CalendarTask } from '../../types';
+import { useCalendarView } from '../../hooks/useCalendarView';
 
 const CalendarView: React.FC = () => {
-    // State
-    const [viewMode, setViewMode] = useState<'month' | 'day'>('month');
-    // Default to October 2024 to match the image exactly
-    const [currentDate, setCurrentDate] = useState<Date>(new Date(2024, 9, 1)); // Oct 2024
+    const {
+        viewMode,
+        setViewMode,
+        currentDate,
+        setCurrentDate,
+        handleNext,
+        handlePrev,
+        handleTodayClick,
+        handleMonthClick,
+        calendarDays,
+        weekDays,
+        getColorClass
+    } = useCalendarView();
 
-    // Navigation Handlers
-    const handleNext = () => {
-        if (viewMode === 'day') {
-            setCurrentDate(d => addDays(d, 1));
-        } else {
-            setCurrentDate(d => addMonths(d, 1));
-        }
-    };
-
-    const handlePrev = () => {
-        if (viewMode === 'day') {
-            setCurrentDate(d => subDays(d, 1));
-        } else {
-            setCurrentDate(d => subMonths(d, 1));
-        }
-    };
-
-    const monthStart = startOfMonth(currentDate);
-    const monthEnd = endOfMonth(monthStart);
-    const startDate = startOfWeek(monthStart, { weekStartsOn: 1 }); // Monday start
-    const endDate = endOfWeek(monthEnd, { weekStartsOn: 1 });
-
-    const calendarDays = eachDayOfInterval({
-        start: startDate,
-        end: endDate
-    });
-
-    const weekDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-
-    // Mock Tasks matching BoardView data - mapped to calendar dates
+    // Mock Tasks matching BoardView data
     const monthTasks: CalendarTask[] = [
-        // Backlog tasks
         { id: '1', title: 'Contact customers with failed new payents or who churned', date: new Date(2024, 9, 25), color: 'yellow' },
         { id: '2', title: 'Reporting: Design concept of visual dashboard', date: new Date(2024, 9, 25), color: 'blue' },
         { id: '3', title: 'Task detail modal: ideas', date: new Date(2024, 9, 26), color: 'pink' },
         { id: '4', title: '@dev QA: regression ( before/after release)', date: new Date(2024, 8, 2), color: 'gray' },
-
-        // In Progress tasks
         { id: '5', title: 'Lead feedback sessions', date: new Date(2024, 8, 22), color: 'green' },
         { id: '6', title: 'Add Projects to templates and layouts [draft 2023]', date: new Date(2024, 9, 28), color: 'green' },
         { id: '7', title: 'Extension: show totals', date: new Date(2024, 9, 28), color: 'green' },
         { id: '8', title: 'Help Docs: update screenshot', date: new Date(2024, 9, 29), color: 'gray' },
         { id: '9', title: 'Help Docs: update screenshot', date: new Date(2024, 7, 6), color: 'gray' },
-
-        // QA tasks
         { id: '10', title: 'Invoices: fixed-fee projects', date: new Date(2024, 9, 30), color: 'blue' },
         { id: '11', title: 'Time: search - not last response with results appears', date: new Date(2024, 8, 8), color: 'pink' },
         { id: '12', title: 'Pricing page: new iteration and few mockups and ideas', date: new Date(2024, 10, 4), color: 'blue' },
         { id: '13', title: '@dev QA: regression ( before/after release)', date: new Date(2024, 10, 3), color: 'gray' },
     ];
-
-    const getColorClass = (color: string) => {
-        switch (color) {
-            case 'yellow': return 'bg-orange-50 text-orange-700 border-l-[3px] border-orange-300';
-            case 'pink': return 'bg-rose-50 text-rose-700 border-l-[3px] border-rose-300';
-            case 'blue': return 'bg-blue-50 text-blue-700 border-l-[3px] border-blue-300';
-            case 'green': return 'bg-emerald-50 text-emerald-700 border-l-[3px] border-emerald-300';
-            case 'teal': return 'bg-teal-50 text-teal-700 border-l-[3px] border-teal-300';
-            case 'gray': return 'bg-gray-100 text-gray-700 border-l-[3px] border-gray-400';
-            default: return 'bg-gray-100 text-gray-800';
-        }
-    };
-
-    const handleTodayClick = () => {
-        setViewMode('day');
-        // Optionally set date to Oct 24 2024 for demo accuracy
-        // setCurrentDate(new Date(2024, 9, 24));
-    };
-
-    const handleMonthClick = () => {
-        setViewMode('month');
-    };
 
     return (
         <div className="flex flex-col h-full bg-white font-sans text-sm">
@@ -151,7 +91,7 @@ const CalendarView: React.FC = () => {
 
                     {/* Days Cells */}
                     <div className="grid grid-cols-7 gap-y-12">
-                        {calendarDays.map((day, idx) => {
+                        {calendarDays.map((day) => {
                             const dayTasks = monthTasks.filter(t => t.date !== undefined && isSameDay(t.date, day));
                             // Force highlight on Nov 13 2024 to match image (or current date interactively)
                             // If user clicks "Today", we might want to highlight THAT date.

@@ -11,14 +11,14 @@ import {
 
 import SidebarItem from "./SidebarItem";
 import ProjectIcon from "./ProjectIcon";
-import { useSidebar } from "../../hooks/useSidebar";
+import { useSidebar } from "../../hooks/sidebar/useSidebar";
 import SettingsModal from "../SettingsModal";
 import NotificationsPopup from "./NotificationsPopup";
 import CreateProjectModal from "../ProjectBoard/CreateProjectModal";
 import TemplateLibraryModal from "../ProjectBoard/TemplateLibraryModal";
-import CreateTeamModal from "../ProjectBoard/CreateTeamModal";
+import CreateTeamModal from "../Team/CreateTeamModal";
 import SearchPopup from "../SearchPopup";
-import type { SidebarProps } from "../../types";
+import type { SidebarProps, CreateProjectPayload } from "../../types";
 
 const Sidebar: React.FC<SidebarProps> = ({ open, onClose }) => {
 
@@ -40,7 +40,7 @@ const Sidebar: React.FC<SidebarProps> = ({ open, onClose }) => {
         setIsCreateProjectOpen(true);
     };
 
-    const handleCreateProject = () => {
+    const handleCreateProject = async (_data: CreateProjectPayload): Promise<void> => {
         setIsCreateProjectOpen(false);
         setIsTeamModalOpen(true);
     };

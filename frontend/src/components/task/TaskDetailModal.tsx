@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useRef } from 'react';
 import { toast } from 'react-hot-toast';
 import {
     X,
@@ -14,12 +14,9 @@ import {
     Edit,
     Trash2
 } from 'lucide-react';
-import type { Task, User, Attachment, SubTask, Comment } from '../../types';
-import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import { getTaskDetails, fetchTasks } from '../../store/slices/taskSlice';
-import { apiClient } from '../../lib/apiClient';
-import { supabase } from '../../lib/supabase';
-
+import type { Task, User, Attachment, SubTask, Comment as AppComment } from '../../types';
+import { getTagColor } from '../../constants/colors';
+import { useTaskDetailModal } from '../../hooks/tasks/useTaskDetailModal';
 
 interface TaskDetailModalProps {
     isOpen: boolean;
@@ -29,18 +26,31 @@ interface TaskDetailModalProps {
 }
 
 const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task: initialTask, onEdit }) => {
-    const dispatch = useAppDispatch();
-    const { user } = useAppSelector((state) => state.auth);
-    const { tasks } = useAppSelector((state) => state.task);
-
-    // Get the latest task data from Redux, falling back to the initial prop
-    const task = tasks.find(t => String(t.id) === String(initialTask?.id)) || initialTask;
+    const {
+        task,
+        user,
+        newSubtask,
+        setNewSubtask,
+        newComment,
+        setNewComment,
+        isSubmitting,
+        isMenuOpen,
+        setIsMenuOpen,
+        isAddingTag,
+        setIsAddingTag,
+        tagInput,
+        setTagInput,
+        handleEditTask,
+        deleteTask,
+        handleFileChange,
+        handleAddSubtask,
+        handleAddComment,
+        handleTagSubmit,
+        handleDownload
+    } = useTaskDetailModal({ isOpen, onClose, task: initialTask, onEdit });
 
     const fileInputRef = useRef<HTMLInputElement>(null);
-    const [newSubtask, setNewSubtask] = useState('');
-    const [newComment, setNewComment] = useState('');
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const tagInputRef = useRef<HTMLInputElement>(null);
 
     const handleDeleteTask = () => {
         if (!task) return;
@@ -61,17 +71,9 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
                         Cancel
                     </button>
                     <button
-                        onClick={async () => {
+                        onClick={() => {
                             toast.dismiss(t.id);
-                            try {
-                                await apiClient.delete(`/tasks/${task.id}`);
-                                dispatch(fetchTasks());
-                                toast.success('Task deleted successfully');
-                                onClose();
-                            } catch (error) {
-                                console.error('Failed to delete task:', error);
-                                toast.error('Failed to delete task');
-                            }
+                            deleteTask();
                         }}
                         className="px-3 py-1.5 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors"
                     >
@@ -85,127 +87,12 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
         });
     };
 
-    const handleEditTask = () => {
-        if (task && onEdit) {
-            onEdit(task);
-            setIsMenuOpen(false);
-        }
-    };
-
-    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (!file || !task) return;
-
-        const toastId = toast.loading('Uploading attachment...');
-        try {
-            // 1. Upload to Supabase
-            const { data: { user: currentUser } } = await supabase.auth.getUser();
-            if (!currentUser) throw new Error("Authentication required");
-
-            // const fileExt = file.name.split('.').pop();
-            const fileName = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
-            const filePath = `${currentUser.id}/${fileName}`;
-
-            const { error: uploadError } = await supabase.storage
-                .from('attachments')
-                .upload(filePath, file);
-
-            if (uploadError) throw uploadError;
-
-            // 2. Sync metadata with backend
-            // We can now send JSON directly to the attachments endpoint
-            const attachmentData = {
-                taskId: String(task.id),
-                name: file.name,
-                url: filePath,
-                size: file.size,
-                mimeType: file.type
-            };
-
-            await apiClient.post('/attachments', attachmentData);
-
-            dispatch(getTaskDetails(String(task.id)));
-            toast.success('Attachment uploaded', { id: toastId });
-        } catch (error: unknown) {
-            console.error('Failed to upload attachment:', error);
-            const message = error instanceof Error ? error.message : 'Failed to upload attachment';
-            toast.error(message, { id: toastId });
-        }
-    };
-
-    const handleAddSubtask = async (e: React.KeyboardEvent<HTMLInputElement>) => {
-        if (e.key === 'Enter' && newSubtask.trim() && task) {
-            try {
-                await apiClient.post(`/tasks/${task.id}/subtasks`, { title: newSubtask });
-                setNewSubtask('');
-                dispatch(getTaskDetails(String(task.id)));
-                toast.success('Subtask added');
-            } catch (error) {
-                console.error('Failed to add subtask:', error);
-                toast.error('Failed to add subtask');
-            }
-        }
-    };
-
-    const handleAddComment = async () => {
-        if (!newComment.trim() || !task || isSubmitting) return;
-
-        setIsSubmitting(true);
-        try {
-            await apiClient.post(`/comments`, { taskId: String(task.id), content: newComment });
-            setNewComment('');
-            dispatch(getTaskDetails(String(task.id)));
-            toast.success('Comment added');
-        } catch (error) {
-            console.error('Failed to add comment:', error);
-            toast.error('Failed to add comment');
-        } finally {
-            setIsSubmitting(false);
-        }
-    };
-
     const handleKeyDownComment = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
             handleAddComment();
         }
     }
-
-    const tagInputRef = useRef<HTMLInputElement>(null);
-    const [isAddingTag, setIsAddingTag] = useState(false);
-    const [tagInput, setTagInput] = useState("");
-
-    const handleTagSubmit = async (e: React.KeyboardEvent<HTMLInputElement>) => {
-        if (e.key === 'Enter' && tagInput.trim() && task) {
-            try {
-                // Optimistic UI update could be added here, but dispatch handles it
-                const currentTags = task.tags?.map((t: NonNullable<Task['tags']>[number]) => t.text) || [];
-                // Prevent duplicates
-                if (currentTags.includes(tagInput.trim())) {
-                    setTagInput("");
-                    setIsAddingTag(false);
-                    return;
-                }
-
-                await apiClient.patch(`/tasks/${task.id}`, { tags: [...currentTags, tagInput.trim()] });
-                setTagInput("");
-                setIsAddingTag(false);
-                dispatch(getTaskDetails(String(task.id)));
-                toast.success('Tag added');
-            } catch (error) {
-                console.error('Failed to add tag:', error);
-                toast.error('Failed to add tag');
-            }
-        } else if (e.key === 'Escape') {
-            setIsAddingTag(false);
-        }
-    };
-
-    useEffect(() => {
-        if (isOpen && initialTask?.id) {
-            dispatch(getTaskDetails(String(initialTask.id)));
-        }
-    }, [isOpen, initialTask?.id, dispatch]);
 
     if (!isOpen || !task) return null;
 
@@ -224,44 +111,7 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
         return status.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ');
     };
 
-    const handleDownload = async (e: React.MouseEvent, attachment: Attachment) => {
-        e.stopPropagation();
-        try {
-            // Check if it's a Supabase file (has filePath or looks like a path)
-            // Legacy files might be full URLs or different format, but we are moving to Supabase paths.
-            // Our schema change suggests 'url' field now holds the filePath.
 
-            // If it starts with http/https, it implies legacy or public URL
-            if (attachment.url.startsWith('http')) {
-                window.open(attachment.url, '_blank');
-                return;
-            }
-
-            // Generate signed URL
-            const { data, error } = await supabase.storage
-                .from('attachments')
-                .createSignedUrl(attachment.url, 60); // 1 minute expiry
-
-            if (error) {
-                console.error("Error creating signed URL:", error);
-                throw error;
-            }
-
-            if (data?.signedUrl) {
-                // Trigger download
-                const link = document.createElement('a');
-                link.href = data.signedUrl;
-                link.download = attachment.name;
-                document.body.appendChild(link);
-                link.click();
-                link.remove();
-                toast.success('Download started');
-            }
-        } catch (error) {
-            console.error('Download failed:', error);
-            toast.error('Failed to download file');
-        }
-    };
 
     return (
         <div className={`fixed inset-0 z-50 bg-black/20 transition-opacity duration-300 ${isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`} onClick={onClose}>
@@ -400,11 +250,14 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
                         {/* Tags */}
                         <div className="text-gray-500 font-medium py-1">Tags</div>
                         <div className="flex flex-wrap items-center gap-2">
-                            {task.tags && task.tags.map((tag: NonNullable<Task['tags']>[number]) => (
-                                <span key={tag.id} className={`px-2.5 py-1 ${tag.bg || 'bg-gray-100'} ${tag.color ? `text-${tag.color}-600` : 'text-gray-600'} rounded text-xs font-medium`}>
-                                    {tag.text}
-                                </span>
-                            ))}
+                            {task.tags && task.tags.map((tag: NonNullable<Task['tags']>[number]) => {
+                                const colors = getTagColor(tag.text);
+                                return (
+                                    <span key={tag.id} className={`px-2.5 py-1 ${colors.bg} ${colors.text} rounded text-xs font-medium`}>
+                                        {tag.text}
+                                    </span>
+                                );
+                            })}
 
                             {isAddingTag ? (
                                 <input
@@ -534,7 +387,7 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
                         {/* List of comments */}
                         {Array.isArray(task.comments) && task.comments.length > 0 && (
                             <div className="space-y-6 mb-8">
-                                {task.comments.map((comment: Comment) => (
+                                {task.comments.map((comment: AppComment) => (
                                     <div key={comment.id} className="flex gap-4">
                                         {comment.author?.avatar ? (
                                             <img src={comment.author.avatar} alt={comment.author.name} className="w-8 h-8 rounded-full mt-1" />

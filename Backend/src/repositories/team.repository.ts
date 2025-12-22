@@ -1,4 +1,5 @@
 import { prisma } from "../config/prisma";
+import { calculateTeamProgress } from "../utils/taskProgress";
 
 export class TeamRepository {
   async create(data: {
@@ -78,5 +79,85 @@ export class TeamRepository {
     return prisma.team.delete({
       where: { id },
     });
+  }
+
+  /**
+   * Calculate team progress for a specific project
+   * Progress = average of task progress for tasks assigned to team members
+   */
+  async calculateTeamProgressForProject(
+    teamId: string,
+    projectId: string
+  ): Promise<number> {
+    // Get the team with its members
+    const team = await prisma.team.findUnique({
+      where: { id: teamId },
+      select: { memberIds: true },
+    });
+
+    if (!team || team.memberIds.length === 0) {
+      return 0;
+    }
+
+    // Get all tasks in the project that are not deleted
+    const tasks = await prisma.task.findMany({
+      where: {
+        projectId,
+        isDeleted: false,
+      },
+      select: {
+        status: true,
+        assigneeIds: true,
+      },
+    });
+
+    // Calculate team progress using the utility
+    return calculateTeamProgress(tasks, team.memberIds);
+  }
+
+  /**
+   * Get teams for a project with calculated progress
+   */
+  async findByProjectIdWithProgress(projectId: string) {
+    const teams = await prisma.team.findMany({
+      where: {
+        projectIds: {
+          has: projectId,
+        },
+      },
+      include: {
+        members: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            avatar: true,
+          },
+        },
+      },
+    });
+
+    // Get all tasks for the project once (more efficient than querying per team)
+    const tasks = await prisma.task.findMany({
+      where: {
+        projectId,
+        isDeleted: false,
+      },
+      select: {
+        status: true,
+        assigneeIds: true,
+      },
+    });
+
+    // Calculate progress for each team
+    const teamsWithProgress = teams.map((team) => {
+      const progress = calculateTeamProgress(tasks, team.memberIds);
+      return {
+        ...team,
+        progress, // Override the static progress with calculated value
+      };
+    });
+
+    return teamsWithProgress;
   }
 }

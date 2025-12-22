@@ -1,5 +1,6 @@
 import { prisma } from "../config/prisma";
 import { CreateProjectInput, UpdateProjectInput } from "../types/project.types";
+import { calculateTeamProgress } from "../utils/taskProgress";
 
 export class ProjectRepository {
   async findManyByUserId(userId: string) {
@@ -39,6 +40,7 @@ export class ProjectRepository {
           select: {
             id: true,
             name: true,
+            memberIds: true, // Needed for progress calculation
             status: true,
             priority: true,
             startDate: true,
@@ -76,6 +78,7 @@ export class ProjectRepository {
           select: {
             id: true,
             name: true,
+            memberIds: true, // Needed for progress calculation
             status: true,
             priority: true,
             startDate: true,
@@ -119,6 +122,7 @@ export class ProjectRepository {
           select: {
             id: true,
             name: true,
+            memberIds: true, // Needed for progress calculation
             status: true,
             priority: true,
             startDate: true,
@@ -244,6 +248,53 @@ export class ProjectRepository {
     return attachments.map((attachment) => ({
       ...attachment,
       user: attachment.task?.creator || null,
+    }));
+  }
+
+  /**
+   * Helper method to enrich projects with calculated team progress
+   * Instead of using static team.progress, calculates based on assigned tasks
+   */
+  async enrichProjectsWithTeamProgress<
+    TTeam extends { memberIds: string[]; progress?: number | null },
+    TProject extends { id: string; teams: TTeam[] }
+  >(projects: TProject[]): Promise<TProject[]> {
+    // Get all project IDs
+    const projectIds = projects.map((p) => p.id);
+
+    // Fetch all tasks for all projects at once (efficient single query)
+    const allTasks = await prisma.task.findMany({
+      where: {
+        projectId: { in: projectIds },
+        isDeleted: false,
+      },
+      select: {
+        projectId: true,
+        status: true,
+        assigneeIds: true,
+      },
+    });
+
+    // Group tasks by project ID
+    const tasksByProject: Record<string, typeof allTasks> = {};
+    allTasks.forEach((task) => {
+      if (!tasksByProject[task.projectId]) {
+        tasksByProject[task.projectId] = [];
+      }
+      tasksByProject[task.projectId].push(task);
+    });
+
+    // Enrich each project's teams with calculated progress
+    return projects.map((project) => ({
+      ...project,
+      teams: project.teams.map((team) => {
+        const projectTasks = tasksByProject[project.id] || [];
+        const progress = calculateTeamProgress(projectTasks, team.memberIds);
+        return {
+          ...team,
+          progress, // Override static progress with calculated value
+        };
+      }),
     }));
   }
 }

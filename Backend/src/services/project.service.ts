@@ -14,11 +14,15 @@ export class ProjectService {
   }
 
   async getUserProjects(userId: string) {
-    return this.projectRepository.findManyByUserId(userId);
+    const projects = await this.projectRepository.findManyByUserId(userId);
+    // Enrich projects with dynamically calculated team progress
+    return this.projectRepository.enrichProjectsWithTeamProgress(projects);
   }
 
   async getAllProjects() {
-    return this.projectRepository.findAll();
+    const projects = await this.projectRepository.findAll();
+    // Enrich projects with dynamically calculated team progress
+    return this.projectRepository.enrichProjectsWithTeamProgress(projects);
   }
 
   async getProjectById(projectId: string, userId: string) {
@@ -31,7 +35,10 @@ export class ProjectService {
       throw new AppError("Project not found or access denied", 404);
     }
 
-    return project;
+    // Enrich single project with calculated team progress
+    const [enrichedProject] =
+      await this.projectRepository.enrichProjectsWithTeamProgress([project]);
+    return enrichedProject;
   }
 
   async createProject(data: CreateProjectInput, ownerId: string) {

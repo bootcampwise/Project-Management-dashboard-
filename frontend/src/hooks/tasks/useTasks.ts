@@ -1,8 +1,8 @@
 import { useEffect, useMemo } from "react";
-import { useAppDispatch, useAppSelector } from "../store/hooks";
-import { setActiveView, fetchTasks } from "../store/slices/taskSlice";
-import { setSidebarOpen } from "../store/slices/uiSlice";
-import type { Task, BoardColumn } from "../types";
+import { useAppDispatch, useAppSelector } from "../../store/hooks";
+import { setActiveView, fetchTasks } from "../../store/slices/taskSlice";
+import { setSidebarOpen } from "../../store/slices/uiSlice";
+import type { Task, BoardColumn } from "../../types";
 
 export const useTasks = () => {
   const dispatch = useAppDispatch();

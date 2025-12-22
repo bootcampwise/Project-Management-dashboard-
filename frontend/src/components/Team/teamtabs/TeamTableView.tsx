@@ -1,6 +1,6 @@
 import React from 'react';
-import { useTeamTableView } from '../../hooks/useTeamTableView';
-import type { TeamTableViewProps, Project } from '../../types';
+import { useTeamTableView } from '../../../hooks/teams/useTeamTableView';
+import type { TeamTableViewProps, Project } from '../../../types';
 
 
 const TeamTableView: React.FC<TeamTableViewProps> = ({ projectId }) => {

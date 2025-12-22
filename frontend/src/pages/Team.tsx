@@ -1,5 +1,5 @@
 import React from "react";
-import { useTeam } from "../hooks/useTeam";
+import { useTeam } from "../hooks/teams/useTeam";
 import Sidebar from "../components/Sidebar/index";
 import {
     Menu,
@@ -16,11 +16,11 @@ import {
     Trash2,
 } from "lucide-react";
 import toast from "react-hot-toast";
-import TeamTableView from "../components/Team/TeamTableView";
-import TeamDashboard from "../components/Team/TeamDashboard";
-import TeamMembers from "../components/Team/TeamMembers";
-import TeamFiles from "../components/Team/TeamFiles";
-import CreateTeamModal from "../components/ProjectBoard/CreateTeamModal";
+import TeamTableView from "../components/Team/teamtabs/TeamTableView";
+import TeamDashboard from "../components/Team/teamtabs/TeamDashboard";
+import TeamMembers from "../components/Team/teamtabs/TeamMembers";
+import TeamFiles from "../components/Team/teamtabs/TeamFiles";
+import CreateTeamModal from "../components/Team/CreateTeamModal";
 import SearchPopup from "../components/SearchPopup";
 
 const Team: React.FC = () => {

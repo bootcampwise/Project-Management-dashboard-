@@ -1,24 +1,28 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { useAppDispatch, useAppSelector } from "../store/hooks";
+import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import {
   setActiveProject,
   setActiveTab,
   setCreateModalOpen,
   setTeamModalOpen,
   setTemplateLibraryOpen,
-} from "../store/slices/projectSlice";
-import { fetchTasks } from "../store/slices/taskSlice";
-import { setSidebarOpen } from "../store/slices/uiSlice";
-import { setSelectedTask } from "../store/slices/taskSlice";
+} from "../../store/slices/projectSlice";
+import { fetchTasks } from "../../store/slices/taskSlice";
+import { setSidebarOpen } from "../../store/slices/uiSlice";
+import { setSelectedTask } from "../../store/slices/taskSlice";
 import { Layout, Table, Calendar, List } from "lucide-react";
-import type { Task, CreateProjectPayload, CreateTaskPayload } from "../types";
-import { createTask, updateTask } from "../store/slices/taskSlice";
+import type {
+  Task,
+  CreateProjectPayload,
+  CreateTaskPayload,
+} from "../../types";
+import { createTask, updateTask } from "../../store/slices/taskSlice";
 import {
   deleteProject,
   createProject,
   fetchProjects,
-} from "../store/slices/projectSlice";
+} from "../../store/slices/projectSlice";
 
 export const useProjectBoard = () => {
   const { projectId } = useParams();
@@ -88,7 +92,7 @@ export const useProjectBoard = () => {
       // @ts-ignore
       await dispatch(createProject(data)).unwrap();
       dispatch(setCreateModalOpen(false));
-      dispatch(setTeamModalOpen(true));
+      // Project created successfully - just close the modal, don't open team modal
     } catch (e) {
       console.error("Failed to create project", e);
       throw e;

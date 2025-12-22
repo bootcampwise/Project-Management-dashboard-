@@ -20,14 +20,14 @@ import BoardView from "../components/ProjectBoard/BoardView";
 import TableView from "../components/ProjectBoard/TableView";
 import CalendarView from "../components/ProjectBoard/CalendarView";
 import TimelineView from "../components/ProjectBoard/TimelineView";
-import TaskDetailModal from '../components/ProjectBoard/TaskDetailModal';
+import TaskDetailModal from '../components/task/TaskDetailModal';
 import CreateProjectModal from "../components/ProjectBoard/CreateProjectModal";
-import CreateTeamModal from "../components/ProjectBoard/CreateTeamModal";
+import CreateTeamModal from "../components/Team/CreateTeamModal";
 import TemplateLibraryModal from "../components/ProjectBoard/TemplateLibraryModal";
 import SearchPopup from "../components/SearchPopup";
-import CreateTaskModal from "../components/ProjectBoard/CreateTaskModal";
+import CreateTaskModal from "../components/task/CreateTaskModal";
 import AddEventModal from "../components/ProjectBoard/AddEventModal";
-import { useProjectBoard } from "../hooks/useProjectBoard";
+import { useProjectBoard } from "../hooks/projectboard/useProjectBoard";
 
 const ProjectBoard: React.FC = () => {
     const {

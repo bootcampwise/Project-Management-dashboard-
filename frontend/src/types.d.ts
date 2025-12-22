@@ -452,3 +452,70 @@ export interface BoardColumnProps {
 export interface TeamTableViewProps {
   projectId?: string;
 }
+
+// ============================================
+// HOOK PROPS TYPES
+// ============================================
+
+export interface UseTaskDetailModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  task: Task | null;
+  onEdit?: (task: Task) => void;
+}
+
+export interface UseCreateProjectModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onCreate: (data: CreateProjectPayload) => Promise<void>;
+}
+
+export interface UseCreateTaskModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onCreate?: (taskData: CreateTaskPayload) => void | Promise<void>;
+  onUpdate?: (
+    taskId: string,
+    taskData: CreateTaskPayload
+  ) => void | Promise<void>;
+  initialStatus?: string;
+  task?: Task | null;
+}
+
+export interface UseAddEventModalProps {
+  onClose: () => void;
+  onAdd?: (event: CalendarEvent) => void;
+}
+
+export interface BoardColumnState {
+  id: string;
+  title: string;
+  color: string;
+  collapsed: boolean;
+  isVisible: boolean;
+}
+
+// ============================================
+// DASHBOARD COMPONENT TYPES
+// ============================================
+
+export interface TopTasksMember {
+  id: string;
+  name: string;
+  role: string;
+  tasksCompleted: number;
+  avatar?: string;
+}
+
+export interface DashboardStatCardProps {
+  title: string;
+  count: string | number;
+  trend: "positive" | "negative";
+  points: string | number;
+}
+
+export interface ChartTooltipProps {
+  active?: boolean;
+  payload?: Array<{ value: number; dataKey: string }>;
+  label?: string;
+}

@@ -1,10 +1,10 @@
 import React from 'react';
 import Sidebar from '../components/Sidebar/index';
 import { Menu, Search, Filter, ArrowUpDown, Plus, Calendar, MessageSquare, Paperclip, FileText, Layout, List } from 'lucide-react';
-import TaskDetailModal from '../components/ProjectBoard/TaskDetailModal';
-import CreateTaskModal from '../components/ProjectBoard/CreateTaskModal';
+import TaskDetailModal from '../components/task/TaskDetailModal';
+import CreateTaskModal from '../components/task/CreateTaskModal';
 import BoardColumn from '../components/ProjectBoard/BoardColumn';
-import { useTasksPage } from '../hooks/useTasksPage';
+import { useTasksPage } from '../hooks/tasks/useTasksPage';
 import { DragDropContext } from '@hello-pangea/dnd';
 
 const Tasks: React.FC = () => {

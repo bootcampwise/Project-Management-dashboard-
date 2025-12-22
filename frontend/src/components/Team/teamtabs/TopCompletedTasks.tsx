@@ -1,16 +1,9 @@
 import React from 'react';
 import { ChevronDown } from 'lucide-react';
-
-interface TeamMember {
-    id: string;
-    name: string;
-    role: string;
-    tasksCompleted: number;
-    avatar?: string;
-}
+import type { TopTasksMember } from '../../../types';
 
 const TopCompletedTasks: React.FC = () => {
-    const teamMembers: TeamMember[] = [
+    const teamMembers: TopTasksMember[] = [
         {
             id: '1',
             name: 'Hanna Rodgers',

@@ -1,11 +1,11 @@
 import { useState } from "react";
-import type { Task, CreateTaskPayload } from "../types";
-import { useAppDispatch } from "../store/hooks";
+import type { Task, CreateTaskPayload } from "../../types";
+import { useAppDispatch } from "../../store/hooks";
 import {
   createTask,
   updateTask,
   updateTaskStatus,
-} from "../store/slices/taskSlice";
+} from "../../store/slices/taskSlice";
 import toast from "react-hot-toast";
 import { useTasks } from "./useTasks";
 

@@ -1,72 +1,25 @@
-import { DragDropContext, type DropResult } from '@hello-pangea/dnd';
-import { useDispatch } from 'react-redux';
-import type { AppDispatch } from '../../store';
-import { updateTaskStatus } from '../../store/slices/taskSlice';
+import { DragDropContext } from '@hello-pangea/dnd';
 import React from 'react';
 import { Plus } from 'lucide-react';
 import BoardColumn from './BoardColumn';
-import type { BoardViewProps } from '../../types';
+import type { BoardViewProps, Task } from '../../types';
+import { useBoardView } from '../../hooks/projectboard/useBoardView';
 
 const BoardView: React.FC<BoardViewProps> = ({ tasks, onTaskClick, onAddTask }) => {
-    const dispatch = useDispatch<AppDispatch>();
-
-    // Initial column configuration with visibility state
-    const [columns, setColumns] = React.useState([
-        { id: 'BACKLOG', title: 'Backlog', color: 'bg-gray-400', collapsed: false, isVisible: false },
-        { id: 'TODO', title: 'Todo', color: 'bg-blue-500', collapsed: false, isVisible: true },
-        { id: 'IN_PROGRESS', title: 'In progress', color: 'bg-green-500', collapsed: false, isVisible: true },
-        { id: 'IN_REVIEW', title: 'In Review', color: 'bg-purple-500', collapsed: false, isVisible: false },
-        { id: 'QA', title: 'QA', color: 'bg-yellow-500', collapsed: false, isVisible: false },
-        { id: 'COMPLETED', title: 'Completed', color: 'bg-indigo-500', collapsed: false, isVisible: true },
-        { id: 'POSTPONE', title: 'Postpone', color: 'bg-red-400', collapsed: false, isVisible: false },
-        { id: 'CANCELED', title: 'Canceled', color: 'bg-gray-500', collapsed: false, isVisible: true },
-    ]);
-
-    const [isAddSectionOpen, setIsAddSectionOpen] = React.useState(false);
+    const {
+        visibleColumns,
+        hiddenColumns,
+        isAddSectionOpen,
+        setIsAddSectionOpen,
+        handleDragEnd,
+        handleToggleColumn,
+        handleHideColumn,
+        handleShowColumn
+    } = useBoardView();
 
     const getTasksByStatus = (status: string) => {
-        return tasks.filter(task => task.status === status);
+        return tasks.filter((task: Task) => task.status === status);
     };
-
-    const handleDragEnd = (result: DropResult) => {
-        const { destination, source, draggableId } = result;
-
-        if (!destination) return;
-
-        if (
-            destination.droppableId === source.droppableId &&
-            destination.index === source.index
-        ) {
-            return;
-        }
-
-        const newStatus = destination.droppableId;
-
-        // Dispatch update
-        dispatch(updateTaskStatus({ id: draggableId, status: newStatus }));
-    };
-
-    const handleToggleColumn = (columnId: string) => {
-        setColumns(prev => prev.map(col =>
-            col.id === columnId ? { ...col, collapsed: !col.collapsed } : col
-        ));
-    };
-
-    const handleHideColumn = (columnId: string) => {
-        setColumns(prev => prev.map(col =>
-            col.id === columnId ? { ...col, isVisible: false } : col
-        ));
-    };
-
-    const handleShowColumn = (columnId: string) => {
-        setColumns(prev => prev.map(col =>
-            col.id === columnId ? { ...col, isVisible: true } : col
-        ));
-        setIsAddSectionOpen(false);
-    };
-
-    const visibleColumns = columns.filter(col => col.isVisible);
-    const hiddenColumns = columns.filter(col => !col.isVisible);
 
     return (
         <DragDropContext onDragEnd={handleDragEnd}>
@@ -141,3 +94,4 @@ const BoardView: React.FC<BoardViewProps> = ({ tasks, onTaskClick, onAddTask }) 
 };
 
 export default BoardView;
+

@@ -1,12 +1,11 @@
 import { useEffect } from "react";
-import { useAppDispatch, useAppSelector } from "../store/hooks";
+import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import {
   toggleSidebar,
   setSidebarOpen,
-  toggleSettings,
   toggleSidebarSection,
   setSettingsOpen,
-} from "../store/slices/uiSlice";
+} from "../../store/slices/uiSlice";
 
 export const useSidebar = () => {
   const dispatch = useAppDispatch();

@@ -1,6 +1,6 @@
 import React from 'react';
 import { ChevronDown, List, Calendar, Layout } from 'lucide-react';
-import type { ProjectEarning } from '../../types';
+import type { ProjectEarning } from '../../../types';
 
 
 const TopEarning: React.FC = () => {

@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
-import { useAppDispatch, useAppSelector } from "../store/hooks";
+import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import {
   fetchTeamMembers,
   createTeam,
   fetchTeams,
-} from "../store/slices/teamSlice";
-import { fetchProjects } from "../store/slices/projectSlice";
-import type { TeamMember } from "../types";
+} from "../../store/slices/teamSlice";
+import { fetchProjects } from "../../store/slices/projectSlice";
+import type { TeamMember } from "../../types";
 import { toast } from "react-hot-toast";
 
 export const useCreateTeamModal = (isOpen: boolean, onClose: () => void) => {

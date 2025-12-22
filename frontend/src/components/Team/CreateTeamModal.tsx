@@ -1,6 +1,6 @@
 import React from 'react';
 import { X, ChevronDown, Check } from 'lucide-react';
-import { useCreateTeamModal } from '../../hooks/useCreateTeamModal';
+import { useCreateTeamModal } from '../../hooks/teams/useCreateTeamModal';
 
 interface CreateTeamModalProps {
     isOpen: boolean;

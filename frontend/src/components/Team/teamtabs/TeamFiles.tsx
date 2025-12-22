@@ -1,37 +1,23 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React from 'react';
 import { MoreHorizontal, FileText, Image, File, Loader2, Trash2 } from 'lucide-react';
-import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import { fetchProjectAttachments } from '../../store/slices/projectSlice';
-import type { TeamFile } from '../../types';
+import type { TeamFile } from '../../../types';
 import { format } from 'date-fns';
-import { supabase } from '../../lib/supabase';
-import { apiClient } from '../../lib/apiClient';
 import toast from 'react-hot-toast';
+import { useTeamFiles } from '../../../hooks/teams/useTeamFiles';
 
 const TeamFiles: React.FC = () => {
-    const dispatch = useAppDispatch();
-    const { activeProject, files, isLoading } = useAppSelector(state => state.project);
-    const [openMenuId, setOpenMenuId] = useState<string | null>(null);
-    const [deletingId, setDeletingId] = useState<string | null>(null);
-    const menuRef = useRef<HTMLDivElement>(null);
-
-    useEffect(() => {
-        if (activeProject?.id) {
-            // @ts-ignore
-            dispatch(fetchProjectAttachments(activeProject.id));
-        }
-    }, [dispatch, activeProject?.id]);
-
-    // Close menu when clicking outside
-    useEffect(() => {
-        const handleClickOutside = (event: MouseEvent) => {
-            if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-                setOpenMenuId(null);
-            }
-        };
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => document.removeEventListener('mousedown', handleClickOutside);
-    }, []);
+    const {
+        files,
+        isLoading,
+        openMenuId,
+        deletingId,
+        menuRef,
+        formatSize,
+        handleFileClick,
+        handleMenuClick,
+        handleDeleteFile,
+        setOpenMenuId
+    } = useTeamFiles();
 
     const getFileIcon = (file: TeamFile) => {
         const type = file.type || file.mimeType || '';
@@ -40,39 +26,7 @@ const TeamFiles: React.FC = () => {
         return <File className="text-blue-500" size={20} />;
     };
 
-    const formatSize = (bytes: number | string) => {
-        if (typeof bytes === 'string') return bytes;
-        if (bytes === 0) return '0 B';
-        const k = 1024;
-        const sizes = ['B', 'KB', 'MB', 'GB'];
-        const i = Math.floor(Math.log(bytes) / Math.log(k));
-        return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
-    };
-
-    const getFileUrl = (file: TeamFile): string | null => {
-        const url = file.url || file.filePath;
-        if (!url) return null;
-        if (url.startsWith('http://') || url.startsWith('https://')) {
-            return url;
-        }
-        const cleanPath = url.startsWith('/') ? url.slice(1) : url;
-        const { data } = supabase.storage.from('attachments').getPublicUrl(cleanPath);
-        return data?.publicUrl || null;
-    };
-
-    const handleFileClick = (file: TeamFile) => {
-        const fileUrl = getFileUrl(file);
-        if (fileUrl) {
-            window.open(fileUrl, '_blank', 'noopener,noreferrer');
-        }
-    };
-
-    const handleMenuClick = (e: React.MouseEvent, fileId: string) => {
-        e.stopPropagation();
-        setOpenMenuId(openMenuId === fileId ? null : fileId);
-    };
-
-    const handleDelete = async (e: React.MouseEvent, file: TeamFile) => {
+    const handleDelete = (e: React.MouseEvent, file: TeamFile) => {
         e.stopPropagation();
         setOpenMenuId(null);
 
@@ -93,32 +47,9 @@ const TeamFiles: React.FC = () => {
                         Cancel
                     </button>
                     <button
-                        onClick={async () => {
+                        onClick={() => {
                             toast.dismiss(t.id);
-                            setDeletingId(file.id);
-                            try {
-                                // 1. Delete from Supabase storage
-                                const filePath = file.url || file.filePath;
-                                if (filePath && !filePath.startsWith('http')) {
-                                    const cleanPath = filePath.startsWith('/') ? filePath.slice(1) : filePath;
-                                    await supabase.storage.from('attachments').remove([cleanPath]);
-                                }
-
-                                // 2. Delete from database
-                                await apiClient.delete(`/attachments/${file.id}`);
-
-                                // 3. Refresh the file list
-                                if (activeProject?.id) {
-                                    // @ts-ignore
-                                    dispatch(fetchProjectAttachments(activeProject.id));
-                                }
-                                toast.success('File deleted successfully');
-                            } catch (error) {
-                                console.error('Failed to delete file:', error);
-                                toast.error('Failed to delete file');
-                            } finally {
-                                setDeletingId(null);
-                            }
+                            handleDeleteFile(file);
                         }}
                         className="px-3 py-1.5 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors"
                     >

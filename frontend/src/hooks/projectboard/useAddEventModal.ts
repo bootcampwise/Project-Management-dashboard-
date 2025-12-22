@@ -1,10 +1,5 @@
 import { useState } from "react";
-import type { CalendarEvent } from "../types";
-
-interface UseAddEventModalProps {
-  onClose: () => void;
-  onAdd?: (event: CalendarEvent) => void;
-}
+import type { CalendarEvent, UseAddEventModalProps } from "../../types";
 
 export const useAddEventModal = ({ onClose, onAdd }: UseAddEventModalProps) => {
   const [eventType, setEventType] = useState("Meeting");

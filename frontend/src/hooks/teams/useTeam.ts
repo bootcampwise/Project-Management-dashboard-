@@ -1,10 +1,10 @@
 import { useState, useEffect, useRef } from "react";
-import { useAppDispatch, useAppSelector } from "../store/hooks";
+import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import {
   fetchProjects,
   setActiveProject,
   deleteProject,
-} from "../store/slices/projectSlice";
+} from "../../store/slices/projectSlice";
 import toast from "react-hot-toast";
 
 export const useTeam = () => {

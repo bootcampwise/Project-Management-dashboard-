@@ -1,6 +1,6 @@
 import { useEffect } from "react";
-import { useAppDispatch, useAppSelector } from "../store/hooks";
-import { fetchProjects } from "../store/slices/projectSlice";
+import { useAppDispatch, useAppSelector } from "../../store/hooks";
+import { fetchProjects } from "../../store/slices/projectSlice";
 import { format } from "date-fns";
 import { useNavigate } from "react-router-dom";
 

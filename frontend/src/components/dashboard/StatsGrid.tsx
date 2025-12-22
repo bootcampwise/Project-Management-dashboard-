@@ -1,14 +1,8 @@
 import React from 'react';
 import { ArrowUpRight, ArrowDownRight } from 'lucide-react';
+import type { DashboardStatCardProps } from '../../types';
 
-interface StatCardProps {
-    title: string;
-    count: string | number;
-    trend: 'positive' | 'negative';
-    points: string | number;
-}
-
-const StatCard: React.FC<StatCardProps> = ({ title, count, trend, points }) => {
+const StatCard: React.FC<DashboardStatCardProps> = ({ title, count, trend, points }) => {
     const isPositive = trend === 'positive';
 
     return (
@@ -24,8 +18,8 @@ const StatCard: React.FC<StatCardProps> = ({ title, count, trend, points }) => {
 
                 {/* Trend Chip */}
                 <div className={`flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-medium w-fit ${isPositive
-                        ? "bg-green-50 text-green-600"
-                        : "bg-red-50 text-red-600"
+                    ? "bg-green-50 text-green-600"
+                    : "bg-red-50 text-red-600"
                     }`}>
                     {isPositive
                         ? <ArrowUpRight size={12} />

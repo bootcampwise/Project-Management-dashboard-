@@ -2,6 +2,7 @@ import React from 'react';
 import { MessageSquare, Paperclip } from 'lucide-react';
 
 import type { TaskCardComponentProps } from '../../types';
+import { getTagColor } from '../../constants/colors';
 
 const TaskCard: React.FC<TaskCardComponentProps> = ({ title, tags = [], assignee, assignees, comments = 0, attachments = 0, date, onClick }) => {
 
@@ -24,24 +25,12 @@ const TaskCard: React.FC<TaskCardComponentProps> = ({ title, tags = [], assignee
             {tags.length > 0 && (
                 <div className="flex flex-wrap gap-2 mb-3">
                     {tags.map((tag, index) => {
-                        const getTagClasses = (color?: string) => {
-                            const colorMap: Record<string, string> = {
-                                'blue': 'bg-blue-50 text-blue-600',
-                                'green': 'bg-green-50 text-green-600',
-                                'red': 'bg-red-50 text-red-600',
-                                'yellow': 'bg-yellow-50 text-amber-600', // Adjusted to match image warmer yellow
-                                'purple': 'bg-purple-50 text-purple-600',
-                                'pink': 'bg-pink-50 text-pink-600',
-                                'gray': 'bg-gray-50 text-gray-600',
-                                'orange': 'bg-orange-50 text-orange-600',
-                            };
-                            return colorMap[color || 'blue'] || 'bg-blue-50 text-blue-600';
-                        };
-
+                        // Use hash-based color for consistent tag coloring
+                        const colors = getTagColor(tag.text);
                         return (
                             <span
                                 key={index}
-                                className={`px-2 py-0.5 rounded text-[11px] font-medium ${getTagClasses(tag.color)}`}
+                                className={`px-2 py-0.5 rounded text-[11px] font-medium ${colors.bg} ${colors.text}`}
                             >
                                 {tag.text}
                             </span>

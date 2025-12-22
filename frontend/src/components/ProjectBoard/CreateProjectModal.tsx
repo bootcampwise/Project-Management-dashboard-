@@ -1,10 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { X, Sparkles, ChevronDown } from 'lucide-react';
-import { fetchTeams } from '../../store/slices/teamSlice';
-// Removed createProject import
-import { useAppSelector, useAppDispatch } from '../../store/hooks';
-import { toast } from 'react-hot-toast';
 import type { CreateProjectPayload } from '../../types';
+import { useCreateProjectModal } from '../../hooks/projectboard/useCreateProjectModal';
 
 interface CreateProjectModalProps {
     isOpen: boolean;
@@ -14,49 +11,22 @@ interface CreateProjectModalProps {
 }
 
 const CreateProjectModal: React.FC<CreateProjectModalProps> = ({ isOpen, onClose, onOpenTemplateLibrary, onCreate }) => {
-    const dispatch = useAppDispatch();
-    const { teams } = useAppSelector(state => state.team);
+    const {
+        teams,
+        projectName,
+        setProjectName,
+        description,
+        setDescription,
+        dueDate,
+        setDueDate,
+        selectedTeamId,
+        setSelectedTeamId,
+        privacy,
+        setPrivacy,
+        isCreating,
+        handleCreate
+    } = useCreateProjectModal({ isOpen, onClose, onCreate });
 
-    const [projectName, setProjectName] = useState('');
-    const [description, setDescription] = useState('');
-    const [dueDate, setDueDate] = useState('');
-    const [selectedTeamId, setSelectedTeamId] = useState<string>('');
-    const [privacy, setPrivacy] = useState<"public" | "private" | "team">("public");
-
-    const [isCreating, setIsCreating] = useState(false);
-
-    useEffect(() => {
-        if (isOpen) {
-            dispatch(fetchTeams());
-        }
-    }, [isOpen, dispatch]);
-
-    const handleCreate = async () => {
-        if (!projectName.trim()) {
-            toast.error("Please enter a project name");
-            return;
-        }
-
-        try {
-            setIsCreating(true);
-            await onCreate({
-                name: projectName,
-                description,
-                dueDate: dueDate || undefined,
-                teamId: selectedTeamId || undefined,
-                privacy,
-            });
-            // Toast handling is done in the parent/hook usually, but if we want it here:
-            // toast.success("Create project successfully");
-            // onClose is called by parent usually? No, onCreate promise returns then we close.
-            onClose();
-        } catch (error: unknown) {
-            // Let parent handle error logging or do it here?
-            console.error("Failed to create project:", error);
-        } finally {
-            setIsCreating(false);
-        }
-    };
 
     if (!isOpen) return null;
 

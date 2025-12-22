@@ -1,27 +1,19 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import type { CreateTaskPayload, Project, Task } from "../types";
-import type { RootState } from "../store";
+import type {
+  CreateTaskPayload,
+  Project,
+  UseCreateTaskModalProps,
+} from "../../types";
+import type { RootState } from "../../store";
 import {
   setProjects,
   setLoading,
   setError,
-} from "../store/slices/projectSlice";
-import { apiClient } from "../lib/apiClient";
-import { supabase } from "../lib/supabase";
+} from "../../store/slices/projectSlice";
+import { apiClient } from "../../lib/apiClient";
+import { supabase } from "../../lib/supabase";
 import toast from "react-hot-toast";
-
-interface UseCreateTaskModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onCreate?: (taskData: CreateTaskPayload) => void | Promise<void>;
-  onUpdate?: (
-    taskId: string,
-    taskData: CreateTaskPayload
-  ) => void | Promise<void>;
-  initialStatus?: string;
-  task?: Task | null;
-}
 
 export const useCreateTaskModal = ({
   isOpen,

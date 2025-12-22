@@ -2,6 +2,7 @@
 
 import { ArrowUpRight } from "lucide-react"
 import { Area, AreaChart, CartesianGrid, XAxis, YAxis, ResponsiveContainer, Tooltip } from "recharts"
+import type { ChartTooltipProps } from "../../types"
 
 const chartData = [
     { day: "01", budget: 500000, expenses: 200000 },
@@ -36,13 +37,7 @@ const chartData = [
     { day: "30", budget: 3900000, expenses: 3600000 },
 ]
 
-interface TooltipProps {
-    active?: boolean;
-    payload?: Array<{ value: number; dataKey: string }>;
-    label?: string;
-}
-
-const CustomTooltip = ({ active, payload }: TooltipProps) => {
+const CustomTooltip = ({ active, payload }: ChartTooltipProps) => {
     if (active && payload && payload.length) {
         return (
             <div className="bg-white p-3 rounded-lg shadow-lg border border-gray-100 text-sm">

@@ -3,7 +3,7 @@ import { X, Upload, File } from 'lucide-react';
 
 import type { CreateTaskModalProps } from '../../types';
 
-import { useCreateTaskModal } from '../../hooks/useCreateTaskModal';
+import { useCreateTaskModal } from '../../hooks/tasks/useCreateTaskModal';
 
 
 const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ isOpen, onClose, onCreate, onUpdate, initialStatus, task }) => {

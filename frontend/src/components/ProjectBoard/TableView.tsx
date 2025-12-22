@@ -1,7 +1,7 @@
 import React from 'react';
 import { ChevronRight, ChevronDown, Plus, MoreHorizontal, CheckCircle2, MessageSquare, Paperclip, User } from 'lucide-react';
 import type { TableViewProps, Task } from '../../types';
-import { useTableView } from '../../hooks/useTableView';
+import { useTableView } from '../../hooks/projectboard/useTableView';
 
 interface ExtendedTableViewProps extends TableViewProps {
     tasks?: Task[];
