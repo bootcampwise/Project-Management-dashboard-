@@ -1,5 +1,5 @@
 import React from 'react';
-import { ChevronRight, ChevronDown, Plus, MoreHorizontal, CheckCircle2 } from 'lucide-react';
+import { ChevronRight, ChevronDown, Plus, MoreHorizontal, CheckCircle2, MessageSquare, Paperclip, User } from 'lucide-react';
 import type { TableViewProps, Task } from '../../types';
 import { useTableView } from '../../hooks/useTableView';
 
@@ -11,25 +11,23 @@ const TableView: React.FC<ExtendedTableViewProps> = ({ onTaskClick, tasks }) => 
     const { groups, toggleGroup } = useTableView(tasks);
 
     return (
-        <div className="flex flex-col h-full bg-white">
+        <div className="flex flex-col h-full bg-white font-sans text-sm">
             {groups.map((group) => (
-                <div key={group.id} className="mb-6">
+                <div key={group.id} className="mb-8">
                     {/* Group Header */}
-                    <div className="flex items-center gap-1.5 mb-3 px-2 group/header">
+                    <div className="flex items-center gap-2 mb-2 px-2 group/header">
                         <button
                             onClick={() => toggleGroup(group.id)}
-                            className="text-gray-400 hover:text-gray-600"
+                            className="text-gray-400 hover:text-gray-600 focus:outline-none transition-colors"
                         >
-                            {group.isCollapsed ? <ChevronRight size={16} /> : <ChevronDown size={16} />}
+                            {group.isCollapsed ? <ChevronRight size={14} /> : <ChevronDown size={14} />}
                         </button>
-                        <div className={`w-2 h-2 rounded-full bg-${group.color}-500`}></div>
-                        <h3 className="text-sm font-semibold text-gray-700">{group.title}</h3>
-                        <span className="text-xs text-gray-400 font-normal">{group.count}</span>
-                        <div className="flex items-center gap-1 ml-1 opacity-0 group-hover/header:opacity-100 transition-opacity">
-                            <button className="text-gray-400 hover:text-gray-600 p-0.5 rounded hover:bg-gray-100">
-                                <MoreHorizontal size={14} />
-                            </button>
-                            <button className="text-gray-400 hover:text-gray-600 p-0.5 rounded hover:bg-gray-100">
+                        <div className={`w-2.5 h-2.5 rounded-full bg-${group.color}-500 shadow-sm`}></div>
+                        <h3 className="text-[15px] font-semibold text-gray-800">{group.title}</h3>
+                        <span className="text-gray-400 font-normal ml-1">{group.count}</span>
+
+                        <div className="flex items-center gap-1 ml-2 opacity-0 group-hover/header:opacity-100 transition-opacity">
+                            <button className="text-gray-400 hover:text-gray-600 p-1 rounded hover:bg-gray-100 transition-colors">
                                 <Plus size={14} />
                             </button>
                         </div>
@@ -39,92 +37,111 @@ const TableView: React.FC<ExtendedTableViewProps> = ({ onTaskClick, tasks }) => 
                     {!group.isCollapsed && (
                         <div>
                             {/* Column Headers */}
-                            <div className="grid grid-cols-[1fr_160px_128px_160px_32px] gap-4 px-2 py-2 text-xs font-medium text-gray-500 border-b border-gray-100 mb-1">
-                                <div>Name</div>
-                                <div>Assignee</div>
-                                <div>Due date</div>
-                                <div>Label</div>
-                                <div className="flex justify-end pr-1">
-                                    <Plus size={14} className="text-gray-400 cursor-pointer hover:text-gray-600" />
-                                </div>
+                            <div className="grid grid-cols-[1fr_180px_100px_180px_40px] gap-0 border-y border-gray-100 text-xs text-gray-500 font-normal bg-white sticky top-0 z-10">
+                                <div className="px-4 py-2 border-r border-gray-100">Name</div>
+                                <div className="px-4 py-2 border-r border-gray-100">Assignee</div>
+                                <div className="px-4 py-2 border-r border-gray-100">Due date</div>
+                                <div className="px-4 py-2 border-r border-gray-100">Label</div>
+                                <div className="py-2"></div>
                             </div>
 
                             {/* Tasks */}
-                            <div className="divide-y divide-gray-50">
+                            <div className="">
                                 {group.tasks.length > 0 ? (
                                     group.tasks.map((task) => (
                                         <div
                                             key={task.id}
-                                            className="grid grid-cols-[1fr_160px_128px_160px_32px] gap-4 py-2.5 px-2 hover:bg-gray-50 group/row text-sm cursor-pointer items-center"
+                                            className="grid grid-cols-[1fr_180px_100px_180px_40px] gap-0 hover:bg-gray-50 group/row text-[13px] cursor-pointer items-center border-b border-gray-100 transition-colors h-10"
                                             onClick={() => onTaskClick && onTaskClick(task)}
                                         >
                                             {/* Name Column */}
-                                            <div className="flex items-center gap-3 min-w-0 pr-4">
-                                                <button className="text-gray-300 hover:text-blue-500" onClick={(e) => e.stopPropagation()}>
-                                                    <CheckCircle2 size={18} />
+                                            <div className="flex items-center gap-3 px-4 h-full border-r border-gray-100 overflow-hidden">
+                                                <button
+                                                    className="text-gray-300 hover:text-blue-500 transition-colors flex-shrink-0"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        // Handle toggle complete
+                                                    }}
+                                                >
+                                                    <CheckCircle2 size={16} strokeWidth={1.5} />
                                                 </button>
-                                                <span className="text-gray-800 truncate flex-1 font-medium">{task.name}</span>
+                                                <span className="text-gray-800 truncate font-normal">{task.name}</span>
 
-                                                {/* Metadata icons beside name */}
-                                                <div className="flex items-center gap-2 text-gray-400 shrink-0 ml-2">
+                                                {/* Metadata icons */}
+                                                <div className="flex items-center gap-3 text-gray-400 shrink-0 ml-1">
                                                     {task.comments ? (
-                                                        <span className="flex items-center gap-1 text-xs">
-                                                            {task.comments} <span className="text-[10px]">💬</span>
+                                                        <span className="flex items-center gap-1 text-xs hover:text-gray-600 transition-colors">
+                                                            {task.comments} <MessageSquare size={12} />
                                                         </span>
                                                     ) : null}
                                                     {task.attachments ? (
-                                                        <span className="flex items-center gap-1 text-xs">
-                                                            {task.attachments} <span className="text-[10px]">📎</span>
+                                                        <span className="flex items-center gap-1 text-xs hover:text-gray-600 transition-colors">
+                                                            <Paperclip size={12} />
                                                         </span>
                                                     ) : null}
                                                 </div>
                                             </div>
 
                                             {/* Assignee Column */}
-                                            <div className="flex items-center gap-2">
-                                                {task.assignee.avatar ? (
-                                                    <img src={task.assignee.avatar} alt={task.assignee.name} className="w-6 h-6 rounded-full object-cover" />
+                                            <div className="flex items-center gap-2 h-full px-4 border-r border-gray-100">
+                                                {!task.assignee || task.assignee.name === 'Unassigned' || !task.assignee.name ? (
+                                                    <div className="flex items-center gap-2 group/assignee opacity-50 hover:opacity-100 transition-opacity">
+                                                        <div className="w-5 h-5 rounded-full bg-white border border-gray-300 border-dashed flex items-center justify-center text-gray-400 hover:border-gray-400 transition-colors">
+                                                            <User size={10} />
+                                                        </div>
+                                                    </div>
+                                                ) : task.assignee.avatar ? (
+                                                    <div className="flex items-center gap-2">
+                                                        <img src={task.assignee.avatar} alt={task.assignee.name} className="w-5 h-5 rounded-full object-cover" />
+                                                        <span className="truncate text-gray-700">{task.assignee.name}</span>
+                                                    </div>
                                                 ) : (
-                                                    <div className="w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-medium border border-blue-200">
-                                                        {task.assignee.name ? task.assignee.name.charAt(0) : '?'}
+                                                    <div className="flex items-center gap-2">
+                                                        <div className="w-5 h-5 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-[9px] font-bold border border-blue-200">
+                                                            {task.assignee.name.charAt(0)}
+                                                        </div>
+                                                        <span className="truncate text-gray-700">{task.assignee.name}</span>
                                                     </div>
                                                 )}
-                                                <span className="text-gray-700 truncate">{task.assignee.name}</span>
                                             </div>
 
                                             {/* Due Date Column */}
-                                            <div className="text-gray-600 text-xs">
-                                                {task.dueDate}
+                                            <div className="text-gray-500 h-full flex items-center px-4 border-r border-gray-100">
+                                                {task.dueDate ? new Date(task.dueDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : ''}
                                             </div>
 
                                             {/* Label Column */}
-                                            <div className="flex items-center gap-1.5 flex-wrap">
-                                                {task.labels.map((label, idx) => (
-                                                    <span key={idx} className={`px - 2 py - 0.5 rounded text - [11px] font - medium ${label.bg} ${label.color} `}>
-                                                        {label.text}
-                                                    </span>
-                                                ))}
+                                            <div className="flex items-center gap-1.5 h-full px-4 border-r border-gray-100 overflow-hidden">
+                                                {task.labels.map((label, idx) => {
+                                                    const bgClass = label.bg && label.bg.length > 2 ? label.bg : 'bg-gray-100';
+                                                    const textClass = label.color && label.color.length > 2 ? label.color : 'text-gray-600';
+                                                    return (
+                                                        <span key={idx} className={`px-2 py-0.5 rounded-[3px] text-[11px] font-medium leading-none ${bgClass} ${textClass} opacity-90 whitespace-nowrap`}>
+                                                            {label.text}
+                                                        </span>
+                                                    );
+                                                })}
                                             </div>
 
                                             {/* Add/Actions Column */}
-                                            <div className="flex justify-end">
-                                                <button className="text-gray-400 hover:text-blue-600 opacity-0 group-hover/row:opacity-100">
-                                                    <Plus size={16} />
+                                            <div className="flex justify-center items-center h-full">
+                                                <button className="text-gray-400 hover:text-gray-600 opacity-0 group-hover/row:opacity-100 transition-all p-1 rounded hover:bg-gray-200">
+                                                    <MoreHorizontal size={14} />
                                                 </button>
                                             </div>
                                         </div>
                                     ))
                                 ) : (
-                                    <div className="py-2.5 px-2 text-sm text-gray-400 pl-[46px]">
-                                        No tasks in this section
+                                    <div className="py-2 px-4 text-[13px] text-gray-400 border-b border-gray-100 italic bg-gray-50/30">
+                                        No tasks.
                                     </div>
                                 )}
                             </div>
 
                             {/* Add Task Row */}
-                            <button className="flex items-center gap-3 text-gray-400 hover:text-gray-600 py-2 items-center px-2 mt-1 text-sm group/add w-full text-left">
-                                <Plus size={18} className="group-hover/add:text-gray-600" />
-                                <span>Add task</span>
+                            <button className="flex items-center gap-2 text-gray-400 hover:text-gray-600 py-1.5 items-center px-4 text-[13px] group/add w-full text-left transition-colors -mt-px relative z-[1]">
+                                <Plus size={14} className="group-hover/add:text-blue-500 transition-colors" />
+                                <span className="group-hover/add:text-gray-800 transition-colors">Add task...</span>
                             </button>
                         </div>
                     )}

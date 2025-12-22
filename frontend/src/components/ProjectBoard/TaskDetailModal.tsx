@@ -171,16 +171,33 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
         }
     }
 
-    const handleAddTag = async () => {
-        const tagText = prompt("Enter tag name:");
-        if (tagText && task) {
+    const tagInputRef = useRef<HTMLInputElement>(null);
+    const [isAddingTag, setIsAddingTag] = useState(false);
+    const [tagInput, setTagInput] = useState("");
+
+    const handleTagSubmit = async (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'Enter' && tagInput.trim() && task) {
             try {
+                // Optimistic UI update could be added here, but dispatch handles it
                 const currentTags = task.tags?.map((t: NonNullable<Task['tags']>[number]) => t.text) || [];
-                await apiClient.patch(`/tasks/${task.id}`, { tags: [...currentTags, tagText] });
+                // Prevent duplicates
+                if (currentTags.includes(tagInput.trim())) {
+                    setTagInput("");
+                    setIsAddingTag(false);
+                    return;
+                }
+
+                await apiClient.patch(`/tasks/${task.id}`, { tags: [...currentTags, tagInput.trim()] });
+                setTagInput("");
+                setIsAddingTag(false);
                 dispatch(getTaskDetails(String(task.id)));
+                toast.success('Tag added');
             } catch (error) {
                 console.error('Failed to add tag:', error);
+                toast.error('Failed to add tag');
             }
+        } else if (e.key === 'Escape') {
+            setIsAddingTag(false);
         }
     };
 
@@ -388,9 +405,31 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
                                     {tag.text}
                                 </span>
                             ))}
-                            <button onClick={handleAddTag} className="text-gray-400 hover:text-gray-600 transition-colors">
-                                <Plus size={16} />
-                            </button>
+
+                            {isAddingTag ? (
+                                <input
+                                    ref={tagInputRef}
+                                    type="text"
+                                    className="px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:border-blue-500 w-24"
+                                    placeholder="New tag..."
+                                    value={tagInput}
+                                    onChange={(e) => setTagInput(e.target.value)}
+                                    onKeyDown={handleTagSubmit}
+                                    onBlur={() => {
+                                        if (!tagInput.trim()) setIsAddingTag(false);
+                                    }}
+                                />
+                            ) : (
+                                <button
+                                    onClick={() => {
+                                        setIsAddingTag(true);
+                                        setTimeout(() => tagInputRef.current?.focus(), 0);
+                                    }}
+                                    className="text-gray-400 hover:text-gray-600 transition-colors"
+                                >
+                                    <Plus size={16} />
+                                </button>
+                            )}
                         </div>
                     </div>
 

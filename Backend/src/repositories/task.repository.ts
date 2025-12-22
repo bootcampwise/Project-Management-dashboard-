@@ -162,7 +162,7 @@ export class TaskRepository {
         let tag = await prisma.tag.findFirst({ where: { text: tagText } });
         if (!tag) {
           tag = await prisma.tag.create({
-            data: { text: tagText, color: "blue", bg: "blue-100" },
+            data: { text: tagText, color: "blue", bg: "bg-blue-100" },
           });
         }
         processedTagIds.push(tag.id);

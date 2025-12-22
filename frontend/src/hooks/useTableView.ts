@@ -158,14 +158,27 @@ const formatDate = (dateString?: string) => {
 const getTagColor = (tag: string) => {
   const colors = [
     { bg: "bg-red-100", text: "text-red-700" },
+    { bg: "bg-orange-100", text: "text-orange-700" },
+    { bg: "bg-amber-100", text: "text-amber-700" },
     { bg: "bg-green-100", text: "text-green-700" },
+    { bg: "bg-emerald-100", text: "text-emerald-700" },
+    { bg: "bg-teal-100", text: "text-teal-700" },
+    { bg: "bg-cyan-100", text: "text-cyan-700" },
     { bg: "bg-blue-100", text: "text-blue-700" },
-    { bg: "bg-yellow-100", text: "text-yellow-700" },
-    { bg: "bg-purple-100", text: "text-purple-700" },
-    { bg: "bg-pink-100", text: "text-pink-700" },
     { bg: "bg-indigo-100", text: "text-indigo-700" },
+    { bg: "bg-violet-100", text: "text-violet-700" },
+    { bg: "bg-purple-100", text: "text-purple-700" },
+    { bg: "bg-fuchsia-100", text: "text-fuchsia-700" },
+    { bg: "bg-pink-100", text: "text-pink-700" },
+    { bg: "bg-rose-100", text: "text-rose-700" },
   ];
-  const index = tag.length % colors.length;
+
+  let hash = 0;
+  for (let i = 0; i < tag.length; i++) {
+    hash = tag.charCodeAt(i) + ((hash << 5) - hash);
+  }
+
+  const index = Math.abs(hash) % colors.length;
   return colors[index];
 };
 
@@ -173,17 +186,28 @@ const getTagColor = (tag: string) => {
 const mapTaskToTableTask = (task: Task) => {
   const tags = task.labels || task.tags || [];
   const mappedLabels = tags.map((tag: any) => {
-    if (typeof tag === "string") {
-      const colors = getTagColor(tag);
-      return { text: tag, bg: colors.bg, color: colors.text };
-    }
-    return tag; // Already an object
+    const labelText = typeof tag === "string" ? tag : tag.text;
+
+    // Always generate color based on text to ensure variety and consistency
+    // This overrides the backend default of "blue" for everything
+    const defaults = getTagColor(labelText);
+    const labelBg = defaults.bg;
+    const labelColor = defaults.text;
+
+    return { text: labelText, bg: labelBg, color: labelColor };
   });
 
   return {
     id: String(task.id),
     name: task.name || task.title || "Untitled",
-    assignee: task.assignee || { name: "Unassigned" },
+    assignee:
+      task.assignee ||
+      (task.assignees && task.assignees.length > 0
+        ? {
+            name: task.assignees[0].name,
+            avatar: task.assignees[0].avatar || undefined,
+          }
+        : { name: "Unassigned" }),
     dueDate: formatDate(task.dueDate || task.endDate),
     labels: mappedLabels,
     comments: task.comments || 0,
