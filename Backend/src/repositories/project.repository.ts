@@ -204,4 +204,46 @@ export class ProjectRepository {
       where: { id: projectId },
     });
   }
+  async findAttachments(projectId: string) {
+    // Single optimized query: Get attachments directly through task relation
+    // This avoids the need for two separate queries
+    const attachments = await prisma.attachment.findMany({
+      where: {
+        task: {
+          projectId: projectId,
+          isDeleted: false,
+        },
+      },
+      select: {
+        id: true,
+        name: true,
+        url: true,
+        size: true,
+        mimeType: true,
+        createdAt: true,
+        taskId: true,
+        task: {
+          select: {
+            id: true,
+            title: true,
+            creator: {
+              select: {
+                name: true,
+                avatar: true,
+              },
+            },
+          },
+        },
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+
+    // Map to final format with user field for frontend compatibility
+    return attachments.map((attachment) => ({
+      ...attachment,
+      user: attachment.task?.creator || null,
+    }));
+  }
 }

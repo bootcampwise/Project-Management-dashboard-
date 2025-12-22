@@ -86,8 +86,15 @@ export class TaskService {
       throw new AppError("Access denied to this task", 403);
     }
 
-    // Soft delete
-    await this.taskRepository.softDelete(taskId);
+    // Hard delete - removes task and cascades to delete:
+    // - attachments, comments, subtasks, time tracking, history
+    const attachmentUrls = await this.taskRepository.hardDelete(taskId);
+
+    // Note: To also delete files from Supabase storage, you would need to:
+    // 1. Import supabase client in backend
+    // 2. Call: await supabase.storage.from('attachments').remove(attachmentUrls)
+    // For now, database records are cleaned up. Storage cleanup can be added later.
+    console.log(`[TaskService] Deleted task ${taskId} with ${attachmentUrls.length} attachments`);
   }
 
   async updateTaskStatus(taskId: string, userId: string, status: string) {

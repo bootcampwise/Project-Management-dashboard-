@@ -1,3 +1,4 @@
+import { Prisma } from "@prisma/client";
 import { prisma } from "../config/prisma";
 
 export class ActivityLogRepository {
@@ -5,12 +6,12 @@ export class ActivityLogRepository {
     action: string;
     message: string;
     userId: string;
-    metadata?: Record<string, unknown>;
+    metadata?: Prisma.InputJsonValue;
   }) {
     return prisma.activityLog.create({
       data: {
         ...data,
-        metadata: data.metadata as any,
+        metadata: data.metadata ?? null,
       },
     });
   }

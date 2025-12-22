@@ -212,5 +212,9 @@ const mapTaskToTableTask = (task: Task) => {
     labels: mappedLabels,
     comments: task.comments || 0,
     attachments: task.attachments || 0,
+    // Map missing fields for instant modal display
+    creator: task.creator,
+    status: task.status,
+    priority: task.priority,
   };
 };

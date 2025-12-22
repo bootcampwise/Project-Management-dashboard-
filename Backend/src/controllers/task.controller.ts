@@ -14,7 +14,7 @@ export class TaskController {
       const user = await userService.getUserBySupabaseId(supabaseId);
       const tasks = await taskService.getUserTasks(user.id);
       sendSuccess(res, tasks);
-    } catch (error) {
+    } catch (error: unknown) {
       next(error);
     }
   }
@@ -26,7 +26,7 @@ export class TaskController {
       const user = await userService.getUserBySupabaseId(supabaseId);
       const task = await taskService.getTaskById(id, user.id);
       sendSuccess(res, task);
-    } catch (error) {
+    } catch (error: unknown) {
       next(error);
     }
   }
@@ -60,6 +60,7 @@ export class TaskController {
 
       // Handle attachments metadata from body (Supabase uploads)
       const files = data.attachments || [];
+      console.log("Creating Task with attachments:", files.length);
 
       // No longer using req.files as uploads are handled by frontend
 
@@ -70,7 +71,7 @@ export class TaskController {
         files
       );
       sendSuccess(res, task, "Task created successfully", 201);
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("Error creating task:", error);
       next(error);
     }
@@ -83,7 +84,7 @@ export class TaskController {
       const user = await userService.getUserBySupabaseId(supabaseId);
       const task = await taskService.updateTask(id, user.id, req.body);
       sendSuccess(res, task, "Task updated successfully");
-    } catch (error) {
+    } catch (error: unknown) {
       next(error);
     }
   }
@@ -95,7 +96,7 @@ export class TaskController {
       const user = await userService.getUserBySupabaseId(supabaseId);
       await taskService.deleteTask(id, user.id);
       sendSuccess(res, null, "Task deleted successfully");
-    } catch (error) {
+    } catch (error: unknown) {
       next(error);
     }
   }
@@ -109,7 +110,7 @@ export class TaskController {
 
       const task = await taskService.updateTaskStatus(id, user.id, status);
       sendSuccess(res, task, "Task status updated successfully");
-    } catch (error) {
+    } catch (error: unknown) {
       next(error);
     }
   }
@@ -122,7 +123,7 @@ export class TaskController {
       const user = await userService.getUserBySupabaseId(supabaseId);
       const subtask = await taskService.addSubtask(id, user.id, title);
       sendSuccess(res, subtask, "Subtask added successfully");
-    } catch (error) {
+    } catch (error: unknown) {
       next(error);
     }
   }

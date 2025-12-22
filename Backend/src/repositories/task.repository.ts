@@ -36,6 +36,13 @@ export class TaskRepository {
             key: true,
           },
         },
+        creator: {
+          select: {
+            id: true,
+            name: true,
+            avatar: true,
+          },
+        },
         _count: {
           select: {
             comments: true,
@@ -221,12 +228,36 @@ export class TaskRepository {
   }
 
   async update(taskId: string, data: UpdateTaskInput, userId: string) {
-    const { tags, dueDate, attachments, ...rest } = data as any;
+    const { tags, dueDate, ...rest } = data;
 
-    // Explicitly construct updateData to avoid 'any'
+    // Explicitly construct updateData to strictly type-check and avoid ANY
     const updateData: Prisma.TaskUpdateInput = {
-      ...rest,
+      title: rest.title,
+      description: rest.description,
+      priority: rest.priority,
+      status: rest.status,
+      // assigneeIds is not directly updateable in Prisma UpdateInput, usage of relation is required
+      // actualHours: rest.actualHours, // Assuming these exist
+      // actualCost: rest.actualCost,
     };
+
+    if (rest.actualHours !== undefined)
+      updateData.actualHours = rest.actualHours;
+    if (rest.actualCost !== undefined) updateData.actualCost = rest.actualCost;
+
+    // Remove undefined fields
+    Object.keys(updateData).forEach(
+      (key) =>
+        updateData[key as keyof Prisma.TaskUpdateInput] === undefined &&
+        delete updateData[key as keyof Prisma.TaskUpdateInput]
+    );
+
+    // Handle Assignees Relation
+    if (rest.assigneeIds) {
+      updateData.assignees = {
+        set: rest.assigneeIds.map((id) => ({ id })),
+      };
+    }
 
     // Handle Tags: convert ["tag1"] to tagIds
     if (tags && Array.isArray(tags)) {
@@ -248,8 +279,6 @@ export class TaskRepository {
       updateData.dueDate = new Date(dueDate);
     }
 
-    // Attachments are removed from rest via destructuring, so no need to delete
-
     await prisma.task.update({
       where: { id: taskId },
       data: updateData,
@@ -263,6 +292,27 @@ export class TaskRepository {
       where: { id: taskId },
       data: { isDeleted: true },
     });
+  }
+
+  async hardDelete(taskId: string) {
+    // Get attachments before deleting (to delete from Supabase storage later if needed)
+    const task = await prisma.task.findUnique({
+      where: { id: taskId },
+      select: {
+        attachments: {
+          select: { url: true },
+        },
+      },
+    });
+
+    // Delete the task - Prisma cascade will delete:
+    // - attachments, comments, subtasks, time tracking, history
+    await prisma.task.delete({
+      where: { id: taskId },
+    });
+
+    // Return attachment URLs for potential Supabase cleanup
+    return task?.attachments.map((a) => a.url) || [];
   }
   async createSubtask(taskId: string, title: string) {
     return prisma.subTask.create({

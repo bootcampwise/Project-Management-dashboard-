@@ -90,4 +90,30 @@ export class ProjectController {
       next(error);
     }
   }
+
+  async getAttachments(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { id } = req.params;
+      const { sub: supabaseId } = req.user!;
+      const user = await userService.getUserBySupabaseId(supabaseId);
+      console.log(
+        `[ProjectController] Fetching attachments for project ${id} by user ${user.id}`
+      );
+
+      const attachments = await projectService.getAttachments(id, user.id);
+      sendSuccess(res, attachments);
+    } catch (error: unknown) {
+      console.error("[ProjectController] Error fetching attachments:", error);
+
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error occurred";
+
+      // Return detailed error for debugging
+      res.status(400).json({
+        status: "error",
+        message: errorMessage,
+        details: error,
+      });
+    }
+  }
 }

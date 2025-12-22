@@ -75,6 +75,10 @@ export interface TableTask {
   labels: { text: string; color: string; bg: string }[];
   comments?: number;
   attachments?: number;
+  // Added fields to support instant TaskDetailModal display
+  creator?: { id: string; name: string; avatar?: string };
+  status?: string;
+  priority?: string;
 }
 
 export interface TableGroup {
@@ -297,6 +301,7 @@ export interface ProjectState {
   isTeamModalOpen: boolean;
   isTemplateLibraryOpen: boolean;
   activeProject: Project | null;
+  files: TeamFile[];
 }
 
 export interface TaskState {
@@ -392,14 +397,27 @@ export interface CreateTaskModalProps {
 }
 
 export interface TeamFile {
-  id: number;
+  id: string; // Changed from number
   name: string;
-  type: "pdf" | "image" | "ppt";
-  size: string;
-  date: string;
-  author: {
+  type: string; // broadened from literal union for safety, can narrow later
+  size: number | string;
+  date: string | Date; // Backend sends Date string usually
+  url?: string; // URL to open the file
+  filePath?: string; // from backend
+  mimeType?: string;
+  task?: {
+    id: string;
+    title: string;
+    creator?: {
+      name: string;
+      avatar?: string;
+    };
+  };
+  createdAt?: string;
+  user?: {
+    id: string;
     name: string;
-    avatar: string;
+    avatar?: string;
   };
 }
 

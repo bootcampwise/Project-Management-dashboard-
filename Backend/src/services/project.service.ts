@@ -89,4 +89,19 @@ export class ProjectService {
 
     await this.projectRepository.delete(projectId);
   }
+
+  async getAttachments(projectId: string, userId: string) {
+    // Optionally check if user has access to project
+    const project = await this.projectRepository.findByIdAndUserId(
+      projectId,
+      userId
+    );
+
+    if (!project) {
+      // Technically access denied if not found or restricted
+      throw new AppError("Project not found or access denied", 404);
+    }
+
+    return this.projectRepository.findAttachments(projectId);
+  }
 }

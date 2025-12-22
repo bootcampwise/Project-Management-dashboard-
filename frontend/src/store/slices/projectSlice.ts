@@ -5,7 +5,12 @@ import {
 } from "@reduxjs/toolkit";
 import { apiClient } from "../../lib/apiClient";
 
-import type { ProjectState, Project, CreateProjectPayload } from "../../types";
+import type {
+  ProjectState,
+  Project,
+  CreateProjectPayload,
+  TeamFile,
+} from "../../types";
 
 const initialState: ProjectState = {
   projects: [],
@@ -16,7 +21,25 @@ const initialState: ProjectState = {
   isTeamModalOpen: false,
   isTemplateLibraryOpen: false,
   activeProject: null,
+  files: [], // Add files state
 };
+
+export const fetchProjectAttachments = createAsyncThunk(
+  "project/fetchProjectAttachments",
+  async (projectId: string, { rejectWithValue }) => {
+    try {
+      const response = await apiClient.get<TeamFile[]>(
+        `/projects/${projectId}/attachments`
+      );
+      return response;
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { error?: string } } };
+      return rejectWithValue(
+        error.response?.data?.error || "Failed to fetch project files"
+      );
+    }
+  }
+);
 
 export const fetchProjects = createAsyncThunk(
   "project/fetchProjects",
@@ -153,6 +176,21 @@ const projectSlice = createSlice({
         }
       })
       .addCase(deleteProject.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+      })
+      .addCase(fetchProjectAttachments.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(
+        fetchProjectAttachments.fulfilled,
+        (state, action: PayloadAction<TeamFile[]>) => {
+          state.isLoading = false;
+          state.files = action.payload;
+        }
+      )
+      .addCase(fetchProjectAttachments.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string;
       });
