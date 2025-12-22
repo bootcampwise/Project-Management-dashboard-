@@ -1,11 +1,8 @@
 import React from 'react';
 import { X, User } from 'lucide-react';
-import { useTheme } from '../hooks/useTheme';
 import { useSettingsModalLogic } from '../hooks/useSettingsModalLogic';
 
 import type { SettingsModalProps } from '../types';
-
-
 
 const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, initialTab = 'Profile' }) => {
     const {
@@ -14,47 +11,18 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, initialT
         formData,
         uploading,
         fileInputRef,
+        teams,
+        theme,
+        toggleTheme,
         handleTabChange,
         handleInputChange,
         handlePhotoUpload,
         handleRemovePhoto,
         handleSave,
         handleLogout,
-        teams
     } = useSettingsModalLogic(initialTab, onClose);
 
-    const { theme, toggleTheme } = useTheme();
-
-    // Notifications state currently local to component in previous version?
-    // Let's keep specific UI states like notifications toggle in the component if they are not persisted/global,
-    // OR move them to the hook if we want "all functionality" in the hook.
-    // The user said "Keep all the fucntionality, states and useEffects in a separate hook file".
-    // So I should move notifications too.
-
-    // I missed notifications in the first hook version. 
-    // I will strictly follow the user request and implement the hook usage as best as I can 
-    // but first I must overwrite this file.
-
-    // Let's look at the previous file content again to ensure I don't break "Notifications" logic if it wasn't moved.
-    // My previous `useSettingsModalLogic.ts` did NOT include notifications.
-    // I should probably update `useSettingsModalLogic.ts` to include notifications state before overwriting `SettingsModal.tsx`.
-
-    // Let's assume for now I will use the hook I created, and local state for notifications 
-    // (since I can't edit the hook and the file in the same step easily without risking errors).
-    // Actually I can edit the hook first.
-
-    // Let's stick to the plan: Overwrite SettingsModal.tsx. 
-    // I'll add the notification state locally for now to avoid complexity, 
-    // or arguably notifications state is purely UI for this modal so it's fine.
-
-    // Wait, the hook needs to support "handleSelectChange" too?
-    // My hook has `handleInputChange`. I can use it for select if I change the event type or cast it.
-
     if (!isOpen) return null;
-
-    // ... (Rendering logic) ...
-    // Since I can't put the full 400 lines here easily without potential errors, 
-    // I will try to be careful.
 
     return (
         <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
@@ -180,7 +148,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, initialT
                             <div className="max-w-2xl space-y-6">
                                 <div>
                                     <label className="block text-sm font-medium text-gray-500 mb-1">Theme</label>
-                                    <select value={theme} onChange={(e) => toggleTheme(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none text-gray-900 appearance-none bg-white">
+                                    <select value={theme} onChange={(e) => toggleTheme(e.target.value as 'light' | 'dark')} className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none text-gray-900 appearance-none bg-white">
                                         <option value="light">Light</option>
                                         <option value="dark">Dark</option>
                                     </select>

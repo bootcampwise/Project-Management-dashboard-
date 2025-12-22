@@ -1,8 +1,5 @@
-import React, { useState } from "react";
+import React from "react";
 import Sidebar from "../components/Sidebar/index";
-import { useParams, useNavigate } from "react-router-dom";
-import { useAppSelector, useAppDispatch } from "../store/hooks";
-import { setActiveProject } from "../store/slices/projectSlice";
 import {
     Menu,
     Star,
@@ -16,8 +13,8 @@ import {
     SlidersHorizontal,
     User,
     Check,
-    LogOut,
     ChevronRight,
+    Trash2,
 } from "lucide-react";
 import BoardView from "../components/ProjectBoard/BoardView";
 import TableView from "../components/ProjectBoard/TableView";
@@ -31,122 +28,57 @@ import SearchPopup from "../components/SearchPopup";
 import CreateTaskModal from "../components/ProjectBoard/CreateTaskModal";
 import AddEventModal from "../components/ProjectBoard/AddEventModal";
 import { useProjectBoard } from "../hooks/useProjectBoard";
-import type { Task } from "../types";
-
-import { fetchTasks, createTask, updateTask } from "../store/slices/taskSlice";
-import { deleteProject } from "../store/slices/projectSlice";
-import toast from "react-hot-toast";
-import { Trash2 } from "lucide-react";
 
 const ProjectBoard: React.FC = () => {
-    const { projectId } = useParams();
-    const navigate = useNavigate();
-    const dispatch = useAppDispatch();
-
-    const { projects, activeProject } = useAppSelector(state => state.project);
-    const { tasks } = useAppSelector(state => state.task);
-
-    // Fetch tasks on mount
-    React.useEffect(() => {
-        dispatch(fetchTasks());
-    }, [dispatch]);
-
-    // Sync URL param with active project, or default to first project
-    React.useEffect(() => {
-        if (projectId) {
-            const proj = projects.find(p => p.id === projectId);
-            if (proj && proj.id !== activeProject?.id) {
-                dispatch(setActiveProject(proj));
-            }
-        } else if (!activeProject && projects.length > 0) {
-            dispatch(setActiveProject(projects[0]));
-        }
-    }, [projectId, projects, activeProject, dispatch]);
-
-    const project = activeProject;
-
-    // Filter tasks for the active project
-    const projectTasks = tasks.filter(task => {
-        if (typeof task.project === 'string') return task.project === project?.name;
-        return task.project?.id === project?.id;
-    });
-
     const {
-        sidebarOpen,
-        setSidebarOpen,
-        activeTab,
-        setActiveTab,
-        isCreateModalOpen,
-        setIsCreateModalOpen,
-        isTeamModalOpen,
-        setIsTeamModalOpen,
-        isTemplateLibraryOpen,
-        setIsTemplateLibraryOpen,
+        // Data
+        projects,
+        activeProject,
+        projectTasks,
         selectedTask,
-        setSelectedTask,
         tabs,
+
+        // UI States
+        sidebarOpen,
+        activeTab,
+        isCreateModalOpen,
+        isTeamModalOpen,
+        isTemplateLibraryOpen,
+        isSearchOpen,
+        isCreateTaskModalOpen,
+        isAddEventModalOpen,
+        modalInitialStatus,
+        taskToEdit,
+        isProjectDropdownOpen,
+        isMenuDropdownOpen,
+
+        // Setters
+        setSidebarOpen,
+        setActiveTab,
+        setIsCreateModalOpen,
+        setIsTeamModalOpen,
+        setIsTemplateLibraryOpen,
+        setIsSearchOpen,
+        setIsCreateTaskModalOpen,
+        setIsAddEventModalOpen,
+        setIsProjectDropdownOpen,
+        setIsMenuDropdownOpen,
+        setSelectedTask,
+        setTaskToEdit,
+
+        // Handlers
+        handleCreateProject,
         handleOpenTemplateLibrary,
         handleSelectTemplate,
+        handleSwitchProject,
+        handleEditTask,
+        handleTableTaskClick,
+        handleAddTask,
+        handleOpenAddEvent,
+        handleCreateTask,
+        handleUpdateTask,
+        handleDeleteProject,
     } = useProjectBoard();
-
-    const [isSearchOpen, setIsSearchOpen] = useState(false);
-    const [isCreateTaskModalOpen, setIsCreateTaskModalOpen] = useState(false);
-    const [isAddEventModalOpen, setIsAddEventModalOpen] = useState(false);
-    const [modalInitialStatus, setModalInitialStatus] = useState<string | undefined>(undefined);
-
-
-    // Edit Task State
-    const [taskToEdit, setTaskToEdit] = useState<Task | null>(null);
-    const handleEditTask = (task: Task) => {
-        console.log("ProjectBoard: handleEditTask called", task);
-        setTaskToEdit(task);
-        setSelectedTask(null);
-        setIsCreateTaskModalOpen(true);
-    };
-
-    // Header Dropdown States
-
-    // Header Dropdown States
-    const [isProjectDropdownOpen, setIsProjectDropdownOpen] = useState(false);
-    const [isMenuDropdownOpen, setIsMenuDropdownOpen] = useState(false);
-
-    const handleSwitchProject = (p: typeof projects[0]) => {
-        dispatch(setActiveProject(p));
-        setIsProjectDropdownOpen(false);
-        navigate(`/project/${p.id}`);
-    };
-
-    // Convert TableTask to Task for the detail modal
-    const handleTableTaskClick = (tableTask: { id: string; name: string; assignee: { name: string; avatar?: string }; dueDate: string; labels: { text: string; color: string; bg: string }[]; comments?: number; attachments?: number }) => {
-        // Convert TableTask to Task by adding missing required properties
-        const task: Task = {
-            id: tableTask.id,
-            name: tableTask.name,
-            project: project?.name || 'Default Project', // Use actual project name
-            subtasks: 0, // TableTask doesn't track subtasks
-            status: 'IN_PROGRESS', // Default status
-            priority: 'MEDIUM', // Default priority
-            startDate: new Date().toISOString().split('T')[0],
-            endDate: tableTask.dueDate,
-            dueDate: tableTask.dueDate,
-            labels: tableTask.labels,
-            assignee: tableTask.assignee,
-            comments: tableTask.comments,
-            attachments: tableTask.attachments,
-        };
-        setSelectedTask(task);
-    };
-
-    const handleAddTask = (status: string) => {
-        setModalInitialStatus(status);
-        setIsCreateTaskModalOpen(true);
-    };
-
-    const handleOpenAddEvent = () => {
-        console.log("Opening Add Event Modal");
-        setIsAddEventModalOpen(true);
-    };
-
 
     const renderContent = () => {
         switch (activeTab) {
@@ -163,9 +95,9 @@ const ProjectBoard: React.FC = () => {
                     <div className="p-6">
                         <h2 className="text-lg font-semibold mb-4">Project Teams</h2>
                         <div className="text-gray-500">
-                            {project?.members && project.members.length > 0 ? (
+                            {activeProject?.members && activeProject.members.length > 0 ? (
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                    {project.members.map((member) => (
+                                    {activeProject.members.map((member) => (
                                         <div key={member.id} className="flex items-center gap-3 p-4 bg-white border border-gray-200 rounded-lg shadow-sm">
                                             <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold overflow-hidden">
                                                 {member.avatar ? <img src={member.avatar} alt={member.name} className="w-full h-full object-cover" /> : (member.name?.[0] || 'U')}
@@ -183,12 +115,14 @@ const ProjectBoard: React.FC = () => {
                         </div>
                     </div>
                 );
+            default:
+                return null;
         }
     };
 
     return (
         <div className="flex h-screen bg-white relative font-sans">
-            {/* Mobile menu button (and Desktop re-open button) */}
+            {/* Mobile menu button */}
             <button
                 className={`absolute top-4 left-4 z-30 p-2 bg-white rounded-md shadow ${sidebarOpen ? 'md:hidden' : 'block'}`}
                 onClick={() => setSidebarOpen(true)}
@@ -212,8 +146,7 @@ const ProjectBoard: React.FC = () => {
                                     className="flex items-center gap-2 cursor-pointer hover:bg-gray-100 p-1 rounded-md transition-colors"
                                     onClick={() => setIsProjectDropdownOpen(!isProjectDropdownOpen)}
                                 >
-                                    <h1 className="text-xl font-bold text-gray-800">{project?.name || "No Projects"}</h1>
-                                    <ChevronDown size={16} className={`text-gray-500 transition-transform ${isProjectDropdownOpen ? 'rotate-180' : ''}`} />
+                                    <h1 className="text-xl font-bold text-gray-800">{activeProject?.name || "No Projects"}</h1>
                                 </div>
 
                                 {/* Project Switcher Dropdown */}
@@ -265,7 +198,7 @@ const ProjectBoard: React.FC = () => {
                                         <div className="absolute top-full left-0 mt-1 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-50 py-1">
                                             <div className="px-4 py-2 border-b border-gray-100">
                                                 <p className="text-xs text-gray-500">Active Project</p>
-                                                <p className="text-sm font-medium text-gray-800 truncate">{project?.name || "None"}</p>
+                                                <p className="text-sm font-medium text-gray-800 truncate">{activeProject?.name || "None"}</p>
                                             </div>
                                             <button
                                                 className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
@@ -280,48 +213,8 @@ const ProjectBoard: React.FC = () => {
                                             <button
                                                 className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
                                                 onClick={() => {
-                                                    setIsMenuDropdownOpen(false); // Close menu immediately
-                                                    toast((t) => (
-                                                        <div className="flex flex-col gap-3 min-w-[250px]">
-                                                            <div>
-                                                                <h3 className="font-medium text-gray-900">Delete Project?</h3>
-                                                                <p className="text-sm text-gray-500 mt-1">
-                                                                    Are you sure you want to delete <span className="font-semibold">{project?.name}</span>? This action cannot be undone.
-                                                                </p>
-                                                            </div>
-                                                            <div className="flex items-center justify-end gap-3 mt-1">
-                                                                <button
-                                                                    onClick={() => toast.dismiss(t.id)}
-                                                                    className="px-3 py-1.5 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors"
-                                                                >
-                                                                    Cancel
-                                                                </button>
-                                                                <button
-                                                                    onClick={async () => {
-                                                                        toast.dismiss(t.id); // Dismiss confirmation toast
-                                                                        if (project) {
-                                                                            try {
-                                                                                await dispatch(deleteProject(project.id)).unwrap();
-                                                                                toast.success("Project deleted successfully");
-                                                                                navigate("/");
-                                                                            } catch (error) {
-                                                                                toast.error("Failed to delete project");
-                                                                            }
-                                                                        }
-                                                                    }}
-                                                                    className="px-3 py-1.5 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors"
-                                                                >
-                                                                    Delete
-                                                                </button>
-                                                            </div>
-                                                        </div>
-                                                    ), {
-                                                        duration: Infinity, // Don't auto-close
-                                                        position: "top-center",
-                                                        style: {
-                                                            minWidth: '300px',
-                                                        }
-                                                    });
+                                                    setIsMenuDropdownOpen(false);
+                                                    if (activeProject) handleDeleteProject(activeProject.id);
                                                 }}
                                             >
                                                 <Trash2 size={14} />
@@ -333,35 +226,51 @@ const ProjectBoard: React.FC = () => {
                             </div>
                             <div className="flex items-center gap-1.5 px-2.5 py-1 bg-green-50 text-green-700 text-sm font-medium rounded-full">
                                 <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                                <span>{project?.status || "On track"}</span>
+                                <span>{activeProject?.status || "On track"}</span>
                             </div>
                         </div>
 
                         {/* Actions */}
                         <div className="flex items-center gap-3">
                             {/* Avatars */}
+                            {/* Avatars */}
                             <div className="flex -space-x-2 mr-2">
-                                {(project?.members || []).slice(0, 4).map((member, i) => (
-                                    <div key={i} className="w-8 h-8 rounded-full border-2 border-white bg-gray-200 flex items-center justify-center text-xs text-gray-600 font-medium overflow-hidden">
-                                        {member.avatar ? (
-                                            <img src={member.avatar} alt={member.name} className="w-full h-full object-cover" />
-                                        ) : (
-                                            <div className="w-full h-full flex items-center justify-center bg-blue-100 text-blue-600">
-                                                {member.name?.[0] || <User size={16} />}
-                                            </div>
-                                        )}
-                                    </div>
-                                ))}
-                                {(project?.members?.length || 0) > 4 && (
-                                    <div className="w-8 h-8 rounded-full border-2 border-white bg-gray-100 flex items-center justify-center text-xs text-gray-500 font-medium">
-                                        +{(project?.members?.length || 0) - 4}
-                                    </div>
-                                )}
+                                {(() => {
+                                    // Combine members from project and teams
+                                    const allMembers = [
+                                        ...(activeProject?.members || []),
+                                        ...(activeProject?.teams?.flatMap(t => t.members || []) || [])
+                                    ];
+
+                                    // Deduplicate by ID
+                                    const uniqueMembers = Array.from(new Map(allMembers.filter(m => m).map(m => [m!.id, m])).values());
+
+                                    return (
+                                        <>
+                                            {uniqueMembers.slice(0, 4).map((member, i) => (
+                                                <div key={member!.id || i} className="w-8 h-8 rounded-full border-2 border-white bg-gray-200 flex items-center justify-center text-xs text-gray-600 font-medium overflow-hidden">
+                                                    {member!.avatar ? (
+                                                        <img src={member!.avatar} alt={member!.name} className="w-full h-full object-cover" />
+                                                    ) : (
+                                                        <div className="w-full h-full flex items-center justify-center bg-blue-100 text-blue-600">
+                                                            {member!.name?.[0] || <User size={16} />}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            ))}
+                                            {uniqueMembers.length > 4 && (
+                                                <div className="w-8 h-8 rounded-full border-2 border-white bg-gray-100 flex items-center justify-center text-xs text-gray-500 font-medium">
+                                                    +{uniqueMembers.length - 4}
+                                                </div>
+                                            )}
+                                        </>
+                                    );
+                                })()}
                             </div>
 
                             <button className="flex items-center gap-2 px-3 py-1.5 border border-gray-300 rounded-md text-gray-700 text-sm hover:bg-gray-50 bg-white">
                                 <Share2 size={16} />
-                                <span>Share</span>
+                                <span className="text-sm">Share</span>
                             </button>
                             <button
                                 className="flex items-center gap-2 px-3 py-1.5 bg-blue-600 rounded-md text-white text-sm hover:bg-blue-700"
@@ -438,6 +347,7 @@ const ProjectBoard: React.FC = () => {
                 isOpen={isCreateModalOpen}
                 onClose={() => setIsCreateModalOpen(false)}
                 onOpenTemplateLibrary={handleOpenTemplateLibrary}
+                onCreate={handleCreateProject}
             />
 
             <CreateTeamModal
@@ -449,14 +359,11 @@ const ProjectBoard: React.FC = () => {
                 isOpen={isTemplateLibraryOpen}
                 onClose={() => {
                     setIsTemplateLibraryOpen(false);
-                    setIsCreateModalOpen(true); // Re-open project modal on close (back navigation)
+                    setIsCreateModalOpen(true);
                 }}
                 onSelectTemplate={handleSelectTemplate}
             />
 
-
-
-            {/* Task Detail Modal */}
             <TaskDetailModal
                 isOpen={!!selectedTask}
                 onClose={() => setSelectedTask(null)}
@@ -464,59 +371,27 @@ const ProjectBoard: React.FC = () => {
                 onEdit={handleEditTask}
             />
 
-            {/* Create Task Modal (Reused for Edit) */}
             <CreateTaskModal
                 isOpen={isCreateTaskModalOpen}
                 onClose={() => {
                     setIsCreateTaskModalOpen(false);
-                    setTaskToEdit(null); // Reset edit state on close
+                    setTaskToEdit(null);
                 }}
                 initialStatus={modalInitialStatus}
-                task={taskToEdit} // Pass task to edit
-                onCreate={async (taskData) => {
-                    // Create Mode
-                    const finalProjectId = taskData.projectId || activeProject?.id;
-                    if (finalProjectId) {
-                        const payload = { ...taskData, projectId: finalProjectId };
-                        await dispatch(createTask(payload)).unwrap();
-                        toast.success("Task created successfully");
-                    } else {
-                        toast.error("Please select a project");
-                    }
-                }}
-                onUpdate={async (taskId, taskData) => {
-                    // Edit Mode
-                    try {
-                        // We don't need projectId if it's not changed, but payload has it.
-                        // Ensure we pass only what's needed or partial? 
-                        // Our updateTask thunk takes CreateTaskPayload (basically full object) 
-                        // effectively doing a PATCH with what's provided.
-                        await dispatch(updateTask({ id: taskId, data: taskData })).unwrap();
-                        toast.success("Task updated successfully");
-                        // Refresh board handled by thunk updating state? 
-                        // Yes, updateTask.fulfilled updates the task in the list.
-                        // But we might want to refresh to be sure or if other things changed?
-                        // Nah, optimistic/local update in slice is enough usually.
-                        // But let's re-fetch if we suspect side-effects? 
-                        // For now rely on slice.
-                    } catch (err: unknown) {
-                        console.error("Failed to update task:", err);
-                        const errorMessage = err instanceof Error ? err.message : String(err);
-                        toast.error(`Failed to update task: ${errorMessage}`);
-                    }
-                }}
+                task={taskToEdit}
+                onCreate={handleCreateTask}
+                onUpdate={handleUpdateTask}
             />
 
-            {/* Add Event Modal */}
             <AddEventModal
                 isOpen={isAddEventModalOpen}
                 onClose={() => setIsAddEventModalOpen(false)}
                 onAdd={(event) => console.log('New event:', event)}
             />
 
-            {/* Search Popup */}
             <SearchPopup isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
         </div>
     );
 };
+
 export default ProjectBoard;

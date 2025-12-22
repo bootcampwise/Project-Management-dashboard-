@@ -1,8 +1,6 @@
-import React, { useEffect, useState, useRef } from "react";
+import React from "react";
 import { useTeam } from "../hooks/useTeam";
 import Sidebar from "../components/Sidebar/index";
-import { useAppDispatch, useAppSelector } from "../store/hooks";
-import { fetchProjects, setActiveProject } from "../store/slices/projectSlice";
 import {
     Menu,
     Star,
@@ -18,7 +16,6 @@ import {
     Trash2,
 } from "lucide-react";
 import toast from "react-hot-toast";
-import { deleteProject } from "../store/slices/projectSlice";
 import TeamTableView from "../components/Team/TeamTableView";
 import TeamDashboard from "../components/Team/TeamDashboard";
 import TeamMembers from "../components/Team/TeamMembers";
@@ -27,46 +24,6 @@ import CreateTeamModal from "../components/ProjectBoard/CreateTeamModal";
 import SearchPopup from "../components/SearchPopup";
 
 const Team: React.FC = () => {
-    const dispatch = useAppDispatch();
-    const { projects, activeProject } = useAppSelector((state) => state.project);
-
-    // Header Dropdown States
-    const [isProjectDropdownOpen, setIsProjectDropdownOpen] = useState(false);
-    const [isMenuDropdownOpen, setIsMenuDropdownOpen] = useState(false);
-    const menuRef = useRef<HTMLDivElement>(null);
-
-    useEffect(() => {
-        dispatch(fetchProjects());
-    }, [dispatch]);
-
-    // Set default active project if none selected
-    useEffect(() => {
-        if (!activeProject && projects.length > 0) {
-            dispatch(setActiveProject(projects[0]));
-        }
-    }, [projects, activeProject, dispatch]);
-
-    // Close menus when clicking outside
-    useEffect(() => {
-        const handleClickOutside = (event: MouseEvent) => {
-            if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-                setIsProjectDropdownOpen(false);
-                setIsMenuDropdownOpen(false);
-            }
-        };
-
-        document.addEventListener("mousedown", handleClickOutside);
-        return () => {
-            document.removeEventListener("mousedown", handleClickOutside);
-        };
-    }, []);
-
-    const handleSwitchProject = (p: typeof projects[0]) => {
-        dispatch(setActiveProject(p));
-        setIsProjectDropdownOpen(false);
-        setIsMenuDropdownOpen(false);
-    };
-
     const {
         sidebarOpen,
         setSidebarOpen,
@@ -76,7 +33,17 @@ const Team: React.FC = () => {
         setIsSearchOpen,
         isCreateTeamModalOpen,
         setIsCreateTeamModalOpen,
-        tabs
+        tabs,
+        // Data and Handlers from Hook
+        projects,
+        activeProject,
+        isProjectDropdownOpen,
+        setIsProjectDropdownOpen,
+        isMenuDropdownOpen,
+        setIsMenuDropdownOpen,
+        menuRef,
+        handleSwitchProject,
+        handleDeleteProject,
     } = useTeam();
 
     return (
@@ -133,7 +100,7 @@ const Team: React.FC = () => {
                                                 className="w-full text-left px-3 py-2 text-sm text-blue-600 hover:bg-gray-50 flex items-center gap-2"
                                                 onClick={() => {
                                                     setIsProjectDropdownOpen(false);
-                                                    setIsCreateTeamModalOpen(true);
+                                                    setIsCreateTeamModalOpen(true); // Is this right? Create Project or Create Team?
                                                 }}
                                             >
                                                 <Plus size={14} />
@@ -173,6 +140,9 @@ const Team: React.FC = () => {
                                             <button
                                                 className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
                                                 onClick={() => {
+                                                    // Move Toast logic here or keep it inline? 
+                                                    // Since Toast requires UI (confirmation), keeping it inline or moving the confirmation logic to hook?
+                                                    // For now, I'll keep the toast UI here but call handleDeleteProject inside confirm.
                                                     setIsMenuDropdownOpen(false);
                                                     toast((t) => (
                                                         <div className="flex flex-col gap-3 min-w-[250px]">
@@ -190,15 +160,10 @@ const Team: React.FC = () => {
                                                                     Cancel
                                                                 </button>
                                                                 <button
-                                                                    onClick={async () => {
+                                                                    onClick={() => {
                                                                         toast.dismiss(t.id);
                                                                         if (activeProject) {
-                                                                            try {
-                                                                                await dispatch(deleteProject(activeProject.id)).unwrap();
-                                                                                toast.success("Project deleted successfully");
-                                                                            } catch (error) {
-                                                                                toast.error("Failed to delete project");
-                                                                            }
+                                                                            handleDeleteProject(activeProject.id);
                                                                         }
                                                                     }}
                                                                     className="px-3 py-1.5 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors"
@@ -229,7 +194,7 @@ const Team: React.FC = () => {
                         <div className="flex items-center gap-4">
                             <button className="flex items-center gap-2 px-3 py-1.5 border border-gray-300 rounded-md text-gray-700 text-sm hover:bg-gray-50 bg-white">
                                 <Share2 size={16} />
-                                <span>Share</span>
+                                <span className="text-sm">Share</span>
                             </button>
                             <button
                                 className="flex items-center gap-2 px-3 py-1.5 bg-blue-600 rounded-md text-white text-sm hover:bg-blue-700"

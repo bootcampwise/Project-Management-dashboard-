@@ -12,14 +12,14 @@ const BoardView: React.FC<BoardViewProps> = ({ tasks, onTaskClick, onAddTask }) 
 
     // Initial column configuration with visibility state
     const [columns, setColumns] = React.useState([
-        { id: 'BACKLOG', title: 'Backlog', color: 'bg-gray-400', collapsed: false, isVisible: true },
-        { id: 'TODO', title: 'Todo', color: 'bg-blue-500', collapsed: false, isVisible: false },
+        { id: 'BACKLOG', title: 'Backlog', color: 'bg-gray-400', collapsed: false, isVisible: false },
+        { id: 'TODO', title: 'Todo', color: 'bg-blue-500', collapsed: false, isVisible: true },
         { id: 'IN_PROGRESS', title: 'In progress', color: 'bg-green-500', collapsed: false, isVisible: true },
         { id: 'IN_REVIEW', title: 'In Review', color: 'bg-purple-500', collapsed: false, isVisible: false },
-        { id: 'QA', title: 'QA', color: 'bg-yellow-500', collapsed: false, isVisible: true },
-        { id: 'COMPLETED', title: 'Completed', color: 'bg-indigo-500', collapsed: false, isVisible: false },
-        { id: 'POSTPONE', title: 'Postpone', color: 'bg-red-400', collapsed: true, isVisible: true },
-        { id: 'CANCELED', title: 'Canceled', color: 'bg-gray-500', collapsed: false, isVisible: false },
+        { id: 'QA', title: 'QA', color: 'bg-yellow-500', collapsed: false, isVisible: false },
+        { id: 'COMPLETED', title: 'Completed', color: 'bg-indigo-500', collapsed: false, isVisible: true },
+        { id: 'POSTPONE', title: 'Postpone', color: 'bg-red-400', collapsed: false, isVisible: false },
+        { id: 'CANCELED', title: 'Canceled', color: 'bg-gray-500', collapsed: false, isVisible: true },
     ]);
 
     const [isAddSectionOpen, setIsAddSectionOpen] = React.useState(false);
@@ -70,7 +70,7 @@ const BoardView: React.FC<BoardViewProps> = ({ tasks, onTaskClick, onAddTask }) 
 
     return (
         <DragDropContext onDragEnd={handleDragEnd}>
-            <div className="flex h-full w-full gap-4 pb-4 overflow-hidden">
+            <div className="flex h-full w-full gap-4 pb-4 overflow-x-auto">
                 {visibleColumns.map((col) => (
                     <div
                         key={col.id}

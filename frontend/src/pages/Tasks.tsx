@@ -1,81 +1,46 @@
-import React, { useState } from 'react';
+import React from 'react';
 import Sidebar from '../components/Sidebar/index';
 import { Menu, Search, Filter, ArrowUpDown, Plus, Calendar, MessageSquare, Paperclip, FileText, Layout, List } from 'lucide-react';
-import { useTasks } from '../hooks/useTasks';
 import TaskDetailModal from '../components/ProjectBoard/TaskDetailModal';
 import CreateTaskModal from '../components/ProjectBoard/CreateTaskModal';
 import BoardColumn from '../components/ProjectBoard/BoardColumn';
 import { useTasksPage } from '../hooks/useTasksPage';
-
 import { DragDropContext } from '@hello-pangea/dnd';
-import { useDispatch } from 'react-redux';
-import type { AppDispatch } from '../store';
-import { updateTaskStatus } from '../store/slices/taskSlice';
 
 const Tasks: React.FC = () => {
-    const dispatch = useDispatch<AppDispatch>();
     const {
+        // Global State & Data
         sidebarOpen,
         setSidebarOpen,
         activeView,
         setActiveView,
-        tasks,
         getPriorityColor,
-    } = useTasks();
 
-    const {
+        // Local Page Data & State
         selectedTask,
         taskToEdit,
         isCreateTaskModalOpen,
         modalInitialStatus,
+        isAddSectionOpen,
+        setIsAddSectionOpen,
+        columns,
+        visibleColumns,
+        hiddenColumns,
+
+        // Handlers
         handleTaskClick,
         handleOpenCreateTask,
         handleCreateTask,
         handleEditTask,
         handleUpdateTask,
         closeTaskDetail,
-        closeCreateTaskModal
+        closeCreateTaskModal,
+        handleToggleColumn,
+        handleHideColumn,
+        handleShowColumn,
+        handleDragEnd,
+        getTasksByStatus,
     } = useTasksPage();
-
-    // Initial column configuration with visibility state
-    const [columns, setColumns] = useState([
-        { id: 'BACKLOG', title: 'Backlog', color: 'bg-gray-400', collapsed: false, isVisible: true },
-        { id: 'TODO', title: 'Todo', color: 'bg-blue-500', collapsed: false, isVisible: true },
-        { id: 'IN_PROGRESS', title: 'In progress', color: 'bg-green-500', collapsed: false, isVisible: true },
-        { id: 'IN_REVIEW', title: 'In Review', color: 'bg-purple-500', collapsed: false, isVisible: true },
-        { id: 'QA', title: 'QA', color: 'bg-yellow-500', collapsed: false, isVisible: true },
-        { id: 'COMPLETED', title: 'Completed', color: 'bg-indigo-500', collapsed: false, isVisible: true },
-        { id: 'POSTPONE', title: 'Postpone', color: 'bg-red-400', collapsed: true, isVisible: true },
-        { id: 'CANCELED', title: 'Canceled', color: 'bg-gray-500', collapsed: false, isVisible: true },
-    ]);
-
-    const [isAddSectionOpen, setIsAddSectionOpen] = useState(false);
-
-    const getTasksByStatus = (status: string) => {
-        return tasks.filter(task => task.status === status);
-    };
-
-    const handleToggleColumn = (columnId: string) => {
-        setColumns(prev => prev.map(col =>
-            col.id === columnId ? { ...col, collapsed: !col.collapsed } : col
-        ));
-    };
-
-    const handleHideColumn = (columnId: string) => {
-        setColumns(prev => prev.map(col =>
-            col.id === columnId ? { ...col, isVisible: false } : col
-        ));
-    };
-
-    const handleShowColumn = (columnId: string) => {
-        setColumns(prev => prev.map(col =>
-            col.id === columnId ? { ...col, isVisible: true } : col
-        ));
-        setIsAddSectionOpen(false);
-    };
-
-    const visibleColumns = columns.filter(col => col.isVisible);
-    const hiddenColumns = columns.filter(col => !col.isVisible);
 
     return (
         <div className="flex h-screen bg-white relative font-sans">
@@ -91,7 +56,7 @@ const Tasks: React.FC = () => {
             <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
             {/* Main content */}
-            <main className="flex-1 overflow-y-auto bg-white">
+            <main className={`flex-1 flex flex-col bg-white ${activeView === 'kanban' ? 'overflow-hidden' : 'overflow-y-auto'}`}>
                 <div className={`flex-1 flex flex-col transition-all duration-300 ${!sidebarOpen ? 'pt-16 md:pt-0 md:pl-16' : ''}`}>
                     {/* Header */}
                     <div className="bg-white border-b border-gray-200 px-6 py-4">
@@ -124,7 +89,7 @@ const Tasks: React.FC = () => {
                             </div>
 
                             {/* Right: Actions */}
-                            <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-3 flex-wrap">
                                 <div className="flex items-center gap-2 px-3 py-2 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
                                     <Search size={16} className="text-gray-400" />
                                     <span className="text-sm text-gray-500">Search</span>
@@ -150,28 +115,13 @@ const Tasks: React.FC = () => {
 
                     {/* Kanban Board */}
                     {activeView === 'kanban' ? (
-                        <DragDropContext onDragEnd={(result) => {
-                            const { destination, source, draggableId } = result;
-
-                            if (!destination) return;
-
-                            if (
-                                destination.droppableId === source.droppableId &&
-                                destination.index === source.index
-                            ) {
-                                return;
-                            }
-
-                            const newStatus = destination.droppableId;
-                            dispatch(updateTaskStatus({ id: draggableId, status: newStatus }));
-
-                        }}>
-                            <div className="p-6 h-full overflow-x-auto">
+                        <DragDropContext onDragEnd={handleDragEnd}>
+                            <div className="p-6 flex-1 overflow-x-auto min-h-0">
                                 <div className="flex h-full w-full gap-4 pb-4">
                                     {visibleColumns.map((col) => (
                                         <div
                                             key={col.id}
-                                            className={`h-full transition-all duration-300 ${col.collapsed ? 'w-12 min-w-[48px]' : 'flex-1 min-w-0'}`}
+                                            className={`h-full transition-all duration-300 ${col.collapsed ? 'w-12 min-w-[48px]' : 'flex-1 min-w-[280px]'}`}
                                         >
                                             <BoardColumn
                                                 title={col.title}
@@ -205,7 +155,7 @@ const Tasks: React.FC = () => {
                                                     className="fixed inset-0 z-10"
                                                     onClick={() => setIsAddSectionOpen(false)}
                                                 />
-                                                <div className="absolute left-0 top-8 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-20 py-1">
+                                                <div className="absolute right-0 top-8 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-20 py-1">
                                                     {hiddenColumns.map(col => (
                                                         <button
                                                             key={col.id}
@@ -226,7 +176,7 @@ const Tasks: React.FC = () => {
                                                     className="fixed inset-0 z-10"
                                                     onClick={() => setIsAddSectionOpen(false)}
                                                 />
-                                                <div className="absolute left-0 top-8 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-20 py-2 px-4 text-sm text-gray-500">
+                                                <div className="absolute right-0 top-8 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-20 py-2 px-4 text-sm text-gray-500">
                                                     All sections visible
                                                 </div>
                                             </>
@@ -251,7 +201,7 @@ const Tasks: React.FC = () => {
 
                                 {/* Table Rows */}
                                 <div className="divide-y divide-gray-100">
-                                    {visibleColumns.flatMap((column) =>
+                                    {columns.flatMap((column) =>
                                         getTasksByStatus(column.id).map((task) => (
                                             <div
                                                 key={task.id}

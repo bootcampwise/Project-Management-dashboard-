@@ -1,6 +1,6 @@
 import { AppError } from "../middlewares/error.middleware";
 import { UserRepository } from "../repositories/user.repository";
-import { UpdateUserInput } from "../types/user.types";
+import { CreateUserInput, UpdateUserInput } from "../types/user.types";
 
 export class UserService {
   private userRepository: UserRepository;

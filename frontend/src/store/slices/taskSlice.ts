@@ -174,9 +174,16 @@ const taskSlice = createSlice({
     });
 
     // Update Task Status
-    builder.addCase(updateTaskStatus.pending, (state) => {
-      // Optimistic update can happen in component, or here if we pass full task
-      // state.isLoading = true;
+    builder.addCase(updateTaskStatus.pending, (state, action) => {
+      // Optimistic update
+      const { id, status } = action.meta.arg;
+      const index = state.tasks.findIndex((t) => t.id === id);
+      if (index !== -1) {
+        state.tasks[index].status = status as Task["status"];
+      }
+      if (state.selectedTask?.id === id) {
+        state.selectedTask.status = status as Task["status"];
+      }
     });
     builder.addCase(updateTaskStatus.fulfilled, (state, action) => {
       const index = state.tasks.findIndex((t) => t.id === action.payload.id);
@@ -186,6 +193,11 @@ const taskSlice = createSlice({
       if (state.selectedTask?.id === action.payload.id) {
         state.selectedTask = action.payload;
       }
+    });
+    builder.addCase(updateTaskStatus.rejected, (state, action) => {
+      state.error = action.payload as string;
+      // We might want to revert the optimistic update here, but we lack the previous status.
+      // Ideally, we would trigger a re-fetch of tasks to sync state.
     });
   },
 });

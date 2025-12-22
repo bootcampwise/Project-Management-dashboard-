@@ -220,7 +220,7 @@ export class TaskRepository {
     return { ...createdTask, tags };
   }
 
-  async update(taskId: string, data: UpdateTaskInput) {
+  async update(taskId: string, data: UpdateTaskInput, userId: string) {
     const { tags, dueDate, attachments, ...rest } = data as any;
 
     // Explicitly construct updateData to avoid 'any'
@@ -250,10 +250,12 @@ export class TaskRepository {
 
     // Attachments are removed from rest via destructuring, so no need to delete
 
-    return prisma.task.update({
+    await prisma.task.update({
       where: { id: taskId },
       data: updateData,
     });
+
+    return this.findByIdAndUserId(taskId, userId);
   }
 
   async softDelete(taskId: string) {
@@ -271,10 +273,11 @@ export class TaskRepository {
       },
     });
   }
-  async updateStatus(taskId: string, status: string) {
-    return prisma.task.update({
+  async updateStatus(taskId: string, status: string, userId: string) {
+    await prisma.task.update({
       where: { id: taskId },
       data: { status: status as TaskStatus },
     });
+    return this.findByIdAndUserId(taskId, userId);
   }
 }

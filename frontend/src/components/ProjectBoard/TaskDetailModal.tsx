@@ -102,7 +102,7 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
             const { data: { user: currentUser } } = await supabase.auth.getUser();
             if (!currentUser) throw new Error("Authentication required");
 
-            const fileExt = file.name.split('.').pop();
+            // const fileExt = file.name.split('.').pop();
             const fileName = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
             const filePath = `${currentUser.id}/${fileName}`;
 

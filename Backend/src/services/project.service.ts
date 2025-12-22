@@ -1,7 +1,8 @@
 import { AppError } from "../middlewares/error.middleware";
-import { CreateProjectInput, UpdateProjectInput } from "../types/project.types";
+
 import { ProjectRepository } from "../repositories/project.repository";
 import { TeamService } from "./team.service";
+import { CreateProjectInput, UpdateProjectInput } from "../types/project.types";
 
 export class ProjectService {
   private projectRepository: ProjectRepository;

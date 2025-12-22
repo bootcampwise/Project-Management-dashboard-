@@ -1,7 +1,7 @@
 import React from 'react';
 import { X, Upload, File } from 'lucide-react';
 
-import type { CreateTaskPayload, CreateTaskModalProps } from '../../types';
+import type { CreateTaskModalProps } from '../../types';
 
 import { useCreateTaskModal } from '../../hooks/useCreateTaskModal';
 
@@ -11,7 +11,7 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ isOpen, onClose, onCr
         title, setTitle,
         status, setStatus,
         priority, setPriority,
-        tags, setTags,
+        tags,
         tagInput, setTagInput,
         handleAddTag, handleRemoveTag,
         description, setDescription,

@@ -15,19 +15,24 @@ const TableView: React.FC<ExtendedTableViewProps> = ({ onTaskClick, tasks }) => 
             {groups.map((group) => (
                 <div key={group.id} className="mb-6">
                     {/* Group Header */}
-                    <div className="flex items-center gap-3 mb-3 px-2">
+                    <div className="flex items-center gap-1.5 mb-3 px-2 group/header">
                         <button
                             onClick={() => toggleGroup(group.id)}
                             className="text-gray-400 hover:text-gray-600"
                         >
-                            {group.isCollapsed ? <ChevronRight size={18} /> : <ChevronDown size={18} />}
+                            {group.isCollapsed ? <ChevronRight size={16} /> : <ChevronDown size={16} />}
                         </button>
-                        <div className={`w - 2.5 h - 2.5 rounded - full bg - ${group.color} -500`}></div>
+                        <div className={`w-2 h-2 rounded-full bg-${group.color}-500`}></div>
                         <h3 className="text-sm font-semibold text-gray-700">{group.title}</h3>
-                        <span className="text-xs text-gray-400">{group.count}</span>
-                        <button className="ml-auto text-gray-400 hover:text-gray-600">
-                            <MoreHorizontal size={16} />
-                        </button>
+                        <span className="text-xs text-gray-400 font-normal">{group.count}</span>
+                        <div className="flex items-center gap-1 ml-1 opacity-0 group-hover/header:opacity-100 transition-opacity">
+                            <button className="text-gray-400 hover:text-gray-600 p-0.5 rounded hover:bg-gray-100">
+                                <MoreHorizontal size={14} />
+                            </button>
+                            <button className="text-gray-400 hover:text-gray-600 p-0.5 rounded hover:bg-gray-100">
+                                <Plus size={14} />
+                            </button>
+                        </div>
                     </div>
 
                     {/* Group Content */}
@@ -39,7 +44,9 @@ const TableView: React.FC<ExtendedTableViewProps> = ({ onTaskClick, tasks }) => 
                                 <div>Assignee</div>
                                 <div>Due date</div>
                                 <div>Label</div>
-                                <div></div>
+                                <div className="flex justify-end pr-1">
+                                    <Plus size={14} className="text-gray-400 cursor-pointer hover:text-gray-600" />
+                                </div>
                             </div>
 
                             {/* Tasks */}
@@ -52,14 +59,14 @@ const TableView: React.FC<ExtendedTableViewProps> = ({ onTaskClick, tasks }) => 
                                             onClick={() => onTaskClick && onTaskClick(task)}
                                         >
                                             {/* Name Column */}
-                                            <div className="flex items-center gap-3 min-w-0">
+                                            <div className="flex items-center gap-3 min-w-0 pr-4">
                                                 <button className="text-gray-300 hover:text-blue-500" onClick={(e) => e.stopPropagation()}>
                                                     <CheckCircle2 size={18} />
                                                 </button>
-                                                <span className="text-gray-800 truncate">{task.name}</span>
+                                                <span className="text-gray-800 truncate flex-1 font-medium">{task.name}</span>
 
                                                 {/* Metadata icons beside name */}
-                                                <div className="flex items-center gap-2 text-gray-400 shrink-0">
+                                                <div className="flex items-center gap-2 text-gray-400 shrink-0 ml-2">
                                                     {task.comments ? (
                                                         <span className="flex items-center gap-1 text-xs">
                                                             {task.comments} <span className="text-[10px]">💬</span>

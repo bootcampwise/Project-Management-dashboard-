@@ -1,11 +1,12 @@
 import { AppError } from "../middlewares/error.middleware";
+
+import { TaskRepository } from "../repositories/task.repository";
+import { ProjectRepository } from "../repositories/project.repository";
 import {
   CreateTaskInput,
   UpdateTaskInput,
   AttachmentMetadata,
 } from "../types/task.types";
-import { TaskRepository } from "../repositories/task.repository";
-import { ProjectRepository } from "../repositories/project.repository";
 
 export class TaskService {
   private taskRepository: TaskRepository;
@@ -69,7 +70,7 @@ export class TaskService {
       throw new AppError("Access denied to this task", 403);
     }
 
-    const updated = await this.taskRepository.update(taskId, data);
+    const updated = await this.taskRepository.update(taskId, data, userId);
 
     return updated;
   }
@@ -97,7 +98,7 @@ export class TaskService {
     if (!task) {
       throw new AppError("Access denied to this task", 403);
     }
-    return this.taskRepository.updateStatus(taskId, status);
+    return this.taskRepository.updateStatus(taskId, status, userId);
   }
 
   async addSubtask(taskId: string, userId: string, title: string) {

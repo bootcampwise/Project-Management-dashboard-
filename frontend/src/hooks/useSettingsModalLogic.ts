@@ -5,6 +5,7 @@ import type { RootState, AppDispatch } from "../store";
 import { updateUserProfile, signOut } from "../store/slices/authSlice";
 import { fetchTeams } from "../store/slices/teamSlice";
 import { supabase } from "../lib/supabase";
+import { useTheme } from "./useTheme";
 
 export const useSettingsModalLogic = (
   initialTab: string,
@@ -14,6 +15,7 @@ export const useSettingsModalLogic = (
   const navigate = useNavigate();
   const { user } = useSelector((state: RootState) => state.auth);
   const { teams } = useSelector((state: RootState) => state.team);
+  const { theme, toggleTheme } = useTheme();
 
   const [activeTab, setActiveTab] = useState("Profile");
   const [uploading, setUploading] = useState(false);
@@ -129,6 +131,8 @@ export const useSettingsModalLogic = (
     uploading,
     fileInputRef,
     teams,
+    theme,
+    toggleTheme,
     handleTabChange,
     handleInputChange,
     handlePhotoUpload,

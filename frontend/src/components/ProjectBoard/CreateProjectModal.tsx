@@ -1,20 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { X, Sparkles, ChevronDown } from 'lucide-react';
-
-
-
-import { useAppSelector, useAppDispatch } from '../../store/hooks';
 import { fetchTeams } from '../../store/slices/teamSlice';
-import { createProject } from '../../store/slices/projectSlice';
+// Removed createProject import
+import { useAppSelector, useAppDispatch } from '../../store/hooks';
 import { toast } from 'react-hot-toast';
+import type { CreateProjectPayload } from '../../types';
 
 interface CreateProjectModalProps {
     isOpen: boolean;
     onClose: () => void;
     onOpenTemplateLibrary: () => void;
+    onCreate: (data: CreateProjectPayload) => Promise<void>;
 }
 
-const CreateProjectModal: React.FC<CreateProjectModalProps> = ({ isOpen, onClose, onOpenTemplateLibrary }) => {
+const CreateProjectModal: React.FC<CreateProjectModalProps> = ({ isOpen, onClose, onOpenTemplateLibrary, onCreate }) => {
     const dispatch = useAppDispatch();
     const { teams } = useAppSelector(state => state.team);
 
@@ -40,20 +39,20 @@ const CreateProjectModal: React.FC<CreateProjectModalProps> = ({ isOpen, onClose
 
         try {
             setIsCreating(true);
-            await dispatch(createProject({
+            await onCreate({
                 name: projectName,
                 description,
                 dueDate: dueDate || undefined,
                 teamId: selectedTeamId || undefined,
                 privacy,
-            })).unwrap();
-
-            toast.success("Create project successfully");
+            });
+            // Toast handling is done in the parent/hook usually, but if we want it here:
+            // toast.success("Create project successfully");
+            // onClose is called by parent usually? No, onCreate promise returns then we close.
             onClose();
         } catch (error: unknown) {
+            // Let parent handle error logging or do it here?
             console.error("Failed to create project:", error);
-            const message = error instanceof Error ? error.message : "Failed to create project";
-            toast.error(message);
         } finally {
             setIsCreating(false);
         }

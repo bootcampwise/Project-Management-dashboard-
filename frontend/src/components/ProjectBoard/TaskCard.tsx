@@ -3,7 +3,7 @@ import { MessageSquare, Paperclip } from 'lucide-react';
 
 import type { TaskCardComponentProps } from '../../types';
 
-const TaskCard: React.FC<TaskCardComponentProps> = ({ title, project, description, priority, tags = [], assignee, assignees, comments = 0, attachments = 0, date, onClick }) => {
+const TaskCard: React.FC<TaskCardComponentProps> = ({ title, tags = [], assignee, assignees, comments = 0, attachments = 0, date, onClick }) => {
 
     // Format date to "MMM D" e.g., Sep 22
     const formatDate = (dateString?: string) => {
@@ -51,12 +51,12 @@ const TaskCard: React.FC<TaskCardComponentProps> = ({ title, project, descriptio
             )}
 
             {/* Footer */}
-            <div className="flex items-center justify-between mt-1">
+            <div className="flex items-center justify-between mt-1 flex-wrap gap-y-2">
                 {/* Assignee (Avatar + Name) */}
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 min-w-0">
                     {assignees && assignees.length > 0 ? (
-                        <div className="flex items-center gap-2">
-                            <div className="w-5 h-5 rounded-full overflow-hidden">
+                        <div className="flex items-center gap-2 min-w-0">
+                            <div className="w-5 h-5 rounded-full overflow-hidden flex-shrink-0">
                                 {assignees[0].avatar ? (
                                     <img src={assignees[0].avatar} alt={assignees[0].name} className="w-full h-full object-cover" />
                                 ) : (
@@ -65,11 +65,11 @@ const TaskCard: React.FC<TaskCardComponentProps> = ({ title, project, descriptio
                                     </div>
                                 )}
                             </div>
-                            <span className="text-xs text-gray-500">{assignees[0].name.split(' ')[0]}</span>
+                            <span className="text-xs text-gray-500 truncate">{assignees[0].name.split(' ')[0]}</span>
                         </div>
                     ) : assignee ? (
-                        <div className="flex items-center gap-2">
-                            <div className="w-5 h-5 rounded-full overflow-hidden">
+                        <div className="flex items-center gap-2 min-w-0">
+                            <div className="w-5 h-5 rounded-full overflow-hidden flex-shrink-0">
                                 {assignee.avatar ? (
                                     <img src={assignee.avatar} alt={assignee.name} className="w-full h-full object-cover" />
                                 ) : (
@@ -78,17 +78,17 @@ const TaskCard: React.FC<TaskCardComponentProps> = ({ title, project, descriptio
                                     </div>
                                 )}
                             </div>
-                            <span className="text-xs text-gray-500">{assignee.name.split(' ')[0]}</span>
+                            <span className="text-xs text-gray-500 truncate">{assignee.name.split(' ')[0]}</span>
                         </div>
                     ) : (
                         <div className="flex items-center gap-2">
-                            <div className="w-5 h-5 rounded-full bg-gray-100 border border-dashed border-gray-300"></div>
+                            <div className="w-5 h-5 rounded-full bg-gray-100 border border-dashed border-gray-300 flex-shrink-0"></div>
                         </div>
                     )}
                 </div>
 
                 {/* Meta (Comments, Attachments, Date) */}
-                <div className="flex items-center gap-3 text-gray-400 text-xs">
+                <div className="flex items-center gap-3 text-gray-400 text-xs flex-shrink-0 ml-2">
                     {(comments > 0 || attachments > 0) && (
                         <div className="flex items-center gap-2">
                             {(comments || 0) > 0 && (
@@ -107,7 +107,7 @@ const TaskCard: React.FC<TaskCardComponentProps> = ({ title, project, descriptio
                     )}
 
                     {date && (
-                        <span className="text-gray-400 font-medium text-[11px]">{formatDate(date)}</span>
+                        <span className="text-gray-400 font-medium text-[11px] whitespace-nowrap">{formatDate(date)}</span>
                     )}
                 </div>
             </div>

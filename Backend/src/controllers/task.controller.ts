@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { TaskService } from "../services/task.service";
 import { sendSuccess } from "../utils/response";
-import { CreateTaskInput, UpdateTaskInput } from "../types/task.types";
+
 import { UserService } from "../services/user.service";
 
 const taskService = new TaskService();

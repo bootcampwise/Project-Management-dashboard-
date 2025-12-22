@@ -267,7 +267,7 @@ export const useCreateTaskModal = ({
           // Skip if it's already an uploaded attachment (checking if it has metadata structure)
           // But here attachments state is File[], so we assume new uploads.
 
-          const fileExt = file.name.split(".").pop();
+          // const fileExt = file.name.split(".").pop();
           const fileName = `${Date.now()}-${file.name.replace(
             /[^a-zA-Z0-9.-]/g,
             "_"
