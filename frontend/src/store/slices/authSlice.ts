@@ -309,8 +309,25 @@ const authSlice = createSlice({
         state.isLoading = false;
         if (action.payload) {
           // payload is now the merged user object
-          // @ts-ignore
-          state.user = action.payload;
+          state.user = {
+            id: action.payload.id,
+            email: action.payload.email || "",
+            name: action.payload.name || action.payload.email || "User",
+            avatar: action.payload.avatar,
+            jobTitle:
+              "jobTitle" in action.payload
+                ? action.payload.jobTitle
+                : undefined,
+            department:
+              "department" in action.payload
+                ? action.payload.department
+                : undefined,
+            hasCompletedOnboarding:
+              "hasCompletedOnboarding" in action.payload
+                ? action.payload.hasCompletedOnboarding
+                : undefined,
+            createdAt: action.payload.createdAt,
+          };
           state.isAuthenticated = true;
         } else {
           state.user = null;
@@ -370,8 +387,16 @@ const authSlice = createSlice({
       .addCase(signInWithEmail.fulfilled, (state, action) => {
         state.isLoading = false;
         if (action.payload) {
-          // @ts-ignore
-          state.user = action.payload;
+          state.user = {
+            id: action.payload.id,
+            email: action.payload.email || "",
+            name: action.payload.name || action.payload.email || "User",
+            avatar: action.payload.avatar,
+            jobTitle: action.payload.jobTitle,
+            department: action.payload.department,
+            hasCompletedOnboarding: action.payload.hasCompletedOnboarding,
+            createdAt: action.payload.createdAt,
+          };
           state.isAuthenticated = true;
         }
       })

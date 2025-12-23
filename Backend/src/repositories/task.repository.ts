@@ -6,18 +6,13 @@ import {
   AttachmentMetadata,
 } from "../types/task.types";
 
-// ... existing imports
 
 export class TaskRepository {
-  // ... existing methods
 
   async findManyByUserId(userId: string) {
     const tasks = await prisma.task.findMany({
       where: {
-        // REMOVED project visibility filter to allow ALL tasks to be seen by logged in users
-        // project: {
-        //   OR: [{ ownerId: userId }, { memberIds: { has: userId } }],
-        // },
+        
         isDeleted: false,
       },
       include: {
@@ -52,7 +47,7 @@ export class TaskRepository {
         },
       },
       orderBy: {
-        updatedAt: "desc", // Good practice to have predictable order
+        updatedAt: "desc", 
       },
     });
 
@@ -133,7 +128,6 @@ export class TaskRepository {
 
     if (!task) return null;
 
-    // Fetch tags manually
     const tags = await prisma.tag.findMany({
       where: {
         id: { in: task.tagIds },
@@ -169,10 +163,7 @@ export class TaskRepository {
     projectId: string,
     files?: AttachmentMetadata[]
   ) {
-    // Basic validations or transformations can happen here if needed.
-    // data.dueDate is a string, we might need to cast to Date if not handled by Prisma automatically (Prisma usually expects Date object for DateTime fields).
-
-    // Process tags
+   
     const processedTagIds: string[] = [];
     if (data.tags && Array.isArray(data.tags)) {
       for (const tagText of data.tags) {
@@ -193,7 +184,6 @@ export class TaskRepository {
         status: data.status,
         priority: data.priority,
         dueDate: data.dueDate ? new Date(data.dueDate) : undefined,
-        // Handling Many-to-Many Assignees
         assigneeIds: data.assigneeIds || [],
         projectId: projectId,
         creatorId: creatorId,
@@ -202,7 +192,7 @@ export class TaskRepository {
           create:
             files?.map((file) => ({
               name: file.name,
-              url: file.filePath, // We store the relative path/key from Supabase
+              url: file.filePath, 
               size: file.size,
               mimeType: file.mimeType,
               userId: creatorId,
@@ -229,7 +219,6 @@ export class TaskRepository {
       },
     });
 
-    // Manually fetch tags to return with the task (since explicit relation is missing in Prisma schema for include)
     const tags = await prisma.tag.findMany({
       where: { id: { in: processedTagIds } },
     });
@@ -240,36 +229,30 @@ export class TaskRepository {
   async update(taskId: string, data: UpdateTaskInput, userId: string) {
     const { tags, dueDate, ...rest } = data;
 
-    // Explicitly construct updateData to strictly type-check and avoid ANY
     const updateData: Prisma.TaskUpdateInput = {
       title: rest.title,
       description: rest.description,
       priority: rest.priority,
       status: rest.status,
-      // assigneeIds is not directly updateable in Prisma UpdateInput, usage of relation is required
-      // actualHours: rest.actualHours, // Assuming these exist
-      // actualCost: rest.actualCost,
+
     };
 
     if (rest.actualHours !== undefined)
       updateData.actualHours = rest.actualHours;
     if (rest.actualCost !== undefined) updateData.actualCost = rest.actualCost;
 
-    // Remove undefined fields
     Object.keys(updateData).forEach(
       (key) =>
         updateData[key as keyof Prisma.TaskUpdateInput] === undefined &&
         delete updateData[key as keyof Prisma.TaskUpdateInput]
     );
 
-    // Handle Assignees Relation
     if (rest.assigneeIds) {
       updateData.assignees = {
         set: rest.assigneeIds.map((id) => ({ id })),
       };
     }
 
-    // Handle Tags: convert ["tag1"] to tagIds
     if (tags && Array.isArray(tags)) {
       const processedTagIds: string[] = [];
       for (const tagText of tags) {
@@ -284,7 +267,6 @@ export class TaskRepository {
       updateData.tagIds = processedTagIds;
     }
 
-    // Handle Date
     if (dueDate) {
       updateData.dueDate = new Date(dueDate);
     }
@@ -305,7 +287,7 @@ export class TaskRepository {
   }
 
   async hardDelete(taskId: string) {
-    // Get attachments before deleting (to delete from Supabase storage later if needed)
+
     const task = await prisma.task.findUnique({
       where: { id: taskId },
       select: {
@@ -315,13 +297,12 @@ export class TaskRepository {
       },
     });
 
-    // Delete the task - Prisma cascade will delete:
-    // - attachments, comments, subtasks, time tracking, history
+
     await prisma.task.delete({
       where: { id: taskId },
     });
 
-    // Return attachment URLs for potential Supabase cleanup
+
     return task?.attachments.map((a) => a.url) || [];
   }
   async createSubtask(taskId: string, title: string, createdById: string) {
@@ -355,7 +336,7 @@ export class TaskRepository {
     assigneeId: string,
     action: "add" | "remove"
   ) {
-    // Get current assignees
+
     const subtask = await prisma.subTask.findUnique({
       where: { id: subtaskId },
       select: { assigneeIds: true },
@@ -365,12 +346,12 @@ export class TaskRepository {
 
     let newAssigneeIds: string[];
     if (action === "add") {
-      // Add assignee if not already assigned
+
       newAssigneeIds = subtask.assigneeIds.includes(assigneeId)
         ? subtask.assigneeIds
         : [...subtask.assigneeIds, assigneeId];
     } else {
-      // Remove assignee
+
       newAssigneeIds = subtask.assigneeIds.filter((id) => id !== assigneeId);
     }
 
@@ -409,7 +390,6 @@ export class TaskRepository {
       data: { status: status as TaskStatus },
     });
 
-    // If status is COMPLETED, mark all subtasks as completed
     if (status === "COMPLETED") {
       await prisma.subTask.updateMany({
         where: { taskId: taskId },

@@ -12,7 +12,6 @@ router.patch("/:id", authMiddleware, taskController.updateTask);
 router.patch("/:id/status", authMiddleware, taskController.updateStatus);
 router.delete("/:id", authMiddleware, taskController.deleteTask);
 
-// Subtask routes
 router.post("/:id/subtasks", authMiddleware, taskController.addSubtask);
 router.delete(
   "/:id/subtasks/:subtaskId",

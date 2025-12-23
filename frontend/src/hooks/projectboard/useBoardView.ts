@@ -4,7 +4,60 @@ import type { AppDispatch } from "../../store";
 import { updateTaskStatus } from "../../store/slices/taskSlice";
 import type { DropResult } from "@hello-pangea/dnd";
 import type { BoardColumnState } from "../../types";
-import { DEFAULT_COLUMNS } from "../../constants/colors";
+
+// Default column configuration for the board view
+const DEFAULT_COLUMNS: BoardColumnState[] = [
+  {
+    id: "BACKLOG",
+    title: "Backlog",
+    color: "gray",
+    collapsed: false,
+    isVisible: true,
+  },
+  {
+    id: "TODO",
+    title: "To Do",
+    color: "blue",
+    collapsed: false,
+    isVisible: true,
+  },
+  {
+    id: "IN_PROGRESS",
+    title: "In Progress",
+    color: "green",
+    collapsed: false,
+    isVisible: true,
+  },
+  {
+    id: "IN_REVIEW",
+    title: "In Review",
+    color: "purple",
+    collapsed: false,
+    isVisible: true,
+  },
+  { id: "QA", title: "QA", color: "yellow", collapsed: false, isVisible: true },
+  {
+    id: "COMPLETED",
+    title: "Completed",
+    color: "indigo",
+    collapsed: false,
+    isVisible: true,
+  },
+  {
+    id: "POSTPONE",
+    title: "Postponed",
+    color: "red",
+    collapsed: false,
+    isVisible: true,
+  },
+  {
+    id: "CANCELED",
+    title: "Canceled",
+    color: "gray",
+    collapsed: false,
+    isVisible: true,
+  },
+];
 
 export const useBoardView = () => {
   const dispatch = useDispatch<AppDispatch>();

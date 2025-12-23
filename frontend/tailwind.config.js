@@ -4,100 +4,159 @@ export default {
   darkMode: "class",
   theme: {
     extend: {
-      // Colors - only those actually used in project
       colors: {
+        // Primary - Blue (buttons, links, focus states)
         blue: {
-          50: "var(--color-blue-50)",
-          100: "var(--color-blue-100)",
-          200: "var(--color-blue-200)",
-          300: "var(--color-blue-300)",
-          400: "var(--color-blue-400)",
-          500: "var(--color-blue-500)",
-          600: "var(--color-blue-600)",
-          700: "var(--color-blue-700)",
+          50: "#eff6ff",
+          100: "#dbeafe",
+          200: "#bfdbfe",
+          300: "#93c5fd",
+          400: "#60a5fa",
+          500: "#3b82f6",
+          600: "#2563eb",
+          700: "#1d4ed8",
+          800: "#1e40af",
         },
+        // Gray - UI elements (text, borders, backgrounds)
         gray: {
-          50: "var(--color-gray-50)",
-          100: "var(--color-gray-100)",
-          200: "var(--color-gray-200)",
-          300: "var(--color-gray-300)",
-          400: "var(--color-gray-400)",
-          500: "var(--color-gray-500)",
-          600: "var(--color-gray-600)",
-          700: "var(--color-gray-700)",
-          800: "var(--color-gray-800)",
-          900: "var(--color-gray-900)",
+          50: "#f9fafb",
+          100: "#f3f4f6",
+          200: "#e5e7eb",
+          300: "#d1d5db",
+          400: "#9ca3af",
+          500: "#6b7280",
+          600: "#4b5563",
+          700: "#374151",
+          800: "#1f2937",
+          900: "#111827",
         },
+        // Green - Success states
         green: {
-          50: "var(--color-green-50)",
-          100: "var(--color-green-100)",
-          200: "var(--color-green-200)",
-          300: "var(--color-green-300)",
-          400: "var(--color-green-400)",
-          500: "var(--color-green-500)",
-          600: "var(--color-green-600)",
-          700: "var(--color-green-700)",
+          50: "#f0fdf4",
+          100: "#dcfce7",
+          200: "#bbf7d0",
+          300: "#86efac",
+          400: "#4ade80",
+          500: "#22c55e",
+          600: "#16a34a",
+          700: "#15803d",
         },
-        orange: {
-          50: "var(--color-orange-50)",
-          100: "var(--color-orange-100)",
-          300: "var(--color-orange-300)",
-          400: "var(--color-orange-400)",
-          500: "var(--color-orange-500)",
-          600: "var(--color-orange-600)",
-        },
+        // Red - Errors, high priority
         red: {
-          50: "var(--color-red-50)",
-          600: "var(--color-red-600)",
+          50: "#fef2f2",
+          100: "#fee2e2",
+          200: "#fecaca",
+          400: "#f87171",
+          500: "#ef4444",
+          600: "#dc2626",
+          700: "#b91c1c",
         },
-        purple: {
-          100: "var(--color-purple-100)",
-          600: "var(--color-purple-600)",
+        // Orange - Warnings
+        orange: {
+          50: "#fff7ed",
+          100: "#ffedd5",
+          300: "#fdba74",
+          400: "#fb923c",
+          500: "#f97316",
+          600: "#ea580c",
+          700: "#c2410c",
         },
-        indigo: {
-          100: "var(--color-indigo-100)",
-          600: "var(--color-indigo-600)",
-        },
-        teal: {
-          50: "var(--color-teal-50)",
-          300: "var(--color-teal-300)",
-        },
-        rose: {
-          50: "var(--color-rose-50)",
-          300: "var(--color-rose-300)",
-        },
-        emerald: {
-          50: "var(--color-emerald-50)",
-          300: "var(--color-emerald-300)",
-        },
+        // Yellow - Medium priority
         yellow: {
-          600: "var(--color-yellow-600)",
+          50: "#fefce8",
+          100: "#fef9c3",
+          400: "#facc15",
+          500: "#eab308",
+          600: "#ca8a04",
         },
-      },
-      // Background colors
-      backgroundColor: {
-        sidebar: "var(--color-bg-sidebar)",
+        // Purple - UI labels
+        purple: {
+          50: "#faf5ff",
+          100: "#f3e8ff",
+          500: "#a855f7",
+          600: "#9333ea",
+          700: "#7e22ce",
+        },
+        // Indigo - Completed status
+        indigo: {
+          50: "#eef2ff",
+          100: "#e0e7ff",
+          500: "#6366f1",
+          600: "#4f46e5",
+        },
+        // Teal - Calendar events
+        teal: {
+          50: "#f0fdfa",
+          100: "#ccfbf1",
+          300: "#5eead4",
+          600: "#0d9488",
+          700: "#0f766e",
+        },
+        // Rose - Calendar events
+        rose: {
+          50: "#fff1f2",
+          100: "#ffe4e6",
+          300: "#fda4af",
+          600: "#e11d48",
+          700: "#be123c",
+        },
+        // Emerald - Calendar events
+        emerald: {
+          50: "#ecfdf5",
+          100: "#d1fae5",
+          300: "#6ee7b7",
+          600: "#059669",
+          700: "#047857",
+        },
+        // Amber - Medium priority
+        amber: {
+          50: "#fffbeb",
+          100: "#fef3c7",
+          600: "#d97706",
+        },
+        // Cyan - Tags
+        cyan: {
+          100: "#cffafe",
+          700: "#0e7490",
+        },
+        // Violet - Tags
+        violet: {
+          100: "#ede9fe",
+          700: "#6d28d9",
+        },
+        // Fuchsia - Tags
+        fuchsia: {
+          100: "#fae8ff",
+          700: "#a21caf",
+        },
+        // Pink - Tags
+        pink: {
+          100: "#fce7f3",
+          700: "#be185d",
+        },
+        // Brand colors
+        brand: {
+          orange: "#f57d2c",
+          blue: "#6696f5",
+          "blue-light": "#a5c2f8",
+        },
+        // Custom backgrounds
+        sidebar: "#f7f8fa",
+        "off-white": "#fcf9f7",
       },
       // Typography
       fontSize: {
-        xs: "var(--font-size-xs)",
-        "2xs": "var(--font-size-2xs)",
-        sm: "var(--font-size-sm)",
-        base: "var(--font-size-base)",
-        lg: "var(--font-size-lg)",
-        xl: "var(--font-size-xl)",
-        "2xl": "var(--font-size-2xl)",
-      },
-      fontWeight: {
-        normal: "var(--font-weight-normal)",
-        medium: "var(--font-weight-medium)",
-        semibold: "var(--font-weight-semibold)",
-        bold: "var(--font-weight-bold)",
-        black: "var(--font-weight-black)",
+        xs: "0.625rem", // 10px
+        "2xs": "0.6875rem", // 11px
+        sm: "0.75rem", // 12px
+        base: "0.875rem", // 14px
+        lg: "1rem", // 16px
+        xl: "1.125rem", // 18px
+        "2xl": "1.25rem", // 20px
       },
     },
     fontFamily: {
-      sans: ["var(--font-sans)"],
+      sans: ["Inter", "sans-serif"],
       inter: ["Inter", "sans-serif"],
     },
   },

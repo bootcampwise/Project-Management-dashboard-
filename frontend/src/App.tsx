@@ -1,10 +1,9 @@
-import React from "react";
 import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
-import Register from "./pages/auth pages/Register";
-import Login from "./pages/auth pages/Login";
-import WelcomeScreen from "./pages/auth pages/Welcome";
-import Signup from "./pages/auth pages/Signup";
+import Register from "./pages/auth/Register";
+import Login from "./pages/auth/Login";
+import WelcomeScreen from "./pages/auth/Welcome";
+import Signup from "./pages/auth/Signup";
 import Dashboard from "./pages/Dashboard";
 import ProjectBoard from "./pages/ProjectBoard";
 import Tasks from "./pages/Tasks";
