@@ -1,7 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import type { Task, Attachment, UseTaskDetailModalProps } from "../../types";
 import { getTaskDetails, fetchTasks } from "../../store/slices/taskSlice";
+import { fetchTeamMembers } from "../../store/slices/teamSlice";
 import { apiClient } from "../../lib/apiClient";
 import { supabase } from "../../lib/supabase";
 import { toast } from "react-hot-toast";
@@ -15,6 +16,7 @@ export const useTaskDetailModal = ({
   const dispatch = useAppDispatch();
   const { user } = useAppSelector((state) => state.auth);
   const { tasks } = useAppSelector((state) => state.task);
+  const { members: teamMembers } = useAppSelector((state) => state.team);
 
   // Get the latest task data from Redux, falling back to the initial prop
   const task =
@@ -29,6 +31,27 @@ export const useTaskDetailModal = ({
   const [assigningSubtaskId, setAssigningSubtaskId] = useState<string | null>(
     null
   );
+  const [subtaskAssigneeSearch, setSubtaskAssigneeSearch] = useState("");
+
+  // Fetch team members when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      dispatch(fetchTeamMembers());
+    }
+  }, [isOpen, dispatch]);
+
+  // Filter team members based on search query
+  const filteredTeamMembers = useMemo(() => {
+    if (!subtaskAssigneeSearch.trim()) {
+      return teamMembers;
+    }
+    const searchLower = subtaskAssigneeSearch.toLowerCase();
+    return teamMembers.filter(
+      (member) =>
+        member.name?.toLowerCase().includes(searchLower) ||
+        member.email?.toLowerCase().includes(searchLower)
+    );
+  }, [teamMembers, subtaskAssigneeSearch]);
 
   // Refresh task details when modal opens
   useEffect(() => {
@@ -132,19 +155,25 @@ export const useTaskDetailModal = ({
 
   const handleAssignSubtask = async (
     subtaskId: string,
-    assigneeId: string | null
+    assigneeId: string,
+    action: "add" | "remove"
   ) => {
     if (!task) return;
     try {
       await apiClient.patch(`/tasks/${task.id}/subtasks/${subtaskId}/assign`, {
         assigneeId,
+        action,
       });
       dispatch(getTaskDetails(String(task.id)));
-      setAssigningSubtaskId(null);
-      toast.success(assigneeId ? "Subtask assigned" : "Subtask unassigned");
+      // Don't close dropdown to allow assigning more people
+      if (action === "add") {
+        toast.success("Assignee added to subtask");
+      } else {
+        toast.success("Assignee removed from subtask");
+      }
     } catch (error) {
       console.error("Failed to assign subtask:", error);
-      toast.error("Failed to assign subtask");
+      toast.error("Failed to update subtask assignees");
     }
   };
 
@@ -261,6 +290,9 @@ export const useTaskDetailModal = ({
     setTagInput,
     assigningSubtaskId,
     setAssigningSubtaskId,
+    subtaskAssigneeSearch,
+    setSubtaskAssigneeSearch,
+    filteredTeamMembers,
     handleEditTask,
     deleteTask,
     handleFileChange,

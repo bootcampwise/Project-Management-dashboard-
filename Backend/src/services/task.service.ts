@@ -138,7 +138,8 @@ export class TaskService {
     taskId: string,
     subtaskId: string,
     userId: string,
-    assigneeId: string | null
+    assigneeId: string,
+    action: "add" | "remove"
   ) {
     const task = await this.taskRepository.findByIdAndProjectAccess(
       taskId,
@@ -148,7 +149,7 @@ export class TaskService {
       throw new AppError("Access denied to this task", 403);
     }
 
-    return this.taskRepository.assignSubtask(subtaskId, assigneeId);
+    return this.taskRepository.assignSubtask(subtaskId, assigneeId, action);
   }
 
   async toggleSubtaskCompleted(

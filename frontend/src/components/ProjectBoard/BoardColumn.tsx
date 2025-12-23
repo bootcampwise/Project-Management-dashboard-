@@ -101,6 +101,7 @@ const BoardColumn: React.FC<BoardColumnProps> = ({ title, count, color, tasks, s
                                             assignees={task.assignees?.map(a => ({ name: a.name, avatar: a.avatar || undefined }))}
                                             comments={typeof task.comments === 'number' ? task.comments : (Array.isArray(task.comments) ? task.comments.length : 0)}
                                             attachments={typeof task.attachments === 'number' ? task.attachments : (Array.isArray(task.attachments) ? task.attachments.length : 0)}
+                                            subtasks={typeof task.subtasks === 'number' ? task.subtasks : (Array.isArray(task.subtasks) ? task.subtasks.length : 0)}
                                             date={task.date || task.dueDate || ''}
                                             onClick={() => onTaskClick && onTaskClick(task)}
                                         />

@@ -143,21 +143,22 @@ export class TaskController {
   async assignSubtask(req: Request, res: Response, next: NextFunction) {
     try {
       const { id: taskId, subtaskId } = req.params;
-      const { assigneeId } = req.body; // null to unassign
+      const { assigneeId, action } = req.body; // action: 'add' | 'remove'
       const { sub: supabaseId } = req.user!;
       const user = await userService.getUserBySupabaseId(supabaseId);
       const subtask = await taskService.assignSubtask(
         taskId,
         subtaskId,
         user.id,
-        assigneeId
+        assigneeId,
+        action || "add"
       );
       sendSuccess(
         res,
         subtask,
-        assigneeId
-          ? "Subtask assigned successfully"
-          : "Subtask unassigned successfully"
+        action === "remove"
+          ? "Assignee removed from subtask"
+          : "Assignee added to subtask"
       );
     } catch (error: unknown) {
       next(error);

@@ -7,8 +7,10 @@ import { TaskStatus } from "@prisma/client";
  * @param status - The task status
  * @returns Progress percentage (0-100)
  */
-export const getTaskProgress = (status: TaskStatus): number => {
-  switch (status) {
+export const getTaskProgress = (status: TaskStatus | string): number => {
+  const normalizedStatus = status?.toString().toUpperCase();
+
+  switch (normalizedStatus) {
     case "BACKLOG":
     case "TODO":
       return 0;
@@ -45,7 +47,7 @@ export const calculateAverageProgress = (progressValues: number[]): number => {
  * Task interface for progress calculation
  */
 export interface TaskForProgress {
-  status: TaskStatus;
+  status: TaskStatus | string;
   assigneeIds: string[];
 }
 
@@ -59,9 +61,14 @@ export const calculateTeamProgress = (
   tasks: TaskForProgress[],
   teamMemberIds: string[]
 ): number => {
+  // Normalize team member IDs to strings for safe comparison
+  const safeTeamMemberIds = teamMemberIds.map((id) => String(id));
+
   // Filter tasks that are assigned to at least one team member
   const teamTasks = tasks.filter((task) =>
-    task.assigneeIds.some((assigneeId) => teamMemberIds.includes(assigneeId))
+    task.assigneeIds.some((assigneeId) =>
+      safeTeamMemberIds.includes(String(assigneeId))
+    )
   );
 
   if (teamTasks.length === 0) {

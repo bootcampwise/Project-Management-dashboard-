@@ -107,7 +107,7 @@ export class TaskRepository {
             createdBy: {
               select: { id: true, name: true, avatar: true },
             },
-            assignee: {
+            assignees: {
               select: { id: true, name: true, avatar: true },
             },
           },
@@ -331,12 +331,13 @@ export class TaskRepository {
         taskId,
         completed: false,
         createdById,
+        assigneeIds: [],
       },
       include: {
         createdBy: {
           select: { id: true, name: true, avatar: true },
         },
-        assignee: {
+        assignees: {
           select: { id: true, name: true, avatar: true },
         },
       },
@@ -349,15 +350,38 @@ export class TaskRepository {
     });
   }
 
-  async assignSubtask(subtaskId: string, assigneeId: string | null) {
+  async assignSubtask(
+    subtaskId: string,
+    assigneeId: string,
+    action: "add" | "remove"
+  ) {
+    // Get current assignees
+    const subtask = await prisma.subTask.findUnique({
+      where: { id: subtaskId },
+      select: { assigneeIds: true },
+    });
+
+    if (!subtask) throw new Error("Subtask not found");
+
+    let newAssigneeIds: string[];
+    if (action === "add") {
+      // Add assignee if not already assigned
+      newAssigneeIds = subtask.assigneeIds.includes(assigneeId)
+        ? subtask.assigneeIds
+        : [...subtask.assigneeIds, assigneeId];
+    } else {
+      // Remove assignee
+      newAssigneeIds = subtask.assigneeIds.filter((id) => id !== assigneeId);
+    }
+
     return prisma.subTask.update({
       where: { id: subtaskId },
-      data: { assigneeId },
+      data: { assigneeIds: newAssigneeIds },
       include: {
         createdBy: {
           select: { id: true, name: true, avatar: true },
         },
-        assignee: {
+        assignees: {
           select: { id: true, name: true, avatar: true },
         },
       },
@@ -372,7 +396,7 @@ export class TaskRepository {
         createdBy: {
           select: { id: true, name: true, avatar: true },
         },
-        assignee: {
+        assignees: {
           select: { id: true, name: true, avatar: true },
         },
       },
@@ -384,6 +408,15 @@ export class TaskRepository {
       where: { id: taskId },
       data: { status: status as TaskStatus },
     });
+
+    // If status is COMPLETED, mark all subtasks as completed
+    if (status === "COMPLETED") {
+      await prisma.subTask.updateMany({
+        where: { taskId: taskId },
+        data: { completed: true },
+      });
+    }
+
     return this.findByIdAndUserId(taskId, userId);
   }
 }

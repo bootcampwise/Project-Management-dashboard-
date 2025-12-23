@@ -25,11 +25,11 @@ export interface SubTask {
     name: string;
     avatar?: string;
   };
-  assignee?: {
+  assignees?: {
     id: string;
     name: string;
     avatar?: string;
-  };
+  }[];
 }
 
 export interface Comment {
@@ -265,6 +265,7 @@ export interface TaskCardComponentProps {
   assignees?: { name: string; avatar?: string }[];
   comments?: number;
   attachments?: number;
+  subtasks?: number;
   date?: string;
   onClick?: () => void;
 }

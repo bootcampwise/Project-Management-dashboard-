@@ -13,7 +13,8 @@ import {
     Send,
     Edit,
     Trash2,
-    UserPlus
+    UserPlus,
+    Search
 } from 'lucide-react';
 import type { Task, User, Attachment, SubTask, Comment as AppComment } from '../../types';
 import { getTagColor } from '../../constants/colors';
@@ -43,6 +44,9 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
         setTagInput,
         assigningSubtaskId,
         setAssigningSubtaskId,
+        subtaskAssigneeSearch,
+        setSubtaskAssigneeSearch,
+        filteredTeamMembers,
         handleEditTask,
         deleteTask,
         handleFileChange,
@@ -355,10 +359,34 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
 
                     {/* Subtasks */}
                     <div className="mb-8">
-                        <div className="flex items-center gap-2 mb-4">
-                            <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wide">Subtasks</h3>
-                            <span className="text-gray-400 text-xs font-medium">- {Array.isArray(task.subtasks) ? task.subtasks.length : task.subtasks || 0}</span>
-                        </div>
+                        {(() => {
+                            const subtaskProgress = Array.isArray(task.subtasks) && task.subtasks.length > 0
+                                ? Math.round((task.subtasks.filter((st: SubTask) => st.completed).length / task.subtasks.length) * 100)
+                                : 0;
+                            const completedCount = Array.isArray(task.subtasks) ? task.subtasks.filter((st: SubTask) => st.completed).length : 0;
+                            const totalCount = Array.isArray(task.subtasks) ? task.subtasks.length : 0;
+                            return (
+                                <>
+                                    <div className="flex items-center gap-2 mb-3">
+                                        <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wide">Subtasks</h3>
+                                        <span className="text-gray-400 text-xs font-medium">· {completedCount}/{totalCount}</span>
+                                    </div>
+                                    {totalCount > 0 && (
+                                        <div className="flex items-center gap-3 mb-4">
+                                            <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
+                                                <div
+                                                    className={`h-full transition-all duration-300 ${subtaskProgress === 100 ? 'bg-green-500' : 'bg-blue-500'}`}
+                                                    style={{ width: `${subtaskProgress}%` }}
+                                                />
+                                            </div>
+                                            <span className={`text-xs font-medium min-w-[40px] ${subtaskProgress === 100 ? 'text-green-600' : 'text-gray-500'}`}>
+                                                {subtaskProgress}%
+                                            </span>
+                                        </div>
+                                    )}
+                                </>
+                            );
+                        })()}
                         <div className="space-y-1">
                             {Array.isArray(task.subtasks) && task.subtasks.map((subtask: SubTask) => (
                                 <div key={subtask.id} className="flex items-center justify-between group py-2.5 hover:bg-gray-50 px-3 -mx-3 rounded-lg transition-colors">
@@ -397,19 +425,30 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
                                             </div>
                                         )}
 
-                                        {/* Assignee - clickable to assign */}
+                                        {/* Assignees - clickable to assign */}
                                         <div className="relative">
                                             <button
                                                 onClick={() => setAssigningSubtaskId(assigningSubtaskId === subtask.id ? null : subtask.id)}
-                                                className="focus:outline-none"
-                                                title={subtask.assignee ? `Assigned to ${subtask.assignee.name}` : 'Click to assign'}
+                                                className="focus:outline-none flex items-center"
+                                                title={subtask.assignees?.length ? `Assigned to ${subtask.assignees.map(a => a.name).join(', ')}` : 'Click to assign'}
                                             >
-                                                {subtask.assignee ? (
-                                                    <img
-                                                        src={subtask.assignee.avatar || `https://avatar.vercel.sh/${subtask.assignee.name}`}
-                                                        alt={subtask.assignee.name}
-                                                        className="w-6 h-6 rounded-full border-2 border-blue-400"
-                                                    />
+                                                {subtask.assignees && subtask.assignees.length > 0 ? (
+                                                    <div className="flex -space-x-1.5">
+                                                        {subtask.assignees.slice(0, 3).map((assignee, idx) => (
+                                                            <img
+                                                                key={assignee.id}
+                                                                src={assignee.avatar || `https://avatar.vercel.sh/${assignee.name}`}
+                                                                alt={assignee.name}
+                                                                className="w-6 h-6 rounded-full border-2 border-white"
+                                                                style={{ zIndex: 3 - idx }}
+                                                            />
+                                                        ))}
+                                                        {subtask.assignees.length > 3 && (
+                                                            <div className="w-6 h-6 rounded-full bg-gray-200 border-2 border-white flex items-center justify-center text-[9px] text-gray-600 font-medium">
+                                                                +{subtask.assignees.length - 3}
+                                                            </div>
+                                                        )}
+                                                    </div>
                                                 ) : (
                                                     <div className="w-6 h-6 rounded-full border-2 border-dashed border-gray-300 flex items-center justify-center text-gray-400 hover:border-gray-400 hover:text-gray-500 transition-colors opacity-0 group-hover:opacity-100">
                                                         <UserPlus size={12} />
@@ -418,34 +457,76 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
                                             </button>
 
                                             {/* Assignee dropdown */}
-                                            {assigningSubtaskId === subtask.id && task.assignees && (
-                                                <div className="absolute right-0 top-8 z-50 bg-white rounded-lg shadow-xl border border-gray-100 py-1 min-w-[180px]">
-                                                    <div className="px-3 py-2 text-xs text-gray-500 border-b border-gray-100">Assign to</div>
-                                                    {subtask.assignee && (
+                                            {assigningSubtaskId === subtask.id && (
+                                                <div className="absolute right-0 top-8 z-50 bg-white rounded-lg shadow-xl border border-gray-100 py-1 min-w-[220px] max-h-[300px] flex flex-col">
+                                                    <div className="px-3 py-2 text-xs text-gray-500 border-b border-gray-100 flex justify-between items-center">
+                                                        <span>Assign to</span>
                                                         <button
-                                                            onClick={() => handleAssignSubtask(subtask.id, null)}
-                                                            className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                                                            onClick={() => {
+                                                                setAssigningSubtaskId(null);
+                                                                setSubtaskAssigneeSearch('');
+                                                            }}
+                                                            className="text-gray-400 hover:text-gray-600"
                                                         >
-                                                            <X size={14} />
-                                                            Unassign
+                                                            <X size={12} />
                                                         </button>
-                                                    )}
-                                                    {task.assignees.map((member: User) => (
-                                                        <button
-                                                            key={member.id}
-                                                            onClick={() => handleAssignSubtask(subtask.id, member.id)}
-                                                            className={`w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-50 transition-colors ${subtask.assignee?.id === member.id ? 'bg-blue-50 text-blue-700' : 'text-gray-700'}`}
-                                                        >
-                                                            {member.avatar ? (
-                                                                <img src={member.avatar} alt={member.name} className="w-5 h-5 rounded-full" />
-                                                            ) : (
-                                                                <div className="w-5 h-5 rounded-full bg-gray-200 flex items-center justify-center text-[9px] text-gray-500">
-                                                                    {member.name?.charAt(0)}
-                                                                </div>
-                                                            )}
-                                                            {member.name}
-                                                        </button>
-                                                    ))}
+                                                    </div>
+
+                                                    {/* Search input */}
+                                                    <div className="px-2 py-2 border-b border-gray-100">
+                                                        <div className="relative">
+                                                            <Search size={14} className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400" />
+                                                            <input
+                                                                type="text"
+                                                                placeholder="Search members..."
+                                                                value={subtaskAssigneeSearch}
+                                                                onChange={(e) => setSubtaskAssigneeSearch(e.target.value)}
+                                                                className="w-full pl-7 pr-2 py-1.5 text-sm border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-400 focus:border-blue-400"
+                                                                autoFocus
+                                                            />
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Members list with checkboxes */}
+                                                    <div className="overflow-y-auto max-h-[180px]">
+                                                        {filteredTeamMembers.length > 0 ? (
+                                                            filteredTeamMembers.map((member) => {
+                                                                const isAssigned = subtask.assignees?.some(a => String(a.id) === String(member.id));
+                                                                return (
+                                                                    <button
+                                                                        key={member.id}
+                                                                        onClick={() => {
+                                                                            handleAssignSubtask(
+                                                                                subtask.id,
+                                                                                String(member.id),
+                                                                                isAssigned ? 'remove' : 'add'
+                                                                            );
+                                                                        }}
+                                                                        className={`w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-50 transition-colors ${isAssigned ? 'bg-blue-50' : ''}`}
+                                                                    >
+                                                                        {/* Checkbox indicator */}
+                                                                        <div className={`w-4 h-4 rounded border flex items-center justify-center flex-shrink-0 ${isAssigned ? 'bg-blue-500 border-blue-500' : 'border-gray-300'}`}>
+                                                                            {isAssigned && (
+                                                                                <CheckCircle2 size={12} className="text-white" />
+                                                                            )}
+                                                                        </div>
+                                                                        {member.avatar ? (
+                                                                            <img src={member.avatar} alt={member.name} className="w-5 h-5 rounded-full object-cover" />
+                                                                        ) : (
+                                                                            <div className="w-5 h-5 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-[9px] text-white font-medium">
+                                                                                {member.name?.charAt(0)}
+                                                                            </div>
+                                                                        )}
+                                                                        <span className={`truncate ${isAssigned ? 'text-blue-700 font-medium' : 'text-gray-700'}`}>{member.name}</span>
+                                                                    </button>
+                                                                );
+                                                            })
+                                                        ) : (
+                                                            <div className="px-3 py-4 text-sm text-gray-400 text-center">
+                                                                No members found
+                                                            </div>
+                                                        )}
+                                                    </div>
                                                 </div>
                                             )}
                                         </div>
