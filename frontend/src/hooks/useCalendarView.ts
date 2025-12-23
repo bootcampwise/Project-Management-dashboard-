@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   startOfMonth,
   endOfMonth,
@@ -10,10 +10,44 @@ import {
   addDays,
   subDays,
 } from "date-fns";
+import { calendarApi, type CalendarEventApi } from "../lib/calendarApi";
 
-export const useCalendarView = () => {
+interface UseCalendarViewProps {
+  projectId?: string;
+}
+
+export const useCalendarView = ({ projectId }: UseCalendarViewProps = {}) => {
   const [viewMode, setViewMode] = useState<"month" | "day">("month");
-  const [currentDate, setCurrentDate] = useState<Date>(new Date(2024, 9, 1)); // Oct 2024
+  const [currentDate, setCurrentDate] = useState<Date>(new Date());
+  const [events, setEvents] = useState<CalendarEventApi[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Fetch events for the current month
+  const fetchEvents = useCallback(async () => {
+    if (!projectId) return;
+
+    setIsLoading(true);
+    try {
+      const monthStart = startOfMonth(currentDate);
+      const monthEnd = endOfMonth(currentDate);
+
+      const fetchedEvents = await calendarApi.getEventsByDateRange(
+        projectId,
+        monthStart.toISOString(),
+        monthEnd.toISOString()
+      );
+      setEvents(fetchedEvents);
+    } catch (error) {
+      console.error("Failed to fetch calendar events:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [projectId, currentDate]);
+
+  // Fetch events when projectId or month changes
+  useEffect(() => {
+    fetchEvents();
+  }, [fetchEvents]);
 
   // Navigation Handlers
   const handleNext = () => {
@@ -33,6 +67,7 @@ export const useCalendarView = () => {
   };
 
   const handleTodayClick = () => {
+    setCurrentDate(new Date());
     setViewMode("day");
   };
 
@@ -43,6 +78,59 @@ export const useCalendarView = () => {
   const handleDayClick = (day: Date) => {
     setCurrentDate(day);
     setViewMode("day");
+  };
+
+  // Refresh events after adding a new one
+  const refreshEvents = () => {
+    fetchEvents();
+  };
+
+  // Delete an event - returns a function that performs the delete
+  const deleteEvent = async (eventId: string, eventTitle: string) => {
+    const toast = (await import("react-hot-toast")).default;
+
+    // Show loading toast and perform delete
+    toast.promise(
+      calendarApi.deleteEvent(eventId).then(() => {
+        setEvents((prev) => prev.filter((e) => e.id !== eventId));
+      }),
+      {
+        loading: `Deleting "${eventTitle}"...`,
+        success: `Event "${eventTitle}" deleted!`,
+        error: "Failed to delete event.",
+      }
+    );
+  };
+
+  // Update an event
+  const updateEvent = async (
+    eventId: string,
+    data: {
+      title?: string;
+      type?: string;
+      start?: string;
+      end?: string;
+      description?: string;
+    }
+  ) => {
+    const toast = (await import("react-hot-toast")).default;
+
+    try {
+      const updatedEvent = await calendarApi.updateEvent(
+        eventId,
+        data as Parameters<typeof calendarApi.updateEvent>[1]
+      );
+      // Update in local state
+      setEvents((prev) =>
+        prev.map((e) => (e.id === eventId ? { ...e, ...updatedEvent } : e))
+      );
+      toast.success("Event updated successfully!");
+      return updatedEvent;
+    } catch (error) {
+      console.error("Failed to update event:", error);
+      toast.error("Failed to update event.");
+      throw error;
+    }
   };
 
   // Calendar calculations
@@ -57,6 +145,24 @@ export const useCalendarView = () => {
   });
 
   const weekDays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+
+  // Map event type to color
+  const getEventTypeColor = (type: string): string => {
+    switch (type) {
+      case "MEETING":
+        return "blue";
+      case "HOLIDAY":
+        return "green";
+      case "EVENT":
+        return "pink";
+      case "DEADLINE":
+        return "yellow";
+      case "REMINDER":
+        return "teal";
+      default:
+        return "gray";
+    }
+  };
 
   const getColorClass = (color: string) => {
     switch (color) {
@@ -90,5 +196,11 @@ export const useCalendarView = () => {
     calendarDays,
     weekDays,
     getColorClass,
+    getEventTypeColor,
+    events,
+    isLoading,
+    refreshEvents,
+    deleteEvent,
+    updateEvent,
   };
 };

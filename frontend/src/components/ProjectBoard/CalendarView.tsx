@@ -1,10 +1,15 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { format, isSameDay } from 'date-fns';
-import { ChevronLeft, ChevronRight, ChevronDown } from 'lucide-react';
-import type { CalendarTask } from '../../types';
+import { ChevronLeft, ChevronRight, ChevronDown, Loader2, Trash2, Pencil } from 'lucide-react';
 import { useCalendarView } from '../../hooks/useCalendarView';
+import AddEventModal from './AddEventModal';
+import type { CalendarEventApi } from '../../lib/calendarApi';
 
-const CalendarView: React.FC = () => {
+interface CalendarViewProps {
+    projectId?: string;
+}
+
+const CalendarView: React.FC<CalendarViewProps> = ({ projectId }) => {
     const {
         viewMode,
         setViewMode,
@@ -16,25 +21,30 @@ const CalendarView: React.FC = () => {
         handleMonthClick,
         calendarDays,
         weekDays,
-        getColorClass
-    } = useCalendarView();
+        getColorClass,
+        getEventTypeColor,
+        events,
+        isLoading,
+        deleteEvent,
+        refreshEvents,
+    } = useCalendarView({ projectId });
 
-    // Mock Tasks matching BoardView data
-    const monthTasks: CalendarTask[] = [
-        { id: '1', title: 'Contact customers with failed new payents or who churned', date: new Date(2024, 9, 25), color: 'yellow' },
-        { id: '2', title: 'Reporting: Design concept of visual dashboard', date: new Date(2024, 9, 25), color: 'blue' },
-        { id: '3', title: 'Task detail modal: ideas', date: new Date(2024, 9, 26), color: 'pink' },
-        { id: '4', title: '@dev QA: regression ( before/after release)', date: new Date(2024, 8, 2), color: 'gray' },
-        { id: '5', title: 'Lead feedback sessions', date: new Date(2024, 8, 22), color: 'green' },
-        { id: '6', title: 'Add Projects to templates and layouts [draft 2023]', date: new Date(2024, 9, 28), color: 'green' },
-        { id: '7', title: 'Extension: show totals', date: new Date(2024, 9, 28), color: 'green' },
-        { id: '8', title: 'Help Docs: update screenshot', date: new Date(2024, 9, 29), color: 'gray' },
-        { id: '9', title: 'Help Docs: update screenshot', date: new Date(2024, 7, 6), color: 'gray' },
-        { id: '10', title: 'Invoices: fixed-fee projects', date: new Date(2024, 9, 30), color: 'blue' },
-        { id: '11', title: 'Time: search - not last response with results appears', date: new Date(2024, 8, 8), color: 'pink' },
-        { id: '12', title: 'Pricing page: new iteration and few mockups and ideas', date: new Date(2024, 10, 4), color: 'blue' },
-        { id: '13', title: '@dev QA: regression ( before/after release)', date: new Date(2024, 10, 3), color: 'gray' },
-    ];
+    // State for editing
+    const [editingEvent, setEditingEvent] = useState<CalendarEventApi | null>(null);
+
+    // Get events for a specific day
+    const getEventsForDay = (day: Date) => {
+        return events.filter(event => {
+            const eventDate = new Date(event.start);
+            return isSameDay(eventDate, day);
+        });
+    };
+
+    // Format time from ISO string
+    const formatTime = (isoString: string) => {
+        const date = new Date(isoString);
+        return format(date, 'h:mm a');
+    };
 
     return (
         <div className="flex flex-col h-full bg-white font-sans text-sm">
@@ -45,6 +55,7 @@ const CalendarView: React.FC = () => {
                         {viewMode === 'month' ? format(currentDate, 'MMMM yyyy') : format(currentDate, 'd MMMM yyyy')}
                         {viewMode === 'month' && <ChevronDown size={14} className="text-gray-400" />}
                     </h2>
+                    {isLoading && <Loader2 size={16} className="animate-spin text-blue-500" />}
                 </div>
 
                 <div className="flex items-center gap-4">
@@ -92,11 +103,8 @@ const CalendarView: React.FC = () => {
                     {/* Days Cells */}
                     <div className="grid grid-cols-7 gap-y-12">
                         {calendarDays.map((day) => {
-                            const dayTasks = monthTasks.filter(t => t.date !== undefined && isSameDay(t.date, day));
-                            // Force highlight on Nov 13 2024 to match image (or current date interactively)
-                            // If user clicks "Today", we might want to highlight THAT date.
-                            // But let's keep the mock highlight for the "Image Match" requirement on the Month view.
-                            const isTodayMock = day.getDate() === 13 && day.getMonth() === 10 && day.getFullYear() === 2024;
+                            const dayEvents = getEventsForDay(day);
+                            const isToday = isSameDay(day, new Date());
 
                             return (
                                 <div
@@ -105,8 +113,8 @@ const CalendarView: React.FC = () => {
                                     className="min-h-[100px] relative px-1 cursor-pointer hover:bg-gray-50 transition-colors rounded-lg"
                                 >
                                     {/* Date Number */}
-                                    <div className={`text-[11px] text-right mb-2 pr-2 ${isTodayMock ? '' : 'text-gray-500'}`}>
-                                        {isTodayMock ? (
+                                    <div className={`text-[11px] text-right mb-2 pr-2 ${isToday ? '' : 'text-gray-500'}`}>
+                                        {isToday ? (
                                             <span className="bg-blue-500 text-white w-5 h-5 flex items-center justify-center rounded-full ml-auto">
                                                 {format(day, 'd')}
                                             </span>
@@ -115,17 +123,22 @@ const CalendarView: React.FC = () => {
                                         )}
                                     </div>
 
-                                    {/* Tasks */}
+                                    {/* Events */}
                                     <div className="flex flex-col gap-1">
-                                        {dayTasks.map(task => (
+                                        {dayEvents.slice(0, 3).map(event => (
                                             <div
-                                                key={task.id}
-                                                className={`text-[10px] px-2 py-1.5 rounded-md truncate font-medium flex items-center ${getColorClass(task.color)} shadow-sm`}
-                                                title={task.title}
+                                                key={event.id}
+                                                className={`text-[10px] px-2 py-1.5 rounded-md truncate font-medium flex items-center ${getColorClass(getEventTypeColor(event.type))} shadow-sm`}
+                                                title={event.title}
                                             >
-                                                <span className="truncate">{task.title}</span>
+                                                <span className="truncate">{event.title}</span>
                                             </div>
                                         ))}
+                                        {dayEvents.length > 3 && (
+                                            <div className="text-[10px] text-gray-500 pl-2">
+                                                +{dayEvents.length - 3} more
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             );
@@ -133,29 +146,66 @@ const CalendarView: React.FC = () => {
                     </div>
                 </div>
             ) : (
-                // Day View (Simple List - "Not Timeline")
+                // Day View (Simple List)
                 <div className="flex-1 p-8 overflow-y-auto bg-white">
                     <h3 className="text-lg font-semibold text-gray-800 mb-6 flex items-center gap-2">
-                        Tasks for {format(currentDate, 'MMMM d, yyyy')}
+                        Events for {format(currentDate, 'MMMM d, yyyy')}
                     </h3>
 
-                    {monthTasks.filter(t => t.date !== undefined && isSameDay(t.date, currentDate)).length === 0 ? (
+                    {isLoading ? (
+                        <div className="flex items-center justify-center py-10">
+                            <Loader2 size={24} className="animate-spin text-blue-500" />
+                        </div>
+                    ) : getEventsForDay(currentDate).length === 0 ? (
                         <div className="text-center py-10 text-gray-400">
-                            <p>No tasks scheduled for this day.</p>
-                            <button className="mt-4 text-blue-600 hover:underline text-sm">Add a task</button>
+                            <p>No events scheduled for this day.</p>
+                            <button className="mt-4 text-blue-600 hover:underline text-sm">Add an event</button>
                         </div>
                     ) : (
                         <div className="flex flex-col gap-3 max-w-2xl">
-                            {monthTasks.filter(t => t.date !== undefined && isSameDay(t.date, currentDate)).map(task => (
-                                <div key={task.id} className={`p-4 rounded-lg border border-gray-100 shadow-sm flex items-center justify-between ${getColorClass(task.color).replace('border-l-[3px]', 'border-l-4')}`}>
+                            {getEventsForDay(currentDate).map(event => (
+                                <div
+                                    key={event.id}
+                                    className={`p-4 rounded-lg border border-gray-100 shadow-sm flex items-center justify-between ${getColorClass(getEventTypeColor(event.type)).replace('border-l-[3px]', 'border-l-4')}`}
+                                >
                                     <div className="flex items-center gap-4">
-                                        {/* Checkbox circle mock */}
+                                        {/* Event type indicator */}
                                         <div className="w-5 h-5 rounded-full border-2 border-current opacity-40"></div>
-                                        <span className="font-medium text-base">{task.title}</span>
+                                        <div>
+                                            <span className="font-medium text-base">{event.title}</span>
+                                            {event.description && (
+                                                <p className="text-sm text-gray-500 mt-1">{event.description}</p>
+                                            )}
+                                        </div>
                                     </div>
                                     <div className="flex items-center gap-3">
-                                        <span className="text-xs opacity-70 font-medium px-2 py-1 bg-white/50 rounded">10:00 AM</span>
-                                        <div className="w-6 h-6 rounded-full bg-gray-200 border border-white"></div> {/* Avatar mock */}
+                                        <span className="text-xs opacity-70 font-medium px-2 py-1 bg-white/50 rounded">
+                                            {formatTime(event.start)}
+                                            {event.end && ` - ${formatTime(event.end)}`}
+                                        </span>
+                                        <span className="text-xs uppercase opacity-60 font-medium">
+                                            {event.type}
+                                        </span>
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setEditingEvent(event);
+                                            }}
+                                            className="p-1.5 text-gray-400 hover:text-blue-500 hover:bg-blue-50 rounded-md transition-colors"
+                                            title="Edit event"
+                                        >
+                                            <Pencil size={14} />
+                                        </button>
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                deleteEvent(event.id, event.title);
+                                            }}
+                                            className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-md transition-colors"
+                                            title="Delete event"
+                                        >
+                                            <Trash2 size={14} />
+                                        </button>
                                     </div>
                                 </div>
                             ))}
@@ -163,7 +213,21 @@ const CalendarView: React.FC = () => {
                     )}
                 </div>
             )}
+
+            {/* Edit Event Modal */}
+            <AddEventModal
+                isOpen={!!editingEvent}
+                onClose={() => setEditingEvent(null)}
+                projectId={projectId}
+                event={editingEvent}
+                onUpdate={() => {
+                    refreshEvents();
+                    setEditingEvent(null);
+                }}
+            />
         </div>
     );
 };
+
 export default CalendarView;
+

@@ -12,7 +12,22 @@ router.patch("/:id", authMiddleware, taskController.updateTask);
 router.patch("/:id/status", authMiddleware, taskController.updateStatus);
 router.delete("/:id", authMiddleware, taskController.deleteTask);
 
-// Attachments handled via multipart on creation, or separate attachment route
+// Subtask routes
 router.post("/:id/subtasks", authMiddleware, taskController.addSubtask);
+router.delete(
+  "/:id/subtasks/:subtaskId",
+  authMiddleware,
+  taskController.deleteSubtask
+);
+router.patch(
+  "/:id/subtasks/:subtaskId/assign",
+  authMiddleware,
+  taskController.assignSubtask
+);
+router.patch(
+  "/:id/subtasks/:subtaskId/toggle",
+  authMiddleware,
+  taskController.toggleSubtaskCompleted
+);
 
 export default router;

@@ -87,9 +87,9 @@ const ProjectBoard: React.FC = () => {
             case 'Table':
                 return <TableView tasks={projectTasks} onTaskClick={handleTableTaskClick} />;
             case 'Calendar':
-                return <CalendarView />;
+                return <CalendarView projectId={activeProject?.id} />;
             case 'Timeline':
-                return <TimelineView />;
+                return <TimelineView projectId={activeProject?.id} />;
             case 'Dashboard':
                 return (
                     <div className="p-6">
@@ -386,7 +386,11 @@ const ProjectBoard: React.FC = () => {
             <AddEventModal
                 isOpen={isAddEventModalOpen}
                 onClose={() => setIsAddEventModalOpen(false)}
-                onAdd={(event) => console.log('New event:', event)}
+                projectId={activeProject?.id}
+                onAdd={(event) => {
+                    console.log('Event created:', event);
+                    // Events will be refreshed automatically when the calendar/timeline components fetch data
+                }}
             />
 
             <SearchPopup isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />

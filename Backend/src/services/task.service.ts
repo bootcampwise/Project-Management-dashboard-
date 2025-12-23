@@ -94,7 +94,9 @@ export class TaskService {
     // 1. Import supabase client in backend
     // 2. Call: await supabase.storage.from('attachments').remove(attachmentUrls)
     // For now, database records are cleaned up. Storage cleanup can be added later.
-    console.log(`[TaskService] Deleted task ${taskId} with ${attachmentUrls.length} attachments`);
+    console.log(
+      `[TaskService] Deleted task ${taskId} with ${attachmentUrls.length} attachments`
+    );
   }
 
   async updateTaskStatus(taskId: string, userId: string, status: string) {
@@ -117,10 +119,52 @@ export class TaskService {
       throw new AppError("Access denied to this task", 403);
     }
 
-    // We need a repository method to create subtask or use prisma directly.
-    // Since TaskRepository wrapper is used, I should add a method there or use update.
-    // However, I can't access prisma directly easily if not exposed.
-    // I'll add createSubtask to TaskRepository.
-    return this.taskRepository.createSubtask(taskId, title);
+    return this.taskRepository.createSubtask(taskId, title, userId);
+  }
+
+  async deleteSubtask(taskId: string, subtaskId: string, userId: string) {
+    const task = await this.taskRepository.findByIdAndProjectAccess(
+      taskId,
+      userId
+    );
+    if (!task) {
+      throw new AppError("Access denied to this task", 403);
+    }
+
+    return this.taskRepository.deleteSubtask(subtaskId);
+  }
+
+  async assignSubtask(
+    taskId: string,
+    subtaskId: string,
+    userId: string,
+    assigneeId: string | null
+  ) {
+    const task = await this.taskRepository.findByIdAndProjectAccess(
+      taskId,
+      userId
+    );
+    if (!task) {
+      throw new AppError("Access denied to this task", 403);
+    }
+
+    return this.taskRepository.assignSubtask(subtaskId, assigneeId);
+  }
+
+  async toggleSubtaskCompleted(
+    taskId: string,
+    subtaskId: string,
+    userId: string,
+    completed: boolean
+  ) {
+    const task = await this.taskRepository.findByIdAndProjectAccess(
+      taskId,
+      userId
+    );
+    if (!task) {
+      throw new AppError("Access denied to this task", 403);
+    }
+
+    return this.taskRepository.toggleSubtaskCompleted(subtaskId, completed);
   }
 }

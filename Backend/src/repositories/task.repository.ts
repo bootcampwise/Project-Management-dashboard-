@@ -102,7 +102,17 @@ export class TaskRepository {
         assignees: true,
         creator: true,
         project: true,
-        subtasks: true,
+        subtasks: {
+          include: {
+            createdBy: {
+              select: { id: true, name: true, avatar: true },
+            },
+            assignee: {
+              select: { id: true, name: true, avatar: true },
+            },
+          },
+          orderBy: { createdAt: "desc" },
+        },
         attachments: true,
         comments: {
           include: {
@@ -314,15 +324,61 @@ export class TaskRepository {
     // Return attachment URLs for potential Supabase cleanup
     return task?.attachments.map((a) => a.url) || [];
   }
-  async createSubtask(taskId: string, title: string) {
+  async createSubtask(taskId: string, title: string, createdById: string) {
     return prisma.subTask.create({
       data: {
         title,
         taskId,
         completed: false,
+        createdById,
+      },
+      include: {
+        createdBy: {
+          select: { id: true, name: true, avatar: true },
+        },
+        assignee: {
+          select: { id: true, name: true, avatar: true },
+        },
       },
     });
   }
+
+  async deleteSubtask(subtaskId: string) {
+    return prisma.subTask.delete({
+      where: { id: subtaskId },
+    });
+  }
+
+  async assignSubtask(subtaskId: string, assigneeId: string | null) {
+    return prisma.subTask.update({
+      where: { id: subtaskId },
+      data: { assigneeId },
+      include: {
+        createdBy: {
+          select: { id: true, name: true, avatar: true },
+        },
+        assignee: {
+          select: { id: true, name: true, avatar: true },
+        },
+      },
+    });
+  }
+
+  async toggleSubtaskCompleted(subtaskId: string, completed: boolean) {
+    return prisma.subTask.update({
+      where: { id: subtaskId },
+      data: { completed },
+      include: {
+        createdBy: {
+          select: { id: true, name: true, avatar: true },
+        },
+        assignee: {
+          select: { id: true, name: true, avatar: true },
+        },
+      },
+    });
+  }
+
   async updateStatus(taskId: string, status: string, userId: string) {
     await prisma.task.update({
       where: { id: taskId },

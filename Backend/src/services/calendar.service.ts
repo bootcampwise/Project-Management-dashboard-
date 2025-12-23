@@ -27,6 +27,37 @@ export class CalendarService {
     return this.calendarRepository.findByProjectId(projectId);
   }
 
+  // Get events for a specific date range (calendar month/week view)
+  async getEventsByDateRange(
+    projectId: string,
+    startDate: string,
+    endDate: string
+  ) {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    return this.calendarRepository.findByDateRange(projectId, start, end);
+  }
+
+  // Get today's events for timeline
+  async getTodayEvents(projectId: string) {
+    const todayStart = new Date();
+    todayStart.setUTCHours(0, 0, 0, 0);
+
+    const todayEnd = new Date();
+    todayEnd.setUTCHours(23, 59, 59, 999);
+
+    return this.calendarRepository.findTodayEvents(
+      projectId,
+      todayStart,
+      todayEnd
+    );
+  }
+
+  // Get a single event by ID
+  async getEventById(id: string) {
+    return this.calendarRepository.findById(id);
+  }
+
   async updateEvent(
     id: string,
     data: {

@@ -24,6 +24,56 @@ export class CalendarController {
     }
   }
 
+  // Get events by date range for calendar view
+  async getEventsByDateRange(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { projectId } = req.params;
+      const { startDate, endDate } = req.query;
+
+      if (!startDate || !endDate) {
+        return res
+          .status(400)
+          .json({
+            message: "startDate and endDate query parameters are required",
+          });
+      }
+
+      const events = await calendarService.getEventsByDateRange(
+        projectId,
+        startDate as string,
+        endDate as string
+      );
+      sendSuccess(res, events);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  // Get today's events for timeline
+  async getTodayEvents(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { projectId } = req.params;
+      const events = await calendarService.getTodayEvents(projectId);
+      sendSuccess(res, events);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  // Get a single event by ID
+  async getEvent(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { id } = req.params;
+      const event = await calendarService.getEventById(id);
+      if (!event) {
+        return res.status(404).json({ message: "Event not found" });
+      }
+      sendSuccess(res, event);
+    } catch (error) {
+      next(error);
+    }
+  }
+
   async updateEvent(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = req.params;

@@ -2,9 +2,9 @@ import React from 'react';
 import { ChevronDown } from 'lucide-react';
 import TeamOverviewChart from './TeamOverviewChart';
 import TopCompletedTasks from './TopCompletedTasks';
-import TimelineView from '../ProjectBoard/TimelineView';
+import TimelineView from '../../ProjectBoard/TimelineView';
 import TopEarning from './TopEarning';
-import type { TeamStatCardProps } from '../../types';
+import type { TeamStatCardProps } from '../../../types';
 
 
 const TeamStatCard: React.FC<TeamStatCardProps> = ({ title, value, percentage, percentageColor }) => {

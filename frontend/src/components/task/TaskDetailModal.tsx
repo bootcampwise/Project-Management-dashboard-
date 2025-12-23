@@ -12,7 +12,8 @@ import {
     Download,
     Send,
     Edit,
-    Trash2
+    Trash2,
+    UserPlus
 } from 'lucide-react';
 import type { Task, User, Attachment, SubTask, Comment as AppComment } from '../../types';
 import { getTagColor } from '../../constants/colors';
@@ -40,10 +41,15 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
         setIsAddingTag,
         tagInput,
         setTagInput,
+        assigningSubtaskId,
+        setAssigningSubtaskId,
         handleEditTask,
         deleteTask,
         handleFileChange,
         handleAddSubtask,
+        handleDeleteSubtask,
+        handleAssignSubtask,
+        handleToggleSubtask,
         handleAddComment,
         handleTagSubmit,
         handleDownload
@@ -355,14 +361,108 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
                         </div>
                         <div className="space-y-1">
                             {Array.isArray(task.subtasks) && task.subtasks.map((subtask: SubTask) => (
-                                <div key={subtask.id} className="flex items-center justify-between group py-2.5 hover:bg-gray-50 px-3 -mx-3 rounded-lg transition-colors cursor-pointer">
+                                <div key={subtask.id} className="flex items-center justify-between group py-2.5 hover:bg-gray-50 px-3 -mx-3 rounded-lg transition-colors">
                                     <div className="flex items-center gap-3">
-                                        <CheckCircle2 size={18} className={`cursor-pointer transition-colors ${subtask.completed ? 'text-green-500' : 'text-gray-300 group-hover:text-gray-400'}`} />
-                                        <span className={`text-sm ${subtask.completed ? 'text-gray-400 line-through' : 'text-gray-700 font-medium'}`}>{subtask.title}</span>
+                                        <button
+                                            onClick={() => handleToggleSubtask(subtask.id, !subtask.completed)}
+                                            className="focus:outline-none"
+                                        >
+                                            <CheckCircle2
+                                                size={18}
+                                                className={`cursor-pointer transition-colors ${subtask.completed ? 'text-green-500' : 'text-gray-300 hover:text-gray-400'}`}
+                                            />
+                                        </button>
+                                        <span className={`text-sm ${subtask.completed ? 'text-gray-400 line-through' : 'text-gray-700 font-medium'}`}>
+                                            {subtask.title}
+                                        </span>
                                     </div>
-                                    <div className="flex items-center gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                                        <span className="text-xs text-gray-400">{new Date(subtask.createdAt || Date.now()).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
-                                        <div className="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center text-[10px] text-gray-500">U</div>
+                                    <div className="flex items-center gap-2">
+                                        {/* Creator avatar - always visible */}
+                                        {subtask.createdBy && (
+                                            <div
+                                                className="flex items-center gap-1"
+                                                title={`Created by ${subtask.createdBy.name}`}
+                                            >
+                                                {subtask.createdBy.avatar ? (
+                                                    <img
+                                                        src={subtask.createdBy.avatar}
+                                                        alt={subtask.createdBy.name}
+                                                        className="w-5 h-5 rounded-full opacity-60"
+                                                    />
+                                                ) : (
+                                                    <div className="w-5 h-5 rounded-full bg-gray-200 flex items-center justify-center text-[9px] text-gray-500 opacity-60">
+                                                        {subtask.createdBy.name?.charAt(0)}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        )}
+
+                                        {/* Assignee - clickable to assign */}
+                                        <div className="relative">
+                                            <button
+                                                onClick={() => setAssigningSubtaskId(assigningSubtaskId === subtask.id ? null : subtask.id)}
+                                                className="focus:outline-none"
+                                                title={subtask.assignee ? `Assigned to ${subtask.assignee.name}` : 'Click to assign'}
+                                            >
+                                                {subtask.assignee ? (
+                                                    <img
+                                                        src={subtask.assignee.avatar || `https://avatar.vercel.sh/${subtask.assignee.name}`}
+                                                        alt={subtask.assignee.name}
+                                                        className="w-6 h-6 rounded-full border-2 border-blue-400"
+                                                    />
+                                                ) : (
+                                                    <div className="w-6 h-6 rounded-full border-2 border-dashed border-gray-300 flex items-center justify-center text-gray-400 hover:border-gray-400 hover:text-gray-500 transition-colors opacity-0 group-hover:opacity-100">
+                                                        <UserPlus size={12} />
+                                                    </div>
+                                                )}
+                                            </button>
+
+                                            {/* Assignee dropdown */}
+                                            {assigningSubtaskId === subtask.id && task.assignees && (
+                                                <div className="absolute right-0 top-8 z-50 bg-white rounded-lg shadow-xl border border-gray-100 py-1 min-w-[180px]">
+                                                    <div className="px-3 py-2 text-xs text-gray-500 border-b border-gray-100">Assign to</div>
+                                                    {subtask.assignee && (
+                                                        <button
+                                                            onClick={() => handleAssignSubtask(subtask.id, null)}
+                                                            className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                                                        >
+                                                            <X size={14} />
+                                                            Unassign
+                                                        </button>
+                                                    )}
+                                                    {task.assignees.map((member: User) => (
+                                                        <button
+                                                            key={member.id}
+                                                            onClick={() => handleAssignSubtask(subtask.id, member.id)}
+                                                            className={`w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-50 transition-colors ${subtask.assignee?.id === member.id ? 'bg-blue-50 text-blue-700' : 'text-gray-700'}`}
+                                                        >
+                                                            {member.avatar ? (
+                                                                <img src={member.avatar} alt={member.name} className="w-5 h-5 rounded-full" />
+                                                            ) : (
+                                                                <div className="w-5 h-5 rounded-full bg-gray-200 flex items-center justify-center text-[9px] text-gray-500">
+                                                                    {member.name?.charAt(0)}
+                                                                </div>
+                                                            )}
+                                                            {member.name}
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        {/* Delete button - visible on hover */}
+                                        <button
+                                            onClick={() => handleDeleteSubtask(subtask.id)}
+                                            className="p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors opacity-0 group-hover:opacity-100"
+                                            title="Delete subtask"
+                                        >
+                                            <Trash2 size={14} />
+                                        </button>
+
+                                        {/* Date */}
+                                        <span className="text-xs text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity">
+                                            {new Date(subtask.createdAt || Date.now()).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                                        </span>
                                     </div>
                                 </div>
                             ))}

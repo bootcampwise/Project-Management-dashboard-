@@ -26,6 +26,9 @@ export const useTaskDetailModal = ({
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isAddingTag, setIsAddingTag] = useState(false);
   const [tagInput, setTagInput] = useState("");
+  const [assigningSubtaskId, setAssigningSubtaskId] = useState<string | null>(
+    null
+  );
 
   // Refresh task details when modal opens
   useEffect(() => {
@@ -112,6 +115,49 @@ export const useTaskDetailModal = ({
         console.error("Failed to add subtask:", error);
         toast.error("Failed to add subtask");
       }
+    }
+  };
+
+  const handleDeleteSubtask = async (subtaskId: string) => {
+    if (!task) return;
+    try {
+      await apiClient.delete(`/tasks/${task.id}/subtasks/${subtaskId}`);
+      dispatch(getTaskDetails(String(task.id)));
+      toast.success("Subtask deleted");
+    } catch (error) {
+      console.error("Failed to delete subtask:", error);
+      toast.error("Failed to delete subtask");
+    }
+  };
+
+  const handleAssignSubtask = async (
+    subtaskId: string,
+    assigneeId: string | null
+  ) => {
+    if (!task) return;
+    try {
+      await apiClient.patch(`/tasks/${task.id}/subtasks/${subtaskId}/assign`, {
+        assigneeId,
+      });
+      dispatch(getTaskDetails(String(task.id)));
+      setAssigningSubtaskId(null);
+      toast.success(assigneeId ? "Subtask assigned" : "Subtask unassigned");
+    } catch (error) {
+      console.error("Failed to assign subtask:", error);
+      toast.error("Failed to assign subtask");
+    }
+  };
+
+  const handleToggleSubtask = async (subtaskId: string, completed: boolean) => {
+    if (!task) return;
+    try {
+      await apiClient.patch(`/tasks/${task.id}/subtasks/${subtaskId}/toggle`, {
+        completed,
+      });
+      dispatch(getTaskDetails(String(task.id)));
+    } catch (error) {
+      console.error("Failed to toggle subtask:", error);
+      toast.error("Failed to update subtask");
     }
   };
 
@@ -213,10 +259,15 @@ export const useTaskDetailModal = ({
     setIsAddingTag,
     tagInput,
     setTagInput,
+    assigningSubtaskId,
+    setAssigningSubtaskId,
     handleEditTask,
     deleteTask,
     handleFileChange,
     handleAddSubtask,
+    handleDeleteSubtask,
+    handleAssignSubtask,
+    handleToggleSubtask,
     handleAddComment,
     handleTagSubmit,
     handleDownload,

@@ -109,6 +109,10 @@ model User {
   activities    ActivityLog[]
   taskHistories TaskHistory[]  @relation("TaskHistoryChanger")
 
+  // Subtask relations
+  createdSubtasks  SubTask[] @relation("SubTaskCreator")
+  assignedSubtasks SubTask[] @relation("SubTaskAssignee")
+
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
 }
@@ -254,12 +258,16 @@ model Task {
 
 // Subtask as separate small unit
 model SubTask {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  title     String
-  completed Boolean  @default(false)
-  taskId    String   @db.ObjectId
-  task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now())
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  completed   Boolean  @default(false)
+  taskId      String   @db.ObjectId
+  task        Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  createdById String   @db.ObjectId
+  createdBy   User     @relation("SubTaskCreator", fields: [createdById], references: [id])
+  assigneeId  String?  @db.ObjectId
+  assignee    User?    @relation("SubTaskAssignee", fields: [assigneeId], references: [id])
+  createdAt   DateTime @default(now())
 }
 
 // Task history log (status changes)

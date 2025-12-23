@@ -1,15 +1,76 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { format } from 'date-fns';
+import { Loader2, X, Pencil } from 'lucide-react';
+import { useTimelineView } from '../../hooks/projectboard/useTimelineView';
+import AddEventModal from './AddEventModal';
+import type { CalendarEventApi } from '../../lib/calendarApi';
 
-const TimelineView: React.FC = () => {
-    // Shared Data Structure for the Demo
-    const dayHours = ['8:00', '9:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00'];
+interface TimelineViewProps {
+    projectId?: string;
+}
+
+const TimelineView: React.FC<TimelineViewProps> = ({ projectId }) => {
+    const {
+        events,
+        isLoading,
+        currentDate,
+        dayHours,
+        getEventGridPosition,
+        getEventTypeColor,
+        getColorClasses,
+        formatEventTime,
+        deleteEvent,
+        refreshEvents,
+    } = useTimelineView({ projectId });
+
+    // State for editing
+    const [editingEvent, setEditingEvent] = useState<CalendarEventApi | null>(null);
+
+    // Group events into rows to handle overlapping
+    const groupEventsIntoRows = () => {
+        const rows: typeof events[] = [];
+
+        events.forEach(event => {
+            const position = getEventGridPosition(event);
+            if (!position) return;
+
+            // Try to find a row where this event doesn't overlap
+            let placed = false;
+            for (const row of rows) {
+                const overlaps = row.some(rowEvent => {
+                    const rowPos = getEventGridPosition(rowEvent);
+                    if (!rowPos) return false;
+                    // Check for overlap
+                    return !(position.colStart >= rowPos.colStart + rowPos.colSpan ||
+                        position.colStart + position.colSpan <= rowPos.colStart);
+                });
+
+                if (!overlaps) {
+                    row.push(event);
+                    placed = true;
+                    break;
+                }
+            }
+
+            if (!placed) {
+                rows.push([event]);
+            }
+        });
+
+        return rows;
+    };
+
+    const eventRows = groupEventsIntoRows();
 
     return (
         <div className="bg-white rounded-lg border border-gray-200 font-sans text-sm h-full flex flex-col p-6">
             {/* Header */}
             <div className="flex items-center justify-between mb-6">
-                <h3 className="text-lg font-medium text-gray-700">Timeline</h3>
-                <span className="text-sm text-gray-500">October 12, 2024</span>
+                <h3 className="text-lg font-medium text-gray-700 flex items-center gap-2">
+                    Timeline
+                    {isLoading && <Loader2 size={16} className="animate-spin text-blue-500" />}
+                </h3>
+                <span className="text-sm text-gray-500">{format(currentDate, 'MMMM d, yyyy')}</span>
             </div>
 
             {/* Timeline Content */}
@@ -23,73 +84,89 @@ const TimelineView: React.FC = () => {
                     ))}
                 </div>
 
-
                 {/* Timeline Rows */}
-                <div className="space-y-4">
-                    {/* Row 1 */}
-                    <div className="grid grid-cols-10 gap-3">
-                        {/* Contact customers - starts at 8:00 */}
-                        <div className="col-start-1 col-span-2 bg-orange-50 border-l-[3px] border-orange-400 rounded-md p-2 shadow-sm">
-                            <h4 className="font-medium text-gray-700 text-[11px] leading-tight mb-0.5 truncate">Contact customers with failed new payents</h4>
-                            <span className="text-[10px] text-gray-400">10:00-12:00</span>
-                        </div>
-                        {/* Dashboard concept - starts at 10:00 */}
-                        <div className="col-start-3 col-span-2 bg-emerald-50 border-l-[3px] border-emerald-400 rounded-md p-2 shadow-sm">
-                            <h4 className="font-medium text-gray-700 text-[11px] leading-tight mb-0.5 truncate">Dashboard: concept</h4>
-                            <span className="text-[10px] text-gray-400">10:00-12:00</span>
-                        </div>
-                        {/* Extension show totals - starts at 14:00 */}
-                        <div className="col-start-7 col-span-3 bg-cyan-50 border-l-[3px] border-cyan-400 rounded-md p-2 shadow-sm">
-                            <h4 className="font-medium text-gray-700 text-[11px] leading-tight mb-0.5 truncate">Extension: show totals</h4>
-                            <span className="text-[10px] text-gray-400">10:00-12:00</span>
-                        </div>
+                {isLoading ? (
+                    <div className="flex items-center justify-center py-10">
+                        <Loader2 size={24} className="animate-spin text-blue-500" />
                     </div>
+                ) : events.length === 0 ? (
+                    <div className="text-center py-10 text-gray-400">
+                        <p>No events scheduled for today.</p>
+                        <p className="text-sm mt-1">Click "Add" to create an event</p>
+                    </div>
+                ) : (
+                    <div className="space-y-4">
+                        {eventRows.map((row, rowIndex) => (
+                            <div key={rowIndex} className="grid grid-cols-10 gap-3">
+                                {row.map(event => {
+                                    const position = getEventGridPosition(event);
+                                    if (!position) return null;
 
-                    {/* Row 2 */}
-                    <div className="grid grid-cols-10 gap-3">
-                        {/* Task detail modal - starts at 9:00 */}
-                        <div className="col-start-2 col-span-2 bg-rose-50 border-l-[3px] border-rose-300 rounded-md p-2 shadow-sm">
-                            <h4 className="font-medium text-gray-700 text-[11px] leading-tight mb-0.5 truncate">Task detail modal</h4>
-                            <span className="text-[10px] text-gray-400">10:00-12:00</span>
-                        </div>
-                        {/* Help Docs - starts at 14:00 */}
-                        <div className="col-start-7 col-span-2 bg-gray-100 border-l-[3px] border-gray-400 rounded-md p-2 shadow-sm">
-                            <h4 className="font-medium text-gray-700 text-[11px] leading-tight mb-0.5 truncate">Help Docs: update screenshot</h4>
-                            <span className="text-[10px] text-gray-400">10:00-12:00</span>
-                        </div>
-                    </div>
+                                    const colorClass = getColorClasses(getEventTypeColor(event.type));
 
-                    {/* Row 3 */}
-                    <div className="grid grid-cols-10 gap-3">
-                        {/* Reporting - wide block starts at 8:00 */}
-                        <div className="col-start-1 col-span-6 bg-blue-50 border-l-[3px] border-blue-400 rounded-md p-2 shadow-sm">
-                            <h4 className="font-medium text-gray-700 text-[11px] leading-tight mb-0.5 truncate">Reporting: Design concept of visual dashboard</h4>
-                            <span className="text-[10px] text-gray-400">10:00-12:00</span>
-                        </div>
+                                    return (
+                                        <div
+                                            key={event.id}
+                                            className={`rounded-md p-2 shadow-sm ${colorClass} relative group cursor-pointer`}
+                                            style={{
+                                                gridColumnStart: position.colStart,
+                                                gridColumnEnd: `span ${position.colSpan}`,
+                                            }}
+                                            title={event.description || event.title}
+                                            onClick={() => setEditingEvent(event)}
+                                        >
+                                            {/* Action buttons - appear on hover */}
+                                            <div className="absolute top-1 right-1 flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        setEditingEvent(event);
+                                                    }}
+                                                    className="p-0.5 text-gray-400 hover:text-blue-500 hover:bg-blue-50 rounded"
+                                                    title="Edit event"
+                                                >
+                                                    <Pencil size={10} />
+                                                </button>
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        deleteEvent(event.id, event.title);
+                                                    }}
+                                                    className="p-0.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded"
+                                                    title="Delete event"
+                                                >
+                                                    <X size={10} />
+                                                </button>
+                                            </div>
+                                            <h4 className="font-medium text-gray-700 text-[11px] leading-tight mb-0.5 truncate pr-6">
+                                                {event.title}
+                                            </h4>
+                                            <span className="text-[10px] text-gray-400">
+                                                {formatEventTime(event.start, event.end)}
+                                            </span>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        ))}
                     </div>
-
-                    {/* Row 4 */}
-                    <div className="grid grid-cols-10 gap-3">
-                        {/* Contact customers (second) - starts at 8:00 */}
-                        <div className="col-start-1 col-span-2 bg-orange-50 border-l-[3px] border-orange-400 rounded-md p-2 shadow-sm">
-                            <h4 className="font-medium text-gray-700 text-[11px] leading-tight mb-0.5 truncate">Contact customers with failed new payents</h4>
-                            <span className="text-[10px] text-gray-400">10:00-12:00</span>
-                        </div>
-                        {/* Task detail modal (second) - starts at 10:00 */}
-                        <div className="col-start-3 col-span-2 bg-rose-50 border-l-[3px] border-rose-300 rounded-md p-2 shadow-sm">
-                            <h4 className="font-medium text-gray-700 text-[11px] leading-tight mb-0.5 truncate">Task detail modal</h4>
-                            <span className="text-[10px] text-gray-400">10:00-12:00</span>
-                        </div>
-                        {/* Extension show totals (second) - starts at 14:00 */}
-                        <div className="col-start-7 col-span-3 bg-cyan-50 border-l-[3px] border-cyan-400 rounded-md p-2 shadow-sm">
-                            <h4 className="font-medium text-gray-700 text-[11px] leading-tight mb-0.5 truncate">Extension: show totals</h4>
-                            <span className="text-[10px] text-gray-400">10:00-12:00</span>
-                        </div>
-                    </div>
-                </div>
+                )}
             </div>
+
+            {/* Edit Event Modal */}
+            <AddEventModal
+                isOpen={!!editingEvent}
+                onClose={() => setEditingEvent(null)}
+                projectId={projectId}
+                event={editingEvent}
+                onUpdate={() => {
+                    refreshEvents();
+                    setEditingEvent(null);
+                }}
+            />
         </div>
     );
 };
 
 export default TimelineView;
+

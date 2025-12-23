@@ -20,6 +20,16 @@ export interface SubTask {
   title: string;
   completed: boolean;
   createdAt?: string;
+  createdBy?: {
+    id: string;
+    name: string;
+    avatar?: string;
+  };
+  assignee?: {
+    id: string;
+    name: string;
+    avatar?: string;
+  };
 }
 
 export interface Comment {
@@ -217,11 +227,14 @@ export interface CreateTaskPayload {
 }
 
 export interface CalendarEvent {
+  id?: string;
   eventType: string;
+  title?: string; // Added for API compatibility
   date: string;
   startTime: string;
   endTime: string;
-  description: string;
+  description?: string;
+  projectId?: string;
 }
 
 // ============================================
@@ -382,6 +395,16 @@ export interface AddEventModalProps {
   isOpen: boolean;
   onClose: () => void;
   onAdd?: (event: CalendarEvent) => void;
+  onUpdate?: (event: CalendarEvent) => void;
+  projectId?: string;
+  event?: {
+    id: string;
+    title: string;
+    type: string;
+    start: string;
+    end?: string;
+    description?: string;
+  } | null;
 }
 
 export interface CreateTaskModalProps {
@@ -485,6 +508,16 @@ export interface UseCreateTaskModalProps {
 export interface UseAddEventModalProps {
   onClose: () => void;
   onAdd?: (event: CalendarEvent) => void;
+  onUpdate?: (event: CalendarEvent) => void;
+  projectId?: string;
+  event?: {
+    id: string;
+    title: string;
+    type: string;
+    start: string;
+    end?: string;
+    description?: string;
+  } | null;
 }
 
 export interface BoardColumnState {

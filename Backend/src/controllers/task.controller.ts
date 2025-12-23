@@ -127,4 +127,62 @@ export class TaskController {
       next(error);
     }
   }
+
+  async deleteSubtask(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { id: taskId, subtaskId } = req.params;
+      const { sub: supabaseId } = req.user!;
+      const user = await userService.getUserBySupabaseId(supabaseId);
+      await taskService.deleteSubtask(taskId, subtaskId, user.id);
+      sendSuccess(res, null, "Subtask deleted successfully");
+    } catch (error: unknown) {
+      next(error);
+    }
+  }
+
+  async assignSubtask(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { id: taskId, subtaskId } = req.params;
+      const { assigneeId } = req.body; // null to unassign
+      const { sub: supabaseId } = req.user!;
+      const user = await userService.getUserBySupabaseId(supabaseId);
+      const subtask = await taskService.assignSubtask(
+        taskId,
+        subtaskId,
+        user.id,
+        assigneeId
+      );
+      sendSuccess(
+        res,
+        subtask,
+        assigneeId
+          ? "Subtask assigned successfully"
+          : "Subtask unassigned successfully"
+      );
+    } catch (error: unknown) {
+      next(error);
+    }
+  }
+
+  async toggleSubtaskCompleted(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      const { id: taskId, subtaskId } = req.params;
+      const { completed } = req.body;
+      const { sub: supabaseId } = req.user!;
+      const user = await userService.getUserBySupabaseId(supabaseId);
+      const subtask = await taskService.toggleSubtaskCompleted(
+        taskId,
+        subtaskId,
+        user.id,
+        completed
+      );
+      sendSuccess(res, subtask, "Subtask updated successfully");
+    } catch (error: unknown) {
+      next(error);
+    }
+  }
 }
