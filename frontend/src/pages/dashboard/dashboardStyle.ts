@@ -1,0 +1,46 @@
+export const dashboardClasses = {
+  container: "flex h-screen bg-white relative font-sans",
+  main: "flex-1 overflow-y-auto bg-white",
+  mainContent: (sidebarOpen: boolean) =>
+    `transition-all duration-300 flex-1 flex flex-col ${
+      !sidebarOpen ? "pt-16 md:pt-0 md:pl-16" : ""
+    }`,
+
+  menuButton: (sidebarOpen: boolean) =>
+    `absolute top-4 left-4 z-30 p-2 bg-white rounded-md shadow ${
+      sidebarOpen ? "md:hidden" : "block"
+    }`,
+  header:
+    "px-6 py-4 flex flex-col md:flex-row md:items-center justify-between gap-4",
+  title: "text-2xl font-bold text-gray-800",
+
+  toolbar:
+    "px-6 pb-6 flex flex-col md:flex-row md:items-center justify-between gap-4",
+
+  filtersWrapper: "flex items-center gap-6",
+  projectsDropdown: "flex items-center gap-2 text-gray-500 cursor-pointer",
+  dropdownText: "text-sm",
+  filtersButton:
+    "flex items-center gap-2 text-gray-500 cursor-pointer border-l pl-6 border-gray-200",
+  filtersButtonText: "text-sm",
+
+  rangeWrapper: "flex items-center gap-6",
+  dateDisplay: "flex items-center gap-2 text-gray-500",
+  dateText: "text-sm",
+
+  rangeSelector: "flex items-center bg-gray-100 rounded-md p-0.5",
+  rangeButton: (isActive: boolean) =>
+    `px-3 py-1 text-xs rounded-sm font-medium transition-colors ${
+      isActive
+        ? "bg-white shadow-sm text-gray-800"
+        : "text-gray-500 hover:text-gray-700"
+    }`,
+
+  contentSection: "p-6",
+  statsGridWrapper: "mb-8",
+  chartsSection: "flex flex-wrap gap-3",
+  completionChartWrapper: "",
+  scheduleCalendarWrapper: "",
+  budgetChartWrapper: "flex-1 min-w-[300px]",
+  latestTasksWrapper: "mt-6",
+};

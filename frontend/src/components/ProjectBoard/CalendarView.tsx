@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { format, isSameDay } from 'date-fns';
 import { ChevronLeft, ChevronRight, ChevronDown, Loader2, Trash2, Pencil } from 'lucide-react';
-import { useCalendarView } from '../../hooks/useCalendarView';
+import { useCalendarView } from "../../pages/projectboard/hooks/useCalendarView";
 import AddEventModal from './AddEventModal';
 import type { CalendarEventApi } from '../../lib/calendarApi';
 

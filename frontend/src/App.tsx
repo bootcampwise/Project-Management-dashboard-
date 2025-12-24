@@ -1,14 +1,14 @@
 import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
-import Register from "./pages/auth/Register";
-import Login from "./pages/auth/Login";
-import WelcomeScreen from "./pages/auth/Welcome";
-import Signup from "./pages/auth/Signup";
-import Dashboard from "./pages/Dashboard";
-import ProjectBoard from "./pages/ProjectBoard";
-import Tasks from "./pages/Tasks";
-import Team from "./pages/Team";
-import { useAuthListener } from "./hooks/useAuthListener";
+import Register from "./pages/register/Register";
+import Login from "./pages/login/Login";
+import WelcomeScreen from "./pages/welcome/Welcome";
+import Signup from "./pages/signup/Signup";
+import Dashboard from "./pages/dashboard/Dashboard";
+import ProjectBoard from "./pages/projectboard/ProjectBoard";
+import Tasks from "./pages/task/Tasks";
+import Team from "./pages/team/Team";
+import { useAuthListener } from './pages/login/hooks/useAuthListener';
 
 function Home() {
   return (

@@ -17,7 +17,7 @@ import {
   Search
 } from 'lucide-react';
 import type { Task, User, Attachment, SubTask, Comment as AppComment } from '../../types';
-import { useTaskDetailModal } from '../../hooks/tasks/useTaskDetailModal';
+import { useTaskDetailModal } from '../../pages/task/hooks/useTaskDetailModal';
 
 // Tag color utility - generates consistent colors based on tag text
 const getTagColor = (tagText: string): { bg: string; text: string } => {
