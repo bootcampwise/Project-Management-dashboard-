@@ -1,6 +1,6 @@
 import React from 'react';
 import { X, File as FileIcon, Upload } from 'lucide-react';
-import { IconButton, Input, Select, Textarea } from '../ui';
+import { IconButton, Input, Select, Textarea, Tag } from '../ui';
 
 import type { CreateTaskModalProps } from '../../types';
 
@@ -202,15 +202,11 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ isOpen, onClose, onCr
             {tags.length > 0 && (
               <div className="flex flex-wrap gap-2">
                 {tags.map((tag, index) => (
-                  <div key={index} className="flex items-center gap-1.5 px-2.5 py-1 bg-blue-50 text-blue-600 rounded-full text-xs font-medium border border-blue-100">
-                    <span>{tag}</span>
-                    <button
-                      onClick={() => handleRemoveTag(tag)}
-                      className="p-0.5 hover:bg-blue-100 rounded-full transition-colors"
-                    >
-                      <X size={12} />
-                    </button>
-                  </div>
+                  <Tag
+                    key={index}
+                    text={tag}
+                    onRemove={() => handleRemoveTag(tag)}
+                  />
                 ))}
               </div>
             )}

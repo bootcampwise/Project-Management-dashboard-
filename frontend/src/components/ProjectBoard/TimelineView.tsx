@@ -4,10 +4,7 @@ import { Loader2, X, Pencil } from 'lucide-react';
 import { useTimelineView } from "../../pages/projectboard/hooks/useTimelineView";
 import AddEventModal from './AddEventModal';
 import type { CalendarEvent } from '../../store/api/calendarApiSlice';
-
-interface TimelineViewProps {
-  projectId?: string;
-}
+import type { TimelineViewProps } from '../../types';
 
 const TimelineView: React.FC<TimelineViewProps> = ({ projectId }) => {
   const {

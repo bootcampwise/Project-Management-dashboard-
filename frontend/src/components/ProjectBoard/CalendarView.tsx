@@ -4,10 +4,7 @@ import { ChevronLeft, ChevronRight, ChevronDown, Loader2, Trash2, Pencil } from 
 import { useCalendarView } from "../../pages/projectboard/hooks/useCalendarView";
 import AddEventModal from './AddEventModal';
 import type { CalendarEvent } from '../../store/api/calendarApiSlice';
-
-interface CalendarViewProps {
-  projectId?: string;
-}
+import type { CalendarViewProps } from '../../types';
 
 const CalendarView: React.FC<CalendarViewProps> = ({ projectId }) => {
   const {

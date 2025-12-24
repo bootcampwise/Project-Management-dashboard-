@@ -2,11 +2,7 @@ import React from 'react';
 import { X, ChevronDown, Check } from 'lucide-react';
 import { useCreateTeamModal } from "../../pages/team/hooks/useCreateTeamModal";
 import { Dropdown, IconButton, Input } from '../ui';
-
-interface CreateTeamModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-}
+import type { CreateTeamModalProps } from '../../types';
 
 const CreateTeamModal: React.FC<CreateTeamModalProps> = ({ isOpen, onClose }) => {
   const {

@@ -15,6 +15,8 @@ export { Dropdown, type DropdownProps, type DropdownItem } from "./Dropdown";
 export { Avatar, type AvatarProps } from "./Avatar";
 export { Badge, type BadgeProps } from "./Badge";
 export { StatCard, type StatCardProps } from "./StatCard";
+export { StatusDot, type StatusDotProps } from "./StatusDot";
+export { Tag, type TagProps, getTagColor } from "./Tag";
 
 // Icon Components
 // Icon Components

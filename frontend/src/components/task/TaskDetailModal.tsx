@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { showToast, Dropdown, IconButton } from "../ui";
+import { showToast, Dropdown, IconButton, Tag } from "../ui";
 import {
   X,
   Star,
@@ -16,33 +16,8 @@ import {
   UserPlus,
   Search
 } from 'lucide-react';
-import type { Task, User, Attachment, SubTask, Comment as AppComment } from '../../types';
+import type { Task, User, Attachment, SubTask, Comment as AppComment, TaskDetailModalProps } from '../../types';
 import { useTaskDetailModal } from '../../pages/task/hooks/useTaskDetailModal';
-
-// Tag color utility - generates consistent colors based on tag text
-const getTagColor = (tagText: string): { bg: string; text: string } => {
-  const colors = [
-    { bg: 'bg-blue-100', text: 'text-blue-700' },
-    { bg: 'bg-green-100', text: 'text-green-700' },
-    { bg: 'bg-purple-100', text: 'text-purple-700' },
-    { bg: 'bg-yellow-100', text: 'text-yellow-700' },
-    { bg: 'bg-red-100', text: 'text-red-700' },
-    { bg: 'bg-pink-100', text: 'text-pink-700' },
-    { bg: 'bg-indigo-100', text: 'text-indigo-700' },
-    { bg: 'bg-teal-100', text: 'text-teal-700' },
-    { bg: 'bg-orange-100', text: 'text-orange-700' },
-    { bg: 'bg-cyan-100', text: 'text-cyan-700' },
-  ];
-  const hash = tagText.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-  return colors[hash % colors.length];
-};
-
-interface TaskDetailModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  task: Task | null;
-  onEdit?: (task: Task) => void;
-}
 
 const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task: initialTask, onEdit }) => {
   const {
@@ -272,14 +247,9 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
             {/* Tags */}
             <div className="text-gray-500 font-medium py-1">Tags</div>
             <div className="flex flex-wrap items-center gap-2">
-              {task.tags && task.tags.map((tag: NonNullable<Task['tags']>[number]) => {
-                const colors = getTagColor(tag.text);
-                return (
-                  <span key={tag.id} className={`px-2.5 py-1 ${colors.bg} ${colors.text} rounded text-xs font-medium`}>
-                    {tag.text}
-                  </span>
-                );
-              })}
+              {task.tags && task.tags.map((tag: NonNullable<Task['tags']>[number]) => (
+                <Tag key={tag.id} text={tag.text} />
+              ))}
 
               {isAddingTag ? (
                 <input

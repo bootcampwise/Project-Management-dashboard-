@@ -116,6 +116,14 @@ export interface CalendarTask {
   date?: Date; // For CalendarView date-based filtering
 }
 
+export interface CalendarViewProps {
+  projectId?: string;
+}
+
+export interface TimelineViewProps {
+  projectId?: string;
+}
+
 // ============================================
 // BOARD VIEW TYPES
 // ============================================
@@ -162,12 +170,14 @@ export interface TaskDetailModalProps {
   isOpen: boolean;
   onClose: () => void;
   task: Task | null;
+  onEdit?: (task: Task) => void;
 }
 
 export interface CreateProjectModalProps {
   isOpen: boolean;
   onClose: () => void;
   onOpenTemplateLibrary: () => void;
+  onCreate: (data: CreateProjectPayload) => Promise<void>;
 }
 
 export interface CreateTeamModalProps {

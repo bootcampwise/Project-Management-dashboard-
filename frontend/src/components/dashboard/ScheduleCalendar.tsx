@@ -1,31 +1,18 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-
 import type { ScheduleCalendarTab } from '../../types';
+import { useScheduleCalendar } from '../../pages/dashboard/hooks/useScheduleCalendar';
 
 const ScheduleCalendar: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<ScheduleCalendarTab>('Meetings');
-  const [currentMonthIndex, setCurrentMonthIndex] = useState(7); // 7 = August (0-indexed)
-
-  const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-
-  // Simple mock logic for date display based on month (just visual)
-  const handlePrevMonth = () => setCurrentMonthIndex((prev) => (prev - 1 + 12) % 12);
-  const handleNextMonth = () => setCurrentMonthIndex((prev) => (prev + 1) % 12);
-
-  const currentMonthName = months[currentMonthIndex];
-  const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-
-  // Mock dates - static for now as per design requirement, but could be dynamic
-  const dates = [
-    { day: 4, disabled: true },
-    { day: 5, disabled: true },
-    { day: 6, disabled: true },
-    { day: 7, disabled: true },
-    { day: 8, disabled: false },
-    { day: 9, disabled: false },
-    { day: 10, disabled: false, selected: true },
-  ];
+  const {
+    activeTab,
+    setActiveTab,
+    currentMonthName,
+    days,
+    dates,
+    handlePrevMonth,
+    handleNextMonth,
+  } = useScheduleCalendar();
 
   return (
     <div

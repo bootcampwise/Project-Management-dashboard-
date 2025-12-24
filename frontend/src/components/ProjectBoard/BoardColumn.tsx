@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Plus, MoreHorizontal, EyeOff } from 'lucide-react';
 import { Droppable, Draggable } from '@hello-pangea/dnd';
 import type { BoardColumnProps } from '../../types';
 import TaskCard from '../task/TaskCard';
+import { useBoardColumn } from '../../pages/projectboard/hooks/useBoardColumn';
 
 const BoardColumn: React.FC<BoardColumnProps> = ({ title, count, color, tasks, status, collapsed = false, onTaskClick, onAddTask, onToggle, onHide }) => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { isMenuOpen, setIsMenuOpen } = useBoardColumn();
 
   if (collapsed) {
     return (

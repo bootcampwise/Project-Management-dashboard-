@@ -1,15 +1,11 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Search, Star, Rocket, Palette, Folder, Calendar, Wallet, MessageCircle, Layout, Table } from 'lucide-react';
 import { Input } from '../ui';
-
-interface TemplateLibraryModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onSelectTemplate: () => void;
-}
+import type { TemplateLibraryModalProps } from '../../types';
+import { useTemplateLibraryModal } from '../../pages/projectboard/hooks/useTemplateLibraryModal';
 
 const TemplateLibraryModal: React.FC<TemplateLibraryModalProps> = ({ isOpen, onClose, onSelectTemplate }) => {
-  const [activeCategory, setActiveCategory] = useState('Design'); // Default to Design to show the new view
+  const { activeCategory, setActiveCategory } = useTemplateLibraryModal();
 
   if (!isOpen) return null;
 

@@ -1,15 +1,8 @@
 import React from 'react';
 import { X, Sparkles } from 'lucide-react';
 import { IconButton, Input, Select, Textarea } from '../ui';
-import type { CreateProjectPayload } from '../../types';
+import type { CreateProjectModalProps } from '../../types';
 import { useCreateProjectModal } from "../../pages/projectboard/hooks/useCreateProjectModal";
-
-interface CreateProjectModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onOpenTemplateLibrary: () => void;
-  onCreate: (data: CreateProjectPayload) => Promise<void>;
-}
 
 const CreateProjectModal: React.FC<CreateProjectModalProps> = ({ isOpen, onClose, onOpenTemplateLibrary, onCreate }) => {
   const {
