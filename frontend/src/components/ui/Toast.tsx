@@ -1,3 +1,4 @@
+import React from 'react';
 import { toast, Toaster, type ToastOptions } from 'react-hot-toast';
 
 export interface ToastProps {
@@ -73,6 +74,11 @@ export const showToast = {
     messages: { loading: string; success: string; error: string },
     options?: ToastOptions
   ) => toast.promise(promise, messages, { ...defaultOptions, ...options }),
+
+  custom: (
+    renderer: (t: import('react-hot-toast').Toast) => React.JSX.Element,
+    options?: ToastOptions
+  ) => toast.custom(renderer, options),
 };
 
 // Re-export Toaster component for use in App.tsx

@@ -1,16 +1,15 @@
-import { useState, useEffect } from "react";
-import { useAppDispatch, useAppSelector } from "../../../store/hooks";
-import { fetchTeams } from "../../../store/slices/teamSlice";
-import { toast } from "react-hot-toast";
+import { useState } from "react";
+import { useGetTeamsQuery } from "../../../store/api/teamApiSlice";
+import { showToast } from "../../../components/ui";
 import type { UseCreateProjectModalProps } from "../../../types";
 
 export const useCreateProjectModal = ({
-  isOpen,
+  isOpen: _isOpen,
   onClose,
   onCreate,
 }: UseCreateProjectModalProps) => {
-  const dispatch = useAppDispatch();
-  const { teams } = useAppSelector((state) => state.team);
+  // Get teams from RTK Query
+  const { data: teams = [] } = useGetTeamsQuery();
 
   const [projectName, setProjectName] = useState("");
   const [description, setDescription] = useState("");
@@ -21,15 +20,9 @@ export const useCreateProjectModal = ({
   );
   const [isCreating, setIsCreating] = useState(false);
 
-  useEffect(() => {
-    if (isOpen) {
-      dispatch(fetchTeams());
-    }
-  }, [isOpen, dispatch]);
-
   const handleCreate = async () => {
     if (!projectName.trim()) {
-      toast.error("Please enter a project name");
+      showToast.error("Please enter a project name");
       return;
     }
 

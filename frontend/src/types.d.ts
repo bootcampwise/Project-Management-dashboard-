@@ -194,6 +194,7 @@ export interface AuthButtonProps {
   icon: string;
   text: string;
   onClick?: () => void;
+  disabled?: boolean;
 }
 
 export interface StatCardProps {

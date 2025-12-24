@@ -4,43 +4,8 @@ import TeamOverviewChart from './TeamOverviewChart';
 import TopCompletedTasks from './TopCompletedTasks';
 import TimelineView from '../../projectBoard/TimelineView';
 import TopEarning from './TopEarning';
-import type { TeamStatCardProps } from '../../../types';
+import { StatCard } from '../../ui';
 
-
-const TeamStatCard: React.FC<TeamStatCardProps> = ({ title, value, percentage, percentageColor }) => {
-  const getPercentageColor = () => {
-    switch (percentageColor) {
-      case 'blue':
-        return 'text-blue-500';
-      case 'red':
-        return 'text-red-500';
-      case 'gray':
-        return 'text-gray-400';
-      default:
-        return 'text-gray-400';
-    }
-  };
-
-  return (
-    <div className="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-md transition-shadow">
-      {/* Title */}
-      <h3 className="text-xs text-gray-400 font-normal mb-3">{title}</h3>
-
-      {/* Value and Percentage Row */}
-      <div className="flex items-end justify-between">
-        {/* Value */}
-        <div className="text-3xl font-semibold text-gray-900">
-          {value}
-        </div>
-
-        {/* Percentage */}
-        <div className={`text-sm font-normal ${getPercentageColor()}`}>
-          {percentage}
-        </div>
-      </div>
-    </div>
-  );
-};
 
 const TeamDashboard: React.FC = () => {
   return (
@@ -58,29 +23,28 @@ const TeamDashboard: React.FC = () => {
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <TeamStatCard
+        <StatCard
           title="Completed tasks"
           value="127"
-          percentage="67/18%"
-          percentageColor="blue"
+          trend="positive"
+          trendText="67/18%"
         />
-        <TeamStatCard
+        <StatCard
           title="Incompleted tasks"
           value="62"
-          percentage="54.29%"
-          percentageColor="red"
+          trend="negative"
+          trendText="54.29%"
         />
-        <TeamStatCard
+        <StatCard
           title="Overdue tasks"
           value="20"
-          percentage="14/11%"
-          percentageColor="gray"
+          trendText="14/11%"
         />
-        <TeamStatCard
+        <StatCard
           title="Total income"
           value="$15,302"
-          percentage="2/18%"
-          percentageColor="blue"
+          trend="positive"
+          trendText="2/18%"
         />
       </div>
 

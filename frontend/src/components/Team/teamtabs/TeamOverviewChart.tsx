@@ -1,5 +1,6 @@
 import React from 'react';
 import { BarChart, Bar, XAxis, CartesianGrid, ResponsiveContainer, Cell } from 'recharts';
+import { Select } from '../../ui';
 
 const TeamOverviewChart: React.FC = () => {
   const chartData = [
@@ -25,11 +26,15 @@ const TeamOverviewChart: React.FC = () => {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <h3 className="text-lg font-medium text-gray-700">Overview</h3>
-        <select className="px-3 py-1.5 border border-gray-300 rounded-md text-sm text-gray-700 bg-white">
-          <option>2024</option>
-          <option>2023</option>
-          <option>2022</option>
-        </select>
+        <Select
+          options={[
+            { value: '2024', label: '2024' },
+            { value: '2023', label: '2023' },
+            { value: '2022', label: '2022' }
+          ]}
+          value="2024"
+          onChange={() => { }}
+        />
       </div>
 
       {/* Total Amount */}

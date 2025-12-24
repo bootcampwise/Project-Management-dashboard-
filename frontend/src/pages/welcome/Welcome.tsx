@@ -1,6 +1,7 @@
 import React from "react";
 import { useWelcome } from "./hooks/useWelcome";
 import { welcomeStyles, welcomeClasses } from "./welcomeStyle";
+import { Button } from "../../components/ui";
 
 const WelcomeScreen: React.FC = () => {
   const { handleGetStarted, isLoading } = useWelcome();
@@ -38,13 +39,14 @@ const WelcomeScreen: React.FC = () => {
         </p>
 
         {/* BUTTON */}
-        <button
+        <Button
+          variant="primary"
           style={welcomeStyles.button}
           className={welcomeClasses.button}
           onClick={handleGetStarted}
         >
           Get Started
-        </button>
+        </Button>
       </div>
     </div>
   );

@@ -1,12 +1,15 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
-import type { RootState, AppDispatch } from "../../../store";
-import { updateUserProfile } from "../../../store/slices/authSlice";
+import {
+  useGetSessionQuery,
+  useUpdateProfileMutation,
+} from "../../../store/api/authApiSlice";
 
 export const useWelcome = () => {
   const navigate = useNavigate();
-  const { user, isLoading } = useSelector((state: RootState) => state.auth);
+
+  // Get user from RTK Query instead of Redux state
+  const { data: user, isLoading } = useGetSessionQuery();
 
   useEffect(() => {
     if (!user) return;
@@ -30,10 +33,10 @@ export const useWelcome = () => {
     }
   }, [user, navigate]);
 
-  const dispatch = useDispatch<AppDispatch>();
+  const [updateProfile] = useUpdateProfileMutation();
 
   const handleGetStarted = () => {
-    dispatch(updateUserProfile({ hasCompletedOnboarding: true }));
+    updateProfile({ hasCompletedOnboarding: true });
     navigate("/dashboard", { state: { openOnboarding: true } });
   };
 

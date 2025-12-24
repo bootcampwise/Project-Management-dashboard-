@@ -1,7 +1,8 @@
 import React from 'react';
-import { X, Sparkles, ChevronDown } from 'lucide-react';
+import { X, Sparkles } from 'lucide-react';
+import { IconButton, Input, Select, Textarea } from '../ui';
 import type { CreateProjectPayload } from '../../types';
-import { useCreateProjectModal } from '../../hooks/projectboard/useCreateProjectModal';
+import { useCreateProjectModal } from "../../pages/projectboard/hooks/useCreateProjectModal";
 
 interface CreateProjectModalProps {
   isOpen: boolean;
@@ -36,24 +37,19 @@ const CreateProjectModal: React.FC<CreateProjectModalProps> = ({ isOpen, onClose
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
           <h2 className="text-lg font-semibold text-gray-800">Create new project</h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
-            <X size={20} />
-          </button>
+          <IconButton icon={<X size={20} />} onClick={onClose} className="text-gray-400 hover:text-gray-600" />
         </div>
 
         {/* Body */}
         <div className="p-6 overflow-y-auto">
           {/* Project Name */}
           <div className="mb-5">
-            <label className="block text-xs font-medium text-gray-400 mb-1.5 uppercase">
-              Project name
-            </label>
-            <input
+            <Input
               type="text"
+              label="Project name"
               value={projectName}
               onChange={(e) => setProjectName(e.target.value)}
-              className="w-full px-3 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 text-sm"
-              placeholder="|"
+              placeholder="Enter project name"
             />
           </div>
 
@@ -79,68 +75,46 @@ const CreateProjectModal: React.FC<CreateProjectModalProps> = ({ isOpen, onClose
           {/* Team and Privacy Row */}
           <div className="grid grid-cols-2 gap-4 mb-5">
             {/* Select a team */}
-            <div>
-              <label className="block text-xs font-medium text-gray-400 mb-1.5 uppercase">
-                Select a team
-              </label>
-              <div className="relative">
-                <select
-                  value={selectedTeamId}
-                  onChange={(e) => setSelectedTeamId(e.target.value)}
-                  className="w-full appearance-none px-3 py-2 border border-gray-200 rounded-md bg-white text-gray-800 text-sm hover:border-gray-300 focus:outline-none focus:border-blue-500 pr-8"
-                >
-                  <option value="" disabled>Select a team</option>
-                  {teams.map(team => (
-                    <option key={team.id} value={team.id}>{team.name}</option>
-                  ))}
-                </select>
-                <ChevronDown size={14} className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none" />
-              </div>
-            </div>
+            <Select
+              label="Select a team"
+              value={selectedTeamId}
+              onChange={(e) => setSelectedTeamId(e.target.value)}
+              options={[
+                { value: '', label: 'Select a team', disabled: true },
+                ...teams.map(team => ({ value: team.id, label: team.name }))
+              ]}
+            />
 
             {/* Privacy */}
-            <div>
-              <label className="block text-xs font-medium text-gray-400 mb-1.5 uppercase">
-                Privacy
-              </label>
-              <div className="relative">
-                <select
-                  value={privacy}
-                  onChange={(e) => setPrivacy(e.target.value as "public" | "private" | "team")}
-                  className="w-full appearance-none px-3 py-2 border border-gray-200 rounded-md bg-white text-gray-800 text-sm hover:border-gray-300 focus:outline-none focus:border-blue-500 pr-8"
-                >
-                  <option value="public">Public to team</option>
-                  <option value="private">Private to members</option>
-                  <option value="team">Shared with team</option>
-                </select>
-                <ChevronDown size={14} className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none" />
-              </div>
-            </div>
+            <Select
+              label="Privacy"
+              value={privacy}
+              onChange={(e) => setPrivacy(e.target.value as "public" | "private" | "team")}
+              options={[
+                { value: 'public', label: 'Public to team' },
+                { value: 'private', label: 'Private to members' },
+                { value: 'team', label: 'Shared with team' }
+              ]}
+            />
           </div>
 
           {/* Due Date */}
           <div className="mb-5">
-            <label className="block text-xs font-medium text-gray-400 mb-1.5 uppercase">
-              Due Date
-            </label>
-            <input
+            <Input
               type="date"
+              label="Due Date"
               value={dueDate}
               onChange={(e) => setDueDate(e.target.value)}
-              className="w-full px-3 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 text-sm"
             />
           </div>
 
           {/* Description */}
           <div className="mb-2">
-            <label className="block text-xs font-medium text-gray-400 mb-1.5 uppercase">
-              Description
-            </label>
-            <textarea
+            <Textarea
+              label="Description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={3}
-              className="w-full px-3 py-2 border border-gray-200 rounded-md text-sm placeholder-gray-300 focus:outline-none focus:border-gray-300 resize-none"
               placeholder="Please share your main reason..."
             />
           </div>

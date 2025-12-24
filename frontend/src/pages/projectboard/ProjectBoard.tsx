@@ -29,6 +29,7 @@ import CreateTaskModal from "../../components/task/CreateTaskModal";
 import AddEventModal from "../../components/projectBoard/AddEventModal";
 import { useProjectBoard } from "./hooks/useProjectBoard";
 import { projectboardClasses } from "./projectboardStyle";
+import { Button, Dropdown, type DropdownItem } from "../../components/ui";
 
 const ProjectBoard: React.FC = () => {
   const {
@@ -50,8 +51,6 @@ const ProjectBoard: React.FC = () => {
     isAddEventModalOpen,
     modalInitialStatus,
     taskToEdit,
-    isProjectDropdownOpen,
-    isMenuDropdownOpen,
 
     // Setters
     setSidebarOpen,
@@ -62,8 +61,6 @@ const ProjectBoard: React.FC = () => {
     setIsSearchOpen,
     setIsCreateTaskModalOpen,
     setIsAddEventModalOpen,
-    setIsProjectDropdownOpen,
-    setIsMenuDropdownOpen,
     setSelectedTask,
     setTaskToEdit,
 
@@ -124,12 +121,13 @@ const ProjectBoard: React.FC = () => {
   return (
     <div className={projectboardClasses.container}>
       {/* Mobile menu button */}
-      <button
+      <Button
+        variant="ghost"
         className={projectboardClasses.menuButton(sidebarOpen)}
         onClick={() => setSidebarOpen(true)}
       >
         <Menu size={22} />
-      </button>
+      </Button>
 
       {/* Sidebar */}
       <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
@@ -143,86 +141,67 @@ const ProjectBoard: React.FC = () => {
             {/* Title & Status */}
             <div className={projectboardClasses.headerTitleWrapper}>
               <div className={projectboardClasses.headerMenuWrapper}>
-                <div
-                  className={projectboardClasses.headerTitleClickable}
-                  onClick={() => setIsProjectDropdownOpen(!isProjectDropdownOpen)}
-                >
-                  <h1 className={projectboardClasses.headerTitle}>{activeProject?.name || "No Projects"}</h1>
-                </div>
-
-                {/* Project Switcher Dropdown */}
-                {isProjectDropdownOpen && (
-                  <div className={projectboardClasses.dropdown}>
-                    <div className={projectboardClasses.dropdownHeader}>
-                      Switch Project
+                <Dropdown
+                  trigger={
+                    <div className={projectboardClasses.headerTitleClickable}>
+                      <h1 className={projectboardClasses.headerTitle}>{activeProject?.name || "No Projects"}</h1>
                     </div>
-                    {projects.map(p => (
-                      <button
-                        key={p.id}
-                        className={projectboardClasses.dropdownItem(activeProject?.id === p.id)}
-                        onClick={() => handleSwitchProject(p)}
-                      >
-                        <span className={projectboardClasses.dropdownItemText}>{p.name}</span>
-                        {activeProject?.id === p.id && <Check size={14} />}
-                      </button>
-                    ))}
-                    {projects.length === 0 && (
-                      <div className={projectboardClasses.dropdownEmpty}>No projects found</div>
-                    )}
-                    <div className={projectboardClasses.dropdownDivider}>
-                      <button
-                        className={projectboardClasses.dropdownCreateButton}
-                        onClick={() => {
-                          setIsProjectDropdownOpen(false);
-                          setIsCreateModalOpen(true);
-                        }}
-                      >
-                        <Plus size={14} />
-                        Create New Project
-                      </button>
-                    </div>
-                  </div>
-                )}
+                  }
+                  items={[
+                    { key: 'switch-header', label: 'Switch Project', header: true },
+                    ...projects.map(p => ({
+                      key: p.id,
+                      label: (
+                        <div className="flex items-center justify-between w-full">
+                          <span className={projectboardClasses.dropdownItemText}>{p.name}</span>
+                          {activeProject?.id === p.id && <Check size={14} />}
+                        </div>
+                      ),
+                      onClick: () => handleSwitchProject(p)
+                    })),
+                    { key: 'div1', divider: true } as DropdownItem,
+                    {
+                      key: 'create-new',
+                      label: 'Create New Project',
+                      icon: <Plus size={14} />,
+                      onClick: () => setIsCreateModalOpen(true)
+                    }
+                  ]}
+                />
 
                 <Star className={projectboardClasses.starIcon} size={18} />
 
                 <div className="relative">
-                  <button
-                    className={projectboardClasses.menuIconButton}
-                    onClick={() => setIsMenuDropdownOpen(!isMenuDropdownOpen)}
-                  >
-                    <MoreHorizontal className={projectboardClasses.menuIconColor} size={18} />
-                  </button>
-
-                  {/* Menu Dropdown */}
-                  {isMenuDropdownOpen && (
-                    <div className={projectboardClasses.menuDropdown}>
-                      <div className={projectboardClasses.menuDropdownHeader}>
-                        <p className={projectboardClasses.menuDropdownLabel}>Active Project</p>
-                        <p className={projectboardClasses.menuDropdownValue}>{activeProject?.name || "None"}</p>
-                      </div>
-                      <button
-                        className={projectboardClasses.menuDropdownItem}
-                        onClick={() => {
-                          setIsMenuDropdownOpen(false);
-                          setIsProjectDropdownOpen(true);
-                        }}
-                      >
-                        <ChevronRight size={14} />
-                        Switch Project
+                  <Dropdown
+                    align="right"
+                    trigger={
+                      <button className={projectboardClasses.menuIconButton}>
+                        <MoreHorizontal className={projectboardClasses.menuIconColor} size={18} />
                       </button>
-                      <button
-                        className={projectboardClasses.menuDropdownDeleteItem}
-                        onClick={() => {
-                          setIsMenuDropdownOpen(false);
+                    }
+                    items={[
+                      {
+                        key: 'active-header',
+                        custom: true,
+                        label: (
+                          <div className={projectboardClasses.menuDropdownHeader}>
+                            <p className={projectboardClasses.menuDropdownLabel}>Active Project</p>
+                            <p className={projectboardClasses.menuDropdownValue}>{activeProject?.name || "None"}</p>
+                          </div>
+                        )
+                      },
+                      { key: 'switch', label: 'Switch Project', icon: <ChevronRight size={14} />, onClick: () => { /* Logic? */ } },
+                      {
+                        key: 'delete',
+                        label: 'Delete Project',
+                        danger: true,
+                        icon: <Trash2 size={14} />,
+                        onClick: () => {
                           if (activeProject) handleDeleteProject(activeProject.id);
-                        }}
-                      >
-                        <Trash2 size={14} />
-                        Delete Project
-                      </button>
-                    </div>
-                  )}
+                        }
+                      }
+                    ]}
+                  />
                 </div>
               </div>
               <div className={projectboardClasses.statusBadge}>
@@ -268,17 +247,21 @@ const ProjectBoard: React.FC = () => {
                 })()}
               </div>
 
-              <button className={projectboardClasses.shareButton}>
-                <Share2 size={16} />
+              <Button
+                variant="secondary"
+                className={projectboardClasses.shareButton}
+                leftIcon={<Share2 size={16} />}
+              >
                 <span className="text-sm">Share</span>
-              </button>
-              <button
+              </Button>
+              <Button
+                variant="primary"
                 className={projectboardClasses.createButton}
                 onClick={() => setIsCreateModalOpen(true)}
+                rightIcon={<ChevronDown size={14} className={projectboardClasses.createButtonChevron} />}
               >
                 <span>Create</span>
-                <ChevronDown size={14} className={projectboardClasses.createButtonChevron} />
-              </button>
+              </Button>
             </div>
           </div>
 
@@ -287,23 +270,25 @@ const ProjectBoard: React.FC = () => {
             {/* Tabs */}
             <div className={projectboardClasses.tabsWrapper}>
               {tabs.map((tab) => (
-                <button
+                <Button
+                  variant="ghost"
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
                   className={projectboardClasses.tab(activeTab === tab.id)}
+                  leftIcon={<tab.icon size={16} />}
                 >
-                  <tab.icon size={16} />
                   <span>{tab.id}</span>
-                </button>
+                </Button>
               ))}
-              <button
+              <Button
+                variant="ghost"
                 type="button"
                 className={projectboardClasses.addTabButton}
                 onClick={handleOpenAddEvent}
+                leftIcon={<Plus size={16} />}
               >
-                <Plus size={16} />
                 <span>Add</span>
-              </button>
+              </Button>
             </div>
 
             {/* Tools */}
@@ -384,8 +369,7 @@ const ProjectBoard: React.FC = () => {
         isOpen={isAddEventModalOpen}
         onClose={() => setIsAddEventModalOpen(false)}
         projectId={activeProject?.id}
-        onAdd={(event) => {
-          console.log('Event created:', event);
+        onAdd={(_event) => {
           // Events will be refreshed automatically when the calendar/timeline components fetch data
         }}
       />

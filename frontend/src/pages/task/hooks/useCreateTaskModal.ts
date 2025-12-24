@@ -1,19 +1,13 @@
 import React, { useState, useRef, useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
 import type {
   CreateTaskPayload,
-  Project,
   UseCreateTaskModalProps,
 } from "../../../types";
-import type { RootState } from "../../../store";
-import {
-  setProjects,
-  setLoading,
-  setError,
-} from "../../../store/slices/projectSlice";
-import { apiClient } from "../../../lib/apiClient";
-import { supabase } from "../../../lib/supabase";
-import toast from "react-hot-toast";
+import { useGetProjectsQuery } from "../../../store/api/projectApiSlice";
+import { useGetTeamMembersQuery } from "../../../store/api/teamApiSlice";
+import { useGetSessionQuery } from "../../../store/api/authApiSlice";
+import { useUploadFileMutation } from "../../../store/api/storageApiSlice";
+import { showToast } from "../../../components/ui";
 
 export const useCreateTaskModal = ({
   isOpen,
@@ -23,10 +17,11 @@ export const useCreateTaskModal = ({
   initialStatus,
   task,
 }: UseCreateTaskModalProps) => {
-  const dispatch = useDispatch();
-  const { projects, isLoading } = useSelector(
-    (state: RootState) => state.project
-  );
+  // RTK Query hooks
+  const { data: projects = [], isLoading } = useGetProjectsQuery();
+  const { data: teamMembers = [] } = useGetTeamMembersQuery();
+  const { data: user } = useGetSessionQuery();
+  const [uploadFile] = useUploadFileMutation();
 
   const [title, setTitle] = useState("");
   const [status, setStatus] = useState(initialStatus || "IN_PROGRESS");
@@ -144,38 +139,25 @@ export const useCreateTaskModal = ({
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Fetch projects and users when modal opens
+  // Transform teamMembers to allUsers format for assignee dropdown
   useEffect(() => {
-    if (isOpen) {
-      const fetchData = async () => {
-        try {
-          dispatch(setLoading(true));
-
-          // Fetch Projects
-          const projectsResponse = await apiClient.get<Project[]>("/projects");
-          dispatch(setProjects(projectsResponse));
-          if (projectsResponse.length > 0 && !selectedProjectId) {
-            setSelectedProjectId(projectsResponse[0].id);
-          }
-
-          // Fetch All Users for Assignee dropdown
-          const usersResponse = await apiClient.get<
-            { id: string; name: string; avatar?: string }[]
-          >("/users");
-          setAllUsers(usersResponse);
-        } catch (err: unknown) {
-          if (err instanceof Error) {
-            dispatch(setError(err.message));
-          } else {
-            dispatch(setError("An unknown error occurred"));
-          }
-        } finally {
-          dispatch(setLoading(false));
-        }
-      };
-      fetchData();
+    if (teamMembers.length > 0) {
+      setAllUsers(
+        teamMembers.map((m) => ({
+          id: String(m.id),
+          name: m.name,
+          avatar: m.avatar,
+        }))
+      );
     }
-  }, [isOpen, dispatch]);
+  }, [teamMembers]);
+
+  // Set default project when projects load
+  useEffect(() => {
+    if (isOpen && projects.length > 0 && !selectedProjectId) {
+      setSelectedProjectId(projects[0].id);
+    }
+  }, [isOpen, projects, selectedProjectId]);
 
   // Update status when initialStatus changes or modal re-opens
   useEffect(() => {
@@ -222,12 +204,11 @@ export const useCreateTaskModal = ({
   /* eslint-disable @typescript-eslint/no-unused-vars */
   const handleCreate = async () => {
     if (!title.trim()) {
-      toast.error("Please enter a task title");
+      showToast.error("Please enter a task title");
       return;
     }
 
     setIsSubmitting(true);
-    console.log("[useCreateTaskModal] Starting task creation for:", title);
 
     if (!selectedProjectId && projects.length > 0) {
       // Fallback if somehow not set
@@ -244,14 +225,8 @@ export const useCreateTaskModal = ({
       }[] = [];
 
       if (attachments.length > 0) {
-        // Need user ID for path - assuming auth state is available or we can get it from supabase session
-        // For now, we will use 'anonymous' if not found, but it should be protected by RLS anyway.
-        // Best to use the actual user ID.
-        const {
-          data: { user },
-        } = await supabase.auth.getUser();
-
-        if (!user) {
+        // Use user from RTK Query session
+        if (!user?.id) {
           throw new Error("User not authenticated");
         }
 
@@ -259,21 +234,18 @@ export const useCreateTaskModal = ({
           // Skip if it's already an uploaded attachment (checking if it has metadata structure)
           // But here attachments state is File[], so we assume new uploads.
 
-          // const fileExt = file.name.split(".").pop();
           const fileName = `${Date.now()}-${file.name.replace(
             /[^a-zA-Z0-9.-]/g,
             "_"
           )}`;
           const filePath = `${user.id}/${fileName}`;
 
-          const { error: uploadError } = await supabase.storage
-            .from("attachments")
-            .upload(filePath, file);
-
-          if (uploadError) {
-            console.error("Supabase upload error:", uploadError);
-            throw new Error(`Failed to upload ${file.name}`);
-          }
+          // Upload using RTK Query
+          await uploadFile({
+            bucket: "attachments",
+            path: filePath,
+            file,
+          }).unwrap();
 
           uploadedAttachments.push({
             name: file.name,
@@ -296,8 +268,6 @@ export const useCreateTaskModal = ({
         assigneeIds,
         attachments: uploadedAttachments, // Send metadata
       };
-
-      console.log("Payload prepared:", payload);
 
       if (task && onUpdate) {
         // Edit Mode
@@ -324,7 +294,7 @@ export const useCreateTaskModal = ({
       console.error("Error in onCreate:", error);
       const message =
         error instanceof Error ? error.message : "Failed to create task";
-      toast.error(message);
+      showToast.error(message);
     } finally {
       setIsSubmitting(false);
     }

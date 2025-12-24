@@ -1,5 +1,5 @@
 import { useAppDispatch, useAppSelector } from "../../../store/hooks";
-import { setSidebarOpen, setSettingsOpen } from "../../../store/slices/uiSlice";
+import { setSidebarOpen, setSettingsOpen } from "../../../store/uiSlice";
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 

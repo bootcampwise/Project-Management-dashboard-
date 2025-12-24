@@ -1,21 +1,28 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import AuthButton from "../../components/ui/AuthButton";
-import { useDispatch } from "react-redux";
-import { signInWithGoogle, signInWithGithub } from "../../store/slices/authSlice";
-import type { AppDispatch } from "../../store";
+
+import { Button, AuthButton, Input } from "../../components/ui";
+import {
+  useLoginWithGoogleMutation,
+  useLoginWithGithubMutation,
+} from "../../store/api/authApiSlice";
 import { registerStyles, registerClasses } from "./registerStyle";
 
 const Register: React.FC = () => {
-  const dispatch = useDispatch<AppDispatch>();
   const [email, setEmail] = useState("");
 
+  // OAuth mutations from RTK Query
+  const [loginWithGoogle, { isLoading: isGoogleLoading }] =
+    useLoginWithGoogleMutation();
+  const [loginWithGithub, { isLoading: isGithubLoading }] =
+    useLoginWithGithubMutation();
+
   const handleGoogleSignIn = () => {
-    dispatch(signInWithGoogle());
+    loginWithGoogle();
   };
 
   const handleGithubSignIn = () => {
-    dispatch(signInWithGithub());
+    loginWithGithub();
   };
 
   return (
@@ -53,8 +60,18 @@ const Register: React.FC = () => {
           className={registerClasses.socialButtonsWrapper}
           style={registerStyles.socialButtonsWrapper}
         >
-          <AuthButton icon="/google.png" text="Continue with Google" onClick={handleGoogleSignIn} />
-          <AuthButton icon="/github.png" text="Continue with Github" onClick={handleGithubSignIn} />
+          <AuthButton
+            icon="/google.png"
+            text={isGoogleLoading ? "Loading..." : "Continue with Google"}
+            onClick={handleGoogleSignIn}
+            disabled={isGoogleLoading || isGithubLoading}
+          />
+          <AuthButton
+            icon="/github.png"
+            text={isGithubLoading ? "Loading..." : "Continue with Github"}
+            onClick={handleGithubSignIn}
+            disabled={isGoogleLoading || isGithubLoading}
+          />
           <AuthButton icon="/figma.png" text="Continue with Figma" />
         </div>
 
@@ -67,38 +84,25 @@ const Register: React.FC = () => {
         </div>
 
         {/* EMAIL INPUT */}
-        <div
-          className={registerClasses.emailSection}
-          style={registerStyles.emailSection}
-        >
-          <label
-            className={registerClasses.label}
-            style={registerStyles.label}
-          >
-            Email
-          </label>
-
-          <input
-            type="email"
-            placeholder="Enter your email address..."
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className={registerClasses.input}
-            style={registerStyles.input}
-          />
-
-          <p style={registerStyles.helperText}>
-            Use an organization email to easily collaborate with teammates.
-          </p>
-        </div>
+        <Input
+          type="email"
+          label="Email"
+          placeholder="Enter your email address..."
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          helperText="Use an organization email to easily collaborate with teammates."
+          className={registerClasses.input}
+        />
 
         {/* CONTINUE BUTTON */}
-        <button
+        <Button
+          variant="primary"
+          size="lg"
           className={registerClasses.continueButton}
           style={registerStyles.continueButton}
         >
           Continue
-        </button>
+        </Button>
 
         <div className={registerClasses.loginLinkWrapper}>
           Already have account?

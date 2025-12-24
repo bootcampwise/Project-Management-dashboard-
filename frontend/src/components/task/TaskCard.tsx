@@ -1,5 +1,6 @@
 import React from 'react';
 import { MessageSquare, Paperclip, Flag, ListTodo } from 'lucide-react';
+import { Badge } from '../ui';
 
 import type { TaskCardComponentProps } from '../../types';
 
@@ -24,20 +25,7 @@ const TaskCard: React.FC<TaskCardComponentProps> = ({
     return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   };
 
-  const getPriorityColor = (p?: string) => {
-    const priorityUpper = p?.toUpperCase();
-    switch (priorityUpper) {
-      case 'URGENT':
-      case 'HIGH':
-        return 'bg-red-50 text-red-600';
-      case 'MEDIUM':
-        return 'bg-amber-50 text-amber-600';
-      case 'LOW':
-        return 'bg-green-50 text-green-600';
-      default:
-        return 'bg-gray-50 text-gray-500';
-    }
-  };
+
 
   const displayAssignees = assignees && assignees.length > 0 ? assignees : (assignee ? [assignee] : []);
 
@@ -49,9 +37,9 @@ const TaskCard: React.FC<TaskCardComponentProps> = ({
       {/* Project Name */}
       {project && (
         <div className="mb-1">
-          <span className="inline-block px-2 py-0.5 bg-blue-50 text-blue-600 text-[10px] font-semibold rounded uppercase tracking-wide">
+          <Badge variant="primary" size="sm" className="uppercase tracking-wide font-semibold">
             {project}
-          </span>
+          </Badge>
         </div>
       )}
 
@@ -111,9 +99,13 @@ const TaskCard: React.FC<TaskCardComponentProps> = ({
         </div>
 
         {/* Priority Badge */}
-        <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider ${getPriorityColor(priority)}`}>
+        <Badge variant={
+          priority?.toUpperCase() === 'URGENT' || priority?.toUpperCase() === 'HIGH' ? 'danger' :
+            priority?.toUpperCase() === 'LOW' ? 'success' :
+              priority?.toUpperCase() === 'MEDIUM' ? 'warning' : 'default'
+        } size="sm" className="font-bold uppercase tracking-wider">
           {priority || 'Medium'}
-        </span>
+        </Badge>
       </div>
 
       {/* Footer Stats */}

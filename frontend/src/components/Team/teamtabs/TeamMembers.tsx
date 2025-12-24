@@ -1,9 +1,11 @@
 import React, { useMemo } from 'react';
 import { useAppSelector } from '../../../store/hooks';
+import { useGetProjectsQuery } from '../../../store/api/projectApiSlice';
 import { Loader2 } from 'lucide-react';
 
 const TeamMembers: React.FC = () => {
-  const { activeProject, isLoading } = useAppSelector((state) => state.project);
+  const { activeProject } = useAppSelector((state) => state.ui);
+  const { isLoading } = useGetProjectsQuery();
 
   // Get unique members from all teams associated with this project
   const projectMembers = useMemo(() => {

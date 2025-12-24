@@ -45,7 +45,7 @@ export const useTableView = (tasks: Task[] = []) => {
       }
     });
 
-    const getCount = (item: any): number => {
+    const getCount = (item: number | unknown[] | undefined): number => {
       if (Array.isArray(item)) return item.length;
       if (typeof item === "number") return item;
       return 0;
@@ -177,7 +177,7 @@ const formatDate = (dateString?: string) => {
 // Helper to map Task to TableTask
 const mapTaskToTableTask = (task: Task) => {
   const tags = task.labels || task.tags || [];
-  const mappedLabels = tags.map((tag: any) => {
+  const mappedLabels = tags.map((tag: string | { text: string }) => {
     const labelText = typeof tag === "string" ? tag : tag.text;
 
     // Always generate color based on text to ensure variety and consistency

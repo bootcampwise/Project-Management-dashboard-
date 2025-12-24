@@ -1,6 +1,7 @@
 import React from 'react';
-import { useTeamTableView } from '../../../hooks/teams/useTeamTableView';
+import { useTeamTableView } from "../../../pages/team/hooks/useTeamTableView";
 import type { TeamTableViewProps, Project } from '../../../types';
+import { Badge } from "../../ui";
 
 
 const TeamTableView: React.FC<TeamTableViewProps> = ({ projectId }) => {
@@ -52,26 +53,20 @@ const TeamTableView: React.FC<TeamTableViewProps> = ({ projectId }) => {
                   </div>
                 </div>
                 <div>
-                  <span
-                    className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${status === "On track"
-                      ? "bg-green-100 text-green-800"
-                      : status === "At risk"
-                        ? "bg-orange-100 text-orange-800"
-                        : status === "On hold"
-                          ? "bg-blue-100 text-blue-800"
-                          : "bg-gray-100 text-gray-800"
-                      }`}
+                  <Badge
+                    variant={
+                      status === "On track" ? "success" :
+                        status === "At risk" ? "warning" :
+                          status === "On hold" ? "primary" : "default"
+                    }
+                    className="gap-1.5"
                   >
-                    <span className={`w-1.5 h-1.5 rounded-full ${status === "On track"
-                      ? "bg-green-600"
-                      : status === "At risk"
-                        ? "bg-orange-600"
-                        : status === "On hold"
-                          ? "bg-blue-600"
-                          : "bg-gray-500"
-                      }`}></span>
+                    <span className={`w-1.5 h-1.5 rounded-full ${status === "On track" ? "bg-green-600" :
+                      status === "At risk" ? "bg-orange-600" :
+                        status === "On hold" ? "bg-blue-600" : "bg-gray-500"
+                      }`} />
                     {status}
-                  </span>
+                  </Badge>
                 </div>
                 <div>
                   <div className="flex items-center gap-3">
@@ -92,18 +87,15 @@ const TeamTableView: React.FC<TeamTableViewProps> = ({ projectId }) => {
                   </div>
                 </div>
                 <div>
-                  <span
-                    className={`px-2.5 py-0.5 rounded text-xs font-medium ${priority === "High"
-                      ? "bg-red-100 text-red-800"
-                      : priority === "Medium"
-                        ? "bg-orange-100 text-orange-800"
-                        : priority === "Low"
-                          ? "bg-green-100 text-green-800"
-                          : "bg-gray-100 text-gray-800"
-                      }`}
+                  <Badge
+                    variant={
+                      priority === "High" ? "danger" :
+                        priority === "Medium" ? "warning" :
+                          priority === "Low" ? "success" : "default"
+                    }
                   >
                     {priority}
-                  </span>
+                  </Badge>
                 </div>
                 <div>
                   <div className="flex -space-x-2">
@@ -143,7 +135,7 @@ const TeamTableView: React.FC<TeamTableViewProps> = ({ projectId }) => {
             return (
               <div
                 key={project.id}
-                onClick={() => navigate(`/project/${project.id}`)}
+                onClick={() => navigate(`/ project / ${project.id} `)}
                 className="grid grid-cols-[2fr_1fr_1.5fr_1fr_1fr_2fr] gap-4 px-4 py-4 hover:bg-gray-50 cursor-pointer items-center text-sm transition-colors"
               >
                 {/* Name */}
@@ -155,10 +147,15 @@ const TeamTableView: React.FC<TeamTableViewProps> = ({ projectId }) => {
 
                 {/* Status */}
                 <div>
-                  <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${statusColor.bg} ${statusColor.text}`}>
-                    <span className={`w-1.5 h-1.5 rounded-full ${statusColor.dot}`}></span>
+                  <Badge
+                    variant={statusColor.bg.includes('green') ? "success" :
+                      statusColor.bg.includes('orange') ? "warning" :
+                        statusColor.bg.includes('blue') ? "primary" : "default"}
+                    className="gap-1.5"
+                  >
+                    <span className={`w-1.5 h-1.5 rounded-full ${statusColor.dot}`} />
                     {project.status || 'Active'}
-                  </span>
+                  </Badge>
                 </div>
 
                 {/* Task Progress */}
@@ -181,9 +178,15 @@ const TeamTableView: React.FC<TeamTableViewProps> = ({ projectId }) => {
 
                 {/* Priority */}
                 <div>
-                  <span className={`inline-flex px-2.5 py-1 rounded-full text-xs font-medium ${priorityColor.bg} ${priorityColor.text}`}>
+                  <Badge
+                    variant={
+                      priorityColor.bg.includes('red') ? "danger" :
+                        priorityColor.bg.includes('orange') ? "warning" :
+                          priorityColor.bg.includes('green') ? "success" : "default"
+                    }
+                  >
                     {project.priority || 'Medium'}
-                  </span>
+                  </Badge>
                 </div>
 
                 {/* Members */}
@@ -191,7 +194,7 @@ const TeamTableView: React.FC<TeamTableViewProps> = ({ projectId }) => {
                   {/* Direct Members */}
                   {(project.members || []).slice(0, 5).map((member, idx) => (
                     <div
-                      key={`m-${idx}`}
+                      key={`m - ${idx} `}
                       className="w-7 h-7 rounded-full bg-gray-200 border-2 border-white flex items-center justify-center text-xs font-medium text-gray-600 relative group"
                       title={member.name}
                     >
@@ -210,7 +213,7 @@ const TeamTableView: React.FC<TeamTableViewProps> = ({ projectId }) => {
                   {/* Team Members (via Teams) */}
                   {(project.teams || []).flatMap(team => team.members || []).map((member, idx) => (
                     <div
-                      key={`tm-${idx}`}
+                      key={`tm - ${idx} `}
                       className="w-7 h-7 rounded-full bg-gray-200 border-2 border-white flex items-center justify-center text-xs font-medium text-gray-600 relative group"
                       title="Team Member"
                     >

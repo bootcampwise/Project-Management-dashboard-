@@ -1,10 +1,10 @@
 import React from 'react';
-import { X, Calendar, Clock, AlignLeft, Type, FileText } from 'lucide-react';
-
+import { X, Type } from 'lucide-react';
+import { IconButton, Select, Input, Textarea } from '../ui';
 import type { AddEventModalProps } from '../../types';
 
 
-import { useAddEventModal } from '../../hooks/projectboard/useAddEventModal';
+import { useAddEventModal } from "../../pages/projectboard/hooks/useAddEventModal";
 
 
 const AddEventModal: React.FC<AddEventModalProps> = ({ isOpen, onClose, onAdd, onUpdate, projectId, event }) => {
@@ -33,29 +33,22 @@ const AddEventModal: React.FC<AddEventModalProps> = ({ isOpen, onClose, onAdd, o
           <h2 className="text-xl font-bold text-gray-800">
             {isEditMode ? 'Edit Event' : 'Add Event in Calendar'}
           </h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition-colors" disabled={isLoading}>
-            <X size={20} />
-          </button>
+          <IconButton icon={<X size={20} />} onClick={onClose} className="text-gray-400 hover:text-gray-600" disabled={isLoading} />
         </div>
 
         {/* Body */}
         <div className="p-6 overflow-y-auto space-y-5">
 
           {/* Title */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1.5 flex items-center gap-2">
-              <FileText size={16} className="text-gray-400" />
-              Title <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="Enter event title"
-              className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-50 transition-all text-gray-700 placeholder-gray-400"
-              disabled={isLoading}
-            />
-          </div>
+          <Input
+            type="text"
+            label="Title"
+            required
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="Enter event title"
+            disabled={isLoading}
+          />
 
           {/* Event Type */}
           <div>
@@ -63,87 +56,58 @@ const AddEventModal: React.FC<AddEventModalProps> = ({ isOpen, onClose, onAdd, o
               <Type size={16} className="text-gray-400" />
               Event Type
             </label>
-            <div className="relative">
-              <select
-                value={eventType}
-                onChange={(e) => setEventType(e.target.value)}
-                className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm appearance-none bg-white focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-50 transition-all cursor-pointer text-gray-700"
-                disabled={isLoading}
-              >
-                <option value="MEETING">Meeting</option>
-                <option value="HOLIDAY">Holiday</option>
-                <option value="EVENT">Event</option>
-                <option value="DEADLINE">Deadline</option>
-                <option value="REMINDER">Reminder</option>
-              </select>
-              <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none text-gray-400">
-                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M2.5 4.5L6 8L9.5 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </div>
-            </div>
+            <Select
+              value={eventType}
+              onChange={(e) => setEventType(e.target.value)}
+              disabled={isLoading}
+              options={[
+                { value: 'MEETING', label: 'Meeting' },
+                { value: 'HOLIDAY', label: 'Holiday' },
+                { value: 'EVENT', label: 'Event' },
+                { value: 'DEADLINE', label: 'Deadline' },
+                { value: 'REMINDER', label: 'Reminder' }
+              ]}
+            />
           </div>
 
           {/* Date */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1.5 flex items-center gap-2">
-              <Calendar size={16} className="text-gray-400" />
-              Date <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="date"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-              className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-50 transition-all text-gray-700"
+          <Input
+            type="date"
+            label="Date"
+            required
+            value={date}
+            onChange={(e) => setDate(e.target.value)}
+            disabled={isLoading}
+          />
+
+          {/* Time Range */}
+          <div className="grid grid-cols-2 gap-4">
+            <Input
+              type="time"
+              label="Start Time"
+              required={eventType !== 'HOLIDAY'}
+              value={startTime}
+              onChange={(e) => setStartTime(e.target.value)}
               disabled={isLoading}
             />
-          </div>
-
-          {/* Time Range - Optional for holidays, required for other types */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1.5 flex items-center gap-2">
-                <Clock size={16} className="text-gray-400" />
-                Start Time {eventType !== 'HOLIDAY' && <span className="text-red-500">*</span>}
-              </label>
-              <input
-                type="time"
-                value={startTime}
-                onChange={(e) => setStartTime(e.target.value)}
-                className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-50 transition-all text-gray-700"
-                disabled={isLoading}
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1.5 flex items-center gap-2">
-                <Clock size={16} className="text-gray-400" />
-                End Time
-              </label>
-              <input
-                type="time"
-                value={endTime}
-                onChange={(e) => setEndTime(e.target.value)}
-                className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-50 transition-all text-gray-700"
-                disabled={isLoading}
-              />
-            </div>
+            <Input
+              type="time"
+              label="End Time"
+              value={endTime}
+              onChange={(e) => setEndTime(e.target.value)}
+              disabled={isLoading}
+            />
           </div>
 
           {/* Description */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1.5 flex items-center gap-2">
-              <AlignLeft size={16} className="text-gray-400" />
-              Description
-            </label>
-            <textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              rows={4}
-              placeholder="Enter about your event or meeting etc"
-              className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-50 transition-all resize-none placeholder-gray-400"
-              disabled={isLoading}
-            />
-          </div>
+          <Textarea
+            label="Description"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            rows={4}
+            placeholder="Enter about your event or meeting etc"
+            disabled={isLoading}
+          />
 
         </div>
 

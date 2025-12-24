@@ -1,16 +1,15 @@
 import { useState } from "react";
+import type { DropResult } from "@hello-pangea/dnd";
 import type { Task, CreateTaskPayload } from "../../../types";
-import { useAppDispatch } from "../../../store/hooks";
 import {
-  createTask,
-  updateTask,
-  updateTaskStatus,
-} from "../../../store/slices/taskSlice";
-import toast from "react-hot-toast";
+  useCreateTaskMutation,
+  useUpdateTaskMutation,
+  useUpdateTaskStatusMutation,
+} from "../../../store/api/taskApiSlice";
+import { showToast } from "../../../components/ui";
 import { useTasks } from "./useTasks";
 
 export const useTasksPage = () => {
-  const dispatch = useAppDispatch();
   const {
     tasks,
     sidebarOpen,
@@ -19,6 +18,11 @@ export const useTasksPage = () => {
     setActiveView,
     getPriorityColor,
   } = useTasks();
+
+  // RTK Query mutations
+  const [createTask] = useCreateTaskMutation();
+  const [updateTask] = useUpdateTaskMutation();
+  const [updateTaskStatus] = useUpdateTaskStatusMutation();
 
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [taskToEdit, setTaskToEdit] = useState<Task | null>(null);
@@ -123,7 +127,7 @@ export const useTasksPage = () => {
     setIsAddSectionOpen(false);
   };
 
-  const handleDragEnd = (result: any) => {
+  const handleDragEnd = async (result: DropResult) => {
     const { destination, source, draggableId } = result;
 
     if (!destination) return;
@@ -136,11 +140,15 @@ export const useTasksPage = () => {
     }
 
     const newStatus = destination.droppableId;
-    dispatch(updateTaskStatus({ id: draggableId, status: newStatus }));
+    try {
+      await updateTaskStatus({ id: draggableId, status: newStatus }).unwrap();
+    } catch (error) {
+      console.error("Failed to update task status:", error);
+      showToast.error("Failed to update task status");
+    }
   };
 
   const handleTaskClick = (task: Task) => {
-    // Map hook task data to Task interface if necessary and ensure all required fields
     const mappedTask: Task = {
       ...task,
       name: task.title || task.name,
@@ -153,22 +161,20 @@ export const useTasksPage = () => {
 
   const handleOpenCreateTask = (status?: string) => {
     setModalInitialStatus(status);
-    setTaskToEdit(null); // Ensure not in edit mode
+    setTaskToEdit(null);
     setIsCreateTaskModalOpen(true);
   };
 
   const handleCreateTask = async (newTask: CreateTaskPayload) => {
     try {
-      console.log("Creating task:", newTask);
-      // @ts-ignore - unwrap available on the returned promise
-      await dispatch(createTask(newTask)).unwrap();
-      toast.success("Task created successfully");
+      await createTask(newTask).unwrap();
+      showToast.success("Task created successfully");
       setIsCreateTaskModalOpen(false);
     } catch (err: unknown) {
       console.error("Failed to create task:", err);
       const errorMessage =
         err instanceof Error ? err.message : "Failed to create task";
-      toast.error(errorMessage);
+      showToast.error(errorMessage);
     }
   };
 
@@ -183,16 +189,15 @@ export const useTasksPage = () => {
     taskData: CreateTaskPayload
   ) => {
     try {
-      // @ts-ignore
-      await dispatch(updateTask({ id: taskId, data: taskData })).unwrap();
-      toast.success("Task updated successfully");
+      await updateTask({ id: taskId, data: taskData }).unwrap();
+      showToast.success("Task updated successfully");
       setIsCreateTaskModalOpen(false);
       setTaskToEdit(null);
     } catch (error: unknown) {
       console.error("Failed to update task:", error);
       const errorMessage =
         error instanceof Error ? error.message : String(error);
-      toast.error(`Failed to update task: ${errorMessage}`);
+      showToast.error(`Failed to update task: ${errorMessage}`);
     }
   };
 

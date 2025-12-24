@@ -1,7 +1,5 @@
 import React from "react";
-import { useDispatch } from "react-redux";
-import type { AppDispatch } from "../../../store";
-import { updateTaskStatus } from "../../../store/slices/taskSlice";
+import { useUpdateTaskStatusMutation } from "../../../store/api/taskApiSlice";
 import type { DropResult } from "@hello-pangea/dnd";
 import type { BoardColumnState } from "../../../types";
 
@@ -12,7 +10,7 @@ const DEFAULT_COLUMNS: BoardColumnState[] = [
     title: "Backlog",
     color: "gray",
     collapsed: false,
-    isVisible: true,
+    isVisible: false,
   },
   {
     id: "TODO",
@@ -35,7 +33,13 @@ const DEFAULT_COLUMNS: BoardColumnState[] = [
     collapsed: false,
     isVisible: true,
   },
-  { id: "QA", title: "QA", color: "yellow", collapsed: false, isVisible: true },
+  {
+    id: "QA",
+    title: "QA",
+    color: "yellow",
+    collapsed: false,
+    isVisible: false,
+  },
   {
     id: "COMPLETED",
     title: "Completed",
@@ -48,19 +52,19 @@ const DEFAULT_COLUMNS: BoardColumnState[] = [
     title: "Postponed",
     color: "red",
     collapsed: false,
-    isVisible: true,
+    isVisible: false,
   },
   {
     id: "CANCELED",
     title: "Canceled",
     color: "gray",
     collapsed: false,
-    isVisible: true,
+    isVisible: false,
   },
 ];
 
 export const useBoardView = () => {
-  const dispatch = useDispatch<AppDispatch>();
+  const [updateTaskStatus] = useUpdateTaskStatusMutation();
 
   // Column configuration with visibility state
   const [columns, setColumns] =
@@ -81,7 +85,7 @@ export const useBoardView = () => {
     }
 
     const newStatus = destination.droppableId;
-    dispatch(updateTaskStatus({ id: draggableId, status: newStatus }));
+    updateTaskStatus({ id: draggableId, status: newStatus });
   };
 
   const handleToggleColumn = (columnId: string) => {

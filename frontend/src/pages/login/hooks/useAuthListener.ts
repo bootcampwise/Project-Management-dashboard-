@@ -1,29 +1,41 @@
 import { useEffect } from "react";
 import { supabase } from "../../../lib/supabase";
-import { useDispatch } from "react-redux";
-import { checkSession, setUser } from "../../../store/slices/authSlice";
-import type { AppDispatch } from "../../../store";
+import { useLazyGetSessionQuery } from "../../../store/api/authApiSlice";
+import { apiSlice } from "../../../store/api/apiSlice";
+import { useAppDispatch } from "../../../store/hooks";
 
+/**
+ * Auth Listener Hook
+ *
+ * Listens for Supabase auth state changes and syncs with RTK Query cache.
+ * - On app load: checks for existing session
+ * - On login: refetches user data
+ * - On logout: invalidates RTK Query cache
+ */
 export const useAuthListener = () => {
-  const dispatch = useDispatch<AppDispatch>();
+  const dispatch = useAppDispatch();
+  const [getSession] = useLazyGetSessionQuery();
 
   useEffect(() => {
-    // Initial session check
-    dispatch(checkSession());
+    // Initial session check on app load
+    getSession();
 
-    // Listen for changes
+    // Listen for auth state changes (login, logout, token refresh)
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (_event, session) => {
       if (session?.user) {
-        dispatch(checkSession());
+        // User logged in - refetch session data
+        getSession();
       } else {
-        dispatch(setUser(null));
+        // User logged out - invalidate all cached data
+        dispatch(apiSlice.util.resetApiState());
       }
     });
 
+    // Cleanup subscription on unmount
     return () => {
       subscription.unsubscribe();
     };
-  }, [dispatch]);
+  }, [dispatch, getSession]);
 };

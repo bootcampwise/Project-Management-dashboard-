@@ -1,7 +1,11 @@
 import { useState, useEffect } from "react";
 import type { CalendarEvent, UseAddEventModalProps } from "../../../types";
-import { calendarApi, type EventType } from "../../../lib/calendarApi";
-import toast from "react-hot-toast";
+import {
+  useCreateEventMutation,
+  useUpdateEventMutation,
+  type EventType,
+} from "../../../store/api/calendarApiSlice";
+import { showToast } from "../../../components/ui";
 import { format } from "date-fns";
 
 export const useAddEventModal = ({
@@ -17,8 +21,12 @@ export const useAddEventModal = ({
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
   const [description, setDescription] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
 
+  // RTK Query mutations
+  const [createEvent, { isLoading: isCreating }] = useCreateEventMutation();
+  const [updateEvent, { isLoading: isUpdating }] = useUpdateEventMutation();
+
+  const isLoading = isCreating || isUpdating;
   const isEditMode = !!event;
 
   // Pre-fill form when editing
@@ -59,16 +67,14 @@ export const useAddEventModal = ({
     const isHoliday = eventType === "HOLIDAY";
 
     if (!title || !date) {
-      toast.error("Please fill in required fields: Title and Date");
+      showToast.error("Please fill in required fields: Title and Date");
       return;
     }
 
     if (!isHoliday && !startTime) {
-      toast.error("Please fill in Start Time for this event type");
+      showToast.error("Please fill in Start Time for this event type");
       return;
     }
-
-    setIsLoading(true);
 
     try {
       let startDateTime: string;
@@ -86,13 +92,16 @@ export const useAddEventModal = ({
 
       if (isEditMode && event) {
         // Update existing event
-        await calendarApi.updateEvent(event.id, {
-          title,
-          type: eventType as EventType,
-          start: startDateTime,
-          end: endDateTime,
-          description: description || undefined,
-        });
+        await updateEvent({
+          id: event.id,
+          data: {
+            title,
+            type: eventType as EventType,
+            start: startDateTime,
+            end: endDateTime,
+            description: description || undefined,
+          },
+        }).unwrap();
 
         const updatedEvent: CalendarEvent = {
           id: event.id,
@@ -106,17 +115,17 @@ export const useAddEventModal = ({
         };
 
         if (onUpdate) onUpdate(updatedEvent);
-        toast.success(`Event "${title}" updated successfully!`);
+        showToast.success(`Event "${title}" updated successfully!`);
       } else {
         // Create new event
-        const createdEvent = await calendarApi.createEvent({
+        const createdEvent = await createEvent({
           title,
           type: eventType as EventType,
           start: startDateTime,
           end: endDateTime,
           description: description || undefined,
           projectId: projectId || undefined,
-        });
+        }).unwrap();
 
         const newEvent: CalendarEvent = {
           id: createdEvent.id,
@@ -130,18 +139,16 @@ export const useAddEventModal = ({
         };
 
         if (onAdd) onAdd(newEvent);
-        toast.success(`Event "${title}" created successfully!`);
+        showToast.success(`Event "${title}" created successfully!`);
       }
 
       resetForm();
       onClose();
     } catch (error) {
       console.error("Failed to save event:", error);
-      toast.error(
+      showToast.error(
         isEditMode ? "Failed to update event." : "Failed to create event."
       );
-    } finally {
-      setIsLoading(false);
     }
   };
 

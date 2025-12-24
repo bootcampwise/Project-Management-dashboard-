@@ -1,15 +1,26 @@
 import { useState, useEffect, useCallback } from "react";
 import { format } from "date-fns";
-import { calendarApi, type CalendarEventApi } from "../../../lib/calendarApi";
+import {
+  useLazyGetTodayEventsQuery,
+  useDeleteEventMutation,
+  useUpdateEventMutation,
+  type CalendarEvent,
+  type UpdateEventPayload,
+} from "../../../store/api/calendarApiSlice";
+import { showToast } from "../../../components/ui";
 
 interface UseTimelineViewProps {
   projectId?: string;
 }
 
 export const useTimelineView = ({ projectId }: UseTimelineViewProps = {}) => {
-  const [events, setEvents] = useState<CalendarEventApi[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [currentDate] = useState(new Date());
+
+  // RTK Query hooks
+  const [fetchTodayEvents, { isLoading }] = useLazyGetTodayEventsQuery();
+  const [deleteEventMutation] = useDeleteEventMutation();
+  const [updateEventMutation] = useUpdateEventMutation();
 
   // Day hours for the timeline (8:00 AM - 5:00 PM in 12-hour format)
   const dayHours = [
@@ -26,58 +37,48 @@ export const useTimelineView = ({ projectId }: UseTimelineViewProps = {}) => {
   ];
 
   // Fetch today's events
-  const fetchTodayEvents = useCallback(async () => {
+  const loadTodayEvents = useCallback(async () => {
     if (!projectId) return;
 
-    setIsLoading(true);
     try {
-      const fetchedEvents = await calendarApi.getTodayEvents(projectId);
-      setEvents(fetchedEvents);
+      const result = await fetchTodayEvents(projectId).unwrap();
+      setEvents(result);
     } catch (error) {
       console.error("Failed to fetch today's events:", error);
-    } finally {
-      setIsLoading(false);
     }
-  }, [projectId]);
+  }, [projectId, fetchTodayEvents]);
 
   // Fetch events on mount and when projectId changes
   useEffect(() => {
-    fetchTodayEvents();
-  }, [fetchTodayEvents]);
+    loadTodayEvents();
+  }, [loadTodayEvents]);
 
   // Calculate the grid column position based on event start/end time
-  const getEventGridPosition = (event: CalendarEventApi) => {
+  const getEventGridPosition = (event: CalendarEvent) => {
     const startDate = new Date(event.start);
     const startHour = startDate.getHours();
 
     // Timeline starts at 8:00 (column 1)
-    // Column mapping: 8:00=1, 9:00=2, 10:00=3, 11:00=4, 12:00=5, 13:00=6, 14:00=7, 15:00=8, 16:00=9, 17:00=10
     const colStart = Math.max(1, startHour - 7);
 
     // Calculate column span based on end time
-    let colSpan = 1; // Default 1 hour
+    let colSpan = 1;
     if (event.end) {
       const endDate = new Date(event.end);
       const endHour = endDate.getHours();
       const endMinute = endDate.getMinutes();
 
-      // Calculate how many columns the event spans
-      // If event ends at 5:45, it should extend into the 5pm column
-      // colSpan = endHour - startHour, but at least 1
-      // Add 1 if there are minutes past the hour (e.g., 5:45 means it extends through 5pm column)
       colSpan = endHour - startHour;
       if (endMinute > 0) {
-        colSpan += 1; // Event extends into the next hour
+        colSpan += 1;
       }
       colSpan = Math.max(1, colSpan);
     }
 
-    // Ensure we don't exceed the grid (10 columns for 8am-5pm)
     const maxCol = 10;
-    if (colStart > maxCol) return null; // Event is after our timeline
-    if (colStart < 1) return null; // Event is before our timeline
+    if (colStart > maxCol) return null;
+    if (colStart < 1) return null;
 
-    // Limit colSpan so it doesn't go beyond the grid
     if (colStart + colSpan > maxCol + 1) {
       colSpan = maxCol - colStart + 1;
     }
@@ -140,17 +141,17 @@ export const useTimelineView = ({ projectId }: UseTimelineViewProps = {}) => {
 
   // Refresh events
   const refreshEvents = () => {
-    fetchTodayEvents();
+    loadTodayEvents();
   };
 
   // Delete an event with toast notification
   const deleteEvent = async (eventId: string, eventTitle: string) => {
-    const toast = (await import("react-hot-toast")).default;
-
-    toast.promise(
-      calendarApi.deleteEvent(eventId).then(() => {
-        setEvents((prev) => prev.filter((e) => e.id !== eventId));
-      }),
+    showToast.promise(
+      deleteEventMutation(eventId)
+        .unwrap()
+        .then(() => {
+          setEvents((prev) => prev.filter((e) => e.id !== eventId));
+        }),
       {
         loading: `Deleting "${eventTitle}"...`,
         success: `Event "${eventTitle}" deleted!`,
@@ -160,31 +161,21 @@ export const useTimelineView = ({ projectId }: UseTimelineViewProps = {}) => {
   };
 
   // Update an event
-  const updateEvent = async (
-    eventId: string,
-    data: {
-      title?: string;
-      type?: string;
-      start?: string;
-      end?: string;
-      description?: string;
-    }
-  ) => {
-    const toast = (await import("react-hot-toast")).default;
-
+  const updateEvent = async (eventId: string, data: UpdateEventPayload) => {
     try {
-      const updatedEvent = await calendarApi.updateEvent(
-        eventId,
-        data as Parameters<typeof calendarApi.updateEvent>[1]
-      );
+      const updatedEvent = await updateEventMutation({
+        id: eventId,
+        data,
+      }).unwrap();
+
       setEvents((prev) =>
         prev.map((e) => (e.id === eventId ? { ...e, ...updatedEvent } : e))
       );
-      toast.success("Event updated successfully!");
+      showToast.success("Event updated successfully!");
       return updatedEvent;
     } catch (error) {
       console.error("Failed to update event:", error);
-      toast.error("Failed to update event.");
+      showToast.error("Failed to update event.");
       throw error;
     }
   };

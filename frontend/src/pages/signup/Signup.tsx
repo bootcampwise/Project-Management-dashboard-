@@ -1,15 +1,30 @@
 import React, { useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { toast } from 'react-hot-toast';
-import { signUpWithEmail } from '../../store/slices/authSlice';
-import type { AppDispatch, RootState } from '../../store';
+
+import { showToast, Badge, Input } from '../../components/ui';
+import { useRegisterMutation } from '../../store/api/authApiSlice';
 import { signupStyles, signupClasses, signupMediaQuery } from './signupStyle';
 
+// Helper function to get error message from API errors
+// Makes error handling simple and readable
+const getErrorMessage = (error: unknown): string => {
+  // Check if error has a data property (API error)
+  if (error && typeof error === 'object' && 'data' in error) {
+    const apiError = error as { data?: unknown };
+    if (typeof apiError.data === 'string') {
+      return apiError.data;
+    }
+    if (apiError.data && typeof apiError.data === 'object' && 'message' in apiError.data) {
+      return String((apiError.data as { message: unknown }).message);
+    }
+  }
+  // Default error message
+  return 'Registration failed. Please try again.';
+};
+
 const Signup: React.FC = () => {
-  const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
-  const { isLoading, error } = useSelector((state: RootState) => state.auth);
+  const [register, { isLoading, error }] = useRegisterMutation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isHovered, setIsHovered] = useState(false);
@@ -17,12 +32,12 @@ const Signup: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await dispatch(signUpWithEmail({ email, password })).unwrap();
-      toast.success("Your account has been created successfully");
+      await register({ email, password }).unwrap();
+      showToast.success("Your account has been created successfully");
       navigate('/login');
     } catch (err) {
       console.error('Signup failed:', err);
-      toast.error("Signup failed. Please try again.");
+      showToast.error("Signup failed. Please try again.");
     }
   };
 
@@ -59,9 +74,8 @@ const Signup: React.FC = () => {
             <div>
               {/* Badge and Title */}
               <div className={signupClasses.badgeWrapper} style={{ marginBottom: '16px' }}>
-                <span
-                  className={signupClasses.badge}
-                  style={signupStyles.newBadge}
+                <Badge
+                  className="bg-[var(--color-brand-orange)] text-white border-none gap-1 font-bold"
                 >
                   <svg
                     style={signupStyles.badgeIcon}
@@ -77,7 +91,7 @@ const Signup: React.FC = () => {
                     />
                   </svg>
                   NEW
-                </span>
+                </Badge>
                 <span style={signupStyles.featureTitle}>
                   Reporting Dashboard
                 </span>
@@ -122,47 +136,35 @@ const Signup: React.FC = () => {
 
               <form className={signupClasses.form} onSubmit={handleSubmit}>
                 {/* Email */}
-                <div>
-                  <label
-                    className={signupClasses.labelWrapper}
-                    style={signupStyles.inputLabel}
-                  >
-                    Email Address <span className="text-black">*</span>
-                  </label>
-                  <input
-                    type="email"
-                    placeholder="Enter your email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                    className={signupClasses.input}
-                  />
-                </div>
+                <Input
+                  type="email"
+                  label="Email Address"
+                  required
+                  placeholder="Enter your email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className={signupClasses.input}
+                />
 
                 {/* Password */}
-                <div>
-                  <div className={signupClasses.passwordHeader}>
-                    <label
-                      className="block"
-                      style={signupStyles.passwordLabel}
-                    >
-                      Password <span className="text-black">*</span>
-                    </label>
-                  </div>
-                  <input
-                    type="password"
-                    placeholder="Enter your password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    className={signupClasses.input}
-                  />
-                </div>
+                <Input
+                  type="password"
+                  label="Password"
+                  required
+                  placeholder="Enter your password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className={signupClasses.input}
+                />
 
-                {/* Signup Button */}
+                {/* Error Message */}
                 {error && (
-                  <div className={signupClasses.error}>{error}</div>
+                  <div className={signupClasses.error}>
+                    {getErrorMessage(error)}
+                  </div>
                 )}
+
+                {/* Submit Button */}
                 <button
                   type="submit"
                   disabled={isLoading}

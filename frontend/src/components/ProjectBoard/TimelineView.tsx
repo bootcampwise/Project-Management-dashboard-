@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { format } from 'date-fns';
 import { Loader2, X, Pencil } from 'lucide-react';
-import { useTimelineView } from '../../hooks/projectboard/useTimelineView';
+import { useTimelineView } from "../../pages/projectboard/hooks/useTimelineView";
 import AddEventModal from './AddEventModal';
-import type { CalendarEventApi } from '../../lib/calendarApi';
+import type { CalendarEvent } from '../../store/api/calendarApiSlice';
 
 interface TimelineViewProps {
   projectId?: string;
@@ -24,7 +24,7 @@ const TimelineView: React.FC<TimelineViewProps> = ({ projectId }) => {
   } = useTimelineView({ projectId });
 
   // State for editing
-  const [editingEvent, setEditingEvent] = useState<CalendarEventApi | null>(null);
+  const [editingEvent, setEditingEvent] = useState<CalendarEvent | null>(null);
 
   // Group events into rows to handle overlapping
   const groupEventsIntoRows = () => {
@@ -110,7 +110,7 @@ const TimelineView: React.FC<TimelineViewProps> = ({ projectId }) => {
                       className={`rounded-md p-2 shadow-sm ${colorClass} relative group cursor-pointer`}
                       style={{
                         gridColumnStart: position.colStart,
-                        gridColumnEnd: `span ${position.colSpan}`,
+                        gridColumnEnd: `span ${position.colSpan} `,
                       }}
                       title={event.description || event.title}
                       onClick={() => setEditingEvent(event)}

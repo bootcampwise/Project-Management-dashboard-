@@ -2,6 +2,22 @@ import React from 'react';
 import { useLogin } from './hooks/useLogin';
 import { loginStyles, loginClasses, loginMediaQuery } from './loginStyle';
 
+import { Badge, Button, Input } from '../../components/ui';
+
+// Helper function to get error message from API errors
+const getErrorMessage = (error: unknown): string => {
+  if (error && typeof error === 'object' && 'data' in error) {
+    const apiError = error as { data?: unknown };
+    if (typeof apiError.data === 'string') {
+      return apiError.data;
+    }
+    if (apiError.data && typeof apiError.data === 'object' && 'message' in apiError.data) {
+      return String((apiError.data as { message: unknown }).message);
+    }
+  }
+  return 'Login failed. Please try again.';
+};
+
 const LoginPage: React.FC = () => {
   const {
     email,
@@ -50,9 +66,8 @@ const LoginPage: React.FC = () => {
             <div>
               {/* Badge and Title */}
               <div className={loginClasses.badgeWrapper} style={{ marginBottom: '16px' }}>
-                <span
-                  className={loginClasses.badge}
-                  style={loginStyles.newBadge}
+                <Badge
+                  className="bg-[var(--color-brand-orange)] text-white border-none gap-1 font-bold"
                 >
                   <svg
                     style={loginStyles.badgeIcon}
@@ -68,7 +83,7 @@ const LoginPage: React.FC = () => {
                     />
                   </svg>
                   NEW
-                </span>
+                </Badge>
                 <span style={loginStyles.featureTitle}>
                   Reporting Dashboard
                 </span>
@@ -109,37 +124,25 @@ const LoginPage: React.FC = () => {
 
             <form className={loginClasses.form} onSubmit={handleSubmit}>
               {/* Email */}
-              <div>
-                <label
-                  className={loginClasses.labelWrapper}
-                  style={loginStyles.inputLabel}
-                >
-                  Email Address <span className="text-black">*</span>
-                </label>
-                <input
-                  type="email"
-                  placeholder="name@company.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  className={loginClasses.input}
-                />
-              </div>
+              <Input
+                type="email"
+                label="Email Address"
+                required
+                placeholder="name@company.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className={loginClasses.input}
+              />
 
               {/* Password */}
               <div>
                 <div className={loginClasses.passwordHeader}>
-                  <label
-                    className="block"
-                    style={loginStyles.passwordLabel}
-                  >
-                    Password <span className="text-black">*</span>
-                  </label>
+                  <span className="text-sm font-medium text-gray-700">Password <span className="text-black">*</span></span>
                   <a href="#" className={loginClasses.forgotPassword}>
                     Forgot password?
                   </a>
                 </div>
-                <input
+                <Input
                   type="password"
                   placeholder="Password"
                   value={password}
@@ -151,18 +154,20 @@ const LoginPage: React.FC = () => {
 
               {/* Login Button */}
               {error && (
-                <div className={loginClasses.error}>{error}</div>
+                <div className={loginClasses.error}>{getErrorMessage(error)}</div>
               )}
-              <button
+              <Button
                 type="submit"
-                disabled={isLoading}
+                variant="primary"
+                size="lg"
+                isLoading={isLoading}
                 onMouseEnter={() => setIsHovered(true)}
                 onMouseLeave={() => setIsHovered(false)}
                 className={loginClasses.submitButton}
                 style={loginStyles.loginButton(isHovered)}
               >
-                {isLoading ? 'Logging in...' : 'Log in'}
-              </button>
+                Log in
+              </Button>
 
               {/* Social Login */}
               <div className={loginClasses.socialWrapper}>
@@ -186,13 +191,14 @@ const LoginPage: React.FC = () => {
               </div>
 
               {/* SSO Button */}
-              <button
+              <Button
                 type="button"
+                variant="secondary"
                 className={loginClasses.ssoButton}
                 style={loginStyles.ssoButton}
               >
                 Sign in with your identity provider (SSO/SAML)
-              </button>
+              </Button>
 
               {/* Divider */}
               <div className={loginClasses.dividerWrapper}>
@@ -211,14 +217,15 @@ const LoginPage: React.FC = () => {
                 <p style={loginStyles.signUpText}>
                   Don't have an account?
                 </p>
-                <button
+                <Button
+                  variant="ghost"
                   type="button"
                   onClick={() => navigate('/signup')}
                   className={loginClasses.signUpButton}
                   style={loginStyles.signUpButton}
                 >
                   Sign up for free
-                </button>
+                </Button>
               </div>
             </form>
           </div>

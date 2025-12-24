@@ -1,22 +1,17 @@
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import { useAppDispatch, useAppSelector } from "../../../store/hooks";
-import { setActiveView, fetchTasks } from "../../../store/slices/taskSlice";
-import { setSidebarOpen } from "../../../store/slices/uiSlice";
+import { setActiveView, setSidebarOpen } from "../../../store/uiSlice";
+import { useGetTasksQuery } from "../../../store/api/taskApiSlice";
 import type { Task, BoardColumn } from "../../../types";
 
 export const useTasks = () => {
   const dispatch = useAppDispatch();
 
-  // Selectors
-  const { activeView, tasks, isLoading } = useAppSelector(
-    (state) => state.task
-  );
-  const { sidebarOpen } = useAppSelector((state) => state.ui);
+  // UI State from Redux
+  const { activeView, sidebarOpen } = useAppSelector((state) => state.ui);
 
-  // Fetch all tasks on mount
-  useEffect(() => {
-    dispatch(fetchTasks());
-  }, [dispatch]);
+  // Tasks from RTK Query
+  const { data: tasks = [], isLoading } = useGetTasksQuery();
 
   // Organize tasks into columns by status
   const columns: BoardColumn[] = useMemo(() => {

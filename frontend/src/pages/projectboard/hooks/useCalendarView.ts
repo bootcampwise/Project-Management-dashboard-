@@ -10,7 +10,14 @@ import {
   addDays,
   subDays,
 } from "date-fns";
-import { calendarApi, type CalendarEventApi } from "../lib/calendarApi";
+import {
+  useLazyGetEventsByDateRangeQuery,
+  useDeleteEventMutation,
+  useUpdateEventMutation,
+  type CalendarEvent,
+  type UpdateEventPayload,
+} from "../../../store/api/calendarApiSlice";
+import { showToast } from "../../../components/ui";
 
 interface UseCalendarViewProps {
   projectId?: string;
@@ -19,35 +26,37 @@ interface UseCalendarViewProps {
 export const useCalendarView = ({ projectId }: UseCalendarViewProps = {}) => {
   const [viewMode, setViewMode] = useState<"month" | "day">("month");
   const [currentDate, setCurrentDate] = useState<Date>(new Date());
-  const [events, setEvents] = useState<CalendarEventApi[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [events, setEvents] = useState<CalendarEvent[]>([]);
+
+  // RTK Query hooks
+  const [fetchEvents, { isLoading }] = useLazyGetEventsByDateRangeQuery();
+  const [deleteEventMutation] = useDeleteEventMutation();
+  const [updateEventMutation] = useUpdateEventMutation();
 
   // Fetch events for the current month
-  const fetchEvents = useCallback(async () => {
+  const loadEvents = useCallback(async () => {
     if (!projectId) return;
 
-    setIsLoading(true);
     try {
       const monthStart = startOfMonth(currentDate);
       const monthEnd = endOfMonth(currentDate);
 
-      const fetchedEvents = await calendarApi.getEventsByDateRange(
+      const result = await fetchEvents({
         projectId,
-        monthStart.toISOString(),
-        monthEnd.toISOString()
-      );
-      setEvents(fetchedEvents);
+        startDate: monthStart.toISOString(),
+        endDate: monthEnd.toISOString(),
+      }).unwrap();
+
+      setEvents(result);
     } catch (error) {
       console.error("Failed to fetch calendar events:", error);
-    } finally {
-      setIsLoading(false);
     }
-  }, [projectId, currentDate]);
+  }, [projectId, currentDate, fetchEvents]);
 
   // Fetch events when projectId or month changes
   useEffect(() => {
-    fetchEvents();
-  }, [fetchEvents]);
+    loadEvents();
+  }, [loadEvents]);
 
   // Navigation Handlers
   const handleNext = () => {
@@ -82,18 +91,17 @@ export const useCalendarView = ({ projectId }: UseCalendarViewProps = {}) => {
 
   // Refresh events after adding a new one
   const refreshEvents = () => {
-    fetchEvents();
+    loadEvents();
   };
 
-  // Delete an event - returns a function that performs the delete
+  // Delete an event
   const deleteEvent = async (eventId: string, eventTitle: string) => {
-    const toast = (await import("react-hot-toast")).default;
-
-    // Show loading toast and perform delete
-    toast.promise(
-      calendarApi.deleteEvent(eventId).then(() => {
-        setEvents((prev) => prev.filter((e) => e.id !== eventId));
-      }),
+    showToast.promise(
+      deleteEventMutation(eventId)
+        .unwrap()
+        .then(() => {
+          setEvents((prev) => prev.filter((e) => e.id !== eventId));
+        }),
       {
         loading: `Deleting "${eventTitle}"...`,
         success: `Event "${eventTitle}" deleted!`,
@@ -103,32 +111,22 @@ export const useCalendarView = ({ projectId }: UseCalendarViewProps = {}) => {
   };
 
   // Update an event
-  const updateEvent = async (
-    eventId: string,
-    data: {
-      title?: string;
-      type?: string;
-      start?: string;
-      end?: string;
-      description?: string;
-    }
-  ) => {
-    const toast = (await import("react-hot-toast")).default;
-
+  const updateEvent = async (eventId: string, data: UpdateEventPayload) => {
     try {
-      const updatedEvent = await calendarApi.updateEvent(
-        eventId,
-        data as Parameters<typeof calendarApi.updateEvent>[1]
-      );
+      const updatedEvent = await updateEventMutation({
+        id: eventId,
+        data,
+      }).unwrap();
+
       // Update in local state
       setEvents((prev) =>
         prev.map((e) => (e.id === eventId ? { ...e, ...updatedEvent } : e))
       );
-      toast.success("Event updated successfully!");
+      showToast.success("Event updated successfully!");
       return updatedEvent;
     } catch (error) {
       console.error("Failed to update event:", error);
-      toast.error("Failed to update event.");
+      showToast.error("Failed to update event.");
       throw error;
     }
   };

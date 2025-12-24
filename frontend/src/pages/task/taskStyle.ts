@@ -5,7 +5,7 @@ export const taskClasses = {
       activeView === "kanban" ? "overflow-hidden" : "overflow-y-auto"
     }`,
   mainContent: (sidebarOpen: boolean) =>
-    `flex-1 flex flex-col transition-all duration-300 ${
+    `flex-1 flex flex-col transition-all duration-300 min-h-0 ${
       !sidebarOpen ? "pt-16 md:pt-0 md:pl-16" : ""
     }`,
 

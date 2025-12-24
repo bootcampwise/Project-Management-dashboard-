@@ -4,42 +4,55 @@ import { useAppDispatch, useAppSelector } from "../../../store/hooks";
 import {
   setActiveProject,
   setActiveTab,
-  setCreateModalOpen,
+  setCreateProjectModalOpen,
   setTeamModalOpen,
   setTemplateLibraryOpen,
-} from "../../../store/slices/projectSlice";
-import { fetchTasks } from "../../../store/slices/taskSlice";
-import { setSidebarOpen } from "../../../store/slices/uiSlice";
-import { setSelectedTask } from "../../../store/slices/taskSlice";
+  setSidebarOpen,
+  setSelectedTask,
+} from "../../../store/uiSlice";
 import { Layout, Table, Calendar, List } from "lucide-react";
 import type {
   Task,
   CreateProjectPayload,
   CreateTaskPayload,
 } from "../../../types";
-import { createTask, updateTask } from "../../../store/slices/taskSlice";
+
 import {
-  deleteProject,
-  createProject,
-  fetchProjects,
-} from "../../../store/slices/projectSlice";
+  useGetProjectsQuery,
+  useCreateProjectMutation,
+  useDeleteProjectMutation,
+} from "../../../store/api/projectApiSlice";
+import {
+  useGetTasksQuery,
+  useCreateTaskMutation,
+  useUpdateTaskMutation,
+} from "../../../store/api/taskApiSlice";
 
 export const useProjectBoard = () => {
   const { projectId } = useParams();
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
-  // Selectors
-  const { sidebarOpen } = useAppSelector((state) => state.ui);
+  // UI State from Redux
   const {
-    projects,
+    sidebarOpen,
     activeProject,
     activeTab,
-    isCreateModalOpen,
+    isCreateProjectModalOpen,
     isTeamModalOpen,
     isTemplateLibraryOpen,
-  } = useAppSelector((state) => state.project);
-  const { tasks, selectedTask } = useAppSelector((state) => state.task);
+    selectedTask,
+  } = useAppSelector((state) => state.ui);
+
+  // Data from RTK Query
+  const { data: projects = [] } = useGetProjectsQuery();
+  const { data: tasks = [] } = useGetTasksQuery();
+
+  // API Mutations
+  const [createProject] = useCreateProjectMutation();
+  const [deleteProject] = useDeleteProjectMutation();
+  const [createTask] = useCreateTaskMutation();
+  const [updateTask] = useUpdateTaskMutation();
 
   // Local State
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -56,8 +69,7 @@ export const useProjectBoard = () => {
 
   // Effects
   useEffect(() => {
-    dispatch(fetchTasks());
-    dispatch(fetchProjects());
+    dispatch(setSelectedTask(null)); // Clear selected task on mount
   }, [dispatch]);
 
   useEffect(() => {
@@ -87,12 +99,9 @@ export const useProjectBoard = () => {
 
   // Handlers
   const handleCreateProject = async (data: CreateProjectPayload) => {
-    console.log("Create Project Data:", data);
     try {
-      // @ts-ignore
-      await dispatch(createProject(data)).unwrap();
-      dispatch(setCreateModalOpen(false));
-      // Project created successfully - just close the modal, don't open team modal
+      await createProject(data).unwrap();
+      dispatch(setCreateProjectModalOpen(false));
     } catch (e) {
       console.error("Failed to create project", e);
       throw e;
@@ -100,13 +109,13 @@ export const useProjectBoard = () => {
   };
 
   const handleOpenTemplateLibrary = () => {
-    dispatch(setCreateModalOpen(false));
+    dispatch(setCreateProjectModalOpen(false));
     dispatch(setTemplateLibraryOpen(true));
   };
 
   const handleSelectTemplate = () => {
     dispatch(setTemplateLibraryOpen(false));
-    dispatch(setCreateModalOpen(true));
+    dispatch(setCreateProjectModalOpen(true));
   };
 
   const handleSwitchProject = (p: (typeof projects)[0]) => {
@@ -116,7 +125,6 @@ export const useProjectBoard = () => {
   };
 
   const handleEditTask = (task: Task) => {
-    console.log("ProjectBoard: handleEditTask called", task);
     setTaskToEdit(task);
     dispatch(setSelectedTask(null));
     setIsCreateTaskModalOpen(true);
@@ -155,7 +163,6 @@ export const useProjectBoard = () => {
   };
 
   const handleOpenAddEvent = () => {
-    console.log("Opening Add Event Modal");
     setIsAddEventModalOpen(true);
   };
 
@@ -163,10 +170,7 @@ export const useProjectBoard = () => {
     try {
       const finalProjectId = task.projectId || activeProject?.id;
       if (finalProjectId) {
-        // @ts-ignore
-        await dispatch(
-          createTask({ ...task, projectId: finalProjectId })
-        ).unwrap();
+        await createTask({ ...task, projectId: finalProjectId }).unwrap();
         setIsCreateTaskModalOpen(false);
       }
     } catch (error) {
@@ -176,8 +180,7 @@ export const useProjectBoard = () => {
 
   const handleUpdateTask = async (id: string, data: CreateTaskPayload) => {
     try {
-      // @ts-ignore
-      await dispatch(updateTask({ id, data })).unwrap();
+      await updateTask({ id, data }).unwrap();
       setIsCreateTaskModalOpen(false);
       setTaskToEdit(null);
     } catch (error) {
@@ -188,8 +191,7 @@ export const useProjectBoard = () => {
   const handleDeleteProject = async (id: string) => {
     if (!id) return;
     try {
-      // @ts-ignore
-      await dispatch(deleteProject(id)).unwrap();
+      await deleteProject(id).unwrap();
       navigate("/");
     } catch (error) {
       console.error("Failed to delete project", error);
@@ -200,7 +202,7 @@ export const useProjectBoard = () => {
     // Data
     projects,
     activeProject,
-    projectTasks, // Filtered tasks
+    projectTasks,
     selectedTask,
     tabs,
     projectId,
@@ -208,7 +210,7 @@ export const useProjectBoard = () => {
     // UI States
     sidebarOpen,
     activeTab,
-    isCreateModalOpen,
+    isCreateModalOpen: isCreateProjectModalOpen,
     isTeamModalOpen,
     isTemplateLibraryOpen,
     isSearchOpen,
@@ -219,10 +221,11 @@ export const useProjectBoard = () => {
     isProjectDropdownOpen,
     isMenuDropdownOpen,
 
-    // Setters (if needed directly)
+    // Setters
     setSidebarOpen: (open: boolean) => dispatch(setSidebarOpen(open)),
     setActiveTab: (tab: string) => dispatch(setActiveTab(tab)),
-    setIsCreateModalOpen: (open: boolean) => dispatch(setCreateModalOpen(open)),
+    setIsCreateModalOpen: (open: boolean) =>
+      dispatch(setCreateProjectModalOpen(open)),
     setIsTeamModalOpen: (open: boolean) => dispatch(setTeamModalOpen(open)),
     setIsTemplateLibraryOpen: (open: boolean) =>
       dispatch(setTemplateLibraryOpen(open)),

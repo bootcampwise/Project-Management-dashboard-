@@ -1,7 +1,7 @@
 import React from "react";
 import { X, User } from "lucide-react";
 import { useSettingsModalLogic } from '../../pages/sidebar/hooks/useSettingsModalLogic';
-
+import { Select, IconButton, Input } from '../ui';
 import type { SettingsModalProps } from "../../types";
 
 const SettingsModal: React.FC<SettingsModalProps> = ({
@@ -84,12 +84,11 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
         <div className="flex-1 flex flex-col bg-white">
           <div className="flex items-center justify-between px-8 py-5 border-b border-gray-200">
             <h2 className="text-xl font-semibold text-gray-800">{activeTab}</h2>
-            <button
+            <IconButton
+              icon={<X size={20} />}
               onClick={onClose}
               className="text-gray-400 hover:text-gray-600"
-            >
-              <X size={20} />
-            </button>
+            />
           </div>
 
           <div className="flex-1 overflow-y-auto px-8 py-6">
@@ -142,66 +141,42 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                   </div>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-500 mb-1">
-                    Full name
-                  </label>
-                  <input
-                    type="text"
-                    id="name"
-                    value={formData.name}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-gray-900"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-500 mb-1">
-                    Job title
-                  </label>
-                  <input
-                    type="text"
-                    id="jobTitle"
-                    value={formData.jobTitle}
-                    onChange={handleInputChange}
-                    placeholder="Product designer"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-gray-900"
-                  />
-                </div>
+                <Input
+                  type="text"
+                  id="name"
+                  label="Full name"
+                  value={formData.name}
+                  onChange={handleInputChange}
+                />
+                <Input
+                  type="text"
+                  id="jobTitle"
+                  label="Job title"
+                  value={formData.jobTitle}
+                  onChange={handleInputChange}
+                  placeholder="Product designer"
+                />
                 <div>
                   <label className="block text-sm font-medium text-gray-500 mb-1">
                     Team
                   </label>
-                  <div className="relative">
-                    <select
-                      id="department"
-                      value={formData.department}
-                      onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-gray-900 appearance-none bg-white"
-                    >
-                      <option value="">Select a team</option>
-                      {teams && teams.length > 0 ? (
-                        teams.map((team) => (
-                          <option key={team.id} value={team.name}>
-                            {team.name}
-                          </option>
-                        ))
-                      ) : (
-                        <option disabled>No teams found</option>
-                      )}
-                    </select>
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-500">
-                    Email
-                  </label>
-                  <input
-                    type="email"
-                    value={user?.email || ""}
-                    disabled
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-gray-500 bg-gray-50"
+                  <Select
+                    id="department"
+                    value={formData.department}
+                    onChange={handleInputChange}
+                    placeholder="Select a team"
+                    options={teams && teams.length > 0
+                      ? teams.map((team) => ({ value: team.name, label: team.name }))
+                      : [{ value: '', label: 'No teams found', disabled: true }]
+                    }
                   />
                 </div>
+                <Input
+                  type="email"
+                  label="Email"
+                  value={user?.email || ""}
+                  disabled
+                />
               </div>
             )}
 
@@ -211,29 +186,27 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                   <label className="block text-sm font-medium text-gray-500 mb-1">
                     Theme
                   </label>
-                  <select
+                  <Select
                     value={theme}
-                    onChange={(e) =>
-                      toggleTheme(e.target.value as "light" | "dark")
-                    }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none text-gray-900 appearance-none bg-white"
-                  >
-                    <option value="light">Light</option>
-                    <option value="dark">Dark</option>
-                  </select>
+                    onChange={(e) => toggleTheme(e.target.value as "light" | "dark")}
+                    options={[
+                      { value: 'light', label: 'Light' },
+                      { value: 'dark', label: 'Dark' }
+                    ]}
+                  />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-500 mb-1">
                     Language
                   </label>
-                  <select
+                  <Select
                     defaultValue="English"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none text-gray-900 appearance-none bg-white"
-                  >
-                    <option>English</option>
-                    <option>Spanish</option>
-                    <option>French</option>
-                  </select>
+                    options={[
+                      { value: 'English', label: 'English' },
+                      { value: 'Spanish', label: 'Spanish' },
+                      { value: 'French', label: 'French' }
+                    ]}
+                  />
                 </div>
               </div>
             )}
@@ -245,9 +218,10 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                     Invite members
                   </label>
                   <div className="flex gap-3">
-                    <input
+                    <Input
                       type="email"
-                      className="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 text-gray-900"
+                      placeholder="Enter email address"
+                      className="flex-1"
                     />
                     <button className="px-6 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700 shadow-sm">
                       Invite

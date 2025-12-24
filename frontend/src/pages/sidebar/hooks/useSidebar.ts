@@ -5,7 +5,7 @@ import {
   setSidebarOpen,
   toggleSidebarSection,
   setSettingsOpen,
-} from "../../../store/slices/uiSlice";
+} from "../../../store/uiSlice";
 
 export const useSidebar = () => {
   const dispatch = useAppDispatch();
@@ -32,13 +32,13 @@ export const useSidebar = () => {
 
   return {
     // State
-    open: sidebarOpen, // Mapping sidebarOpen to 'open' to match existing usage in Sidebar component if needed, or just expose sidebarOpen
+    open: sidebarOpen,
     sidebarOpen,
     isSettingsOpen,
     sections: sidebarSections,
 
     // Actions
-    onClose: () => dispatch(setSidebarOpen(false)), // Helper for simple close
+    onClose: () => dispatch(setSidebarOpen(false)),
     toggleSidebar: () => dispatch(toggleSidebar()),
     setSidebarOpen: (open: boolean) => dispatch(setSidebarOpen(open)),
     setIsSettingsOpen: (open: boolean) => dispatch(setSettingsOpen(open)),

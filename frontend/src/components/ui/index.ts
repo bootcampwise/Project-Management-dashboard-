@@ -17,7 +17,9 @@ export { Badge, type BadgeProps } from "./Badge";
 export { StatCard, type StatCardProps } from "./StatCard";
 
 // Icon Components
+// Icon Components
 export { IconButton, type IconButtonProps } from "./IconButton";
+export { default as AuthButton } from "./AuthButton";
 export { LetterIcon, type LetterIconProps } from "./LetterIcon";
 
 // Feedback Components

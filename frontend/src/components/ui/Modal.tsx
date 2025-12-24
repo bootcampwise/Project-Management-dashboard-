@@ -1,5 +1,6 @@
 import React from 'react';
 import { X } from 'lucide-react';
+import { IconButton } from './IconButton';
 
 export interface ModalProps {
   isOpen: boolean;
@@ -57,13 +58,12 @@ export const Modal: React.FC<ModalProps> = ({
               <h2 className="text-xl font-bold text-gray-800">{title}</h2>
             )}
             {showCloseButton && (
-              <button
+              <IconButton
+                icon={<X size={20} />}
                 onClick={onClose}
-                className="text-gray-400 hover:text-gray-600 transition-colors ml-auto"
+                className="text-gray-400 hover:text-gray-600 ml-auto"
                 aria-label="Close modal"
-              >
-                <X size={20} />
-              </button>
+              />
             )}
           </div>
         )}

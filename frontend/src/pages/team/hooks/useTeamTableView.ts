@@ -1,13 +1,12 @@
-import { useEffect } from "react";
-import { useAppDispatch, useAppSelector } from "../../../store/hooks";
-import { fetchProjects } from "../../../store/slices/projectSlice";
+import { useGetProjectsQuery } from "../../../store/api/projectApiSlice";
 import { format } from "date-fns";
 import { useNavigate } from "react-router-dom";
 
 export const useTeamTableView = (projectId?: string) => {
-  const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const { projects, isLoading } = useAppSelector((state) => state.project);
+
+  // Get projects from RTK Query
+  const { data: projects = [], isLoading } = useGetProjectsQuery();
 
   // If a projectId is provided, find that project and show its teams.
   const activeProject = projectId
@@ -18,10 +17,6 @@ export const useTeamTableView = (projectId?: string) => {
       ? [activeProject]
       : []
     : projects;
-
-  useEffect(() => {
-    dispatch(fetchProjects());
-  }, [dispatch]);
 
   const getStatusColor = (status: string = "On track") => {
     // Normalize status to lowercase for comparison if needed, or stick to specific set

@@ -2,8 +2,8 @@ import React from 'react';
 import { MoreHorizontal, FileText, Image, File, Loader2, Trash2 } from 'lucide-react';
 import type { TeamFile } from '../../../types';
 import { format } from 'date-fns';
-import toast from 'react-hot-toast';
-import { useTeamFiles } from '../../../hooks/teams/useTeamFiles';
+import { showToast } from "../../../components/ui";
+import { useTeamFiles } from "../../../pages/team/hooks/useTeamFiles";
 
 const TeamFiles: React.FC = () => {
   const {
@@ -31,7 +31,7 @@ const TeamFiles: React.FC = () => {
     setOpenMenuId(null);
 
     // Show confirmation toast
-    toast((t) => (
+    showToast.custom((t) => (
       <div className="flex flex-col gap-3 min-w-[250px]">
         <div>
           <h3 className="font-medium text-gray-900">Delete File?</h3>
@@ -41,14 +41,14 @@ const TeamFiles: React.FC = () => {
         </div>
         <div className="flex items-center justify-end gap-3 mt-1">
           <button
-            onClick={() => toast.dismiss(t.id)}
+            onClick={() => showToast.dismiss(t.id)}
             className="px-3 py-1.5 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors"
           >
             Cancel
           </button>
           <button
             onClick={() => {
-              toast.dismiss(t.id);
+              showToast.dismiss(t.id);
               handleDeleteFile(file);
             }}
             className="px-3 py-1.5 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors"
@@ -57,10 +57,7 @@ const TeamFiles: React.FC = () => {
           </button>
         </div>
       </div>
-    ), {
-      duration: Infinity,
-      position: "top-center"
-    });
+    ));
   };
 
   return (
@@ -89,7 +86,7 @@ const TeamFiles: React.FC = () => {
             files.map((file) => (
               <div
                 key={file.id}
-                className={`grid grid-cols-[2.5fr_1fr_1fr_1.5fr] gap-4 px-6 h-[43px] items-center bg-white hover:bg-gray-50 transition-colors cursor-pointer overflow-visible ${deletingId === file.id ? 'opacity-50' : ''}`}
+                className={`grid grid-cols-[2.5fr_1fr_1fr_1.5fr] gap-4 px-6 h-[43px] items-center bg-white hover:bg-gray-50 transition-colors cursor-pointer overflow-visible ${deletingId === file.id ? 'opacity-50' : ''} `}
                 onClick={() => handleFileClick(file)}
               >
                 {/* Name Column */}

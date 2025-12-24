@@ -16,13 +16,13 @@ import {
   ChevronRight,
   Trash2,
 } from "lucide-react";
-import toast from "react-hot-toast";
 import TeamTableView from "../../components/team/teamtabs/TeamTableView";
 import TeamDashboard from "../../components/team/teamtabs/TeamDashboard";
 import TeamMembers from "../../components/team/teamtabs/TeamMembers";
 import TeamFiles from "../../components/team/teamtabs/TeamFiles";
 import CreateTeamModal from "../../components/team/CreateTeamModal";
 import SearchPopup from "../../components/sidebar/SearchPopup";
+import { showToast, Button, Dropdown, type DropdownItem } from "../../components/ui";
 
 const Team: React.FC = () => {
   const {
@@ -37,10 +37,7 @@ const Team: React.FC = () => {
     tabs,
     projects,
     activeProject,
-    isProjectDropdownOpen,
-    setIsProjectDropdownOpen,
-    isMenuDropdownOpen,
-    setIsMenuDropdownOpen,
+
     menuRef,
     handleSwitchProject,
     handleDeleteProject,
@@ -68,80 +65,65 @@ const Team: React.FC = () => {
             {/* Title & Status */}
             <div className={teamClasses.headerTitleWrapper}>
               <div className={teamClasses.headerMenuWrapper} ref={menuRef}>
-                <div
-                  className={teamClasses.headerTitleClickable}
-                  onClick={() => setIsProjectDropdownOpen(!isProjectDropdownOpen)}
-                >
-                  <h1 className={teamClasses.headerTitle}>{activeProject?.name || "No Projects"}</h1>
-                  <ChevronDown size={16} className={teamClasses.chevronIcon(isProjectDropdownOpen)} />
-                </div>
-
                 {/* Project Switcher Dropdown */}
-                {isProjectDropdownOpen && (
-                  <div className={teamClasses.dropdown}>
-                    <div className={teamClasses.dropdownHeader}>
-                      Switch Project
+                <Dropdown
+                  trigger={
+                    <div className={teamClasses.headerTitleClickable}>
+                      <h1 className={teamClasses.headerTitle}>{activeProject?.name || "No Projects"}</h1>
+                      <ChevronDown size={16} className={teamClasses.chevronIcon(false)} />
                     </div>
-                    {projects.map(p => (
-                      <button
-                        key={p.id}
-                        className={teamClasses.dropdownItem(activeProject?.id === p.id)}
-                        onClick={() => handleSwitchProject(p)}
-                      >
-                        <span className={teamClasses.dropdownItemText}>{p.name}</span>
-                        {activeProject?.id === p.id && <Check size={14} />}
-                      </button>
-                    ))}
-                    {projects.length === 0 && (
-                      <div className={teamClasses.dropdownEmpty}>No projects found</div>
-                    )}
-                    <div className={teamClasses.dropdownDivider}>
-                      <button
-                        className={teamClasses.dropdownCreateButton}
-                        onClick={() => {
-                          setIsProjectDropdownOpen(false);
-                          setIsCreateTeamModalOpen(true);
-                        }}
-                      >
-                        <Plus size={14} />
-                        Create New Project
-                      </button>
-                    </div>
-                  </div>
-                )}
+                  }
+                  items={[
+                    { key: 'header', label: 'Switch Project', header: true },
+                    ...projects.map(p => ({
+                      key: p.id,
+                      label: (
+                        <div className="flex items-center justify-between w-full">
+                          <span className={teamClasses.dropdownItemText}>{p.name}</span>
+                          {activeProject?.id === p.id && <Check size={14} />}
+                        </div>
+                      ),
+                      onClick: () => handleSwitchProject(p)
+                    })),
+                    { key: 'div1', divider: true } as DropdownItem,
+                    {
+                      key: 'create',
+                      label: 'Create New Project',
+                      icon: <Plus size={14} />,
+                      onClick: () => setIsCreateTeamModalOpen(true)
+                    }
+                  ]}
+                />
 
                 <Star className={teamClasses.starIcon} size={18} />
 
                 <div className="relative">
-                  <button
-                    className={teamClasses.menuIconButton}
-                    onClick={() => setIsMenuDropdownOpen(!isMenuDropdownOpen)}
-                  >
-                    <MoreHorizontal className={teamClasses.menuIconColor} size={18} />
-                  </button>
-
-                  {/* Menu Dropdown */}
-                  {isMenuDropdownOpen && (
-                    <div className={teamClasses.menuDropdown}>
-                      <div className={teamClasses.menuDropdownHeader}>
-                        <p className={teamClasses.menuDropdownLabel}>Active Project</p>
-                        <p className={teamClasses.menuDropdownValue}>{activeProject?.name || "None"}</p>
-                      </div>
-                      <button
-                        className={teamClasses.menuDropdownItem}
-                        onClick={() => {
-                          setIsMenuDropdownOpen(false);
-                          setIsProjectDropdownOpen(true);
-                        }}
-                      >
-                        <ChevronRight size={14} />
-                        Switch Project
+                  <Dropdown
+                    align="right"
+                    trigger={
+                      <button className={teamClasses.menuIconButton}>
+                        <MoreHorizontal className={teamClasses.menuIconColor} size={18} />
                       </button>
-                      <button
-                        className={teamClasses.menuDropdownDeleteItem}
-                        onClick={() => {
-                          setIsMenuDropdownOpen(false);
-                          toast((t) => (
+                    }
+                    items={[
+                      {
+                        key: 'active-project',
+                        custom: true,
+                        label: (
+                          <div className={teamClasses.menuDropdownHeader}>
+                            <p className={teamClasses.menuDropdownLabel}>Active Project</p>
+                            <p className={teamClasses.menuDropdownValue}>{activeProject?.name || "None"}</p>
+                          </div>
+                        )
+                      },
+                      { key: 'switch', label: 'Switch Project', icon: <ChevronRight size={14} />, onClick: () => { /* Handle focus? */ } },
+                      {
+                        key: 'delete',
+                        label: 'Delete Project',
+                        danger: true,
+                        icon: <Trash2 size={14} />,
+                        onClick: () => {
+                          showToast.custom((t) => (
                             <div className={teamClasses.toastContainer}>
                               <div>
                                 <h3 className={teamClasses.toastTitle}>Delete Project?</h3>
@@ -150,15 +132,19 @@ const Team: React.FC = () => {
                                 </p>
                               </div>
                               <div className={teamClasses.toastActions}>
-                                <button
-                                  onClick={() => toast.dismiss(t.id)}
+                                <Button
+                                  variant="secondary"
+                                  size="sm"
+                                  onClick={() => showToast.dismiss(t.id)}
                                   className={teamClasses.toastCancelButton}
                                 >
                                   Cancel
-                                </button>
-                                <button
+                                </Button>
+                                <Button
+                                  variant="danger"
+                                  size="sm"
                                   onClick={() => {
-                                    toast.dismiss(t.id);
+                                    showToast.dismiss(t.id);
                                     if (activeProject) {
                                       handleDeleteProject(activeProject.id);
                                     }
@@ -166,34 +152,35 @@ const Team: React.FC = () => {
                                   className={teamClasses.toastDeleteButton}
                                 >
                                   Delete
-                                </button>
+                                </Button>
                               </div>
                             </div>
                           ), teamStyles.toastOptions);
-                        }}
-                      >
-                        <Trash2 size={14} />
-                        Delete Project
-                      </button>
-                    </div>
-                  )}
+                        }
+                      }
+                    ]}
+                  />
                 </div>
               </div>
             </div>
 
             {/* Actions */}
             <div className={teamClasses.actionsWrapper}>
-              <button className={teamClasses.shareButton}>
-                <Share2 size={16} />
+              <Button
+                variant="secondary"
+                className={teamClasses.shareButton}
+                leftIcon={<Share2 size={16} />}
+              >
                 <span className={teamClasses.toolText}>Share</span>
-              </button>
-              <button
+              </Button>
+              <Button
+                variant="primary"
                 className={teamClasses.createButton}
                 onClick={() => setIsCreateTeamModalOpen(true)}
+                rightIcon={<ChevronDown size={14} className={teamClasses.createButtonChevron} />}
               >
                 <span>Create</span>
-                <ChevronDown size={14} className={teamClasses.createButtonChevron} />
-              </button>
+              </Button>
             </div>
           </div>
 

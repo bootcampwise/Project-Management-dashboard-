@@ -3,7 +3,7 @@ import { format, isSameDay } from 'date-fns';
 import { ChevronLeft, ChevronRight, ChevronDown, Loader2, Trash2, Pencil } from 'lucide-react';
 import { useCalendarView } from "../../pages/projectboard/hooks/useCalendarView";
 import AddEventModal from './AddEventModal';
-import type { CalendarEventApi } from '../../lib/calendarApi';
+import type { CalendarEvent } from '../../store/api/calendarApiSlice';
 
 interface CalendarViewProps {
   projectId?: string;
@@ -30,7 +30,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({ projectId }) => {
   } = useCalendarView({ projectId });
 
   // State for editing
-  const [editingEvent, setEditingEvent] = useState<CalendarEventApi | null>(null);
+  const [editingEvent, setEditingEvent] = useState<CalendarEvent | null>(null);
 
   // Get events for a specific day
   const getEventsForDay = (day: Date) => {

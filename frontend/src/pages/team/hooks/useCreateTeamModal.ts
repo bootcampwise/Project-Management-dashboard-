@@ -1,22 +1,22 @@
-import { useState, useEffect } from "react";
-import { useAppDispatch, useAppSelector } from "../../../store/hooks";
+import { useState } from "react";
 import {
-  fetchTeamMembers,
-  createTeam,
-  fetchTeams,
-} from "../../../store/slices/teamSlice";
-import { fetchProjects } from "../../../store/slices/projectSlice";
+  useGetTeamMembersQuery,
+  useGetTeamsQuery,
+  useCreateTeamMutation,
+} from "../../../store/api/teamApiSlice";
+import { useGetProjectsQuery } from "../../../store/api/projectApiSlice";
 import type { TeamMember } from "../../../types";
-import { toast } from "react-hot-toast";
+import { showToast } from "../../../components/ui";
 
 export const useCreateTeamModal = (isOpen: boolean, onClose: () => void) => {
-  const dispatch = useAppDispatch();
-  const { members, isLoading: isMembersLoading } = useAppSelector(
-    (state) => state.team
-  );
-  const { projects, isLoading: isProjectsLoading } = useAppSelector(
-    (state) => state.project
-  );
+  // RTK Query hooks
+  const { data: members = [], isLoading: isMembersLoading } =
+    useGetTeamMembersQuery(undefined, { skip: !isOpen });
+  const { data: projects = [], isLoading: isProjectsLoading } =
+    useGetProjectsQuery(undefined, { skip: !isOpen });
+  const { refetch: refetchTeams } = useGetTeamsQuery();
+  const { refetch: refetchProjects } = useGetProjectsQuery();
+  const [createTeam] = useCreateTeamMutation();
 
   // Form State
   const [teamName, setTeamName] = useState("");
@@ -30,13 +30,6 @@ export const useCreateTeamModal = (isOpen: boolean, onClose: () => void) => {
 
   // Loading State for creation
   const [isCreating, setIsCreating] = useState(false);
-
-  useEffect(() => {
-    if (isOpen) {
-      dispatch(fetchTeamMembers());
-      dispatch(fetchProjects());
-    }
-  }, [isOpen, dispatch]);
 
   const filteredMembers = members.filter(
     (member) =>
@@ -64,35 +57,35 @@ export const useCreateTeamModal = (isOpen: boolean, onClose: () => void) => {
 
   const handleCreateTeam = async () => {
     if (!teamName.trim()) {
-      toast.error("Please enter a team name");
+      showToast.error("Please enter a team name");
       return;
     }
 
     try {
       setIsCreating(true);
 
-      await dispatch(
-        createTeam({
-          name: teamName,
-          memberIds: selectedMembers.map((m) => String(m.id)),
-          projectIds: selectedProjectIds,
-        })
-      ).unwrap();
+      await createTeam({
+        name: teamName,
+        memberIds: selectedMembers.map((m) => String(m.id)),
+        projectIds: selectedProjectIds,
+      }).unwrap();
 
-      toast.success("Team created successfully!");
+      showToast.success("Team created successfully!");
 
-      // Refresh teams list so it appears in other modals
-      dispatch(fetchTeams());
-      dispatch(fetchProjects());
+      // Refresh teams and projects lists
+      refetchTeams();
+      refetchProjects();
       onClose();
 
       // Reset form
       setTeamName("");
       setSelectedMembers([]);
       setSelectedProjectIds([]);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Failed to create team:", error);
-      toast.error(error.message || error || "Failed to create team");
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to create team";
+      showToast.error(errorMessage);
     } finally {
       setIsCreating(false);
     }

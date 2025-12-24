@@ -1,20 +1,26 @@
 import { useState, useRef, useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import type { RootState, AppDispatch } from "../../../store";
-import { updateUserProfile, signOut } from "../../../store/slices/authSlice";
-import { fetchTeams } from "../../../store/slices/teamSlice";
-import { supabase } from "../../../lib/supabase";
+import {
+  useGetSessionQuery,
+  useUpdateProfileMutation,
+  useLogoutMutation,
+} from "../../../store/api/authApiSlice";
+import { useGetTeamsQuery } from "../../../store/api/teamApiSlice";
+import { useUploadFileMutation } from "../../../store/api/storageApiSlice";
 import { useTheme } from "../../sidebar/hooks/useTheme";
 
 export const useSettingsModalLogic = (
   initialTab: string,
   onClose: () => void
 ) => {
-  const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
-  const { user } = useSelector((state: RootState) => state.auth);
-  const { teams } = useSelector((state: RootState) => state.team);
+  // Get user from RTK Query
+  const { data: user } = useGetSessionQuery();
+  // Get teams from RTK Query
+  const { data: teams = [] } = useGetTeamsQuery();
+  const [uploadFile] = useUploadFileMutation();
+  const [updateProfile] = useUpdateProfileMutation();
+  const [logout] = useLogoutMutation();
   const { theme, toggleTheme } = useTheme();
 
   const [activeTab, setActiveTab] = useState("Profile");
@@ -31,9 +37,7 @@ export const useSettingsModalLogic = (
     if (initialTab) {
       setActiveTab(initialTab);
     }
-    // Fetch teams when modal opens
-    dispatch(fetchTeams());
-  }, [initialTab, dispatch]);
+  }, [initialTab]);
 
   useEffect(() => {
     if (user) {
@@ -69,23 +73,19 @@ export const useSettingsModalLogic = (
 
       const fileExt = file.name.split(".").pop();
       const fileName = `${Math.random()}.${fileExt}`;
-      const filePath = `${fileName}`;
 
-      const { error: uploadError } = await supabase.storage
-        .from("avatars")
-        .upload(filePath, file);
+      // Upload using RTK Query
+      const result = await uploadFile({
+        bucket: "avatars",
+        path: fileName,
+        file,
+      }).unwrap();
 
-      if (uploadError) {
-        throw uploadError;
-      }
-
-      const {
-        data: { publicUrl },
-      } = supabase.storage.from("avatars").getPublicUrl(filePath);
-      console.log("Generated Avatar URL:", publicUrl);
-
-      const publicUrlWithTimestamp = `${publicUrl}?t=${new Date().getTime()}`;
-      await dispatch(updateUserProfile({ avatar: publicUrlWithTimestamp }));
+      // Update profile with new avatar URL
+      const publicUrlWithTimestamp = `${
+        result.publicUrl
+      }?t=${new Date().getTime()}`;
+      await updateProfile({ avatar: publicUrlWithTimestamp });
     } catch (error) {
       console.error("Error uploading avatar:", error);
       if (error instanceof Error) {
@@ -100,26 +100,24 @@ export const useSettingsModalLogic = (
 
   const handleRemovePhoto = async () => {
     try {
-      await dispatch(updateUserProfile({ avatar: null }));
+      await updateProfile({ avatar: undefined });
     } catch (error) {
       console.error("Error removing avatar:", error);
     }
   };
 
   const handleSave = () => {
-    dispatch(
-      updateUserProfile({
-        name: formData.name,
-        jobTitle: formData.jobTitle,
-        department: formData.department,
-        hasCompletedOnboarding: true,
-      })
-    );
+    updateProfile({
+      name: formData.name,
+      jobTitle: formData.jobTitle,
+      department: formData.department,
+      hasCompletedOnboarding: true,
+    });
     onClose();
   };
 
   const handleLogout = async () => {
-    await dispatch(signOut());
+    await logout();
     onClose();
     navigate("/login");
   };

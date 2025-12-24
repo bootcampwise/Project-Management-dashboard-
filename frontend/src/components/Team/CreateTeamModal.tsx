@@ -1,6 +1,7 @@
 import React from 'react';
 import { X, ChevronDown, Check } from 'lucide-react';
-import { useCreateTeamModal } from '../../hooks/teams/useCreateTeamModal';
+import { useCreateTeamModal } from "../../pages/team/hooks/useCreateTeamModal";
+import { Dropdown, IconButton, Input } from '../ui';
 
 interface CreateTeamModalProps {
   isOpen: boolean;
@@ -22,8 +23,6 @@ const CreateTeamModal: React.FC<CreateTeamModalProps> = ({ isOpen, onClose }) =>
     projects,
     isProjectsLoading,
     selectedProjectIds,
-    isProjectDropdownOpen,
-    setIsProjectDropdownOpen,
     handleProjectToggle,
     // Creation
     isCreating,
@@ -38,24 +37,19 @@ const CreateTeamModal: React.FC<CreateTeamModalProps> = ({ isOpen, onClose }) =>
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
           <h2 className="text-lg font-semibold text-gray-800">Create new team</h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
-            <X size={20} />
-          </button>
+          <IconButton icon={<X size={20} />} onClick={onClose} className="text-gray-400 hover:text-gray-600" />
         </div>
 
         {/* Body */}
         <div className="p-6 overflow-y-auto">
           {/* Team Name */}
           <div className="mb-5">
-            <label className="block text-xs font-medium text-gray-400 mb-1.5 uppercase">
-              Team name
-            </label>
-            <input
+            <Input
               type="text"
+              label="Team name"
               value={teamName}
               onChange={(e) => setTeamName(e.target.value)}
-              className="w-full px-3 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 text-sm"
-              placeholder="|"
+              placeholder="Enter team name"
             />
           </div>
 
@@ -64,57 +58,54 @@ const CreateTeamModal: React.FC<CreateTeamModalProps> = ({ isOpen, onClose }) =>
             <label className="block text-xs font-medium text-gray-400 mb-1.5 uppercase">
               Projects
             </label>
-            <button
-              onClick={() => setIsProjectDropdownOpen(!isProjectDropdownOpen)}
-              className="w-full flex items-center justify-between px-3 py-2.5 border border-dashed border-gray-300 rounded-md text-gray-500 hover:border-gray-400 transition-colors"
-            >
-              <span className="text-sm">
-                {selectedProjectIds.length > 0
-                  ? `${selectedProjectIds.length} projects selected`
-                  : "Select projects"}
-              </span>
-              <ChevronDown size={16} className={`text-gray-400 transition-transform ${isProjectDropdownOpen ? 'rotate-180' : ''}`} />
-            </button>
-
-            {/* Projects Dropdown */}
-            {isProjectDropdownOpen && (
-              <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg max-h-[200px] overflow-y-auto">
-                {isProjectsLoading ? (
-                  <div className="p-3 text-center text-sm text-gray-400">Loading projects...</div>
-                ) : projects.length > 0 ? (
-                  projects.map(project => (
-                    <div
-                      key={project.id}
-                      onClick={() => handleProjectToggle(project.id)}
-                      className="flex items-center justify-between px-3 py-2 hover:bg-gray-50 cursor-pointer text-sm"
-                    >
-                      <span className="text-gray-700">{project.name}</span>
-                      {selectedProjectIds.includes(project.id) && (
-                        <Check size={14} className="text-blue-500" />
-                      )}
-                    </div>
-                  ))
-                ) : (
-                  <div className="p-3 text-center text-sm text-gray-400">No projects found</div>
-                )}
-              </div>
-            )}
+            <Dropdown
+              className="w-full"
+              menuClassName="w-full max-h-[200px] overflow-y-auto"
+              trigger={
+                <button
+                  className="w-full flex items-center justify-between px-3 py-2.5 border border-dashed border-gray-300 rounded-md text-gray-500 hover:border-gray-400 transition-colors"
+                >
+                  <span className="text-sm">
+                    {selectedProjectIds.length > 0
+                      ? `${selectedProjectIds.length} projects selected`
+                      : "Select projects"}
+                  </span>
+                  <ChevronDown size={16} className={`text-gray-400`} />
+                </button>
+              }
+              items={
+                isProjectsLoading
+                  ? [{ key: 'loading', custom: true, label: <div className="p-3 text-center text-sm text-gray-400">Loading projects...</div> }]
+                  : projects.length > 0
+                    ? projects.map(project => ({
+                      key: project.id,
+                      preventClose: true,
+                      label: (
+                        <div className="flex items-center justify-between w-full">
+                          <span className="text-gray-700">{project.name}</span>
+                          {selectedProjectIds.includes(project.id) && (
+                            <Check size={14} className="text-blue-500" />
+                          )}
+                        </div>
+                      ),
+                      onClick: () => handleProjectToggle(project.id)
+                    }))
+                    : [{ key: 'empty', custom: true, label: <div className="p-3 text-center text-sm text-gray-400">No projects found</div> }]
+              }
+            />
           </div>
 
           {/* Members Input */}
           <div className="mb-6 relative">
-            <label className="block text-xs font-medium text-gray-400 mb-1.5 uppercase">
-              Members
-            </label>
-            <input
+            <Input
               type="text"
+              label="Members"
               value={membersInput}
               onChange={(e) => {
                 setMembersInput(e.target.value);
                 setShowSuggestions(true);
               }}
               onFocus={() => setShowSuggestions(true)}
-              className="w-full px-3 py-2 border border-blue-300 rounded-md text-sm placeholder-gray-300 focus:outline-none focus:ring-1 focus:ring-blue-100 focus:border-blue-400"
               placeholder="Search members by name or email"
             />
           </div>

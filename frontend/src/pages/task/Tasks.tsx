@@ -1,5 +1,6 @@
 import React from 'react';
 import Sidebar from '../sidebar/Sidebar';
+import { Badge, Button, Dropdown } from '../../components/ui';
 import { Menu, Search, Filter, ArrowUpDown, Plus, Calendar, MessageSquare, Paperclip, FileText, Layout, List } from 'lucide-react';
 import TaskDetailModal from '../../components/task/TaskDetailModal';
 import CreateTaskModal from '../../components/task/CreateTaskModal';
@@ -14,13 +15,10 @@ const Tasks: React.FC = () => {
     setSidebarOpen,
     activeView,
     setActiveView,
-    getPriorityColor,
     selectedTask,
     taskToEdit,
     isCreateTaskModalOpen,
     modalInitialStatus,
-    isAddSectionOpen,
-    setIsAddSectionOpen,
     columns,
     visibleColumns,
     hiddenColumns,
@@ -41,12 +39,13 @@ const Tasks: React.FC = () => {
   return (
     <div className={taskClasses.container}>
 
-      <button
+      <Button
+        variant="ghost"
         className={taskClasses.menuButton(sidebarOpen)}
         onClick={() => setSidebarOpen(true)}
       >
         <Menu size={22} />
-      </button>
+      </Button>
 
       {/* Sidebar */}
       <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
@@ -62,20 +61,22 @@ const Tasks: React.FC = () => {
             <div className={taskClasses.toolbar}>
               {/* Left: View Tabs */}
               <div className={taskClasses.viewTabsWrapper}>
-                <button
+                <Button
+                  variant="ghost"
                   onClick={() => setActiveView('kanban')}
                   className={taskClasses.viewTab(activeView === 'kanban')}
                 >
                   <Layout size={16} />
                   Kanban
-                </button>
-                <button
+                </Button>
+                <Button
+                  variant="ghost"
                   onClick={() => setActiveView('list')}
                   className={taskClasses.viewTab(activeView === 'list')}
                 >
                   <List size={16} />
                   List
-                </button>
+                </Button>
               </div>
 
               {/* Right: Actions */}
@@ -84,21 +85,28 @@ const Tasks: React.FC = () => {
                   <Search size={16} className={taskClasses.searchIcon} />
                   <span className={taskClasses.searchText}>Search</span>
                 </div>
-                <button className={taskClasses.filterButton}>
-                  <Filter size={16} />
+                <Button
+                  variant="secondary"
+                  className={taskClasses.filterButton}
+                  leftIcon={<Filter size={16} />}
+                >
                   Filters
-                </button>
-                <button className={taskClasses.filterButton}>
-                  <ArrowUpDown size={16} />
+                </Button>
+                <Button
+                  variant="secondary"
+                  className={taskClasses.filterButton}
+                  leftIcon={<ArrowUpDown size={16} />}
+                >
                   Sort by
-                </button>
-                <button
+                </Button>
+                <Button
+                  variant="primary"
                   onClick={() => handleOpenCreateTask()}
                   className={taskClasses.newTaskButton}
+                  leftIcon={<Plus size={16} />}
                 >
-                  <Plus size={16} />
                   New Task
-                </button>
+                </Button>
               </div>
             </div>
           </div>
@@ -130,47 +138,42 @@ const Tasks: React.FC = () => {
 
                   {/* Add Section Button & Dropdown */}
                   <div className={taskClasses.addSectionWrapper}>
-                    <button
-                      onClick={() => setIsAddSectionOpen(!isAddSectionOpen)}
-                      className={taskClasses.addSectionButton}
-                    >
-                      <Plus size={16} />
-                      <span>Add section</span>
-                    </button>
-
-                    {/* Dropdown Menu */}
-                    {isAddSectionOpen && hiddenColumns.length > 0 && (
-                      <>
-                        <div
-                          className={taskClasses.addSectionOverlay}
-                          onClick={() => setIsAddSectionOpen(false)}
-                        />
-                        <div className={taskClasses.addSectionDropdown}>
-                          {hiddenColumns.map(col => (
-                            <button
-                              key={col.id}
-                              onClick={() => handleShowColumn(col.id)}
-                              className={taskClasses.addSectionItem}
-                            >
-                              <div className={taskClasses.columnDot(col.color)}></div>
-                              {col.title}
-                            </button>
-                          ))}
-                        </div>
-                      </>
-                    )}
-
-                    {isAddSectionOpen && hiddenColumns.length === 0 && (
-                      <>
-                        <div
-                          className={taskClasses.addSectionOverlay}
-                          onClick={() => setIsAddSectionOpen(false)}
-                        />
-                        <div className={taskClasses.addSectionEmpty}>
-                          All sections visible
-                        </div>
-                      </>
-                    )}
+                    <Dropdown
+                      align="right"
+                      trigger={
+                        <Button
+                          variant="ghost"
+                          className={taskClasses.addSectionButton}
+                          leftIcon={<Plus size={16} />}
+                        >
+                          <span>Add section</span>
+                        </Button>
+                      }
+                      items={
+                        hiddenColumns.length > 0
+                          ? hiddenColumns.map(col => ({
+                            key: col.id,
+                            label: (
+                              <div className="flex items-center gap-2">
+                                <div className={taskClasses.columnDot(col.color)}></div>
+                                {col.title}
+                              </div>
+                            ),
+                            onClick: () => handleShowColumn(col.id),
+                          }))
+                          : [
+                            {
+                              key: 'empty',
+                              custom: true,
+                              label: (
+                                <div className={taskClasses.addSectionEmpty}>
+                                  All sections visible
+                                </div>
+                              )
+                            }
+                          ]
+                      }
+                    />
                   </div>
                 </div>
               </div>
@@ -274,9 +277,13 @@ const Tasks: React.FC = () => {
                         {/* Priority */}
                         <div>
                           {task.priority && (
-                            <span className={taskClasses.priorityBadge(getPriorityColor(task.priority))}>
+                            <Badge variant={
+                              task.priority === "URGENT" || task.priority === "HIGH" ? "danger" :
+                                task.priority === "MEDIUM" ? "warning" :
+                                  task.priority === "LOW" ? "success" : "default"
+                            }>
                               {task.priority.charAt(0) + task.priority.slice(1).toLowerCase()}
-                            </span>
+                            </Badge>
                           )}
                         </div>
 

@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { toast } from 'react-hot-toast';
+import { showToast, Dropdown, IconButton } from "../ui";
 import {
   X,
   Star,
@@ -53,8 +53,7 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
     newComment,
     setNewComment,
     isSubmitting,
-    isMenuOpen,
-    setIsMenuOpen,
+
     isAddingTag,
     setIsAddingTag,
     tagInput,
@@ -82,7 +81,7 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
   const handleDeleteTask = () => {
     if (!task) return;
 
-    toast((t) => (
+    showToast.custom((t) => (
       <div className="flex flex-col gap-3 min-w-[250px]">
         <div>
           <h3 className="font-medium text-gray-900">Delete Task?</h3>
@@ -92,14 +91,14 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
         </div>
         <div className="flex items-center justify-end gap-3 mt-1">
           <button
-            onClick={() => toast.dismiss(t.id)}
+            onClick={() => showToast.dismiss(t.id)}
             className="px-3 py-1.5 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors"
           >
             Cancel
           </button>
           <button
             onClick={() => {
-              toast.dismiss(t.id);
+              showToast.dismiss(t.id);
               deleteTask();
             }}
             className="px-3 py-1.5 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors"
@@ -149,45 +148,41 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
         {/* Top Toolbar */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 sticky top-0 bg-white z-10">
           <div className="flex items-center gap-2 text-gray-400">
-            <button className="hover:text-gray-600 transition-colors"><ChevronsRight size={20} /></button>
-            <button className="hover:text-green-600 text-gray-400 transition-colors"><CheckCircle2 size={20} /></button>
+            <IconButton icon={<ChevronsRight size={20} />} className="hover:text-gray-600" />
+            <IconButton icon={<CheckCircle2 size={20} />} className="hover:text-green-600" />
           </div>
 
           <div className="flex items-center gap-4 text-gray-500">
-            <button className="hover:text-gray-700 transition-colors"><Star size={18} /></button>
-            <button className="hover:text-gray-700 transition-colors"><Link size={18} /></button>
+            <IconButton icon={<Star size={18} />} className="hover:text-gray-700" />
+            <IconButton icon={<Link size={18} />} className="hover:text-gray-700" />
 
             <div className="relative">
-              <button
-                onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className={`hover:text-gray-700 transition-colors p-1 rounded ${isMenuOpen ? 'bg-gray-100 text-gray-800' : ''}`}
-              >
-                <MoreHorizontal size={18} />
-              </button>
-
-              {isMenuOpen && (
-                <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl border border-gray-100 py-1 z-50 animate-in fade-in zoom-in-95 duration-100 origin-top-right">
-                  <button
-                    onClick={handleEditTask}
-                    className="w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                  >
-                    <Edit size={16} />
-                    Update Task
+              <Dropdown
+                align="right"
+                trigger={
+                  <button className="hover:text-gray-700 transition-colors p-1 rounded">
+                    <MoreHorizontal size={18} />
                   </button>
-                  <button
-                    onClick={handleDeleteTask}
-                    className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
-                  >
-                    <Trash2 size={16} />
-                    Delete Task
-                  </button>
-                </div>
-              )}
+                }
+                items={[
+                  {
+                    key: 'update',
+                    label: 'Update Task',
+                    icon: <Edit size={16} />,
+                    onClick: handleEditTask
+                  },
+                  {
+                    key: 'delete',
+                    label: 'Delete Task',
+                    icon: <Trash2 size={16} />,
+                    danger: true,
+                    onClick: handleDeleteTask
+                  }
+                ]}
+              />
             </div>
 
-            <button onClick={onClose} className="hover:text-red-500 transition-colors ml-2">
-              <X size={20} />
-            </button>
+            <IconButton icon={<X size={20} />} onClick={onClose} className="hover:text-red-500 ml-2" />
           </div>
         </div>
 

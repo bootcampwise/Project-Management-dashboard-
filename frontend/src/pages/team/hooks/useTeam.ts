@@ -1,26 +1,32 @@
 import { useState, useEffect, useRef } from "react";
 import { useAppDispatch, useAppSelector } from "../../../store/hooks";
+import { setActiveProject } from "../../../store/uiSlice";
 import {
-  fetchProjects,
-  setActiveProject,
-  deleteProject,
-} from "../../../store/slices/projectSlice";
-import toast from "react-hot-toast";
+  useGetProjectsQuery,
+  useDeleteProjectMutation,
+} from "../../../store/api/projectApiSlice";
+import { showToast } from "../../../components/ui";
 
 export const useTeam = () => {
   const dispatch = useAppDispatch();
-  // Initialize based on screen width
+
+  // Data from RTK Query
+  const { data: projects = [] } = useGetProjectsQuery();
+  const [deleteProject] = useDeleteProjectMutation();
+
+  // UI state from Redux
+  const { activeProject } = useAppSelector((state) => state.ui);
+
+  // Local state
   const [sidebarOpen, setSidebarOpen] = useState(window.innerWidth >= 768);
   const [activeTab, setActiveTab] = useState("Teams");
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isCreateTeamModalOpen, setIsCreateTeamModalOpen] = useState(false);
-
-  // Team Page specific states
-  const { projects, activeProject } = useAppSelector((state) => state.project);
   const [isProjectDropdownOpen, setIsProjectDropdownOpen] = useState(false);
   const [isMenuDropdownOpen, setIsMenuDropdownOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
+  // Handle window resize
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth < 768) {
@@ -33,10 +39,6 @@ export const useTeam = () => {
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
-
-  useEffect(() => {
-    dispatch(fetchProjects());
-  }, [dispatch]);
 
   // Set default active project if none selected
   useEffect(() => {
@@ -68,11 +70,11 @@ export const useTeam = () => {
 
   const handleDeleteProject = async (id: string) => {
     try {
-      await dispatch(deleteProject(id)).unwrap();
-      toast.success("Project deleted successfully");
+      await deleteProject(id).unwrap();
+      showToast.success("Project deleted successfully");
       setIsMenuDropdownOpen(false);
     } catch (error) {
-      toast.error("Failed to delete project");
+      showToast.error("Failed to delete project");
     }
   };
 
@@ -88,7 +90,6 @@ export const useTeam = () => {
     isCreateTeamModalOpen,
     setIsCreateTeamModalOpen,
     tabs,
-    // New exports
     projects,
     activeProject,
     isProjectDropdownOpen,
