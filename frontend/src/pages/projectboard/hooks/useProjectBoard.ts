@@ -16,6 +16,10 @@ import type {
   CreateProjectPayload,
   CreateTaskPayload,
 } from "../../../types";
+import {
+  saveLastProjectId,
+  getLastProjectId,
+} from "../../../utils/projectStorage";
 
 import {
   useGetProjectsQuery,
@@ -27,6 +31,7 @@ import {
   useCreateTaskMutation,
   useUpdateTaskMutation,
 } from "../../../store/api/taskApiSlice";
+import { useGetSessionQuery } from "../../../store/api/authApiSlice";
 
 export const useProjectBoard = () => {
   const { projectId } = useParams();
@@ -45,8 +50,10 @@ export const useProjectBoard = () => {
   } = useAppSelector((state) => state.ui);
 
   // Data from RTK Query
-  const { data: projects = [] } = useGetProjectsQuery();
+  const { data: projects = [], isLoading: projectsLoading } =
+    useGetProjectsQuery();
   const { data: tasks = [] } = useGetTasksQuery();
+  const { data: user, isLoading: sessionLoading } = useGetSessionQuery();
 
   // API Mutations
   const [createProject] = useCreateProjectMutation();
@@ -72,16 +79,56 @@ export const useProjectBoard = () => {
     dispatch(setSelectedTask(null)); // Clear selected task on mount
   }, [dispatch]);
 
+  // ============================================
+  // PROJECT RESTORATION (CRITICAL FOR FAST UX)
+  // ============================================
   useEffect(() => {
+    // Wait for session and projects to be ready
+    if (sessionLoading || projectsLoading || projects.length === 0) return;
+
+    const userId = user?.id;
+
+    // Priority 1: URL parameter
     if (projectId) {
       const proj = projects.find((p) => p.id === projectId);
       if (proj && proj.id !== activeProject?.id) {
         dispatch(setActiveProject(proj));
+        saveLastProjectId(proj.id, userId); // Save for future refreshes
       }
-    } else if (!activeProject && projects.length > 0) {
-      dispatch(setActiveProject(projects[0]));
+      return;
     }
-  }, [projectId, projects, activeProject, dispatch]);
+
+    // Priority 2: Restore from localStorage (user-specific)
+    const lastProjectId = getLastProjectId(userId);
+    if (lastProjectId) {
+      const lastProject = projects.find((p) => p.id === lastProjectId);
+      if (lastProject && lastProject.id !== activeProject?.id) {
+        dispatch(setActiveProject(lastProject));
+        return;
+      }
+    }
+
+    // Priority 3: Default to first project (only if nothing else works)
+    if (!activeProject) {
+      dispatch(setActiveProject(projects[0]));
+      saveLastProjectId(projects[0].id, userId);
+    }
+  }, [
+    projectId,
+    projects,
+    projectsLoading,
+    sessionLoading,
+    user,
+    activeProject,
+    dispatch,
+  ]);
+
+  // Save project ID whenever activeProject changes (user-specific)
+  useEffect(() => {
+    if (activeProject?.id && user?.id) {
+      saveLastProjectId(activeProject.id, user.id);
+    }
+  }, [activeProject?.id, user?.id]);
 
   const tabs = [
     { id: "Board", icon: Layout },
@@ -206,6 +253,10 @@ export const useProjectBoard = () => {
     selectedTask,
     tabs,
     projectId,
+
+    // Loading states for skeleton display
+    isLoading: projectsLoading || sessionLoading,
+    tasksLoading: !tasks.length && projectsLoading,
 
     // UI States
     sidebarOpen,

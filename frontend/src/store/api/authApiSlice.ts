@@ -1,6 +1,7 @@
-import { apiSlice } from "./apiSlice";
+import { apiSlice, clearAuthTokenCache } from "./apiSlice";
 import { supabase } from "../../lib/supabase";
 import type { User } from "../../types";
+import { clearLastProjectId } from "../../utils/projectStorage";
 
 // ============================================
 // AUTH API ENDPOINTS
@@ -178,6 +179,11 @@ export const authApiSlice = apiSlice.injectEndpoints({
     logout: builder.mutation<null, void>({
       queryFn: async () => {
         try {
+          // Clear cached auth token first for security
+          clearAuthTokenCache();
+          // Clear saved project ID
+          clearLastProjectId();
+
           const { error } = await supabase.auth.signOut();
           if (error) throw error;
           return { data: null };

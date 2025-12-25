@@ -23,6 +23,8 @@ export const taskApiSlice = apiSlice.injectEndpoints({
     // ----------------------------------------
     getTasks: builder.query<Task[], void>({
       query: () => "/tasks",
+      // Tasks are real-time critical - shorter cache
+      keepUnusedDataFor: 60,
       providesTags: (result) =>
         result
           ? [

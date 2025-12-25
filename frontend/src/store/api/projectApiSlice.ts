@@ -12,6 +12,8 @@ export const projectApiSlice = apiSlice.injectEndpoints({
     // ----------------------------------------
     getProjects: builder.query<Project[], void>({
       query: () => "/projects",
+      // Refetch if data is older than 30 seconds (balance freshness vs performance)
+      keepUnusedDataFor: 120,
       // Cache tags: when any project changes, this list will refresh
       providesTags: (result) =>
         result
@@ -56,6 +58,8 @@ export const projectApiSlice = apiSlice.injectEndpoints({
     // ----------------------------------------
     getProjectAttachments: builder.query<TeamFile[], string>({
       query: (projectId) => `/projects/${projectId}/attachments`,
+      // Cache file metadata for 3 minutes (files don't change often)
+      keepUnusedDataFor: 180,
       providesTags: (result, _error, projectId) =>
         result
           ? [

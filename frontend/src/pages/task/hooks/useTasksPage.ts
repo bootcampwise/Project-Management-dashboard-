@@ -12,6 +12,7 @@ import { useTasks } from "./useTasks";
 export const useTasksPage = () => {
   const {
     tasks,
+    isLoading,
     sidebarOpen,
     setSidebarOpen,
     activeView,
@@ -211,6 +212,7 @@ export const useTasksPage = () => {
   return {
     // Global State (from useTasks)
     tasks,
+    isLoading,
     sidebarOpen,
     setSidebarOpen,
     activeView,

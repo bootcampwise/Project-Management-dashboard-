@@ -22,7 +22,13 @@ import TeamMembers from "../../components/team/teamtabs/TeamMembers";
 import TeamFiles from "../../components/team/teamtabs/TeamFiles";
 import CreateTeamModal from "../../components/team/CreateTeamModal";
 import SearchPopup from "../../components/sidebar/SearchPopup";
-import { showToast, Button, Dropdown, type DropdownItem } from "../../components/ui";
+import {
+  showToast,
+  Button,
+  Dropdown,
+  type DropdownItem,
+  TeamPageSkeleton,
+} from "../../components/ui";
 
 const Team: React.FC = () => {
   const {
@@ -36,12 +42,27 @@ const Team: React.FC = () => {
     setIsCreateTeamModalOpen,
     tabs,
     projects,
+    projectsLoading,
     activeProject,
 
     menuRef,
     handleSwitchProject,
     handleDeleteProject,
   } = useTeam();
+
+  // Show full page skeleton if initial loading
+  if (projectsLoading) {
+    return (
+      <div className={teamClasses.container}>
+        <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+        <main className={teamClasses.main}>
+          <div className={teamClasses.mainContent(sidebarOpen)}>
+            <TeamPageSkeleton />
+          </div>
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className={teamClasses.container}>

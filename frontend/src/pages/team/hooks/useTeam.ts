@@ -5,14 +5,21 @@ import {
   useGetProjectsQuery,
   useDeleteProjectMutation,
 } from "../../../store/api/projectApiSlice";
+import { useGetSessionQuery } from "../../../store/api/authApiSlice";
 import { showToast } from "../../../components/ui";
+import {
+  saveLastProjectId,
+  getLastProjectId,
+} from "../../../utils/projectStorage";
 
 export const useTeam = () => {
   const dispatch = useAppDispatch();
 
   // Data from RTK Query
-  const { data: projects = [] } = useGetProjectsQuery();
+  const { data: projects = [], isLoading: projectsLoading } =
+    useGetProjectsQuery();
   const [deleteProject] = useDeleteProjectMutation();
+  const { data: user, isLoading: sessionLoading } = useGetSessionQuery();
 
   // UI state from Redux
   const { activeProject } = useAppSelector((state) => state.ui);
@@ -40,12 +47,38 @@ export const useTeam = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Set default active project if none selected
+  // ============================================
+  // PROJECT RESTORATION (CRITICAL FOR FAST UX)
+  // ============================================
   useEffect(() => {
-    if (!activeProject && projects.length > 0) {
-      dispatch(setActiveProject(projects[0]));
+    // Wait for session and projects to be ready
+    if (sessionLoading || projectsLoading || projects.length === 0) return;
+
+    const userId = user?.id;
+
+    // Priority 1: Restore from localStorage (user-specific)
+    const lastProjectId = getLastProjectId(userId);
+    if (lastProjectId && !activeProject) {
+      const lastProject = projects.find((p) => p.id === lastProjectId);
+      if (lastProject) {
+        dispatch(setActiveProject(lastProject));
+        return;
+      }
     }
-  }, [projects, activeProject, dispatch]);
+
+    // Priority 2: Default to first project (only if nothing else works)
+    if (!activeProject) {
+      dispatch(setActiveProject(projects[0]));
+      saveLastProjectId(projects[0].id, userId);
+    }
+  }, [
+    projects,
+    projectsLoading,
+    sessionLoading,
+    user,
+    activeProject,
+    dispatch,
+  ]);
 
   // Close menus when clicking outside
   useEffect(() => {
@@ -64,6 +97,7 @@ export const useTeam = () => {
 
   const handleSwitchProject = (p: (typeof projects)[0]) => {
     dispatch(setActiveProject(p));
+    saveLastProjectId(p.id, user?.id); // Remember for next refresh (user-specific)
     setIsProjectDropdownOpen(false);
     setIsMenuDropdownOpen(false);
   };
@@ -91,6 +125,7 @@ export const useTeam = () => {
     setIsCreateTeamModalOpen,
     tabs,
     projects,
+    projectsLoading, // NEW: for loading state
     activeProject,
     isProjectDropdownOpen,
     setIsProjectDropdownOpen,

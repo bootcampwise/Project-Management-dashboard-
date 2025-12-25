@@ -1,6 +1,13 @@
 import React from 'react';
 import Sidebar from '../sidebar/Sidebar';
-import { Badge, Button, Dropdown } from '../../components/ui';
+import {
+  Badge,
+  Button,
+  Dropdown,
+  KanbanBoardSkeleton,
+  TableSkeleton,
+  ProjectHeaderSkeleton,
+} from '../../components/ui';
 import { Menu, Search, Filter, ArrowUpDown, Plus, Calendar, MessageSquare, Paperclip, FileText, Layout, List } from 'lucide-react';
 import TaskDetailModal from '../../components/task/TaskDetailModal';
 import CreateTaskModal from '../../components/task/CreateTaskModal';
@@ -11,6 +18,7 @@ import { taskClasses } from './taskStyle';
 
 const Tasks: React.FC = () => {
   const {
+    isLoading,
     sidebarOpen,
     setSidebarOpen,
     activeView,
@@ -35,6 +43,25 @@ const Tasks: React.FC = () => {
     handleDragEnd,
     getTasksByStatus,
   } = useTasksPage();
+
+  // Show skeleton while loading
+  if (isLoading) {
+    return (
+      <div className={taskClasses.container}>
+        <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+        <main className={taskClasses.main(activeView)}>
+          <div className={taskClasses.mainContent(sidebarOpen)}>
+            <ProjectHeaderSkeleton />
+            {activeView === 'kanban' ? (
+              <KanbanBoardSkeleton />
+            ) : (
+              <TableSkeleton />
+            )}
+          </div>
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className={taskClasses.container}>

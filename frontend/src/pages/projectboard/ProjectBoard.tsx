@@ -29,7 +29,14 @@ import CreateTaskModal from "../../components/task/CreateTaskModal";
 import AddEventModal from "../../components/projectBoard/AddEventModal";
 import { useProjectBoard } from "./hooks/useProjectBoard";
 import { projectboardClasses } from "./projectboardStyle";
-import { Button, Dropdown, type DropdownItem } from "../../components/ui";
+import {
+  Button,
+  Dropdown,
+  type DropdownItem,
+  ProjectBoardSkeleton,
+  KanbanBoardSkeleton,
+  TableSkeleton,
+} from "../../components/ui";
 
 const ProjectBoard: React.FC = () => {
   const {
@@ -39,6 +46,10 @@ const ProjectBoard: React.FC = () => {
     projectTasks,
     selectedTask,
     tabs,
+
+    // Loading states
+    isLoading,
+    tasksLoading,
 
     // UI States
     sidebarOpen,
@@ -79,6 +90,18 @@ const ProjectBoard: React.FC = () => {
   } = useProjectBoard();
 
   const renderContent = () => {
+    // Show skeleton while loading
+    if (tasksLoading) {
+      switch (activeTab) {
+        case 'Board':
+          return <KanbanBoardSkeleton />;
+        case 'Table':
+          return <TableSkeleton />;
+        default:
+          return <KanbanBoardSkeleton />;
+      }
+    }
+
     switch (activeTab) {
       case 'Board':
         return <BoardView tasks={projectTasks} onTaskClick={setSelectedTask} onAddTask={handleAddTask} />;
@@ -117,6 +140,20 @@ const ProjectBoard: React.FC = () => {
         return null;
     }
   };
+
+  // Show full page skeleton if initial loading
+  if (isLoading) {
+    return (
+      <div className={projectboardClasses.container}>
+        <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+        <main className={projectboardClasses.main}>
+          <div className={projectboardClasses.mainContent(sidebarOpen)}>
+            <ProjectBoardSkeleton />
+          </div>
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className={projectboardClasses.container}>

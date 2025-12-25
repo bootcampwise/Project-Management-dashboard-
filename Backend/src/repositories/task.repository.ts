@@ -6,13 +6,10 @@ import {
   AttachmentMetadata,
 } from "../types/task.types";
 
-
 export class TaskRepository {
-
   async findManyByUserId(userId: string) {
     const tasks = await prisma.task.findMany({
       where: {
-        
         isDeleted: false,
       },
       include: {
@@ -47,7 +44,7 @@ export class TaskRepository {
         },
       },
       orderBy: {
-        updatedAt: "desc", 
+        updatedAt: "desc",
       },
     });
 
@@ -141,20 +138,51 @@ export class TaskRepository {
   }
 
   async findByIdAndProjectAccess(taskId: string, userId: string) {
-    return prisma.task.findFirst({
+    // First check: find the task
+    const task = await prisma.task.findFirst({
       where: {
         id: taskId,
-        OR: [
-          { project: { ownerId: userId } },
-          { project: { memberIds: { has: userId } } },
-          { creatorId: userId },
-          { assigneeIds: { has: userId } },
-        ],
+        isDeleted: false,
       },
       include: {
-        project: { select: { id: true, memberIds: true, ownerId: true } },
+        project: {
+          select: {
+            id: true,
+            memberIds: true,
+            ownerId: true,
+            teamIds: true,
+          },
+        },
       },
     });
+
+    if (!task) return null;
+
+    // Check direct access
+    const isOwner = task.project.ownerId === userId;
+    const isDirectMember = task.project.memberIds.includes(userId);
+    const isCreator = task.creatorId === userId;
+    const isAssignee = task.assigneeIds.includes(userId);
+
+    if (isOwner || isDirectMember || isCreator || isAssignee) {
+      return task;
+    }
+
+    // Check team-based access
+    if (task.project.teamIds.length > 0) {
+      const teamWithUser = await prisma.team.findFirst({
+        where: {
+          id: { in: task.project.teamIds },
+          memberIds: { has: userId },
+        },
+      });
+
+      if (teamWithUser) {
+        return task;
+      }
+    }
+
+    return null;
   }
 
   async create(
@@ -163,7 +191,6 @@ export class TaskRepository {
     projectId: string,
     files?: AttachmentMetadata[]
   ) {
-   
     const processedTagIds: string[] = [];
     if (data.tags && Array.isArray(data.tags)) {
       for (const tagText of data.tags) {
@@ -192,7 +219,7 @@ export class TaskRepository {
           create:
             files?.map((file) => ({
               name: file.name,
-              url: file.filePath, 
+              url: file.filePath,
               size: file.size,
               mimeType: file.mimeType,
               userId: creatorId,
@@ -234,7 +261,6 @@ export class TaskRepository {
       description: rest.description,
       priority: rest.priority,
       status: rest.status,
-
     };
 
     if (rest.actualHours !== undefined)
@@ -287,7 +313,6 @@ export class TaskRepository {
   }
 
   async hardDelete(taskId: string) {
-
     const task = await prisma.task.findUnique({
       where: { id: taskId },
       select: {
@@ -297,11 +322,9 @@ export class TaskRepository {
       },
     });
 
-
     await prisma.task.delete({
       where: { id: taskId },
     });
-
 
     return task?.attachments.map((a) => a.url) || [];
   }
@@ -336,7 +359,6 @@ export class TaskRepository {
     assigneeId: string,
     action: "add" | "remove"
   ) {
-
     const subtask = await prisma.subTask.findUnique({
       where: { id: subtaskId },
       select: { assigneeIds: true },
@@ -346,12 +368,10 @@ export class TaskRepository {
 
     let newAssigneeIds: string[];
     if (action === "add") {
-
       newAssigneeIds = subtask.assigneeIds.includes(assigneeId)
         ? subtask.assigneeIds
         : [...subtask.assigneeIds, assigneeId];
     } else {
-
       newAssigneeIds = subtask.assigneeIds.filter((id) => id !== assigneeId);
     }
 

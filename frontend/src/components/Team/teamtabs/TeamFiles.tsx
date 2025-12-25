@@ -7,6 +7,7 @@ import { useTeamFiles } from "../../../pages/team/hooks/useTeamFiles";
 
 const TeamFiles: React.FC = () => {
   const {
+    activeProject,
     files,
     isLoading,
     openMenuId,
@@ -73,11 +74,28 @@ const TeamFiles: React.FC = () => {
 
         {/* Rows with 2px gap */}
         <div className="flex flex-col gap-[2px] bg-gray-50">
-          {isLoading ? (
-            <div className="px-6 py-12 text-center">
-              <Loader2 className="w-6 h-6 animate-spin text-blue-500 mx-auto mb-2" />
-              <span className="text-gray-500 text-sm">Loading files...</span>
+          {!activeProject?.id ? (
+            <div className="px-6 py-8 text-center text-gray-500 text-sm italic">
+              Select a project to view files.
             </div>
+          ) : isLoading ? (
+            // Skeleton loading - looks like actual file rows
+            <>
+              {[1, 2, 3, 4, 5].map((i) => (
+                <div key={i} className="grid grid-cols-[2.5fr_1fr_1fr_1.5fr] gap-4 px-6 h-[43px] items-center bg-white animate-pulse">
+                  <div className="flex items-center gap-3">
+                    <div className="w-5 h-5 bg-gray-200 rounded" />
+                    <div className="h-4 bg-gray-200 rounded w-48" />
+                  </div>
+                  <div className="h-4 bg-gray-200 rounded w-16" />
+                  <div className="h-4 bg-gray-200 rounded w-24" />
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 bg-gray-200 rounded-full" />
+                    <div className="h-4 bg-gray-200 rounded w-24" />
+                  </div>
+                </div>
+              ))}
+            </>
           ) : files.length === 0 ? (
             <div className="px-6 py-8 text-center text-gray-500 text-sm italic">
               No files found in this project.

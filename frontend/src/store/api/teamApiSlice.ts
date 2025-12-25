@@ -39,6 +39,8 @@ export const teamApiSlice = apiSlice.injectEndpoints({
     // ----------------------------------------
     getTeams: builder.query<Team[], void>({
       query: () => "/teams/my-teams",
+      // Teams update infrequently - longer cache is fine
+      keepUnusedDataFor: 180,
       providesTags: (result) =>
         result
           ? [

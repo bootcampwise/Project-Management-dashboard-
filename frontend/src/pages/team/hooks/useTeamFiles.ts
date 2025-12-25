@@ -11,15 +11,29 @@ import {
   useDeleteFileMutation,
 } from "../../../store/api/storageApiSlice";
 import { showToast } from "../../../components/ui";
+import {
+  getCachedFileUrl,
+  setCachedFileUrl,
+  clearCachedFileUrl,
+} from "../../../utils/fileUrlCache";
 
 export const useTeamFiles = () => {
   const { activeProject } = useAppSelector((state) => state.ui);
 
   // RTK Query hooks
-  const { data: files = [], isLoading } = useGetProjectAttachmentsQuery(
-    activeProject?.id ?? "",
-    { skip: !activeProject?.id }
-  );
+  const { data: files = [], isLoading: queryLoading } =
+    useGetProjectAttachmentsQuery(activeProject?.id ?? "", {
+      skip: !activeProject?.id,
+      // Use cached data immediately, refetch in background
+      refetchOnMountOrArgChange: false,
+    });
+
+  // ⚡ Only show loading on INITIAL load (when no data exists)
+  // Never show loading during background refetches - use cached data
+  const isLoading = activeProject?.id
+    ? queryLoading && files.length === 0
+    : false;
+
   const [refetchFiles] = useLazyGetProjectAttachmentsQuery();
   const [deleteAttachment] = useDeleteAttachmentMutation();
   const [downloadFile] = useLazyDownloadFileQuery();
@@ -49,20 +63,41 @@ export const useTeamFiles = () => {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + " " + sizes[i];
   };
 
+  // ============================================
+  // OPTIMIZED: Get file URL with caching
+  // ============================================
   const getFileUrl = async (file: TeamFile): Promise<string | null> => {
-    const url = file.url || file.filePath;
-    if (!url) return null;
-    if (url.startsWith("http://") || url.startsWith("https://")) {
-      return url;
+    const filePath = file.url || file.filePath;
+    if (!filePath) return null;
+
+    // If it's already a full URL, return it directly (no caching needed)
+    if (filePath.startsWith("http://") || filePath.startsWith("https://")) {
+      return filePath;
     }
-    const cleanPath = url.startsWith("/") ? url.slice(1) : url;
+
+    const cleanPath = filePath.startsWith("/") ? filePath.slice(1) : filePath;
+
+    // 1️⃣ Check cache first (instant!)
+    const cachedUrl = getCachedFileUrl(cleanPath);
+    if (cachedUrl) {
+      return cachedUrl;
+    }
+
+    // 2️⃣ Not cached - generate signed URL
     try {
       const result = await downloadFile({
         bucket: "attachments",
         path: cleanPath,
       }).unwrap();
-      return result || null;
+
+      if (result) {
+        // 3️⃣ Store in cache for 5 minutes
+        setCachedFileUrl(cleanPath, result, 300);
+        return result;
+      }
+      return null;
     } catch {
+      showToast.error("Failed to load file");
       return null;
     }
   };
@@ -88,6 +123,10 @@ export const useTeamFiles = () => {
         const cleanPath = filePath.startsWith("/")
           ? filePath.slice(1)
           : filePath;
+
+        // Clear from URL cache first
+        clearCachedFileUrl(cleanPath);
+
         await deleteStorageFile({
           bucket: "attachments",
           path: cleanPath,
