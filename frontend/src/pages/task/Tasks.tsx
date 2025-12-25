@@ -34,6 +34,7 @@ const Tasks: React.FC = () => {
     handleOpenCreateTask,
     handleCreateTask,
     handleEditTask,
+    handleDeleteTask,
     handleUpdateTask,
     closeTaskDetail,
     closeCreateTaskModal,
@@ -156,6 +157,8 @@ const Tasks: React.FC = () => {
                         status={col.id}
                         collapsed={col.collapsed}
                         onTaskClick={handleTaskClick}
+                        onEditTask={handleEditTask}
+                        onDeleteTask={handleDeleteTask}
                         onAddTask={(status) => handleOpenCreateTask(status)}
                         onToggle={() => handleToggleColumn(col.id)}
                         onHide={() => handleHideColumn(col.id)}

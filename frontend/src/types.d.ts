@@ -279,6 +279,8 @@ export interface TaskCardComponentProps {
   subtasks?: number;
   date?: string;
   onClick?: () => void;
+  onEdit?: () => void;
+  onDelete?: () => void;
 }
 
 export interface Project {
@@ -479,6 +481,8 @@ export interface BoardColumnProps {
   status?: string; // Added status ID prop
   collapsed?: boolean;
   onTaskClick?: (task: Task) => void;
+  onEditTask?: (task: Task) => void;
+  onDeleteTask?: (task: Task) => void;
   onAddTask?: (status: string) => void;
   onToggle?: () => void;
   onHide?: () => void;

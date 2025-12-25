@@ -29,7 +29,8 @@ export class CommentService {
     }
 
     return this.commentRepository.create({
-      ...data,
+      content: data.content,
+      taskId: data.taskId,
       authorId: user.id,
     });
   }

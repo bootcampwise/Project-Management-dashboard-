@@ -6,7 +6,7 @@ import {
 } from "../../../store/api/teamApiSlice";
 import { useGetProjectsQuery } from "../../../store/api/projectApiSlice";
 import type { TeamMember } from "../../../types";
-import { showToast } from "../../../components/ui";
+import { showToast, getErrorMessage } from "../../../components/ui";
 
 export const useCreateTeamModal = (isOpen: boolean, onClose: () => void) => {
   // RTK Query hooks
@@ -81,11 +81,8 @@ export const useCreateTeamModal = (isOpen: boolean, onClose: () => void) => {
       setTeamName("");
       setSelectedMembers([]);
       setSelectedProjectIds([]);
-    } catch (error: unknown) {
-      console.error("Failed to create team:", error);
-      const errorMessage =
-        error instanceof Error ? error.message : "Failed to create team";
-      showToast.error(errorMessage);
+    } catch (error) {
+      showToast.error(`Failed to create team. ${getErrorMessage(error)}`);
     } finally {
       setIsCreating(false);
     }

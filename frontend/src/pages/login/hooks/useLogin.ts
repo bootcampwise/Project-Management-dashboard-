@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { showToast } from "../../../components/ui";
+import { showToast, getErrorMessage } from "../../../components/ui";
 import {
   useLoginMutation,
   useLoginWithGoogleMutation,
@@ -33,9 +33,8 @@ export const useLogin = () => {
       await login({ email, password }).unwrap();
       showToast.success("Login successfully");
       navigate("/dashboard");
-    } catch (err) {
-      console.error("Login failed:", err);
-      showToast.error("Login failed");
+    } catch (error) {
+      showToast.error(`Failed to login. ${getErrorMessage(error)}`);
     }
   };
 

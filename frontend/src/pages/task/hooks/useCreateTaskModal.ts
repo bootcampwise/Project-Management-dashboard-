@@ -7,7 +7,7 @@ import { useGetProjectsQuery } from "../../../store/api/projectApiSlice";
 import { useGetTeamMembersQuery } from "../../../store/api/teamApiSlice";
 import { useGetSessionQuery } from "../../../store/api/authApiSlice";
 import { useUploadFileMutation } from "../../../store/api/storageApiSlice";
-import { showToast } from "../../../components/ui";
+import { showToast, getErrorMessage } from "../../../components/ui";
 
 export const useCreateTaskModal = ({
   isOpen,
@@ -290,11 +290,8 @@ export const useCreateTaskModal = ({
       setDueDate("");
       setAssigneeIds([]);
       setAssigneeSearch("");
-    } catch (error: unknown) {
-      console.error("Error in onCreate:", error);
-      const message =
-        error instanceof Error ? error.message : "Failed to create task";
-      showToast.error(message);
+    } catch (error) {
+      showToast.error(`Failed to save task. ${getErrorMessage(error)}`);
     } finally {
       setIsSubmitting(false);
     }

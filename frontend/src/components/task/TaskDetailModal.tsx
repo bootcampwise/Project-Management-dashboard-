@@ -57,17 +57,17 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
     if (!task) return;
 
     showToast.custom((t) => (
-      <div className="flex flex-col gap-3 min-w-[250px]">
-        <div>
-          <h3 className="font-medium text-gray-900">Delete Task?</h3>
+      <div className={`${t.visible ? 'animate-enter' : 'animate-leave'} bg-white rounded-xl shadow-lg p-4 min-w-[280px] border border-gray-100`}>
+        <div className="mb-3">
+          <h3 className="font-semibold text-gray-900 text-base">Delete Task?</h3>
           <p className="text-sm text-gray-500 mt-1">
-            Are you sure you want to delete <span className="font-semibold">{task.name}</span>?
+            Are you sure you want to delete <span className="font-semibold text-gray-700">"{task.name}"</span>? This action cannot be undone.
           </p>
         </div>
-        <div className="flex items-center justify-end gap-3 mt-1">
+        <div className="flex items-center justify-end gap-2">
           <button
             onClick={() => showToast.dismiss(t.id)}
-            className="px-3 py-1.5 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors"
+            className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
           >
             Cancel
           </button>
@@ -76,14 +76,14 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
               showToast.dismiss(t.id);
               deleteTask();
             }}
-            className="px-3 py-1.5 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors"
+            className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors"
           >
             Delete
           </button>
         </div>
       </div>
     ), {
-      duration: Infinity,
+      duration: 5000,
       position: "top-center"
     });
   };

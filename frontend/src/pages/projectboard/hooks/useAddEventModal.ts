@@ -5,7 +5,7 @@ import {
   useUpdateEventMutation,
   type EventType,
 } from "../../../store/api/calendarApiSlice";
-import { showToast } from "../../../components/ui";
+import { showToast, getErrorMessage } from "../../../components/ui";
 import { format } from "date-fns";
 
 export const useAddEventModal = ({
@@ -145,10 +145,7 @@ export const useAddEventModal = ({
       resetForm();
       onClose();
     } catch (error) {
-      console.error("Failed to save event:", error);
-      showToast.error(
-        isEditMode ? "Failed to update event." : "Failed to create event."
-      );
+      showToast.error(`Failed to save event. ${getErrorMessage(error)}`);
     }
   };
 

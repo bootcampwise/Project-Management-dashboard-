@@ -17,7 +17,7 @@ import {
   type CalendarEvent,
   type UpdateEventPayload,
 } from "../../../store/api/calendarApiSlice";
-import { showToast } from "../../../components/ui";
+import { showToast, getErrorMessage } from "../../../components/ui";
 
 interface UseCalendarViewProps {
   projectId?: string;
@@ -49,7 +49,9 @@ export const useCalendarView = ({ projectId }: UseCalendarViewProps = {}) => {
 
       setEvents(result);
     } catch (error) {
-      console.error("Failed to fetch calendar events:", error);
+      showToast.error(
+        `Failed to fetch calendar events. ${getErrorMessage(error)}`
+      );
     }
   }, [projectId, currentDate, fetchEvents]);
 
@@ -125,8 +127,7 @@ export const useCalendarView = ({ projectId }: UseCalendarViewProps = {}) => {
       showToast.success("Event updated successfully!");
       return updatedEvent;
     } catch (error) {
-      console.error("Failed to update event:", error);
-      showToast.error("Failed to update event.");
+      showToast.error(`Failed to update event. ${getErrorMessage(error)}`);
       throw error;
     }
   };

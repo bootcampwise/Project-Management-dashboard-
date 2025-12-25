@@ -1,6 +1,6 @@
 import React from 'react';
-import { MessageSquare, Paperclip, Flag, ListTodo } from 'lucide-react';
-import { Badge } from '../ui';
+import { MessageSquare, Paperclip, Flag, ListTodo, MoreVertical, Pencil, Trash2 } from 'lucide-react';
+import { Badge, Dropdown } from '../ui';
 
 import type { TaskCardComponentProps } from '../../types';
 
@@ -15,7 +15,9 @@ const TaskCard: React.FC<TaskCardComponentProps> = ({
   attachments = 0,
   subtasks = 0,
   date,
-  onClick
+  onClick,
+  onEdit,
+  onDelete
 }) => {
 
   // Format date to "MMM D, YYYY" or similar compact format
@@ -25,15 +27,48 @@ const TaskCard: React.FC<TaskCardComponentProps> = ({
     return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   };
 
-
-
   const displayAssignees = assignees && assignees.length > 0 ? assignees : (assignee ? [assignee] : []);
+
+  // Dropdown menu items
+  const dropdownItems = [
+    {
+      key: 'edit',
+      label: 'Edit Task',
+      icon: <Pencil size={14} />,
+      onClick: () => onEdit?.(),
+    },
+    {
+      key: 'delete',
+      label: 'Delete Task',
+      icon: <Trash2 size={14} />,
+      onClick: () => onDelete?.(),
+      danger: true,
+    },
+  ];
 
   return (
     <div
       onClick={onClick}
-      className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-all cursor-pointer group"
+      className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-all cursor-pointer group relative"
     >
+      {/* Three-dot Menu - appears on hover */}
+      {(onEdit || onDelete) && (
+        <div
+          className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity z-10"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <Dropdown
+            trigger={
+              <button className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors">
+                <MoreVertical size={16} />
+              </button>
+            }
+            items={dropdownItems}
+            align="right"
+          />
+        </div>
+      )}
+
       {/* Project Name */}
       {project && (
         <div className="mb-1">
@@ -44,7 +79,7 @@ const TaskCard: React.FC<TaskCardComponentProps> = ({
       )}
 
       {/* Title */}
-      <h3 className="text-gray-900 font-bold mb-1 text-[15px] leading-snug group-hover:text-blue-600 transition-colors">
+      <h3 className="text-gray-900 font-bold mb-1 text-[15px] leading-snug group-hover:text-blue-600 transition-colors pr-8">
         {title}
       </h3>
 

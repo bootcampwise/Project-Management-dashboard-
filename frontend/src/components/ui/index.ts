@@ -24,7 +24,7 @@ export { default as AuthButton } from "./AuthButton";
 export { LetterIcon, type LetterIconProps } from "./LetterIcon";
 
 // Feedback Components
-export { showToast, Toaster, type ToastProps } from "./Toast";
+export { showToast, Toaster, getErrorMessage, type ToastProps } from "./Toast";
 
 // Skeleton Components (Loading States)
 export {

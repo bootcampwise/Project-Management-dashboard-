@@ -5,8 +5,9 @@ import {
   useCreateTaskMutation,
   useUpdateTaskMutation,
   useUpdateTaskStatusMutation,
+  useDeleteTaskMutation,
 } from "../../../store/api/taskApiSlice";
-import { showToast } from "../../../components/ui";
+import { showToast, getErrorMessage } from "../../../components/ui";
 import { useTasks } from "./useTasks";
 
 export const useTasksPage = () => {
@@ -24,6 +25,7 @@ export const useTasksPage = () => {
   const [createTask] = useCreateTaskMutation();
   const [updateTask] = useUpdateTaskMutation();
   const [updateTaskStatus] = useUpdateTaskStatusMutation();
+  const [deleteTask] = useDeleteTaskMutation();
 
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [taskToEdit, setTaskToEdit] = useState<Task | null>(null);
@@ -140,12 +142,13 @@ export const useTasksPage = () => {
       return;
     }
 
-    const newStatus = destination.droppableId;
+    const newStatus = destination.droppableId as Task["status"];
     try {
       await updateTaskStatus({ id: draggableId, status: newStatus }).unwrap();
     } catch (error) {
-      console.error("Failed to update task status:", error);
-      showToast.error("Failed to update task status");
+      showToast.error(
+        `Failed to update task status. ${getErrorMessage(error)}`
+      );
     }
   };
 
@@ -171,11 +174,8 @@ export const useTasksPage = () => {
       await createTask(newTask).unwrap();
       showToast.success("Task created successfully");
       setIsCreateTaskModalOpen(false);
-    } catch (err: unknown) {
-      console.error("Failed to create task:", err);
-      const errorMessage =
-        err instanceof Error ? err.message : "Failed to create task";
-      showToast.error(errorMessage);
+    } catch (error) {
+      showToast.error(`Failed to create task. ${getErrorMessage(error)}`);
     }
   };
 
@@ -194,15 +194,32 @@ export const useTasksPage = () => {
       showToast.success("Task updated successfully");
       setIsCreateTaskModalOpen(false);
       setTaskToEdit(null);
-    } catch (error: unknown) {
-      console.error("Failed to update task:", error);
-      const errorMessage =
-        error instanceof Error ? error.message : String(error);
-      showToast.error(`Failed to update task: ${errorMessage}`);
+    } catch (error) {
+      showToast.error(`Failed to update task. ${getErrorMessage(error)}`);
     }
   };
 
   const closeTaskDetail = () => setSelectedTask(null);
+
+  const handleDeleteTask = (task: Task) => {
+    showToast.confirm({
+      title: "Delete Task?",
+      message: `Are you sure you want to delete "${
+        task.title || task.name
+      }"? This action cannot be undone.`,
+      confirmText: "Delete",
+      cancelText: "Cancel",
+      variant: "danger",
+      onConfirm: async () => {
+        try {
+          await deleteTask(String(task.id)).unwrap();
+          showToast.success("Task deleted successfully");
+        } catch (error) {
+          showToast.error(`Failed to delete task. ${getErrorMessage(error)}`);
+        }
+      },
+    });
+  };
 
   const closeCreateTaskModal = () => {
     setIsCreateTaskModalOpen(false);
@@ -235,6 +252,7 @@ export const useTasksPage = () => {
     handleOpenCreateTask,
     handleCreateTask,
     handleEditTask,
+    handleDeleteTask,
     handleUpdateTask,
     closeTaskDetail,
     closeCreateTaskModal,

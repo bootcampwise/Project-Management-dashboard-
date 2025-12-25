@@ -183,112 +183,111 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ isOpen, onClose, onCr
               )}
             </div>
           </div>
-        </div>
 
-        {/* Tags */}
-        <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-1.5">
-            Tags
-          </label>
-          <div className="space-y-2">
-            <input
-              type="text"
-              value={tagInput}
-              onChange={(e) => setTagInput(e.target.value)}
-              onKeyDown={handleAddTag}
-              placeholder="Type and press Enter to add tags..."
-              className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-50 transition-all placeholder-gray-400"
-            />
-            {tags.length > 0 && (
-              <div className="flex flex-wrap gap-2">
-                {tags.map((tag, index) => (
-                  <Tag
-                    key={index}
-                    text={tag}
-                    onRemove={() => handleRemoveTag(tag)}
-                  />
+          {/* Tags */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+              Tags
+            </label>
+            <div className="space-y-2">
+              <input
+                type="text"
+                value={tagInput}
+                onChange={(e) => setTagInput(e.target.value)}
+                onKeyDown={handleAddTag}
+                placeholder="Type and press Enter to add tags..."
+                className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-50 transition-all placeholder-gray-400"
+              />
+              {tags.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {tags.map((tag, index) => (
+                    <Tag
+                      key={index}
+                      text={tag}
+                      onRemove={() => handleRemoveTag(tag)}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Description */}
+          <Textarea
+            label="Description"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            rows={4}
+            placeholder="Add detailed description..."
+          />
+
+          {/* Attachments */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+              Attachments
+            </label>
+            <div
+              onClick={() => fileInputRef.current?.click()}
+              className="border-2 border-dashed border-gray-200 rounded-xl p-6 flex flex-col items-center justify-center cursor-pointer hover:border-blue-400 hover:bg-blue-50/50 transition-all group"
+            >
+              <div className="w-10 h-10 bg-blue-50 rounded-full flex items-center justify-center text-blue-500 mb-3 group-hover:scale-110 transition-transform">
+                <Upload size={20} />
+              </div>
+              <p className="text-sm font-medium text-gray-700 mb-1">Click to upload</p>
+              <p className="text-xs text-gray-400">SVG, PNG, JPG or GIF (max. 800x400px)</p>
+              <input
+                type="file"
+                ref={fileInputRef}
+                className="hidden"
+                multiple
+                onChange={handleFileChange}
+              />
+            </div>
+
+            {/* File List */}
+            {attachments.length > 0 && (
+              <div className="mt-4 space-y-2">
+                {attachments.map((file, idx) => (
+                  <div key={idx} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-100">
+                    <div className="w-8 h-8 bg-white rounded flex items-center justify-center text-blue-500 border border-gray-200 shadow-sm">
+                      <FileIcon size={16} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-gray-700 truncate">{file.name}</p>
+                      <p className="text-xs text-gray-400">{(file.size / 1024).toFixed(1)} KB</p>
+                    </div>
+                    <button
+                      onClick={() => removeAttachment(idx)}
+                      className="p-1 hover:bg-gray-200 rounded-full text-gray-400 hover:text-red-500 transition-colors"
+                    >
+                      <X size={16} />
+                    </button>
+                  </div>
                 ))}
               </div>
             )}
           </div>
         </div>
 
-        {/* Description */}
-        <Textarea
-          label="Description"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          rows={4}
-          placeholder="Add detailed description..."
-        />
-
-        {/* Attachments */}
-        <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-1.5">
-            Attachments
-          </label>
-          <div
-            onClick={() => fileInputRef.current?.click()}
-            className="border-2 border-dashed border-gray-200 rounded-xl p-6 flex flex-col items-center justify-center cursor-pointer hover:border-blue-400 hover:bg-blue-50/50 transition-all group"
+        {/* Footer */}
+        <div className="px-6 py-4 border-t border-gray-100 bg-gray-50/50 rounded-b-xl flex items-center justify-end gap-3">
+          <button
+            onClick={onClose}
+            className="px-5 py-2.5 text-sm font-medium text-gray-600 hover:text-gray-800 hover:bg-white border boundary-transparent hover:border-gray-200 rounded-lg transition-all"
           >
-            <div className="w-10 h-10 bg-blue-50 rounded-full flex items-center justify-center text-blue-500 mb-3 group-hover:scale-110 transition-transform">
-              <Upload size={20} />
-            </div>
-            <p className="text-sm font-medium text-gray-700 mb-1">Click to upload</p>
-            <p className="text-xs text-gray-400">SVG, PNG, JPG or GIF (max. 800x400px)</p>
-            <input
-              type="file"
-              ref={fileInputRef}
-              className="hidden"
-              multiple
-              onChange={handleFileChange}
-            />
-          </div>
-
-          {/* File List */}
-          {attachments.length > 0 && (
-            <div className="mt-4 space-y-2">
-              {attachments.map((file, idx) => (
-                <div key={idx} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-100">
-                  <div className="w-8 h-8 bg-white rounded flex items-center justify-center text-blue-500 border border-gray-200 shadow-sm">
-                    <FileIcon size={16} />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-700 truncate">{file.name}</p>
-                    <p className="text-xs text-gray-400">{(file.size / 1024).toFixed(1)} KB</p>
-                  </div>
-                  <button
-                    onClick={() => removeAttachment(idx)}
-                    className="p-1 hover:bg-gray-200 rounded-full text-gray-400 hover:text-red-500 transition-colors"
-                  >
-                    <X size={16} />
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
+            Cancel
+          </button>
+          <button
+            onClick={handleCreate}
+            disabled={!title.trim() || isLoading}
+            className={`px-5 py-2.5 text-sm font-medium text-white rounded-lg shadow-sm transition-all flex items-center gap-2 ${!title.trim() || isLoading
+              ? "bg-gray-300 cursor-not-allowed"
+              : "bg-blue-600 hover:bg-blue-700 active:bg-blue-800 hover:shadow-md"
+              } `}
+          >
+            {isLoading ? (task ? "Updating..." : "Creating...") : (task ? "Update Task" : "Create Task")}
+          </button>
         </div>
-
-      </div>
-
-      {/* Footer */}
-      <div className="px-6 py-4 border-t border-gray-100 bg-gray-50/50 rounded-b-xl flex items-center justify-end gap-3">
-        <button
-          onClick={onClose}
-          className="px-5 py-2.5 text-sm font-medium text-gray-600 hover:text-gray-800 hover:bg-white border boundary-transparent hover:border-gray-200 rounded-lg transition-all"
-        >
-          Cancel
-        </button>
-        <button
-          onClick={handleCreate}
-          disabled={!title.trim() || isLoading}
-          className={`px-5 py-2.5 text-sm font-medium text-white rounded-lg shadow-sm transition-all flex items-center gap-2 ${!title.trim() || isLoading
-            ? "bg-gray-300 cursor-not-allowed"
-            : "bg-blue-600 hover:bg-blue-700 active:bg-blue-800 hover:shadow-md"
-            } `}
-        >
-          {isLoading ? (task ? "Updating..." : "Creating...") : (task ? "Update Task" : "Create Task")}
-        </button>
       </div>
     </div>
   );

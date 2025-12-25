@@ -72,12 +72,37 @@ export const taskApiSlice = apiSlice.injectEndpoints({
     // ----------------------------------------
     // UPDATE TASK STATUS (for drag & drop)
     // ----------------------------------------
-    updateTaskStatus: builder.mutation<Task, { id: string; status: string }>({
+    // Uses OPTIMISTIC UPDATES for instant UI response
+    updateTaskStatus: builder.mutation<
+      Task,
+      { id: string; status: Task["status"] }
+    >({
       query: ({ id, status }) => ({
         url: `/tasks/${id}/status`,
         method: "PATCH",
         body: { status },
       }),
+      // ⚡ OPTIMISTIC UPDATE - Update UI immediately, sync with backend
+      async onQueryStarted({ id, status }, { dispatch, queryFulfilled }) {
+        // Optimistically update the cache immediately
+        const patchResult = dispatch(
+          taskApiSlice.util.updateQueryData("getTasks", undefined, (draft) => {
+            // Find the task and update its status
+            const task = draft.find((t) => t.id === id);
+            if (task) {
+              task.status = status;
+            }
+          })
+        );
+
+        try {
+          // Wait for the actual API response
+          await queryFulfilled;
+        } catch {
+          // If the API call fails, revert the optimistic update
+          patchResult.undo();
+        }
+      },
       invalidatesTags: (_result, _error, { id }) => [{ type: "Task", id }],
     }),
 
@@ -230,6 +255,7 @@ export const taskApiSlice = apiSlice.injectEndpoints({
 export const {
   // Queries
   useGetTasksQuery,
+  useGetTaskQuery,
   useLazyGetTaskQuery,
   // Basic mutations
   useCreateTaskMutation,

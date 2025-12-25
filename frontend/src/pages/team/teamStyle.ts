@@ -73,22 +73,20 @@ export const teamClasses = {
 
   contentArea: "flex-1 overflow-auto",
 
-  toastContainer: "flex flex-col gap-3 min-w-[250px]",
-  toastTitle: "font-medium text-gray-900",
+  toastContainer:
+    "bg-white rounded-xl shadow-lg p-4 min-w-[280px] border border-gray-100",
+  toastTitle: "font-semibold text-gray-900 text-base",
   toastDescription: "text-sm text-gray-500 mt-1",
-  toastActions: "flex items-center justify-end gap-3 mt-1",
+  toastActions: "flex items-center justify-end gap-2 mt-3",
   toastCancelButton:
-    "px-3 py-1.5 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors",
+    "px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors",
   toastDeleteButton:
-    "px-3 py-1.5 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors",
+    "px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors",
 };
 
 export const teamStyles = {
   toastOptions: {
-    duration: Infinity,
+    duration: 5000,
     position: "top-center" as const,
-    style: {
-      minWidth: "300px",
-    },
   },
 };

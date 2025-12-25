@@ -6,7 +6,7 @@ import {
   useDeleteProjectMutation,
 } from "../../../store/api/projectApiSlice";
 import { useGetSessionQuery } from "../../../store/api/authApiSlice";
-import { showToast } from "../../../components/ui";
+import { showToast, getErrorMessage } from "../../../components/ui";
 import {
   saveLastProjectId,
   getLastProjectId,
@@ -108,7 +108,7 @@ export const useTeam = () => {
       showToast.success("Project deleted successfully");
       setIsMenuDropdownOpen(false);
     } catch (error) {
-      showToast.error("Failed to delete project");
+      showToast.error(`Failed to delete project. ${getErrorMessage(error)}`);
     }
   };
 

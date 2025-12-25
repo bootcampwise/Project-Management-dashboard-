@@ -1,26 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { showToast, Badge, Input } from '../../components/ui';
+import { showToast, getErrorMessage, Badge, Input } from '../../components/ui';
 import { useRegisterMutation } from '../../store/api/authApiSlice';
 import { signupStyles, signupClasses, signupMediaQuery } from './signupStyle';
-
-// Helper function to get error message from API errors
-// Makes error handling simple and readable
-const getErrorMessage = (error: unknown): string => {
-  // Check if error has a data property (API error)
-  if (error && typeof error === 'object' && 'data' in error) {
-    const apiError = error as { data?: unknown };
-    if (typeof apiError.data === 'string') {
-      return apiError.data;
-    }
-    if (apiError.data && typeof apiError.data === 'object' && 'message' in apiError.data) {
-      return String((apiError.data as { message: unknown }).message);
-    }
-  }
-  // Default error message
-  return 'Registration failed. Please try again.';
-};
 
 const Signup: React.FC = () => {
   const navigate = useNavigate();
@@ -35,9 +18,8 @@ const Signup: React.FC = () => {
       await register({ email, password }).unwrap();
       showToast.success("Your account has been created successfully");
       navigate('/login');
-    } catch (err) {
-      console.error('Signup failed:', err);
-      showToast.error("Signup failed. Please try again.");
+    } catch (error) {
+      showToast.error(`Failed to create account. ${getErrorMessage(error)}`);
     }
   };
 

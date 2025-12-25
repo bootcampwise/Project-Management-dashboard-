@@ -1,10 +1,9 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useMemo } from "react";
 import type { Task, Attachment, UseTaskDetailModalProps } from "../../../types";
 import { useGetTeamMembersQuery } from "../../../store/api/teamApiSlice";
 import { useGetSessionQuery } from "../../../store/api/authApiSlice";
 import {
-  useLazyGetTaskQuery,
-  useGetTasksQuery,
+  useGetTaskQuery,
   useDeleteTaskMutation,
   useAddSubtaskMutation,
   useDeleteSubtaskMutation,
@@ -18,7 +17,7 @@ import {
   useUploadFileMutation,
   useLazyDownloadFileQuery,
 } from "../../../store/api/storageApiSlice";
-import { showToast } from "../../../components/ui";
+import { showToast, getErrorMessage } from "../../../components/ui";
 
 export const useTaskDetailModal = ({
   isOpen,
@@ -29,15 +28,17 @@ export const useTaskDetailModal = ({
   // Get user from RTK Query
   const { data: user } = useGetSessionQuery();
 
-  // Get tasks from RTK Query (for fetching updated task data)
-  const { data: tasks = [] } = useGetTasksQuery();
-
   // ============================================
   // RTK QUERY HOOKS
   // ============================================
   const { data: teamMembers = [] } = useGetTeamMembersQuery();
-  const [getTask] = useLazyGetTaskQuery();
-  const { refetch: refetchTasks } = useGetTasksQuery();
+
+  // Use useGetTaskQuery to get real-time task data with comments
+  // Skip if modal is closed or no task ID
+  const { data: taskData, refetch: refetchTask } = useGetTaskQuery(
+    String(initialTask?.id || ""),
+    { skip: !isOpen || !initialTask?.id }
+  );
 
   // Mutations
   const [deleteTaskMutation] = useDeleteTaskMutation();
@@ -51,14 +52,12 @@ export const useTaskDetailModal = ({
   const [uploadFile] = useUploadFileMutation();
   const [downloadFile] = useLazyDownloadFileQuery();
 
+  // Use the fetched task data, falling back to initial task
+  const task = taskData || initialTask;
+
   // ============================================
   // STATE
   // ============================================
-
-  // Get the latest task data from Redux, falling back to the initial prop
-  const task =
-    tasks.find((t) => String(t.id) === String(initialTask?.id)) || initialTask;
-
   const [newSubtask, setNewSubtask] = useState("");
   const [newComment, setNewComment] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -68,17 +67,6 @@ export const useTaskDetailModal = ({
     null
   );
   const [subtaskAssigneeSearch, setSubtaskAssigneeSearch] = useState("");
-
-  // ============================================
-  // EFFECTS
-  // ============================================
-
-  // Get task details when modal opens
-  useEffect(() => {
-    if (isOpen && initialTask?.id) {
-      getTask(String(initialTask.id));
-    }
-  }, [isOpen, initialTask?.id, getTask]);
 
   // Filter team members based on search query
   const filteredTeamMembers = useMemo(() => {
@@ -107,12 +95,10 @@ export const useTaskDetailModal = ({
     if (!task) return;
     try {
       await deleteTaskMutation(String(task.id)).unwrap();
-      refetchTasks();
       showToast.success("Task deleted successfully");
       onClose();
     } catch (error) {
-      console.error("Failed to delete task:", error);
-      showToast.error("Failed to delete task");
+      showToast.error(`Failed to delete task. ${getErrorMessage(error)}`);
     }
   };
 
@@ -146,13 +132,13 @@ export const useTaskDetailModal = ({
         size: file.size,
       }).unwrap();
 
-      getTask(String(task.id));
+      refetchTask();
       showToast.success("Attachment uploaded", { id: toastId });
-    } catch (error: unknown) {
-      console.error("Failed to upload attachment:", error);
-      const message =
-        error instanceof Error ? error.message : "Failed to upload attachment";
-      showToast.error(message, { id: toastId });
+    } catch (error) {
+      showToast.error(
+        `Failed to upload attachment. ${getErrorMessage(error)}`,
+        { id: toastId }
+      );
     }
   };
 
@@ -164,11 +150,10 @@ export const useTaskDetailModal = ({
           title: newSubtask,
         }).unwrap();
         setNewSubtask("");
-        getTask(String(task.id));
+        refetchTask();
         showToast.success("Subtask added");
       } catch (error) {
-        console.error("Failed to add subtask:", error);
-        showToast.error("Failed to add subtask");
+        showToast.error(`Failed to add subtask. ${getErrorMessage(error)}`);
       }
     }
   };
@@ -180,11 +165,10 @@ export const useTaskDetailModal = ({
         taskId: String(task.id),
         subtaskId,
       }).unwrap();
-      getTask(String(task.id));
+      refetchTask();
       showToast.success("Subtask deleted");
     } catch (error) {
-      console.error("Failed to delete subtask:", error);
-      showToast.error("Failed to delete subtask");
+      showToast.error(`Failed to delete subtask. ${getErrorMessage(error)}`);
     }
   };
 
@@ -200,11 +184,12 @@ export const useTaskDetailModal = ({
         subtaskId,
         userId: assigneeId,
       }).unwrap();
-      getTask(String(task.id));
+      refetchTask();
       showToast.success("Subtask assignee updated");
     } catch (error) {
-      console.error("Failed to assign subtask:", error);
-      showToast.error("Failed to update subtask assignees");
+      showToast.error(
+        `Failed to update subtask assignees. ${getErrorMessage(error)}`
+      );
     }
   };
 
@@ -216,10 +201,9 @@ export const useTaskDetailModal = ({
         subtaskId,
         completed,
       }).unwrap();
-      getTask(String(task.id));
+      refetchTask();
     } catch (error) {
-      console.error("Failed to toggle subtask:", error);
-      showToast.error("Failed to update subtask");
+      showToast.error(`Failed to update subtask. ${getErrorMessage(error)}`);
     }
   };
 
@@ -234,11 +218,10 @@ export const useTaskDetailModal = ({
         userId: user.id,
       }).unwrap();
       setNewComment("");
-      getTask(String(task.id));
+      refetchTask();
       showToast.success("Comment added");
     } catch (error) {
-      console.error("Failed to add comment:", error);
-      showToast.error("Failed to add comment");
+      showToast.error(`Failed to add comment. ${getErrorMessage(error)}`);
     } finally {
       setIsSubmitting(false);
     }
@@ -263,11 +246,10 @@ export const useTaskDetailModal = ({
         }).unwrap();
         setTagInput("");
         setIsAddingTag(false);
-        getTask(String(task.id));
+        refetchTask();
         showToast.success("Tag added");
       } catch (error) {
-        console.error("Failed to add tag:", error);
-        showToast.error("Failed to add tag");
+        showToast.error(`Failed to add tag. ${getErrorMessage(error)}`);
       }
     } else if (e.key === "Escape") {
       setIsAddingTag(false);
@@ -301,8 +283,7 @@ export const useTaskDetailModal = ({
         showToast.success("Download started");
       }
     } catch (error) {
-      console.error("Download failed:", error);
-      showToast.error("Failed to download file");
+      showToast.error(`Failed to download file. ${getErrorMessage(error)}`);
     }
   };
 

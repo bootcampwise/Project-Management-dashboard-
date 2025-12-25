@@ -10,7 +10,7 @@ import {
   useLazyDownloadFileQuery,
   useDeleteFileMutation,
 } from "../../../store/api/storageApiSlice";
-import { showToast } from "../../../components/ui";
+import { showToast, getErrorMessage } from "../../../components/ui";
 import {
   getCachedFileUrl,
   setCachedFileUrl,
@@ -96,8 +96,8 @@ export const useTeamFiles = () => {
         return result;
       }
       return null;
-    } catch {
-      showToast.error("Failed to load file");
+    } catch (error) {
+      showToast.error(`Failed to load file. ${getErrorMessage(error)}`);
       return null;
     }
   };
@@ -142,8 +142,7 @@ export const useTeamFiles = () => {
       }
       showToast.success("File deleted successfully");
     } catch (error) {
-      console.error("Failed to delete file:", error);
-      showToast.error("Failed to delete file");
+      showToast.error(`Failed to delete file. ${getErrorMessage(error)}`);
     } finally {
       setDeletingId(null);
       setOpenMenuId(null);

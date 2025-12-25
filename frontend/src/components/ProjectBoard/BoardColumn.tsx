@@ -5,7 +5,7 @@ import type { BoardColumnProps } from '../../types';
 import TaskCard from '../task/TaskCard';
 import { useBoardColumn } from '../../pages/projectboard/hooks/useBoardColumn';
 
-const BoardColumn: React.FC<BoardColumnProps> = ({ title, count, color, tasks, status, collapsed = false, onTaskClick, onAddTask, onToggle, onHide }) => {
+const BoardColumn: React.FC<BoardColumnProps> = ({ title, count, color, tasks, status, collapsed = false, onTaskClick, onEditTask, onDeleteTask, onAddTask, onToggle, onHide }) => {
   const { isMenuOpen, setIsMenuOpen } = useBoardColumn();
 
   if (collapsed) {
@@ -105,6 +105,8 @@ const BoardColumn: React.FC<BoardColumnProps> = ({ title, count, color, tasks, s
                       subtasks={typeof task.subtasks === 'number' ? task.subtasks : (Array.isArray(task.subtasks) ? task.subtasks.length : 0)}
                       date={task.date || task.dueDate || ''}
                       onClick={() => onTaskClick && onTaskClick(task)}
+                      onEdit={() => onEditTask && onEditTask(task)}
+                      onDelete={() => onDeleteTask && onDeleteTask(task)}
                     />
                   </div>
                 )}
