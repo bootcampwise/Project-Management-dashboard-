@@ -4,7 +4,7 @@ import { useCreateTeamModal } from "../../pages/team/hooks/useCreateTeamModal";
 import { Dropdown, IconButton, Input } from '../ui';
 import type { CreateTeamModalProps } from '../../types';
 
-const CreateTeamModal: React.FC<CreateTeamModalProps> = ({ isOpen, onClose }) => {
+const CreateTeamModal: React.FC<CreateTeamModalProps> = ({ isOpen, onClose, teamToEdit }) => {
   const {
     teamName,
     setTeamName,
@@ -20,10 +20,11 @@ const CreateTeamModal: React.FC<CreateTeamModalProps> = ({ isOpen, onClose }) =>
     isProjectsLoading,
     selectedProjectIds,
     handleProjectToggle,
-    // Creation
-    isCreating,
-    handleCreateTeam
-  } = useCreateTeamModal(isOpen, onClose);
+    // Creation/Update
+    isSubmitting,
+    handleCreateOrUpdateTeam,
+    isEditing
+  } = useCreateTeamModal(isOpen, onClose, teamToEdit);
 
   if (!isOpen) return null;
 
@@ -32,7 +33,7 @@ const CreateTeamModal: React.FC<CreateTeamModalProps> = ({ isOpen, onClose }) =>
       <div className="bg-white rounded-lg shadow-xl w-[500px] max-w-full m-4 flex flex-col max-h-[90vh]">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-          <h2 className="text-lg font-semibold text-gray-800">Create new team</h2>
+          <h2 className="text-lg font-semibold text-gray-800">{isEditing ? "Edit Team" : "Create new team"}</h2>
           <IconButton icon={<X size={20} />} onClick={onClose} className="text-gray-400 hover:text-gray-600" />
         </div>
 
@@ -144,12 +145,12 @@ const CreateTeamModal: React.FC<CreateTeamModalProps> = ({ isOpen, onClose }) =>
         <div className="px-6 py-4 border-t border-dashed border-blue-200">
           <div className="flex items-center gap-3">
             <button
-              onClick={handleCreateTeam}
-              disabled={isCreating || !teamName.trim()}
-              className={`px-6 py-2 bg-blue-500 text-white text-sm font-medium rounded-md shadow-sm shadow-blue-200 transition-colors ${isCreating || !teamName.trim() ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-600'
+              onClick={handleCreateOrUpdateTeam}
+              disabled={isSubmitting || !teamName.trim()}
+              className={`px-6 py-2 bg-blue-500 text-white text-sm font-medium rounded-md shadow-sm shadow-blue-200 transition-colors ${isSubmitting || !teamName.trim() ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-600'
                 }`}
             >
-              {isCreating ? 'Creating...' : 'Create Team'}
+              {isSubmitting ? (isEditing ? 'Updating...' : 'Creating...') : (isEditing ? 'Update Team' : 'Create Team')}
             </button>
             <button onClick={onClose} className="px-6 py-2 bg-white border border-gray-200 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-50 transition-colors">
               Cancel
@@ -158,7 +159,7 @@ const CreateTeamModal: React.FC<CreateTeamModalProps> = ({ isOpen, onClose }) =>
         </div>
 
         {/* Footer Info */}
-        <div className="px-6 py-3 bg-[#F3F4F6] rounded-b-lg border-t border-dashed border-blue-200">
+        <div className="px-6 py-3 bg-gray-100 rounded-b-lg border-t border-dashed border-blue-200">
           <p className="text-xs text-gray-500">
             Learn more about projects by watching <a href="#" className="text-blue-500 hover:underline">tutorial video.</a>
           </p>

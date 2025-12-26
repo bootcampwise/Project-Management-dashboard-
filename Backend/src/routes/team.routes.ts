@@ -8,9 +8,11 @@ const controller = new TeamController();
 router.use(authenticate);
 
 router.post("/", controller.createTeam);
+router.post("/sync", controller.syncProjectTeams);
 router.get("/my-teams", controller.getUserTeams);
-router.get("/:id", controller.getTeam);
+router.get("/all", controller.getAllTeams);
 router.get("/project/:projectId", controller.getProjectTeams);
+router.get("/:id", controller.getTeam);
 router.patch("/:id", controller.updateTeam);
 router.delete("/:id", controller.deleteTeam);
 

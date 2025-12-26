@@ -34,7 +34,6 @@ export const registerStyles = {
     fontSize: "30px",
     lineHeight: "38px",
     marginBottom: "16px",
-    color: "var(--color-gray-900)",
   } as CSSProperties,
 
   socialButtonsWrapper: {
@@ -48,9 +47,7 @@ export const registerStyles = {
     marginTop: "16px",
   } as CSSProperties,
 
-  dividerLine: {
-    borderTop: `1px solid var(--color-gray-divider)`,
-  } as CSSProperties,
+  dividerLine: {} as CSSProperties,
 
   emailSection: {
     gap: "4px",
@@ -68,7 +65,6 @@ export const registerStyles = {
     maxWidth: "400px",
     height: "36px",
     padding: "7px 16px",
-    border: `1px solid var(--color-gray-border-input)`,
     borderRadius: "4px",
     fontFamily: "Inter, sans-serif",
     fontSize: "14px",
@@ -80,31 +76,28 @@ export const registerStyles = {
     maxWidth: "400px",
     height: "18px",
     fontFamily: "Inter, sans-serif",
-    fontWeight: 400,
+    fontWeight: 500,
     fontSize: "12px",
     lineHeight: "18px",
-    color: "var(--color-gray-text)",
     opacity: 1,
   } as CSSProperties,
 
   continueButton: {
     maxWidth: "400px",
     height: "36px",
-    backgroundColor: "var(--color-brand-blue)",
     borderRadius: "4px",
     padding: "7px 16px",
-    color: "white",
     fontFamily: "Inter, sans-serif",
     fontSize: "14px",
     fontWeight: 500,
     lineHeight: "22px",
+    marginTop: "25px",
     marginBottom: "16px",
   } as CSSProperties,
 
   footer: {
     fontFamily: "Inter, sans-serif",
     fontSize: "14px",
-    color: "var(--color-gray-text)",
     marginTop: "32px",
     paddingBottom: "32px",
   } as CSSProperties,
@@ -123,19 +116,19 @@ export const registerClasses = {
   socialButtonsWrapper: "flex flex-col items-center w-full",
 
   dividerWrapper: "flex items-center justify-center w-full",
-  dividerLine: "w-full",
+  dividerLine: "w-full border-t border-gray-200",
 
   emailSection: "flex flex-col w-full",
   label: "text-gray-500",
   input:
-    "placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500",
+    "border border-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500",
 
   continueButton: "flex items-center justify-center w-full",
 
   loginLinkWrapper:
-    "flex gap-2 text-md text-gray-400 font-medium font-inter mb-[128px]",
+    "flex gap-2 text-md text-gray-400 font-sm font-inter mb-[128px]",
   loginLink: "text-blue-500 hover:text-blue-600",
 
-  footer: "flex justify-center gap-8 w-full",
-  footerItem: "whitespace-nowrap",
+  footer: "flex justify-center gap-8 w-full text-gray-500",
+  footerItem: "whitespace-nowrap hover:text-gray-700",
 };

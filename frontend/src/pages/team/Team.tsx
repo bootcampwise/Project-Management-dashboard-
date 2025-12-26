@@ -13,10 +13,11 @@ import {
   ArrowUpDown,
   Check,
   Plus,
-  ChevronRight,
   Trash2,
+  Pencil,
 } from "lucide-react";
 import TeamTableView from "../../components/team/teamtabs/TeamTableView";
+import TeamProjects from "../../components/team/teamtabs/TeamProjects";
 import TeamDashboard from "../../components/team/teamtabs/TeamDashboard";
 import TeamMembers from "../../components/team/teamtabs/TeamMembers";
 import TeamFiles from "../../components/team/teamtabs/TeamFiles";
@@ -41,17 +42,21 @@ const Team: React.FC = () => {
     isCreateTeamModalOpen,
     setIsCreateTeamModalOpen,
     tabs,
-    projects,
-    projectsLoading,
-    activeProject,
+    allTeams,
+    activeTeam,
+    teamsLoading,
 
     menuRef,
-    handleSwitchProject,
-    handleDeleteProject,
+    handleSwitchTeam,
+    handleDeleteTeam,
+    handleToggleTeamFavorite,
+    handleOpenCreateTeamModal,
+    handleEditTeam,
+    teamToEdit,
   } = useTeam();
 
   // Show full page skeleton if initial loading
-  if (projectsLoading) {
+  if (teamsLoading) {
     return (
       <div className={teamClasses.container}>
         <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
@@ -86,102 +91,123 @@ const Team: React.FC = () => {
             {/* Title & Status */}
             <div className={teamClasses.headerTitleWrapper}>
               <div className={teamClasses.headerMenuWrapper} ref={menuRef}>
-                {/* Project Switcher Dropdown */}
+                {/* Team Switcher Dropdown */}
                 <Dropdown
                   trigger={
                     <div className={teamClasses.headerTitleClickable}>
-                      <h1 className={teamClasses.headerTitle}>{activeProject?.name || "No Projects"}</h1>
+                      <h1 className={teamClasses.headerTitle}>{activeTeam?.name || "All Teams"}</h1>
                       <ChevronDown size={16} className={teamClasses.chevronIcon(false)} />
                     </div>
                   }
                   items={[
-                    { key: 'header', label: 'Switch Project', header: true },
-                    ...projects.map(p => ({
-                      key: p.id,
+                    { key: 'header', label: 'Switch Team', header: true },
+                    {
+                      key: 'all-teams',
                       label: (
                         <div className="flex items-center justify-between w-full">
-                          <span className={teamClasses.dropdownItemText}>{p.name}</span>
-                          {activeProject?.id === p.id && <Check size={14} />}
+                          <span className={teamClasses.dropdownItemText}>All Teams</span>
+                          {!activeTeam && <Check size={14} />}
                         </div>
                       ),
-                      onClick: () => handleSwitchProject(p)
+                      onClick: () => handleSwitchTeam(null)
+                    },
+                    ...allTeams.map(t => ({
+                      key: t.id,
+                      label: (
+                        <div className="flex items-center justify-between w-full">
+                          <span className={teamClasses.dropdownItemText}>{t.name}</span>
+                          {activeTeam?.id === t.id && <Check size={14} />}
+                        </div>
+                      ),
+                      onClick: () => handleSwitchTeam(t)
                     })),
                     { key: 'div1', divider: true } as DropdownItem,
                     {
                       key: 'create',
-                      label: 'Create New Project',
+                      label: 'Create New Team',
                       icon: <Plus size={14} />,
-                      onClick: () => setIsCreateTeamModalOpen(true)
+                      onClick: handleOpenCreateTeamModal
                     }
                   ]}
                 />
 
-                <Star className={teamClasses.starIcon} size={18} />
+                {activeTeam && (
+                  <>
+                    <Star
+                      className={`${teamClasses.starIcon} cursor-pointer hover:text-yellow-400 transition-colors ml-2`}
+                      size={18}
+                      onClick={handleToggleTeamFavorite}
+                    />
 
-                <div className="relative">
-                  <Dropdown
-                    align="right"
-                    trigger={
-                      <button className={teamClasses.menuIconButton}>
-                        <MoreHorizontal className={teamClasses.menuIconColor} size={18} />
-                      </button>
-                    }
-                    items={[
-                      {
-                        key: 'active-project',
-                        custom: true,
-                        label: (
-                          <div className={teamClasses.menuDropdownHeader}>
-                            <p className={teamClasses.menuDropdownLabel}>Active Project</p>
-                            <p className={teamClasses.menuDropdownValue}>{activeProject?.name || "None"}</p>
-                          </div>
-                        )
-                      },
-                      { key: 'switch', label: 'Switch Project', icon: <ChevronRight size={14} />, onClick: () => { /* Handle focus? */ } },
-                      {
-                        key: 'delete',
-                        label: 'Delete Project',
-                        danger: true,
-                        icon: <Trash2 size={14} />,
-                        onClick: () => {
-                          showToast.custom((t) => (
-                            <div className={teamClasses.toastContainer}>
-                              <div>
-                                <h3 className={teamClasses.toastTitle}>Delete Project?</h3>
-                                <p className={teamClasses.toastDescription}>
-                                  Are you sure you want to delete <span className="font-semibold">{activeProject?.name}</span>? This action cannot be undone.
-                                </p>
-                              </div>
-                              <div className={teamClasses.toastActions}>
-                                <Button
-                                  variant="secondary"
-                                  size="sm"
-                                  onClick={() => showToast.dismiss(t.id)}
-                                  className={teamClasses.toastCancelButton}
-                                >
-                                  Cancel
-                                </Button>
-                                <Button
-                                  variant="danger"
-                                  size="sm"
-                                  onClick={() => {
-                                    showToast.dismiss(t.id);
-                                    if (activeProject) {
-                                      handleDeleteProject(activeProject.id);
-                                    }
-                                  }}
-                                  className={teamClasses.toastDeleteButton}
-                                >
-                                  Delete
-                                </Button>
-                              </div>
-                            </div>
-                          ), teamStyles.toastOptions);
+                    <div className="relative ml-2">
+                      <Dropdown
+                        align="right"
+                        trigger={
+                          <button className={teamClasses.menuIconButton}>
+                            <MoreHorizontal className={teamClasses.menuIconColor} size={18} />
+                          </button>
                         }
-                      }
-                    ]}
-                  />
-                </div>
+                        items={[
+                          {
+                            key: 'active-team-info',
+                            custom: true,
+                            label: (
+                              <div className={teamClasses.menuDropdownHeader}>
+                                <p className={teamClasses.menuDropdownLabel}>Active Team</p>
+                                <p className={teamClasses.menuDropdownValue}>{activeTeam.name}</p>
+                              </div>
+                            )
+                          },
+                          {
+                            key: 'edit',
+                            label: 'Edit Team',
+                            icon: <Pencil size={14} />,
+                            onClick: () => handleEditTeam(activeTeam)
+                          },
+                          {
+                            key: 'delete',
+                            label: 'Delete Team',
+                            danger: true,
+                            icon: <Trash2 size={14} />,
+                            onClick: () => {
+                              showToast.custom((t) => (
+                                <div className={teamClasses.toastContainer}>
+                                  <div>
+                                    <h3 className={teamClasses.toastTitle}>Delete Team?</h3>
+                                    <p className={teamClasses.toastDescription}>
+                                      Are you sure you want to delete <span className="font-semibold">{activeTeam.name}</span>? This action cannot be undone.
+                                    </p>
+                                  </div>
+                                  <div className={teamClasses.toastActions}>
+                                    <Button
+                                      variant="secondary"
+                                      size="sm"
+                                      onClick={() => showToast.dismiss(t.id)}
+                                      className={teamClasses.toastCancelButton}
+                                    >
+                                      Cancel
+                                    </Button>
+                                    <Button
+                                      variant="danger"
+                                      size="sm"
+                                      onClick={() => {
+                                        showToast.dismiss(t.id);
+                                        handleDeleteTeam(activeTeam.id);
+                                      }}
+                                      className={teamClasses.toastDeleteButton}
+                                    >
+                                      Delete
+                                    </Button>
+                                  </div>
+                                </div>
+                              ), teamStyles.toastOptions);
+                            }
+                          }
+                        ]}
+                      />
+                    </div>
+                  </>
+                )}
               </div>
             </div>
 
@@ -197,7 +223,7 @@ const Team: React.FC = () => {
               <Button
                 variant="primary"
                 className={teamClasses.createButton}
-                onClick={() => setIsCreateTeamModalOpen(true)}
+                onClick={handleOpenCreateTeamModal}
                 rightIcon={<ChevronDown size={14} className={teamClasses.createButtonChevron} />}
               >
                 <span>Create</span>
@@ -243,16 +269,17 @@ const Team: React.FC = () => {
 
           {/* Content Area */}
           <div className={teamClasses.contentArea}>
-            {activeTab === "Teams" && <TeamTableView projectId={activeProject?.id} />}
+            {activeTab === "Teams" && <TeamTableView filteredTeamId={activeTeam?.id} />}
+            {activeTab === "Projects" && <TeamProjects projects={activeTeam?.projects || []} />}
             {activeTab === "Dashboard" && <TeamDashboard />}
-            {activeTab === "Members" && <TeamMembers />}
-            {activeTab === "Files" && <TeamFiles />}
+            {activeTab === "Members" && <TeamMembers members={activeTeam?.members || []} />}
+            {activeTab === "Files" && <TeamFiles activeTeam={activeTeam} />}
           </div>
 
         </div>
       </main>
       <SearchPopup isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
-      <CreateTeamModal isOpen={isCreateTeamModalOpen} onClose={() => setIsCreateTeamModalOpen(false)} />
+      <CreateTeamModal isOpen={isCreateTeamModalOpen} onClose={() => setIsCreateTeamModalOpen(false)} teamToEdit={teamToEdit} />
     </div>
   );
 };

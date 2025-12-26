@@ -12,6 +12,13 @@ interface CreateTeamPayload {
   projectIds: string[];
 }
 
+// Type for updating a team
+interface UpdateTeamPayload {
+  name?: string;
+  memberIds?: string[];
+  projectIds?: string[];
+}
+
 export const teamApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     // ----------------------------------------
@@ -51,6 +58,21 @@ export const teamApiSlice = apiSlice.injectEndpoints({
     }),
 
     // ----------------------------------------
+    // GET ALL TEAMS (all teams in database)
+    // ----------------------------------------
+    getAllTeams: builder.query<Team[], void>({
+      query: () => "/teams/all",
+      keepUnusedDataFor: 180,
+      providesTags: (result) =>
+        result
+          ? [
+              ...result.map(({ id }) => ({ type: "Team" as const, id })),
+              { type: "Team", id: "ALL_LIST" },
+            ]
+          : [{ type: "Team", id: "ALL_LIST" }],
+    }),
+
+    // ----------------------------------------
     // CREATE A NEW TEAM
     // ----------------------------------------
     createTeam: builder.mutation<Team, CreateTeamPayload>({
@@ -59,7 +81,42 @@ export const teamApiSlice = apiSlice.injectEndpoints({
         method: "POST",
         body: newTeam,
       }),
-      invalidatesTags: [{ type: "Team", id: "LIST" }],
+      invalidatesTags: [
+        { type: "Team", id: "LIST" },
+        { type: "Team", id: "ALL_LIST" },
+      ],
+    }),
+
+    // ----------------------------------------
+    // UPDATE A TEAM
+    // ----------------------------------------
+    updateTeam: builder.mutation<Team, { id: string; data: UpdateTeamPayload }>(
+      {
+        query: ({ id, data }) => ({
+          url: `/teams/${id}`,
+          method: "PATCH",
+          body: data,
+        }),
+        invalidatesTags: (result, error, { id }) => [
+          { type: "Team", id },
+          { type: "Team", id: "LIST" },
+          { type: "Team", id: "ALL_LIST" },
+        ],
+      }
+    ),
+
+    // ----------------------------------------
+    // DELETE A TEAM
+    // ----------------------------------------
+    deleteTeam: builder.mutation<void, string>({
+      query: (id) => ({
+        url: `/teams/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: [
+        { type: "Team", id: "LIST" },
+        { type: "Team", id: "ALL_LIST" },
+      ],
     }),
   }),
 });
@@ -70,6 +127,9 @@ export const teamApiSlice = apiSlice.injectEndpoints({
 
 export const {
   useGetTeamMembersQuery, // const { data: members } = useGetTeamMembersQuery()
-  useGetTeamsQuery, // const { data: teams } = useGetTeamsQuery()
+  useGetTeamsQuery, // const { data: teams } = useGetTeamsQuery() - user's teams
+  useGetAllTeamsQuery, // const { data: allTeams } = useGetAllTeamsQuery() - all teams
   useCreateTeamMutation, // const [createTeam] = useCreateTeamMutation()
+  useUpdateTeamMutation,
+  useDeleteTeamMutation,
 } = teamApiSlice;

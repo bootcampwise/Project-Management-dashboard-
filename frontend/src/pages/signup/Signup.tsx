@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { showToast, getErrorMessage, Badge, Input } from '../../components/ui';
+import { showToast, getErrorMessage, Input } from '../../components/ui';
 import { useRegisterMutation } from '../../store/api/authApiSlice';
 import { signupStyles, signupClasses, signupMediaQuery } from './signupStyle';
 
@@ -10,7 +10,6 @@ const Signup: React.FC = () => {
   const [register, { isLoading, error }] = useRegisterMutation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [isHovered, setIsHovered] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -56,8 +55,9 @@ const Signup: React.FC = () => {
             <div>
               {/* Badge and Title */}
               <div className={signupClasses.badgeWrapper} style={{ marginBottom: '16px' }}>
-                <Badge
-                  className="bg-[var(--color-brand-orange)] text-white border-none gap-1 font-bold"
+                <span
+                  className={signupClasses.badge}
+                  style={signupStyles.newBadge}
                 >
                   <svg
                     style={signupStyles.badgeIcon}
@@ -73,22 +73,21 @@ const Signup: React.FC = () => {
                     />
                   </svg>
                   NEW
-                </Badge>
-                <span style={signupStyles.featureTitle}>
+                </span>
+                <span className={signupClasses.featureTitle} style={signupStyles.featureTitle}>
                   Reporting Dashboard
                 </span>
               </div>
 
               {/* Description */}
-              <p style={signupStyles.featureDescription}>
+              <p className={signupClasses.featureDescription} style={signupStyles.featureDescription}>
                 Our all-new Reporting Dashboard lets you build custom
                 reports and visualize project data with charts, KPIs,
                 and real-time filters — giving you clearer insights to
                 make smarter decisions.{' '}
                 <a
                   href="#"
-                  className="font-semibold hover:underline"
-                  style={signupStyles.learnMoreLink}
+                  className={`font-semibold hover:underline ${signupClasses.learnMoreLink}`}
                 >
                   Learn more
                 </a>
@@ -97,8 +96,8 @@ const Signup: React.FC = () => {
 
             {/* Bottom Area - Middle Container with White Box */}
             <div style={signupStyles.bottomBoxContainer}>
-              <div style={signupStyles.bottomBoxOuter}>
-                <div style={signupStyles.bottomBoxInner}></div>
+              <div className={signupClasses.bottomBoxOuter} style={signupStyles.bottomBoxOuter}>
+                <div className={signupClasses.bottomBoxInner} style={signupStyles.bottomBoxInner}></div>
               </div>
             </div>
           </div>
@@ -150,10 +149,7 @@ const Signup: React.FC = () => {
                 <button
                   type="submit"
                   disabled={isLoading}
-                  onMouseEnter={() => setIsHovered(true)}
-                  onMouseLeave={() => setIsHovered(false)}
                   className={signupClasses.submitButton}
-                  style={signupStyles.submitButton(isHovered)}
                 >
                   {isLoading ? 'Creating Account...' : 'Sign Up'}
                 </button>

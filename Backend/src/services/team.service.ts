@@ -36,11 +36,26 @@ export class TeamService {
     return this.teamRepository.findByMemberId(userId);
   }
 
-  async updateTeam(id: string, data: { name?: string; memberIds?: string[] }) {
+  async getAllTeams() {
+    return this.teamRepository.findAll();
+  }
+
+  async updateTeam(
+    id: string,
+    data: { name?: string; memberIds?: string[]; projectIds?: string[] }
+  ) {
     return this.teamRepository.update(id, data);
   }
 
   async deleteTeam(id: string) {
     return this.teamRepository.delete(id);
+  }
+
+  /**
+   * Synchronize project-team bidirectional relationships.
+   * Finds all projects with teamIds and ensures those teams have the project in their projectIds.
+   */
+  async syncProjectTeamRelationships() {
+    return this.teamRepository.syncProjectTeamRelationships();
   }
 }

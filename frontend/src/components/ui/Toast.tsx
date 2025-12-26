@@ -8,6 +8,29 @@ export interface ToastProps {
 }
 
 // ============================================
+// TOAST COLORS - INTENTIONAL EXCEPTION
+// ============================================
+// NOTE:
+// react-hot-toast requires inline style values and does not support Tailwind classes.
+// This component is an intentional exception to the "no hardcoded colors" rule.
+// Colors are centralized here to minimize scattered literals.
+
+const TOAST_COLORS = {
+  // Success (green)
+  successStart: '#10B981',
+  successEnd: '#059669',
+  // Error (red)
+  errorStart: '#EF4444',
+  errorEnd: '#DC2626',
+  // Warning (amber)
+  warning: '#F59E0B',
+  // Info (blue)
+  info: '#3B82F6',
+  // Common
+  white: '#fff',
+};
+
+// ============================================
 // BASE TOAST STYLES
 // ============================================
 
@@ -29,12 +52,12 @@ const successStyle: ToastOptions = {
   ...defaultOptions,
   style: {
     ...defaultOptions.style,
-    background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
-    color: '#fff',
+    background: `linear-gradient(135deg, ${TOAST_COLORS.successStart} 0%, ${TOAST_COLORS.successEnd} 100%)`,
+    color: TOAST_COLORS.white,
   },
   iconTheme: {
-    primary: '#fff',
-    secondary: '#10B981',
+    primary: TOAST_COLORS.white,
+    secondary: TOAST_COLORS.successStart,
   },
 };
 
@@ -42,12 +65,12 @@ const errorStyle: ToastOptions = {
   ...defaultOptions,
   style: {
     ...defaultOptions.style,
-    background: 'linear-gradient(135deg, #EF4444 0%, #DC2626 100%)',
-    color: '#fff',
+    background: `linear-gradient(135deg, ${TOAST_COLORS.errorStart} 0%, ${TOAST_COLORS.errorEnd} 100%)`,
+    color: TOAST_COLORS.white,
   },
   iconTheme: {
-    primary: '#fff',
-    secondary: '#EF4444',
+    primary: TOAST_COLORS.white,
+    secondary: TOAST_COLORS.errorStart,
   },
 };
 
@@ -55,8 +78,8 @@ const warningStyle: ToastOptions = {
   ...defaultOptions,
   style: {
     ...defaultOptions.style,
-    background: '#F59E0B',
-    color: '#fff',
+    background: TOAST_COLORS.warning,
+    color: TOAST_COLORS.white,
   },
 };
 
@@ -64,8 +87,8 @@ const infoStyle: ToastOptions = {
   ...defaultOptions,
   style: {
     ...defaultOptions.style,
-    background: '#3B82F6',
-    color: '#fff',
+    background: TOAST_COLORS.info,
+    color: TOAST_COLORS.white,
   },
 };
 
@@ -273,7 +296,13 @@ export const showToast = {
                 <button
                   onClick={async () => {
                     toast.dismiss(t.id);
-                    await onConfirm();
+                    try {
+                      await onConfirm();
+                    } catch (error) {
+                      // Ensure any uncaught errors are displayed
+                      const message = getErrorMessage(error);
+                      toast.error(`Operation failed. ${message}`, errorStyle);
+                    }
                   }}
                   className={`px-3 py-1.5 text-xs font-medium text-white ${styles.buttonBg} rounded-lg transition-colors`}
                 >

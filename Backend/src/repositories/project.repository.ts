@@ -156,13 +156,34 @@ export class ProjectRepository {
       : "PRJ";
     const key = `${prefix}-${Date.now().toString(36).toUpperCase()}`;
 
-    return prisma.project.create({
+    // Extract teamIds from data
+    const { teamIds, ...restData } = data;
+
+    // Create project with teamIds
+    const project = await prisma.project.create({
       data: {
-        ...data,
+        ...restData,
         ownerId,
         key,
+        teamIds: teamIds || [],
       },
     });
+
+    // If teams were specified, update each team to include this project in their projectIds
+    if (teamIds && teamIds.length > 0) {
+      for (const teamId of teamIds) {
+        await prisma.team.update({
+          where: { id: teamId },
+          data: {
+            projectIds: {
+              push: project.id,
+            },
+          },
+        });
+      }
+    }
+
+    return project;
   }
 
   async findByIdAndOwnerId(projectId: string, ownerId: string) {
@@ -226,16 +247,18 @@ export class ProjectRepository {
         mimeType: true,
         createdAt: true,
         taskId: true,
+        // Include actual uploader (attachment's user) with ID for team filtering
+        user: {
+          select: {
+            id: true,
+            name: true,
+            avatar: true,
+          },
+        },
         task: {
           select: {
             id: true,
             title: true,
-            creator: {
-              select: {
-                name: true,
-                avatar: true,
-              },
-            },
           },
         },
       },
@@ -244,11 +267,7 @@ export class ProjectRepository {
       },
     });
 
-    // Map to final format with user field for frontend compatibility
-    return attachments.map((attachment) => ({
-      ...attachment,
-      user: attachment.task?.creator || null,
-    }));
+    return attachments;
   }
 
   /**

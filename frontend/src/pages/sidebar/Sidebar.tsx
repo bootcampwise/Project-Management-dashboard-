@@ -21,9 +21,13 @@ import SearchPopup from "../../components/sidebar/SearchPopup";
 import type { SidebarProps, CreateProjectPayload } from "../../types";
 import { sidebarClasses } from "./sidebarStyle";
 
+import { useCreateProjectMutation } from "../../store/api/projectApiSlice";
+import { showToast, getErrorMessage } from "../../components/ui";
+
 const Sidebar: React.FC<SidebarProps> = ({ open, onClose }) => {
 
   const { sections, isSettingsOpen, setIsSettingsOpen, toggleSection } = useSidebar();
+  const [createProject] = useCreateProjectMutation();
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isCreateProjectOpen, setIsCreateProjectOpen] = useState(false);
@@ -41,9 +45,14 @@ const Sidebar: React.FC<SidebarProps> = ({ open, onClose }) => {
     setIsCreateProjectOpen(true);
   };
 
-  const handleCreateProject = async (_data: CreateProjectPayload): Promise<void> => {
-    setIsCreateProjectOpen(false);
-    setIsTeamModalOpen(true);
+  const handleCreateProject = async (data: CreateProjectPayload): Promise<void> => {
+    try {
+      await createProject(data).unwrap();
+      showToast.success("Project created successfully!");
+      setIsCreateProjectOpen(false);
+    } catch (error) {
+      showToast.error(`Failed to create project. ${getErrorMessage(error)}`);
+    }
   };
 
 

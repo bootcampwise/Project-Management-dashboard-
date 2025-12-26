@@ -154,6 +154,15 @@ export default {
         xl: "1.125rem", // 18px
         "2xl": "1.25rem", // 20px
       },
+      // Custom Box Shadows
+      boxShadow: {
+        glow: "0 10px 40px 20px rgba(241, 241, 241, 1), 0 6px 25px 12px rgba(209, 213, 219, 0.5), 0 2px 10px 5px rgba(0, 0, 0, 0.05)",
+        "glow-sm":
+          "0 2px 8px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.1)",
+        card: "0 1px 3px rgba(0, 0, 0, 0.08)",
+        panel:
+          "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
+      },
     },
     fontFamily: {
       sans: ["Inter", "sans-serif"],

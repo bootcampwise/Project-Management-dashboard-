@@ -16,10 +16,10 @@ export const useTasks = () => {
   // Organize tasks into columns by status
   const columns: BoardColumn[] = useMemo(() => {
     const columnConfig = [
-      { id: "TODO", title: "To-Do", color: "#3b82f6" },
-      { id: "IN_PROGRESS", title: "In Progress", color: "#f59e0b" },
-      { id: "COMPLETED", title: "Completed", color: "#10b981" },
-      { id: "CANCELED", title: "Cancelled", color: "#ef4444" },
+      { id: "TODO", title: "To-Do", color: "bg-blue-500" },
+      { id: "IN_PROGRESS", title: "In Progress", color: "bg-amber-500" },
+      { id: "COMPLETED", title: "Completed", color: "bg-green-500" },
+      { id: "CANCELED", title: "Cancelled", color: "bg-red-500" },
     ];
 
     return columnConfig.map((config) => ({

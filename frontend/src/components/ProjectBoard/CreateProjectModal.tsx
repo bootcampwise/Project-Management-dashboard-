@@ -130,7 +130,7 @@ const CreateProjectModal: React.FC<CreateProjectModalProps> = ({ isOpen, onClose
         </div>
 
         {/* Footer Info */}
-        <div className="px-6 py-3 bg-[#F3F4F6] rounded-b-lg border-t border-dashed border-blue-200">
+        <div className="px-6 py-3 bg-gray-100 rounded-b-lg border-t border-dashed border-blue-200">
           <p className="text-xs text-gray-500">
             Learn more about projects by watching <a href="#" className="text-blue-500 hover:underline">tutorial video.</a>
           </p>

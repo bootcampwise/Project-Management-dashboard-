@@ -84,7 +84,7 @@ const TemplateLibraryModal: React.FC<TemplateLibraryModalProps> = ({ isOpen, onC
         onClick={(e) => e.stopPropagation()}
       >
         {/* Sidebar */}
-        <div className="w-[280px] bg-[#F9FAFB] border-r border-gray-200 flex flex-col p-5 h-full">
+        <div className="w-[280px] bg-gray-50 border-r border-gray-200 flex flex-col p-5 h-full">
 
           {isDesign ? (
             <h3 className="text-sm font-bold text-gray-500 uppercase mb-4 mt-1">Templates</h3>
@@ -106,7 +106,7 @@ const TemplateLibraryModal: React.FC<TemplateLibraryModalProps> = ({ isOpen, onC
                 key={category.name}
                 onClick={() => setActiveCategory(category.name)}
                 className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-[15px] transition-all duration-200 ${activeCategory === category.name
-                  ? 'bg-[#EAEBEB] text-gray-900 font-medium shadow-sm'
+                  ? 'bg-gray-200 text-gray-900 font-medium shadow-sm'
                   : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
                   }`}
               >
@@ -148,7 +148,7 @@ const TemplateLibraryModal: React.FC<TemplateLibraryModalProps> = ({ isOpen, onC
               <div className="flex items-center gap-4">
                 <button
                   onClick={onSelectTemplate}
-                  className="px-6 py-2.5 bg-[#5B89F7] hover:bg-blue-600 text-white text-sm font-medium rounded-md shadow-sm transition-colors"
+                  className="px-6 py-2.5 bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium rounded-md shadow-sm transition-colors"
                 >
                   Use Template
                 </button>
@@ -191,7 +191,7 @@ const TemplateLibraryModal: React.FC<TemplateLibraryModalProps> = ({ isOpen, onC
                 </p>
 
                 {/* Preview Image Area */}
-                <div className="w-full bg-[#f8f9fc] border border-gray-100 rounded-xl p-6 shadow-sm">
+                <div className="w-full bg-gray-50 border border-gray-100 rounded-xl p-6 shadow-sm">
                   <div className="flex items-center gap-4 mb-4 border-b border-gray-200 pb-2">
                     <div className="w-4 h-4 rounded bg-blue-400"></div>
                     <span className="text-sm font-medium text-gray-700">Teamspace</span>

@@ -30,19 +30,14 @@ export const signupStyles = {
     minHeight: "593px",
     marginTop: "20px",
     borderRadius: "8px",
-    borderWidth: "1px",
-    borderStyle: "solid",
-    borderColor: "var(--color-gray-border)",
   } as CSSProperties,
 
   leftPanel: {
-    backgroundColor: "var(--color-bg-off-white)",
     padding: "48px 36px 36px 36px",
     position: "relative" as const,
   } as CSSProperties,
 
   newBadge: {
-    backgroundColor: "var(--color-brand-orange)",
     padding: "4px 10px",
     fontSize: "11px",
     fontWeight: 700,
@@ -57,7 +52,6 @@ export const signupStyles = {
     fontFamily: "Inter, sans-serif",
     fontSize: "18px",
     fontWeight: 700,
-    color: "var(--color-gray-900)",
     letterSpacing: "-0.01em",
   } as CSSProperties,
 
@@ -67,13 +61,11 @@ export const signupStyles = {
     fontSize: "14.9px",
     lineHeight: "21px",
     letterSpacing: "0%",
-    color: "var(--color-gray-900)",
     marginBottom: "0",
     maxWidth: "380px",
   } as CSSProperties,
 
   learnMoreLink: {
-    color: "var(--color-brand-orange)",
     textDecoration: "none",
     fontWeight: 600,
   } as CSSProperties,
@@ -94,22 +86,17 @@ export const signupStyles = {
     width: "100%",
     height: "180px",
     borderRadius: "8px",
-    backgroundColor: "var(--color-bg-off-white)",
     position: "relative" as const,
     display: "flex",
     alignItems: "flex-end",
     justifyContent: "center",
     paddingBottom: "0",
-    boxShadow: `0 2px 8px var(--shadow-light), 0 1px 3px var(--shadow-dark)`,
   } as CSSProperties,
 
   bottomBoxInner: {
     width: "180px",
     height: "36px",
-    backgroundColor: "var(--color-bg-white-glow)",
     borderRadius: "2px",
-    boxShadow:
-      "0 10px 40px 20px rgba(241, 241, 241, 1), 0 6px 25px 12px rgba(209, 213, 219, 0.5), 0 2px 10px 5px rgba(0, 0, 0, 0.05)",
     position: "absolute" as const,
     left: "50%",
     transform: "translateX(-50%)",
@@ -135,7 +122,6 @@ export const signupStyles = {
     fontSize: "13.2px",
     lineHeight: "22.5px",
     letterSpacing: "0%",
-    color: "var(--color-gray-900)",
   } as CSSProperties,
 
   passwordLabel: {
@@ -144,37 +130,35 @@ export const signupStyles = {
     fontSize: "13.2px",
     lineHeight: "22.5px",
     letterSpacing: "0%",
-    color: "#000000",
   } as CSSProperties,
-
-  submitButton: (isHovered: boolean): CSSProperties => ({
-    backgroundColor: isHovered
-      ? "var(--color-blue-700)"
-      : "var(--color-brand-blue-light)",
-  }),
 };
 
 export const signupClasses = {
   pageWrapper: "bg-gray-50 flex justify-center items-start overflow-x-hidden",
   logoWrapper: "absolute hidden md:block",
   mainContainer:
-    "bg-white flex flex-col md:flex-row rounded-lg shadow-md overflow-hidden login-container",
-  leftPanel: "hidden md:flex flex-col md:w-1/2",
+    "bg-white flex flex-col md:flex-row rounded-lg shadow-md overflow-hidden border border-gray-200 login-container",
+  leftPanel: "hidden md:flex flex-col md:w-1/2 bg-off-white",
   badgeWrapper: "flex items-center gap-2",
   badge:
-    "inline-flex items-center gap-1 rounded-full text-xs font-bold text-white",
+    "inline-flex items-center gap-1 rounded-full text-xs font-bold text-white bg-brand-orange",
+  featureTitle: "text-gray-900",
+  featureDescription: "text-gray-900",
+  learnMoreLink: "text-brand-orange",
+  bottomBoxOuter: "bg-off-white shadow-lg",
+  bottomBoxInner: "bg-white shadow-glow",
   rightPanel:
     "w-full md:w-1/2 p-6 md:p-8 flex flex-col justify-center items-center",
   formWrapper: "w-full",
   formTitle: "text-3xl font-semibold text-gray-900 mb-12 text-center",
   form: "space-y-12",
-  labelWrapper: "block mb-2",
+  labelWrapper: "block mb-2 text-gray-900",
   input:
     "w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-200 focus:border-blue-400 outline-none text-gray-700 placeholder-gray-400",
   passwordHeader: "flex justify-between items-center mb-2",
   error: "text-red-600 text-sm text-center",
   submitButton:
-    "w-full py-3 rounded-md text-white font-bold text-sm shadow-sm transition-colors disabled:opacity-50",
+    "w-full py-3 rounded-md text-white font-bold text-sm shadow-sm transition-colors disabled:opacity-50 bg-brand-blue hover:bg-blue-700",
 };
 
 export const signupMediaQuery = `

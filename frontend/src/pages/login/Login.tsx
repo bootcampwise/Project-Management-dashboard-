@@ -2,7 +2,7 @@ import React from 'react';
 import { useLogin } from './hooks/useLogin';
 import { loginStyles, loginClasses, loginMediaQuery } from './loginStyle';
 
-import { Badge, Button, Input } from '../../components/ui';
+import { Button, Input } from '../../components/ui';
 
 // Helper function to get error message from API errors
 const getErrorMessage = (error: unknown): string => {
@@ -26,8 +26,6 @@ const LoginPage: React.FC = () => {
     setPassword,
     isLoading,
     error,
-    isHovered,
-    setIsHovered,
     handleGoogleSignIn,
     handleSubmit,
     navigate
@@ -66,8 +64,9 @@ const LoginPage: React.FC = () => {
             <div>
               {/* Badge and Title */}
               <div className={loginClasses.badgeWrapper} style={{ marginBottom: '16px' }}>
-                <Badge
-                  className="bg-[var(--color-brand-orange)] text-white border-none gap-1 font-bold"
+                <span
+                  className={loginClasses.badge}
+                  style={loginStyles.newBadge}
                 >
                   <svg
                     style={loginStyles.badgeIcon}
@@ -83,22 +82,21 @@ const LoginPage: React.FC = () => {
                     />
                   </svg>
                   NEW
-                </Badge>
-                <span style={loginStyles.featureTitle}>
+                </span>
+                <span className={loginClasses.featureTitle} style={loginStyles.featureTitle}>
                   Reporting Dashboard
                 </span>
               </div>
 
               {/* Description */}
-              <p style={loginStyles.featureDescription}>
+              <p className={loginClasses.featureDescription} style={loginStyles.featureDescription}>
                 Our all-new Reporting Dashboard lets you build custom
                 reports and visualize project data with charts, KPIs,
                 and real-time filters — giving you clearer insights to
                 make smarter decisions.{' '}
                 <a
                   href="#"
-                  className="font-semibold hover:underline"
-                  style={loginStyles.learnMoreLink}
+                  className={`font-semibold hover:underline ${loginClasses.learnMoreLink}`}
                 >
                   Learn more
                 </a>
@@ -107,8 +105,8 @@ const LoginPage: React.FC = () => {
 
             {/* Bottom Area - Middle Container with White Box */}
             <div style={loginStyles.bottomBoxContainer}>
-              <div style={loginStyles.bottomBoxOuter}>
-                <div style={loginStyles.bottomBoxInner}></div>
+              <div className={loginClasses.bottomBoxOuter} style={loginStyles.bottomBoxOuter}>
+                <div className={loginClasses.bottomBoxInner} style={loginStyles.bottomBoxInner}></div>
               </div>
             </div>
           </div>
@@ -161,10 +159,7 @@ const LoginPage: React.FC = () => {
                 variant="primary"
                 size="lg"
                 isLoading={isLoading}
-                onMouseEnter={() => setIsHovered(true)}
-                onMouseLeave={() => setIsHovered(false)}
                 className={loginClasses.submitButton}
-                style={loginStyles.loginButton(isHovered)}
               >
                 Log in
               </Button>
@@ -175,18 +170,16 @@ const LoginPage: React.FC = () => {
                   type="button"
                   onClick={handleGoogleSignIn}
                   className={loginClasses.socialButton}
-                  style={loginStyles.socialButton}
                 >
                   <img src="/google.png" alt="Google" className="w-5 h-5" />
-                  Google
+                  <span className="text-brand-orange">Google</span>
                 </button>
                 <div className={loginClasses.socialDivider}></div>
                 <button
                   className={loginClasses.socialButton}
-                  style={loginStyles.socialButton}
                 >
                   <img src="/microsoft.png" alt="Microsoft" className="w-5 h-5" />
-                  Microsoft
+                  <span className="text-brand-orange">Microsoft</span>
                 </button>
               </div>
 
@@ -217,15 +210,13 @@ const LoginPage: React.FC = () => {
                 <p style={loginStyles.signUpText}>
                   Don't have an account?
                 </p>
-                <Button
-                  variant="ghost"
+                <button
                   type="button"
                   onClick={() => navigate('/signup')}
                   className={loginClasses.signUpButton}
-                  style={loginStyles.signUpButton}
                 >
                   Sign up for free
-                </Button>
+                </button>
               </div>
             </form>
           </div>

@@ -1,10 +1,6 @@
-import { useState, useEffect, useRef } from "react";
-import { useAppSelector } from "../../../store/hooks";
-import type { TeamFile } from "../../../types";
-import {
-  useGetProjectAttachmentsQuery,
-  useLazyGetProjectAttachmentsQuery,
-} from "../../../store/api/projectApiSlice";
+import { useState, useEffect, useRef, useMemo } from "react";
+import type { TeamFile, Team } from "../../../types";
+import { useLazyGetProjectAttachmentsQuery } from "../../../store/api/projectApiSlice";
 import { useDeleteAttachmentMutation } from "../../../store/api/taskApiSlice";
 import {
   useLazyDownloadFileQuery,
@@ -17,24 +13,13 @@ import {
   clearCachedFileUrl,
 } from "../../../utils/fileUrlCache";
 
-export const useTeamFiles = () => {
-  const { activeProject } = useAppSelector((state) => state.ui);
+export const useTeamFiles = (activeTeam?: Team | null) => {
+  // State for files fetched from team's projects
+  const [allFiles, setAllFiles] = useState<TeamFile[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
-  // RTK Query hooks
-  const { data: files = [], isLoading: queryLoading } =
-    useGetProjectAttachmentsQuery(activeProject?.id ?? "", {
-      skip: !activeProject?.id,
-      // Use cached data immediately, refetch in background
-      refetchOnMountOrArgChange: false,
-    });
-
-  // ⚡ Only show loading on INITIAL load (when no data exists)
-  // Never show loading during background refetches - use cached data
-  const isLoading = activeProject?.id
-    ? queryLoading && files.length === 0
-    : false;
-
-  const [refetchFiles] = useLazyGetProjectAttachmentsQuery();
+  // Lazy query to fetch files from each project
+  const [fetchProjectAttachments] = useLazyGetProjectAttachmentsQuery();
   const [deleteAttachment] = useDeleteAttachmentMutation();
   const [downloadFile] = useLazyDownloadFileQuery();
   const [deleteStorageFile] = useDeleteFileMutation();
@@ -42,6 +27,50 @@ export const useTeamFiles = () => {
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
+
+  // Fetch files from all projects belonging to the active team
+  useEffect(() => {
+    const fetchFilesFromTeamProjects = async () => {
+      if (!activeTeam?.projects?.length) {
+        setAllFiles([]);
+        return;
+      }
+
+      setIsLoading(true);
+      try {
+        // Fetch files from all team projects in parallel
+        const projectIds = activeTeam.projects.map((p) => p.id);
+        const results = await Promise.all(
+          projectIds.map((projectId) =>
+            fetchProjectAttachments(projectId)
+              .unwrap()
+              .catch(() => [])
+          )
+        );
+
+        // Combine all files from all projects
+        const combinedFiles = results.flat();
+        setAllFiles(combinedFiles);
+      } catch (error) {
+        console.error("Error fetching team files:", error);
+        setAllFiles([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchFilesFromTeamProjects();
+  }, [activeTeam?.projects, fetchProjectAttachments]);
+
+  // Filter files by active team's member IDs
+  const files = useMemo(() => {
+    if (!activeTeam || !activeTeam.memberIds?.length) {
+      return allFiles; // No team member filter, show all files
+    }
+    return allFiles.filter(
+      (file) => file.user?.id && activeTeam.memberIds.includes(file.user.id)
+    );
+  }, [allFiles, activeTeam]);
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -136,10 +165,9 @@ export const useTeamFiles = () => {
       // 2. Delete from database via RTK Query
       await deleteAttachment(file.id).unwrap();
 
-      // 3. Refresh the file list
-      if (activeProject?.id) {
-        refetchFiles(activeProject.id);
-      }
+      // 3. Remove from local state immediately
+      setAllFiles((prev) => prev.filter((f) => f.id !== file.id));
+
       showToast.success("File deleted successfully");
     } catch (error) {
       showToast.error(`Failed to delete file. ${getErrorMessage(error)}`);
@@ -150,7 +178,7 @@ export const useTeamFiles = () => {
   };
 
   return {
-    activeProject,
+    activeTeam,
     files,
     isLoading,
     openMenuId,

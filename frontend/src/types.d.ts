@@ -183,6 +183,7 @@ export interface CreateProjectModalProps {
 export interface CreateTeamModalProps {
   isOpen: boolean;
   onClose: () => void;
+  teamToEdit?: Team | null;
 }
 
 export interface TemplateLibraryModalProps {
@@ -363,6 +364,14 @@ export interface Team {
   projectId?: string;
   memberIds: string[];
   members?: TeamMember[];
+  projects?: {
+    id: string;
+    name: string;
+    status?: string;
+    progress?: number;
+    startDate?: string;
+    endDate?: string;
+  }[];
   status?: string;
   priority?: string;
   startDate?: string;
@@ -490,6 +499,7 @@ export interface BoardColumnProps {
 
 export interface TeamTableViewProps {
   projectId?: string;
+  filteredTeamId?: string;
 }
 
 // ============================================

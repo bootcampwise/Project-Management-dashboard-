@@ -30,19 +30,14 @@ export const loginStyles = {
     minHeight: "593px",
     marginTop: "20px",
     borderRadius: "8px",
-    borderWidth: "1px",
-    borderStyle: "solid",
-    borderColor: "var(--color-gray-border)",
   } as CSSProperties,
 
   leftPanel: {
-    backgroundColor: "var(--color-bg-off-white)",
     padding: "48px 36px 36px 36px",
     position: "relative" as const,
   } as CSSProperties,
 
   newBadge: {
-    backgroundColor: "var(--color-brand-orange)",
     padding: "4px 10px",
     fontSize: "11px",
     fontWeight: 700,
@@ -57,7 +52,6 @@ export const loginStyles = {
     fontFamily: "Inter, sans-serif",
     fontSize: "18px",
     fontWeight: 700,
-    color: "var(--color-gray-900)",
     letterSpacing: "-0.01em",
   } as CSSProperties,
 
@@ -67,13 +61,11 @@ export const loginStyles = {
     fontSize: "14.9px",
     lineHeight: "21px",
     letterSpacing: "0%",
-    color: "var(--color-gray-900)",
     marginBottom: "0",
     maxWidth: "380px",
   } as CSSProperties,
 
   learnMoreLink: {
-    color: "var(--color-brand-orange)",
     textDecoration: "none",
     fontWeight: 600,
   } as CSSProperties,
@@ -94,22 +86,17 @@ export const loginStyles = {
     width: "100%",
     height: "180px",
     borderRadius: "8px",
-    backgroundColor: "var(--color-bg-off-white)",
     position: "relative" as const,
     display: "flex",
     alignItems: "flex-end",
     justifyContent: "center",
     paddingBottom: "0",
-    boxShadow: `0 2px 8px var(--shadow-light), 0 1px 3px var(--shadow-dark)`,
   } as CSSProperties,
 
   bottomBoxInner: {
     width: "180px",
     height: "36px",
-    backgroundColor: "var(--color-bg-white-glow)",
     borderRadius: "2px",
-    boxShadow:
-      "0 10px 40px 20px rgba(241, 241, 241, 1), 0 6px 25px 12px rgba(209, 213, 219, 0.5), 0 2px 10px 5px rgba(0, 0, 0, 0.05)",
     position: "absolute" as const,
     left: "50%",
     transform: "translateX(-50%)",
@@ -127,7 +114,6 @@ export const loginStyles = {
     fontSize: "13.2px",
     lineHeight: "22.5px",
     letterSpacing: "0%",
-    color: "var(--color-gray-900)",
   } as CSSProperties,
 
   passwordLabel: {
@@ -136,17 +122,6 @@ export const loginStyles = {
     fontSize: "13.2px",
     lineHeight: "22.5px",
     letterSpacing: "0%",
-    color: "#000000",
-  } as CSSProperties,
-
-  loginButton: (isHovered: boolean): CSSProperties => ({
-    backgroundColor: isHovered
-      ? "var(--color-blue-700)"
-      : "var(--color-brand-blue-light)",
-  }),
-
-  socialButton: {
-    color: "var(--color-brand-orange)",
   } as CSSProperties,
 
   ssoButton: {
@@ -156,7 +131,6 @@ export const loginStyles = {
     lineHeight: "100%",
     letterSpacing: "0%",
     textAlign: "center" as const,
-    color: "var(--color-gray-900)",
   } as CSSProperties,
 
   dividerText: {
@@ -166,7 +140,6 @@ export const loginStyles = {
     lineHeight: "16.5px",
     letterSpacing: "0%",
     textAlign: "center" as const,
-    color: "var(--color-gray-900)",
   } as CSSProperties,
 
   signUpText: {
@@ -176,12 +149,6 @@ export const loginStyles = {
     lineHeight: "22.5px",
     letterSpacing: "0%",
     textAlign: "center" as const,
-    color: "var(--color-gray-900)",
-  } as CSSProperties,
-
-  signUpButton: {
-    borderColor: "var(--color-gray-border-light)",
-    color: "var(--color-brand-orange)",
   } as CSSProperties,
 };
 
@@ -189,34 +156,39 @@ export const loginClasses = {
   pageWrapper: "bg-gray-50 flex justify-center items-start overflow-x-hidden",
   logoWrapper: "absolute hidden md:block",
   mainContainer:
-    "bg-white flex flex-col md:flex-row rounded-lg shadow-md overflow-hidden login-container",
-  leftPanel: "hidden md:flex flex-col md:w-1/2",
+    "bg-white flex flex-col md:flex-row rounded-lg shadow-md overflow-hidden border border-gray-200 login-container",
+  leftPanel: "hidden md:flex flex-col md:w-1/2 bg-off-white",
   badgeWrapper: "flex items-center gap-2",
   badge:
-    "inline-flex items-center gap-1 rounded-full text-xs font-bold text-white",
+    "inline-flex items-center gap-1 rounded-full text-xs font-bold text-white bg-brand-orange",
+  featureTitle: "text-gray-900",
+  featureDescription: "text-gray-900",
+  learnMoreLink: "text-brand-orange",
+  bottomBoxOuter: "bg-off-white shadow-lg",
+  bottomBoxInner: "bg-white shadow-glow",
   rightPanel: "w-full md:w-1/2 p-6 md:p-8 flex flex-col justify-start mt-0",
   formTitle: "text-3xl font-semibold text-gray-900 mb-4 text-center",
   form: "space-y-4",
-  labelWrapper: "block mb-2",
+  labelWrapper: "block mb-2 text-gray-900",
   input:
     "w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-200 focus:border-blue-400 outline-none text-gray-700 placeholder-gray-400",
   passwordHeader: "flex justify-between items-center mb-2",
   forgotPassword: "text-sm text-blue-500 hover:text-blue-600 font-medium",
   error: "text-red-600 text-sm text-center",
   submitButton:
-    "w-full py-3 rounded-md text-white font-bold text-sm shadow-sm transition-colors disabled:opacity-50",
+    "w-full py-3 rounded-md text-white font-bold text-sm shadow-sm transition-colors disabled:opacity-50 bg-brand-blue hover:bg-blue-700",
   socialWrapper: "flex items-center justify-center gap-8 py-2",
-  socialButton:
-    "flex items-center gap-2 hover:text-gray-900 text-sm font-medium",
+  socialButton: "flex items-center gap-2 text-sm font-medium",
   socialDivider: "h-5 w-px bg-gray-300",
   ssoButton:
-    "w-full py-3 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors",
+    "w-full py-3 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors text-gray-900",
   dividerWrapper: "relative flex py-2 items-center",
   dividerLine: "flex-grow border-t border-gray-200",
-  dividerText: "flex-shrink-0 mx-4 uppercase",
+  dividerText: "flex-shrink-0 mx-4 uppercase text-gray-900",
   signUpWrapper: "text-center space-y-2",
+  signUpText: "text-brand-orange",
   signUpButton:
-    "w-auto px-8 py-3 border-2 rounded-md font-bold text-sm transition-colors",
+    "w-auto px-8 py-3 border border-gray-300 rounded-md font-semibold text-sm transition-colors text-brand-orange bg-white hover:bg-gray-50",
 };
 
 export const loginMediaQuery = `

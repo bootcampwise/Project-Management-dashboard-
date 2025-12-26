@@ -27,7 +27,6 @@ export const welcomeStyles = {
     fontSize: "24px",
     lineHeight: "35px",
     textAlign: "center" as const,
-    color: "#000000ff",
     marginBottom: "40px",
   } as CSSProperties,
 
@@ -39,7 +38,6 @@ export const welcomeStyles = {
     padding: "7px 16px",
     borderWidth: "1px",
     borderRadius: "4px",
-    backgroundColor: "#6696F5",
     color: "white",
     fontFamily: "Inter, sans-serif",
     fontWeight: 500,

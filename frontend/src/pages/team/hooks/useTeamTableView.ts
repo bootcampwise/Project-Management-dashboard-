@@ -1,22 +1,15 @@
-import { useGetProjectsQuery } from "../../../store/api/projectApiSlice";
+import { useGetAllTeamsQuery } from "../../../store/api/teamApiSlice";
 import { format } from "date-fns";
 import { useNavigate } from "react-router-dom";
 
-export const useTeamTableView = (projectId?: string) => {
+export const useTeamTableView = () => {
   const navigate = useNavigate();
 
-  // Get projects from RTK Query
-  const { data: projects = [], isLoading } = useGetProjectsQuery();
+  // Get ALL teams from the database
+  const { data: allTeams = [], isLoading: teamsLoading } =
+    useGetAllTeamsQuery();
 
-  // If a projectId is provided, find that project and show its teams.
-  const activeProject = projectId
-    ? projects.find((p) => p.id === projectId)
-    : null;
-  const filteredProjects = projectId
-    ? activeProject
-      ? [activeProject]
-      : []
-    : projects;
+  const isLoading = teamsLoading;
 
   const getStatusColor = (status: string = "On track") => {
     // Normalize status to lowercase for comparison if needed, or stick to specific set
@@ -70,10 +63,8 @@ export const useTeamTableView = (projectId?: string) => {
   };
 
   return {
-    projects,
+    allTeams,
     isLoading,
-    activeProject,
-    filteredProjects,
     getStatusColor,
     getPriorityColor,
     formatDate,

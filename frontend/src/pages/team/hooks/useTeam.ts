@@ -1,37 +1,39 @@
 import { useState, useEffect, useRef } from "react";
-import { useAppDispatch, useAppSelector } from "../../../store/hooks";
-import { setActiveProject } from "../../../store/uiSlice";
 import {
-  useGetProjectsQuery,
-  useDeleteProjectMutation,
-} from "../../../store/api/projectApiSlice";
-import { useGetSessionQuery } from "../../../store/api/authApiSlice";
+  useGetAllTeamsQuery,
+  useDeleteTeamMutation,
+} from "../../../store/api/teamApiSlice";
 import { showToast, getErrorMessage } from "../../../components/ui";
-import {
-  saveLastProjectId,
-  getLastProjectId,
-} from "../../../utils/projectStorage";
+import type { Team } from "../../../types";
 
 export const useTeam = () => {
-  const dispatch = useAppDispatch();
-
   // Data from RTK Query
-  const { data: projects = [], isLoading: projectsLoading } =
-    useGetProjectsQuery();
-  const [deleteProject] = useDeleteProjectMutation();
-  const { data: user, isLoading: sessionLoading } = useGetSessionQuery();
-
-  // UI state from Redux
-  const { activeProject } = useAppSelector((state) => state.ui);
+  const { data: allTeams = [], isLoading: teamsLoading } =
+    useGetAllTeamsQuery();
+  const [deleteTeam] = useDeleteTeamMutation();
 
   // Local state
   const [sidebarOpen, setSidebarOpen] = useState(window.innerWidth >= 768);
   const [activeTab, setActiveTab] = useState("Teams");
+  const [activeTeam, setActiveTeam] = useState<Team | null>(null);
+  const [teamToEdit, setTeamToEdit] = useState<Team | null>(null);
+  const [hasInitializedTeam, setHasInitializedTeam] = useState(false);
+
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isCreateTeamModalOpen, setIsCreateTeamModalOpen] = useState(false);
-  const [isProjectDropdownOpen, setIsProjectDropdownOpen] = useState(false);
   const [isMenuDropdownOpen, setIsMenuDropdownOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+
+  // Set default team on load
+  // We keep default selection logic, but ensure 'activeTeam' drives the tabs
+  useEffect(() => {
+    if (!teamsLoading && allTeams.length > 0 && !hasInitializedTeam) {
+      setActiveTeam(allTeams[0]);
+      setHasInitializedTeam(true);
+    } else if (!teamsLoading && allTeams.length === 0 && !hasInitializedTeam) {
+      setHasInitializedTeam(true);
+    }
+  }, [allTeams, teamsLoading, hasInitializedTeam]);
 
   // Handle window resize
   useEffect(() => {
@@ -47,44 +49,10 @@ export const useTeam = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // ============================================
-  // PROJECT RESTORATION (CRITICAL FOR FAST UX)
-  // ============================================
-  useEffect(() => {
-    // Wait for session and projects to be ready
-    if (sessionLoading || projectsLoading || projects.length === 0) return;
-
-    const userId = user?.id;
-
-    // Priority 1: Restore from localStorage (user-specific)
-    const lastProjectId = getLastProjectId(userId);
-    if (lastProjectId && !activeProject) {
-      const lastProject = projects.find((p) => p.id === lastProjectId);
-      if (lastProject) {
-        dispatch(setActiveProject(lastProject));
-        return;
-      }
-    }
-
-    // Priority 2: Default to first project (only if nothing else works)
-    if (!activeProject) {
-      dispatch(setActiveProject(projects[0]));
-      saveLastProjectId(projects[0].id, userId);
-    }
-  }, [
-    projects,
-    projectsLoading,
-    sessionLoading,
-    user,
-    activeProject,
-    dispatch,
-  ]);
-
   // Close menus when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        setIsProjectDropdownOpen(false);
         setIsMenuDropdownOpen(false);
       }
     };
@@ -95,24 +63,51 @@ export const useTeam = () => {
     };
   }, []);
 
-  const handleSwitchProject = (p: (typeof projects)[0]) => {
-    dispatch(setActiveProject(p));
-    saveLastProjectId(p.id, user?.id); // Remember for next refresh (user-specific)
-    setIsProjectDropdownOpen(false);
-    setIsMenuDropdownOpen(false);
+  // Dynamic Tabs based on Active Team
+  const tabs = activeTeam
+    ? ["Projects", "Dashboard", "Members", "Files"]
+    : ["Teams", "Dashboard", "Members", "Files"];
+
+  // Reset to first tab when switching between All Teams (Teams tab) and Specific Team (Projects tab)
+  useEffect(() => {
+    if (activeTeam && activeTab === "Teams") {
+      setActiveTab("Projects");
+    } else if (!activeTeam && activeTab === "Projects") {
+      setActiveTab("Teams");
+    }
+  }, [activeTeam, activeTab]);
+
+  const handleSwitchTeam = (team: Team | null) => {
+    setActiveTeam(team);
+    // When switching team, useEffect above handles tab reset if needed
   };
 
-  const handleDeleteProject = async (id: string) => {
+  const handleOpenCreateTeamModal = () => {
+    setTeamToEdit(null);
+    setIsCreateTeamModalOpen(true);
+  };
+
+  const handleEditTeam = (team: Team) => {
+    setTeamToEdit(team);
+    setIsCreateTeamModalOpen(true);
+  };
+
+  const handleDeleteTeam = async (id: string) => {
     try {
-      await deleteProject(id).unwrap();
-      showToast.success("Project deleted successfully");
+      await deleteTeam(id).unwrap();
+      showToast.success("Team deleted successfully");
+      if (activeTeam?.id === id) {
+        setActiveTeam(null);
+      }
       setIsMenuDropdownOpen(false);
     } catch (error) {
-      showToast.error(`Failed to delete project. ${getErrorMessage(error)}`);
+      showToast.error(`Failed to delete team. ${getErrorMessage(error)}`);
     }
   };
 
-  const tabs = ["Teams", "Dashboard", "Members", "Files"];
+  const handleToggleTeamFavorite = () => {
+    showToast.success("Team added to favorites");
+  };
 
   return {
     sidebarOpen,
@@ -123,16 +118,18 @@ export const useTeam = () => {
     setIsSearchOpen,
     isCreateTeamModalOpen,
     setIsCreateTeamModalOpen,
+    handleOpenCreateTeamModal,
+    handleEditTeam,
+    teamToEdit,
     tabs,
-    projects,
-    projectsLoading, // NEW: for loading state
-    activeProject,
-    isProjectDropdownOpen,
-    setIsProjectDropdownOpen,
+    allTeams,
+    activeTeam,
+    teamsLoading,
     isMenuDropdownOpen,
     setIsMenuDropdownOpen,
     menuRef,
-    handleSwitchProject,
-    handleDeleteProject,
+    handleSwitchTeam,
+    handleDeleteTeam,
+    handleToggleTeamFavorite,
   };
 };

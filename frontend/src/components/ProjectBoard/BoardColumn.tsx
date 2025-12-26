@@ -11,7 +11,7 @@ const BoardColumn: React.FC<BoardColumnProps> = ({ title, count, color, tasks, s
   if (collapsed) {
     return (
       <div
-        className="w-12 flex flex-col items-center py-4 h-full bg-[#F3F4F6] rounded-lg cursor-pointer hover:bg-gray-200 transition-colors"
+        className="w-12 flex flex-col items-center py-4 h-full bg-gray-100 rounded-lg cursor-pointer hover:bg-gray-200 transition-colors"
         onClick={onToggle}
         title="Click to expand"
       >

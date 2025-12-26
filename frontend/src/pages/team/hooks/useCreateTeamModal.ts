@@ -1,14 +1,19 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   useGetTeamMembersQuery,
   useGetTeamsQuery,
   useCreateTeamMutation,
+  useUpdateTeamMutation,
 } from "../../../store/api/teamApiSlice";
 import { useGetProjectsQuery } from "../../../store/api/projectApiSlice";
-import type { TeamMember } from "../../../types";
+import type { Team, TeamMember } from "../../../types";
 import { showToast, getErrorMessage } from "../../../components/ui";
 
-export const useCreateTeamModal = (isOpen: boolean, onClose: () => void) => {
+export const useCreateTeamModal = (
+  isOpen: boolean,
+  onClose: () => void,
+  teamToEdit?: Team | null
+) => {
   // RTK Query hooks
   const { data: members = [], isLoading: isMembersLoading } =
     useGetTeamMembersQuery(undefined, { skip: !isOpen });
@@ -17,6 +22,7 @@ export const useCreateTeamModal = (isOpen: boolean, onClose: () => void) => {
   const { refetch: refetchTeams } = useGetTeamsQuery();
   const { refetch: refetchProjects } = useGetProjectsQuery();
   const [createTeam] = useCreateTeamMutation();
+  const [updateTeam] = useUpdateTeamMutation();
 
   // Form State
   const [teamName, setTeamName] = useState("");
@@ -28,8 +34,25 @@ export const useCreateTeamModal = (isOpen: boolean, onClose: () => void) => {
   const [selectedProjectIds, setSelectedProjectIds] = useState<string[]>([]);
   const [isProjectDropdownOpen, setIsProjectDropdownOpen] = useState(false);
 
-  // Loading State for creation
-  const [isCreating, setIsCreating] = useState(false);
+  // Loading State
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const isEditing = !!teamToEdit;
+
+  // Initialize form when opening
+  useEffect(() => {
+    if (isOpen) {
+      if (teamToEdit) {
+        setTeamName(teamToEdit.name);
+        setSelectedMembers(teamToEdit.members || []);
+        setSelectedProjectIds(teamToEdit.projects?.map((p) => p.id) || []);
+      } else {
+        setTeamName("");
+        setSelectedMembers([]);
+        setSelectedProjectIds([]);
+      }
+    }
+  }, [isOpen, teamToEdit]);
 
   const filteredMembers = members.filter(
     (member) =>
@@ -55,22 +78,33 @@ export const useCreateTeamModal = (isOpen: boolean, onClose: () => void) => {
     }
   };
 
-  const handleCreateTeam = async () => {
+  const handleCreateOrUpdateTeam = async () => {
     if (!teamName.trim()) {
       showToast.error("Please enter a team name");
       return;
     }
 
     try {
-      setIsCreating(true);
+      setIsSubmitting(true);
 
-      await createTeam({
-        name: teamName,
-        memberIds: selectedMembers.map((m) => String(m.id)),
-        projectIds: selectedProjectIds,
-      }).unwrap();
-
-      showToast.success("Team created successfully!");
+      if (isEditing && teamToEdit) {
+        await updateTeam({
+          id: teamToEdit.id,
+          data: {
+            name: teamName,
+            memberIds: selectedMembers.map((m) => String(m.id)),
+            projectIds: selectedProjectIds,
+          },
+        }).unwrap();
+        showToast.success("Team updated successfully!");
+      } else {
+        await createTeam({
+          name: teamName,
+          memberIds: selectedMembers.map((m) => String(m.id)),
+          projectIds: selectedProjectIds,
+        }).unwrap();
+        showToast.success("Team created successfully!");
+      }
 
       // Refresh teams and projects lists
       refetchTeams();
@@ -78,13 +112,19 @@ export const useCreateTeamModal = (isOpen: boolean, onClose: () => void) => {
       onClose();
 
       // Reset form
-      setTeamName("");
-      setSelectedMembers([]);
-      setSelectedProjectIds([]);
+      if (!isEditing) {
+        setTeamName("");
+        setSelectedMembers([]);
+        setSelectedProjectIds([]);
+      }
     } catch (error) {
-      showToast.error(`Failed to create team. ${getErrorMessage(error)}`);
+      showToast.error(
+        `Failed to ${isEditing ? "update" : "create"} team. ${getErrorMessage(
+          error
+        )}`
+      );
     } finally {
-      setIsCreating(false);
+      setIsSubmitting(false);
     }
   };
 
@@ -107,8 +147,9 @@ export const useCreateTeamModal = (isOpen: boolean, onClose: () => void) => {
     isProjectDropdownOpen,
     setIsProjectDropdownOpen,
     handleProjectToggle,
-    // Creation
-    isCreating,
-    handleCreateTeam,
+    // Creation/Update
+    isSubmitting,
+    handleCreateOrUpdateTeam,
+    isEditing,
   };
 };

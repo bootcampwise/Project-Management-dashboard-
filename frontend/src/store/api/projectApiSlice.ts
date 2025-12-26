@@ -35,8 +35,12 @@ export const projectApiSlice = apiSlice.injectEndpoints({
         method: "POST",
         body: newProject,
       }),
-      // After creating, refresh the project list
-      invalidatesTags: [{ type: "Project", id: "LIST" }],
+      // After creating, refresh the project list AND team lists (since projects are assigned to teams)
+      invalidatesTags: [
+        { type: "Project", id: "LIST" },
+        { type: "Team", id: "LIST" },
+        { type: "Team", id: "ALL_LIST" },
+      ],
     }),
 
     // ----------------------------------------

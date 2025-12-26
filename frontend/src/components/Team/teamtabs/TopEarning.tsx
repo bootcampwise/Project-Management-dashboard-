@@ -86,8 +86,7 @@ const TopEarning: React.FC = () => {
         {projects.map((project, index) => (
           <div
             key={`${project.id}-${index}`}
-            className="w-full flex items-center justify-between mx-auto px-1"
-            style={{ height: '52px', borderBottomWidth: '1px', borderColor: '#f3f4f6' }}
+            className="w-full flex items-center justify-between mx-auto px-1 h-[52px] border-b border-gray-100"
           >
             {/* Left: Icon, Name, Tasks */}
             <div className="flex items-center gap-3 overflow-hidden">

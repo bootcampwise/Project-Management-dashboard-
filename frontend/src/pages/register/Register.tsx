@@ -98,7 +98,7 @@ const Register: React.FC = () => {
         <Button
           variant="primary"
           size="lg"
-          className={registerClasses.continueButton}
+          className={`${registerClasses.continueButton} bg-brand-blue text-white hover:bg-blue-600`}
           style={registerStyles.continueButton}
         >
           Continue

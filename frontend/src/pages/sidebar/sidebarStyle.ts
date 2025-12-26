@@ -6,7 +6,7 @@ export const sidebarClasses = {
   aside: (open: boolean) => `
     fixed md:static z-50
     top-0 left-0 h-full
-    bg-[#F7F8FA] border-r border-gray-200 flex flex-col
+    bg-sidebar border-r border-gray-200 flex flex-col
     transform transition-all duration-300 ease-in-out
     ${
       open

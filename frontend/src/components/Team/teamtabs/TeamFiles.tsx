@@ -1,13 +1,16 @@
 import React from 'react';
 import { MoreHorizontal, FileText, Image, File, Loader2, Trash2 } from 'lucide-react';
-import type { TeamFile } from '../../../types';
+import type { TeamFile, Team } from '../../../types';
 import { format } from 'date-fns';
 import { showToast } from "../../../components/ui";
 import { useTeamFiles } from "../../../pages/team/hooks/useTeamFiles";
 
-const TeamFiles: React.FC = () => {
+interface TeamFilesProps {
+  activeTeam?: Team | null;
+}
+
+const TeamFiles: React.FC<TeamFilesProps> = ({ activeTeam }) => {
   const {
-    activeProject,
     files,
     isLoading,
     openMenuId,
@@ -18,7 +21,7 @@ const TeamFiles: React.FC = () => {
     handleMenuClick,
     handleDeleteFile,
     setOpenMenuId
-  } = useTeamFiles();
+  } = useTeamFiles(activeTeam);
 
   const getFileIcon = (file: TeamFile) => {
     const type = file.type || file.mimeType || '';
@@ -77,9 +80,9 @@ const TeamFiles: React.FC = () => {
 
         {/* Rows with 2px gap */}
         <div className="flex flex-col gap-[2px] bg-gray-50">
-          {!activeProject?.id ? (
+          {!activeTeam?.projects?.length ? (
             <div className="px-6 py-8 text-center text-gray-500 text-sm italic">
-              Select a project to view files.
+              No projects assigned to this team.
             </div>
           ) : isLoading ? (
             // Skeleton loading - looks like actual file rows
@@ -101,7 +104,7 @@ const TeamFiles: React.FC = () => {
             </>
           ) : files.length === 0 ? (
             <div className="px-6 py-8 text-center text-gray-500 text-sm italic">
-              No files found in this project.
+              No files uploaded by team members.
             </div>
           ) : (
             files.map((file) => (

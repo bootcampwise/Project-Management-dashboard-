@@ -1,57 +1,13 @@
-import React, { useMemo } from 'react';
-import { useAppSelector } from '../../../store/hooks';
-import { useGetProjectsQuery } from '../../../store/api/projectApiSlice';
+import React from 'react';
 import { Loader2 } from 'lucide-react';
+import type { TeamMember } from '../../../types';
 
-const TeamMembers: React.FC = () => {
-  const { activeProject } = useAppSelector((state) => state.ui);
-  const { isLoading } = useGetProjectsQuery();
+interface TeamMembersProps {
+  members: TeamMember[];
+  isLoading?: boolean;
+}
 
-  // Get unique members from all teams associated with this project
-  const projectMembers = useMemo(() => {
-    if (!activeProject?.teams || activeProject.teams.length === 0) {
-      return [];
-    }
-
-    // Collect all members from all teams in this project
-    const memberMap = new Map<string, {
-      id: string;
-      name: string;
-      avatar?: string;
-      email?: string;
-      position?: string;
-      teamName: string;
-      location?: string;
-    }>();
-
-    activeProject.teams.forEach(team => {
-      if (team.members) {
-        team.members.forEach(member => {
-          // If member already exists, add team name to their groups
-          const existing = memberMap.get(member.id);
-          if (existing) {
-            // Add this team name to the member's teams list
-            memberMap.set(member.id, {
-              ...existing,
-              teamName: existing.teamName + `, ${team.name}`,
-            });
-          } else {
-            memberMap.set(member.id, {
-              id: member.id,
-              name: member.name,
-              avatar: member.avatar,
-              email: '', // Not available in the project teams structure
-              position: 'Member',
-              teamName: team.name,
-              location: 'Not specified',
-            });
-          }
-        });
-      }
-    });
-
-    return Array.from(memberMap.values());
-  }, [activeProject?.teams]);
+const TeamMembers: React.FC<TeamMembersProps> = ({ members, isLoading = false }) => {
 
   const getGroupStyle = (group: string) => {
     const lowerGroup = group.toLowerCase();
@@ -98,12 +54,12 @@ const TeamMembers: React.FC = () => {
 
         {/* Rows */}
         <div className="flex flex-col gap-[2px] bg-gray-50">
-          {projectMembers.length === 0 ? (
+          {members.length === 0 ? (
             <div className="px-6 py-8 text-center text-gray-500 text-sm italic bg-white">
-              No team members found for this project. Add teams with members to see them here.
+              No members found for this team.
             </div>
           ) : (
-            projectMembers.map((member) => (
+            members.map((member) => (
               <div key={member.id} className="grid grid-cols-[2.5fr_1.5fr_1.5fr_1.5fr] gap-4 px-6 h-[40px] items-center bg-white hover:bg-gray-50 transition-colors">
                 {/* Name Column */}
                 <div className="flex items-center gap-3">
@@ -130,24 +86,19 @@ const TeamMembers: React.FC = () => {
 
                 {/* Position */}
                 <div className="text-sm text-gray-600">
-                  {member.position || 'Member'}
+                  Member
                 </div>
 
                 {/* Team Groups */}
                 <div className="flex items-center gap-2 flex-wrap">
-                  {member.teamName.split(', ').map((team, idx) => (
-                    <span
-                      key={idx}
-                      className={`px-2 py-0.5 rounded text-[11px] font-medium ${getGroupStyle(team)}`}
-                    >
-                      {team}
-                    </span>
-                  ))}
+                  <span className={`px-2 py-0.5 rounded text-[11px] font-medium ${getGroupStyle('team')}`}>
+                    Team Member
+                  </span>
                 </div>
 
                 {/* Location */}
                 <div className="text-sm text-gray-600">
-                  {member.location || 'Not specified'}
+                  Not specified
                 </div>
               </div>
             ))
@@ -159,4 +110,3 @@ const TeamMembers: React.FC = () => {
 };
 
 export default TeamMembers;
-

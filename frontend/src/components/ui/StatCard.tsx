@@ -23,7 +23,7 @@ export const StatCard: React.FC<StatCardProps> = ({
       className={`
         rounded-xl shadow-sm border border-gray-100/60 
         flex items-center justify-between p-4 w-full
-        bg-[#F9FAFA]
+        bg-gray-50
         ${className}
       `.trim().replace(/\s+/g, ' ')}
       style={{ height: '88px' }}

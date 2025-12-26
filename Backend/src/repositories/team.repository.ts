@@ -68,10 +68,56 @@ export class TeamRepository {
     });
   }
 
-  async update(id: string, data: { name?: string; memberIds?: string[] }) {
+  async findAll() {
+    return prisma.team.findMany({
+      include: {
+        members: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            avatar: true,
+          },
+        },
+        projects: {
+          select: {
+            id: true,
+            name: true,
+            status: true,
+            startDate: true,
+            endDate: true,
+            progress: true,
+          },
+        },
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+  }
+
+  async update(
+    id: string,
+    data: { name?: string; memberIds?: string[]; projectIds?: string[] }
+  ) {
+    const { name, memberIds, projectIds } = data;
+    const updateData: any = {};
+
+    if (name !== undefined) updateData.name = name;
+    if (memberIds !== undefined) {
+      updateData.members = {
+        set: memberIds.map((mid) => ({ id: mid })),
+      };
+    }
+    if (projectIds !== undefined) {
+      updateData.projects = {
+        set: projectIds.map((pid) => ({ id: pid })),
+      };
+    }
+
     return prisma.team.update({
       where: { id },
-      data,
+      data: updateData,
     });
   }
 
@@ -159,5 +205,52 @@ export class TeamRepository {
     });
 
     return teamsWithProgress;
+  }
+
+  /**
+   * Synchronize project-team bidirectional relationships.
+   * Finds all projects with non-empty teamIds and ensures those teams have the project in their projectIds.
+   */
+  async syncProjectTeamRelationships() {
+    // Find all projects that have teamIds
+    const projects = await prisma.project.findMany({
+      where: {
+        teamIds: { isEmpty: false },
+      },
+      select: {
+        id: true,
+        teamIds: true,
+      },
+    });
+
+    let synchronized = 0;
+
+    for (const project of projects) {
+      for (const teamId of project.teamIds) {
+        // Check if team exists and if projectId is already in team's projectIds
+        const team = await prisma.team.findUnique({
+          where: { id: teamId },
+          select: { projectIds: true },
+        });
+
+        if (team && !team.projectIds.includes(project.id)) {
+          // Add project to team's projectIds
+          await prisma.team.update({
+            where: { id: teamId },
+            data: {
+              projectIds: {
+                push: project.id,
+              },
+            },
+          });
+          synchronized++;
+        }
+      }
+    }
+
+    return {
+      projectsScanned: projects.length,
+      relationshipsFixed: synchronized,
+    };
   }
 }
