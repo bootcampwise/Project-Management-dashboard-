@@ -1,13 +1,41 @@
-import React from 'react';
-import { Loader2 } from 'lucide-react';
+import React, { useState } from 'react';
+import { Loader2, MoreHorizontal, Trash2 } from 'lucide-react';
 import type { TeamMember } from '../../../types';
+import { useUpdateTeamMutation } from '../../../store/api/teamApiSlice';
+import { showToast, getErrorMessage } from '../../ui';
 
 interface TeamMembersProps {
   members: TeamMember[];
   isLoading?: boolean;
+  teamId?: string;
+  allMemberIds?: string[];
 }
 
-const TeamMembers: React.FC<TeamMembersProps> = ({ members, isLoading = false }) => {
+const TeamMembers: React.FC<TeamMembersProps> = ({ members, isLoading = false, teamId, allMemberIds = [] }) => {
+  const [openMenuId, setOpenMenuId] = useState<string | number | null>(null);
+  const [updateTeam, { isLoading: isRemoving }] = useUpdateTeamMutation();
+
+  const handleRemoveMember = async (memberId: string, memberName: string) => {
+    if (!teamId) {
+      showToast.error('Cannot remove member: Team ID not available');
+      return;
+    }
+
+    try {
+      // Filter out the member being removed
+      const updatedMemberIds = allMemberIds.filter(id => id !== memberId);
+
+      await updateTeam({
+        id: teamId,
+        data: { memberIds: updatedMemberIds }
+      }).unwrap();
+
+      showToast.success(`Removed ${memberName} from the team`);
+      setOpenMenuId(null);
+    } catch (error) {
+      showToast.error(`Failed to remove member. ${getErrorMessage(error)}`);
+    }
+  };
 
   const getGroupStyle = (group: string) => {
     const lowerGroup = group.toLowerCase();
@@ -45,11 +73,12 @@ const TeamMembers: React.FC<TeamMembersProps> = ({ members, isLoading = false })
     <div className="flex-1 bg-white">
       <div className="min-w-[800px]">
         {/* Header */}
-        <div className="grid grid-cols-[2.5fr_1.5fr_1.5fr_1.5fr] gap-4 px-6 py-3 bg-gray-50 border-b border-gray-200 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+        <div className="grid grid-cols-[2.5fr_1.5fr_1.5fr_1.5fr_60px] gap-4 px-6 py-3 bg-gray-50 border-b border-gray-200 text-xs font-semibold text-gray-500 uppercase tracking-wider">
           <div>Name</div>
           <div>Position</div>
           <div>Team groups</div>
           <div>Location</div>
+          <div></div>
         </div>
 
         {/* Rows */}
@@ -60,7 +89,7 @@ const TeamMembers: React.FC<TeamMembersProps> = ({ members, isLoading = false })
             </div>
           ) : (
             members.map((member) => (
-              <div key={member.id} className="grid grid-cols-[2.5fr_1.5fr_1.5fr_1.5fr] gap-4 px-6 h-[40px] items-center bg-white hover:bg-gray-50 transition-colors">
+              <div key={member.id} className="grid grid-cols-[2.5fr_1.5fr_1.5fr_1.5fr_60px] gap-4 px-6 h-[40px] items-center bg-white hover:bg-gray-50 transition-colors">
                 {/* Name Column */}
                 <div className="flex items-center gap-3">
                   {member.avatar ? (
@@ -99,6 +128,30 @@ const TeamMembers: React.FC<TeamMembersProps> = ({ members, isLoading = false })
                 {/* Location */}
                 <div className="text-sm text-gray-600">
                   Not specified
+                </div>
+
+                {/* Actions Column */}
+                <div className="relative flex justify-end">
+                  <button
+                    onClick={() => setOpenMenuId(openMenuId === member.id ? null : member.id)}
+                    className="p-1 rounded hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors"
+                  >
+                    <MoreHorizontal size={18} />
+                  </button>
+
+                  {/* Dropdown Menu */}
+                  {openMenuId === member.id && (
+                    <div className="absolute right-0 top-full mt-1 w-40 bg-white border border-gray-200 rounded-lg shadow-lg py-1 z-50">
+                      <button
+                        onClick={() => handleRemoveMember(String(member.id), member.name)}
+                        disabled={isRemoving}
+                        className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors disabled:opacity-50"
+                      >
+                        <Trash2 size={14} />
+                        {isRemoving ? 'Removing...' : 'Remove Member'}
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             ))

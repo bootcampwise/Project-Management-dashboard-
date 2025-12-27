@@ -8,13 +8,12 @@ import {
   Plus,
   ChevronDown,
   Search,
-  Filter,
-  ArrowUpDown,
   SlidersHorizontal,
   User,
-  Check,
   ChevronRight,
   Trash2,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 import BoardView from "../../components/projectBoard/BoardView";
 import TableView from "../../components/projectBoard/TableView";
@@ -32,16 +31,16 @@ import { projectboardClasses } from "./projectboardStyle";
 import {
   Button,
   Dropdown,
-  type DropdownItem,
   ProjectBoardSkeleton,
   KanbanBoardSkeleton,
   TableSkeleton,
 } from "../../components/ui";
+import SortControl from "../../components/ui/SortControl";
+import FilterControl from "../../components/ui/FilterControl";
 
 const ProjectBoard: React.FC = () => {
   const {
     // Data
-    projects,
     activeProject,
     projectTasks,
     selectedTask,
@@ -79,7 +78,6 @@ const ProjectBoard: React.FC = () => {
     handleCreateProject,
     handleOpenTemplateLibrary,
     handleSelectTemplate,
-    handleSwitchProject,
     handleEditTask,
     handleTableTaskClick,
     handleAddTask,
@@ -88,6 +86,51 @@ const ProjectBoard: React.FC = () => {
     handleUpdateTask,
     handleDeleteProject,
   } = useProjectBoard();
+
+  // Local filter/sort state for ProjectBoard page
+  const [sortBy, setSortBy] = React.useState<'newest' | 'oldest' | 'alpha'>('newest');
+  const [filterPriority, setFilterPriority] = React.useState<string | null>(null);
+
+  // Visible fields state for Table view
+  const [visibleFields, setVisibleFields] = React.useState<Record<string, boolean>>({
+    assignee: true,
+    dueDate: true,
+    label: true,
+  });
+
+  const toggleField = (field: string) => {
+    setVisibleFields(prev => ({ ...prev, [field]: !prev[field] }));
+  };
+
+  // Apply filter and sort to project tasks
+  const filteredAndSortedTasks = React.useMemo(() => {
+    let tasks = [...projectTasks];
+
+    // Filter by priority
+    if (filterPriority) {
+      tasks = tasks.filter(t => t.priority === filterPriority);
+    }
+
+    // Sort
+    const getCreationTime = (t: typeof tasks[0]) => {
+      if (t.createdAt) return new Date(t.createdAt).getTime();
+      if (t.updatedAt) return new Date(t.updatedAt).getTime();
+      return 0;
+    };
+
+    return tasks.sort((a, b) => {
+      if (sortBy === 'alpha') {
+        const nameA = a.name || a.title || '';
+        const nameB = b.name || b.title || '';
+        return nameA.localeCompare(nameB);
+      }
+      if (sortBy === 'oldest') {
+        return getCreationTime(a) - getCreationTime(b);
+      }
+      // newest (default)
+      return getCreationTime(b) - getCreationTime(a);
+    });
+  }, [projectTasks, filterPriority, sortBy]);
 
   const renderContent = () => {
     // Show skeleton while loading
@@ -104,9 +147,9 @@ const ProjectBoard: React.FC = () => {
 
     switch (activeTab) {
       case 'Board':
-        return <BoardView tasks={projectTasks} onTaskClick={setSelectedTask} onAddTask={handleAddTask} />;
+        return <BoardView tasks={filteredAndSortedTasks} onTaskClick={setSelectedTask} onAddTask={handleAddTask} visibleFields={visibleFields} />;
       case 'Table':
-        return <TableView tasks={projectTasks} onTaskClick={handleTableTaskClick} />;
+        return <TableView tasks={filteredAndSortedTasks} onTaskClick={handleTableTaskClick} visibleFields={visibleFields} onAddTask={handleAddTask} />;
       case 'Calendar':
         return <CalendarView projectId={activeProject?.id} />;
       case 'Timeline':
@@ -178,33 +221,9 @@ const ProjectBoard: React.FC = () => {
             {/* Title & Status */}
             <div className={projectboardClasses.headerTitleWrapper}>
               <div className={projectboardClasses.headerMenuWrapper}>
-                <Dropdown
-                  trigger={
-                    <div className={projectboardClasses.headerTitleClickable}>
-                      <h1 className={projectboardClasses.headerTitle}>{activeProject?.name || "No Projects"}</h1>
-                    </div>
-                  }
-                  items={[
-                    { key: 'switch-header', label: 'Switch Project', header: true },
-                    ...projects.map(p => ({
-                      key: p.id,
-                      label: (
-                        <div className="flex items-center justify-between w-full">
-                          <span className={projectboardClasses.dropdownItemText}>{p.name}</span>
-                          {activeProject?.id === p.id && <Check size={14} />}
-                        </div>
-                      ),
-                      onClick: () => handleSwitchProject(p)
-                    })),
-                    { key: 'div1', divider: true } as DropdownItem,
-                    {
-                      key: 'create-new',
-                      label: 'Create New Project',
-                      icon: <Plus size={14} />,
-                      onClick: () => setIsCreateModalOpen(true)
-                    }
-                  ]}
-                />
+                <div className={projectboardClasses.headerTitleClickable}>
+                  <h1 className={projectboardClasses.headerTitle}>{activeProject?.name || "No Projects"}</h1>
+                </div>
 
                 <Star className={projectboardClasses.starIcon} size={18} />
 
@@ -338,18 +357,69 @@ const ProjectBoard: React.FC = () => {
                 <span className={projectboardClasses.toolText}>Search</span>
               </div>
               <div className={projectboardClasses.toolDivider}></div>
-              <div className={projectboardClasses.toolItem}>
-                <Filter size={16} />
-                <span className={projectboardClasses.toolText}>Filter</span>
-              </div>
-              <div className={projectboardClasses.toolItem}>
-                <ArrowUpDown size={16} />
-                <span className={projectboardClasses.toolText}>Sort</span>
-              </div>
-              <div className={projectboardClasses.toolItem}>
-                <SlidersHorizontal size={16} />
-                <span className={projectboardClasses.toolText}>Fields</span>
-              </div>
+              <FilterControl
+                value={filterPriority}
+                onChange={setFilterPriority}
+                label="Filter"
+                options={[
+                  { key: 'all', label: 'All', value: null },
+                  { key: 'urgent', label: 'Urgent', value: 'URGENT' },
+                  { key: 'high', label: 'High', value: 'HIGH' },
+                  { key: 'medium', label: 'Medium', value: 'MEDIUM' },
+                  { key: 'low', label: 'Low', value: 'LOW' },
+                ]}
+              />
+              <SortControl
+                value={sortBy}
+                onChange={setSortBy}
+                options={[
+                  { key: 'newest', label: 'Newest' },
+                  { key: 'oldest', label: 'Oldest' },
+                  { key: 'alpha', label: 'A-Z' },
+                ]}
+              />
+              <Dropdown
+                align="right"
+                trigger={
+                  <div className={projectboardClasses.toolItem}>
+                    <SlidersHorizontal size={16} />
+                    <span className={projectboardClasses.toolText}>Fields</span>
+                  </div>
+                }
+                items={[
+                  { key: 'header', label: 'Toggle Columns', header: true },
+                  {
+                    key: 'assignee',
+                    label: (
+                      <div className="flex items-center justify-between w-full">
+                        <span>Assignee</span>
+                        {visibleFields.assignee ? <Eye size={14} className="text-blue-500" /> : <EyeOff size={14} className="text-gray-400" />}
+                      </div>
+                    ),
+                    onClick: () => toggleField('assignee')
+                  },
+                  {
+                    key: 'dueDate',
+                    label: (
+                      <div className="flex items-center justify-between w-full">
+                        <span>Due Date</span>
+                        {visibleFields.dueDate ? <Eye size={14} className="text-blue-500" /> : <EyeOff size={14} className="text-gray-400" />}
+                      </div>
+                    ),
+                    onClick: () => toggleField('dueDate')
+                  },
+                  {
+                    key: 'label',
+                    label: (
+                      <div className="flex items-center justify-between w-full">
+                        <span>Labels</span>
+                        {visibleFields.label ? <Eye size={14} className="text-blue-500" /> : <EyeOff size={14} className="text-gray-400" />}
+                      </div>
+                    ),
+                    onClick: () => toggleField('label')
+                  },
+                ]}
+              />
             </div>
           </div>
 
@@ -411,7 +481,7 @@ const ProjectBoard: React.FC = () => {
         }}
       />
 
-      <SearchPopup isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
+      <SearchPopup isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} showProjects={true} />
     </div>
   );
 };

@@ -21,13 +21,16 @@ import SearchPopup from "../../components/sidebar/SearchPopup";
 import type { SidebarProps, CreateProjectPayload } from "../../types";
 import { sidebarClasses } from "./sidebarStyle";
 
-import { useCreateProjectMutation } from "../../store/api/projectApiSlice";
+import { useCreateProjectMutation, useGetProjectsQuery } from "../../store/api/projectApiSlice";
+import { useGetTeamsQuery } from "../../store/api/teamApiSlice";
 import { showToast, getErrorMessage } from "../../components/ui";
 
 const Sidebar: React.FC<SidebarProps> = ({ open, onClose }) => {
 
   const { sections, isSettingsOpen, setIsSettingsOpen, toggleSection } = useSidebar();
   const [createProject] = useCreateProjectMutation();
+  const { data: projects = [] } = useGetProjectsQuery();
+  const { data: teams = [] } = useGetTeamsQuery();
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isCreateProjectOpen, setIsCreateProjectOpen] = useState(false);
@@ -123,10 +126,10 @@ const Sidebar: React.FC<SidebarProps> = ({ open, onClose }) => {
               Teamspaces
             </div>
 
-            {/* MOBILE APP */}
+            {/* Dynamic Teams Section */}
             <SidebarItem
-              label="Mobile app: design"
-              badge={<LetterIcon letter="M" />}
+              label="Teams"
+              badge={<LetterIcon letter="T" />}
               hasSubmenu
               isOpen={sections.mobileApp}
               onClick={() => toggleSection("mobileApp")}
@@ -134,19 +137,29 @@ const Sidebar: React.FC<SidebarProps> = ({ open, onClose }) => {
 
             {sections.mobileApp && (
               <>
-                <SidebarItem label="Intro" indent={3} />
-                <SidebarItem label="Team" indent={2} hasSubmenu to="/team" />
-                <SidebarItem label="Process" indent={3} />
-                <SidebarItem label="HR" indent={3} />
+                {teams.length > 0 ? (
+                  teams.map((team) => (
+                    <SidebarItem
+                      key={team.id}
+                      label={team.name}
+                      indent={3}
+                      to={`/team?teamId=${team.id}`}
+                    />
+                  ))
+                ) : (
+                  <div className="pl-6 py-2 text-xs text-gray-400 italic">
+                    No teams yet
+                  </div>
+                )}
               </>
             )}
 
             <div className={sidebarClasses.spacer} />
 
-            {/* DIADORA */}
+            {/* Dynamic Projects Section */}
             <SidebarItem
-              label="Diadora scoup"
-              badge={<LetterIcon letter="D" />}
+              label="Projects"
+              badge={<LetterIcon letter="P" />}
               hasSubmenu
               isOpen={sections.diadora}
               onClick={() => toggleSection("diadora")}
@@ -154,10 +167,20 @@ const Sidebar: React.FC<SidebarProps> = ({ open, onClose }) => {
 
             {sections.diadora && (
               <>
-                <SidebarItem label="Ideas and details" indent={3} />
-                <SidebarItem label="Project Board [2023]" indent={3} isActive to="/projectboard" />
-                <SidebarItem label="Design References" indent={3} />
-                <SidebarItem label="QA and review" indent={3} />
+                {projects.length > 0 ? (
+                  projects.map((project) => (
+                    <SidebarItem
+                      key={project.id}
+                      label={project.name}
+                      indent={3}
+                      to={`/projectboard?projectId=${project.id}`}
+                    />
+                  ))
+                ) : (
+                  <div className="pl-6 py-2 text-xs text-gray-400 italic">
+                    No projects yet
+                  </div>
+                )}
               </>
             )}
           </div>

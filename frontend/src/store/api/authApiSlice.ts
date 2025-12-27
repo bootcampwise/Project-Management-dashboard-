@@ -253,6 +253,15 @@ export const authApiSlice = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ["User"],
     }),
+
+    // ----------------------------------------
+    // GET ALL USERS - Fetch all registered users
+    // ----------------------------------------
+    // Usage: const { data: users } = useGetAllUsersQuery()
+    getAllUsers: builder.query<User[], void>({
+      query: () => "/users",
+      providesTags: ["User"],
+    }),
   }),
 });
 
@@ -277,4 +286,7 @@ export const {
 
   // Profile
   useUpdateProfileMutation,
+
+  // Users
+  useGetAllUsersQuery,
 } = authApiSlice;

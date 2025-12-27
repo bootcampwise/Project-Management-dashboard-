@@ -156,6 +156,7 @@ model Project {
   endDate     DateTime?
   progress    Float             @default(0)
   status      ProjectStatus     @default(ACTIVE)
+  priority    Priority          @default(MEDIUM)
 
   ownerId     String            @db.ObjectId
   owner       User              @relation("ProjectOwner", fields: [ownerId], references: [id])

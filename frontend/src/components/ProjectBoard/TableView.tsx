@@ -5,9 +5,11 @@ import { useTableView } from "../../pages/projectboard/hooks/useTableView";
 
 interface ExtendedTableViewProps extends TableViewProps {
   tasks?: Task[];
+  visibleFields?: Record<string, boolean>;
+  onAddTask?: (status: string) => void;
 }
 
-const TableView: React.FC<ExtendedTableViewProps> = ({ onTaskClick, tasks }) => {
+const TableView: React.FC<ExtendedTableViewProps> = ({ onTaskClick, tasks, visibleFields = { assignee: true, dueDate: true, label: true }, onAddTask }) => {
   const { groups, toggleGroup } = useTableView(tasks);
 
   return (
@@ -37,11 +39,13 @@ const TableView: React.FC<ExtendedTableViewProps> = ({ onTaskClick, tasks }) => 
           {!group.isCollapsed && (
             <div>
               {/* Column Headers */}
-              <div className="grid grid-cols-[1fr_180px_100px_180px_40px] gap-0 border-y border-gray-100 text-xs text-gray-500 font-normal bg-white sticky top-0 z-10">
+              <div className={`grid gap-0 border-y border-gray-100 text-xs text-gray-500 font-normal bg-white sticky top-0 z-10`}
+                style={{ gridTemplateColumns: `1fr ${visibleFields.assignee ? '180px ' : ''}${visibleFields.dueDate ? '100px ' : ''}${visibleFields.label ? '180px ' : ''}40px` }}
+              >
                 <div className="px-4 py-2 border-r border-gray-100">Name</div>
-                <div className="px-4 py-2 border-r border-gray-100">Assignee</div>
-                <div className="px-4 py-2 border-r border-gray-100">Due date</div>
-                <div className="px-4 py-2 border-r border-gray-100">Label</div>
+                {visibleFields.assignee && <div className="px-4 py-2 border-r border-gray-100">Assignee</div>}
+                {visibleFields.dueDate && <div className="px-4 py-2 border-r border-gray-100">Due date</div>}
+                {visibleFields.label && <div className="px-4 py-2 border-r border-gray-100">Label</div>}
                 <div className="py-2"></div>
               </div>
 
@@ -51,7 +55,8 @@ const TableView: React.FC<ExtendedTableViewProps> = ({ onTaskClick, tasks }) => 
                   group.tasks.map((task) => (
                     <div
                       key={task.id}
-                      className="grid grid-cols-[1fr_180px_100px_180px_40px] gap-0 hover:bg-gray-50 group/row text-[13px] cursor-pointer items-center border-b border-gray-100 transition-colors h-10"
+                      className={`grid gap-0 hover:bg-gray-50 group/row text-[13px] cursor-pointer items-center border-b border-gray-100 transition-colors h-10`}
+                      style={{ gridTemplateColumns: `1fr ${visibleFields.assignee ? '180px ' : ''}${visibleFields.dueDate ? '100px ' : ''}${visibleFields.label ? '180px ' : ''}40px` }}
                       onClick={() => onTaskClick && onTaskClick(task)}
                     >
                       {/* Name Column */}
@@ -83,45 +88,51 @@ const TableView: React.FC<ExtendedTableViewProps> = ({ onTaskClick, tasks }) => 
                       </div>
 
                       {/* Assignee Column */}
-                      <div className="flex items-center gap-2 h-full px-4 border-r border-gray-100">
-                        {!task.assignee || task.assignee.name === 'Unassigned' || !task.assignee.name ? (
-                          <div className="flex items-center gap-2 group/assignee opacity-50 hover:opacity-100 transition-opacity">
-                            <div className="w-5 h-5 rounded-full bg-white border border-gray-300 border-dashed flex items-center justify-center text-gray-400 hover:border-gray-400 transition-colors">
-                              <User size={10} />
+                      {visibleFields.assignee && (
+                        <div className="flex items-center gap-2 h-full px-4 border-r border-gray-100">
+                          {!task.assignee || task.assignee.name === 'Unassigned' || !task.assignee.name ? (
+                            <div className="flex items-center gap-2 group/assignee opacity-50 hover:opacity-100 transition-opacity">
+                              <div className="w-5 h-5 rounded-full bg-white border border-gray-300 border-dashed flex items-center justify-center text-gray-400 hover:border-gray-400 transition-colors">
+                                <User size={10} />
+                              </div>
                             </div>
-                          </div>
-                        ) : task.assignee.avatar ? (
-                          <div className="flex items-center gap-2">
-                            <img src={task.assignee.avatar} alt={task.assignee.name} className="w-5 h-5 rounded-full object-cover" />
-                            <span className="truncate text-gray-700">{task.assignee.name}</span>
-                          </div>
-                        ) : (
-                          <div className="flex items-center gap-2">
-                            <div className="w-5 h-5 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-[9px] font-bold border border-blue-200">
-                              {task.assignee.name.charAt(0)}
+                          ) : task.assignee.avatar ? (
+                            <div className="flex items-center gap-2">
+                              <img src={task.assignee.avatar} alt={task.assignee.name} className="w-5 h-5 rounded-full object-cover" />
+                              <span className="truncate text-gray-700">{task.assignee.name}</span>
                             </div>
-                            <span className="truncate text-gray-700">{task.assignee.name}</span>
-                          </div>
-                        )}
-                      </div>
+                          ) : (
+                            <div className="flex items-center gap-2">
+                              <div className="w-5 h-5 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-[9px] font-bold border border-blue-200">
+                                {task.assignee.name.charAt(0)}
+                              </div>
+                              <span className="truncate text-gray-700">{task.assignee.name}</span>
+                            </div>
+                          )}
+                        </div>
+                      )}
 
                       {/* Due Date Column */}
-                      <div className="text-gray-500 h-full flex items-center px-4 border-r border-gray-100">
-                        {task.dueDate ? new Date(task.dueDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : ''}
-                      </div>
+                      {visibleFields.dueDate && (
+                        <div className="text-gray-500 h-full flex items-center px-4 border-r border-gray-100">
+                          {task.dueDate ? new Date(task.dueDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : ''}
+                        </div>
+                      )}
 
                       {/* Label Column */}
-                      <div className="flex items-center gap-1.5 h-full px-4 border-r border-gray-100 overflow-hidden">
-                        {task.labels.map((label, idx) => {
-                          const bgClass = label.bg && label.bg.length > 2 ? label.bg : 'bg-gray-100';
-                          const textClass = label.color && label.color.length > 2 ? label.color : 'text-gray-600';
-                          return (
-                            <span key={idx} className={`px-2 py-0.5 rounded-[3px] text-[11px] font-medium leading-none ${bgClass} ${textClass} opacity-90 whitespace-nowrap`}>
-                              {label.text}
-                            </span>
-                          );
-                        })}
-                      </div>
+                      {visibleFields.label && (
+                        <div className="flex items-center gap-1.5 h-full px-4 border-r border-gray-100 overflow-hidden">
+                          {task.labels.map((label, idx) => {
+                            const bgClass = label.bg && label.bg.length > 2 ? label.bg : 'bg-gray-100';
+                            const textClass = label.color && label.color.length > 2 ? label.color : 'text-gray-600';
+                            return (
+                              <span key={idx} className={`px-2 py-0.5 rounded-[3px] text-[11px] font-medium leading-none ${bgClass} ${textClass} opacity-90 whitespace-nowrap`}>
+                                {label.text}
+                              </span>
+                            );
+                          })}
+                        </div>
+                      )}
 
                       {/* Add/Actions Column */}
                       <div className="flex justify-center items-center h-full">
@@ -139,7 +150,10 @@ const TableView: React.FC<ExtendedTableViewProps> = ({ onTaskClick, tasks }) => 
               </div>
 
               {/* Add Task Row */}
-              <button className="flex items-center gap-2 text-gray-400 hover:text-gray-600 py-1.5 items-center px-4 text-[13px] group/add w-full text-left transition-colors -mt-px relative z-[1]">
+              <button
+                className="flex items-center gap-2 text-gray-400 hover:text-gray-600 py-1.5 items-center px-4 text-[13px] group/add w-full text-left transition-colors -mt-px relative z-[1]"
+                onClick={() => onAddTask && onAddTask(group.id)}
+              >
                 <Plus size={14} className="group-hover/add:text-blue-500 transition-colors" />
                 <span className="group-hover/add:text-gray-800 transition-colors">Add task...</span>
               </button>

@@ -17,7 +17,8 @@ const TaskCard: React.FC<TaskCardComponentProps> = ({
   date,
   onClick,
   onEdit,
-  onDelete
+  onDelete,
+  visibleFields = { assignee: true, dueDate: true, label: true }
 }) => {
 
   // Format date to "MMM D, YYYY" or similar compact format
@@ -91,57 +92,65 @@ const TaskCard: React.FC<TaskCardComponentProps> = ({
       )}
 
       {/* Assignees */}
-      <div className="mb-4">
-        <div className="flex items-center">
-          <span className="text-xs text-gray-400 mr-2 font-medium">Assignee:</span>
-          <div className="flex -space-x-2">
-            {displayAssignees.length > 0 ? (
-              displayAssignees.slice(0, 3).map((a, i) => (
-                <div
-                  key={i}
-                  className="w-6 h-6 rounded-full border-2 border-white overflow-hidden bg-gray-100 flex items-center justify-center text-[9px] font-bold text-gray-500"
-                  title={a.name}
-                >
-                  {a.avatar ? (
-                    <img src={a.avatar} alt={a.name} className="w-full h-full object-cover" />
-                  ) : (
-                    (a.name || 'U')[0].toUpperCase()
-                  )}
+      {visibleFields.assignee !== false && (
+        <div className="mb-4">
+          <div className="flex items-center">
+            <span className="text-xs text-gray-400 mr-2 font-medium">Assignee:</span>
+            <div className="flex -space-x-2">
+              {displayAssignees.length > 0 ? (
+                displayAssignees.slice(0, 3).map((a, i) => (
+                  <div
+                    key={i}
+                    className="w-6 h-6 rounded-full border-2 border-white overflow-hidden bg-gray-100 flex items-center justify-center text-[9px] font-bold text-gray-500"
+                    title={a.name}
+                  >
+                    {a.avatar ? (
+                      <img src={a.avatar} alt={a.name} className="w-full h-full object-cover" />
+                    ) : (
+                      (a.name || 'U')[0].toUpperCase()
+                    )}
+                  </div>
+                ))
+              ) : (
+                <div className="w-6 h-6 rounded-full border-2 border-white border-dashed bg-gray-50 flex items-center justify-center">
+                  <span className="text-gray-300 text-[10px]">?</span>
                 </div>
-              ))
-            ) : (
-              <div className="w-6 h-6 rounded-full border-2 border-white border-dashed bg-gray-50 flex items-center justify-center">
-                <span className="text-gray-300 text-[10px]">?</span>
-              </div>
-            )}
-            {displayAssignees.length > 3 && (
-              <div className="w-6 h-6 rounded-full border-2 border-white bg-gray-100 flex items-center justify-center text-[9px] font-medium text-gray-500">
-                +{displayAssignees.length - 3}
-              </div>
-            )}
+              )}
+              {displayAssignees.length > 3 && (
+                <div className="w-6 h-6 rounded-full border-2 border-white bg-gray-100 flex items-center justify-center text-[9px] font-medium text-gray-500">
+                  +{displayAssignees.length - 3}
+                </div>
+              )}
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* Date and Priority Row */}
-      <div className="flex items-center justify-between mb-4">
-        {/* Date */}
-        <div className="flex items-center gap-1.5 text-gray-400">
-          <Flag size={14} className="stroke-current" />
-          <span className="text-xs font-medium">
-            {date ? formatDate(date) : 'No date'}
-          </span>
-        </div>
+      {(visibleFields.dueDate !== false || visibleFields.label !== false) && (
+        <div className="flex items-center justify-between mb-4">
+          {/* Date */}
+          {visibleFields.dueDate !== false && (
+            <div className="flex items-center gap-1.5 text-gray-400">
+              <Flag size={14} className="stroke-current" />
+              <span className="text-xs font-medium">
+                {date ? formatDate(date) : 'No date'}
+              </span>
+            </div>
+          )}
 
-        {/* Priority Badge */}
-        <Badge variant={
-          priority?.toUpperCase() === 'URGENT' || priority?.toUpperCase() === 'HIGH' ? 'danger' :
-            priority?.toUpperCase() === 'LOW' ? 'success' :
-              priority?.toUpperCase() === 'MEDIUM' ? 'warning' : 'default'
-        } size="sm" className="font-bold uppercase tracking-wider">
-          {priority || 'Medium'}
-        </Badge>
-      </div>
+          {/* Priority Badge */}
+          {visibleFields.label !== false && (
+            <Badge variant={
+              priority?.toUpperCase() === 'URGENT' || priority?.toUpperCase() === 'HIGH' ? 'danger' :
+                priority?.toUpperCase() === 'LOW' ? 'success' :
+                  priority?.toUpperCase() === 'MEDIUM' ? 'warning' : 'default'
+            } size="sm" className="font-bold uppercase tracking-wider">
+              {priority || 'Medium'}
+            </Badge>
+          )}
+        </div>
+      )}
 
       {/* Footer Stats */}
       <div className="flex items-center gap-4 border-t border-gray-50 pt-3">

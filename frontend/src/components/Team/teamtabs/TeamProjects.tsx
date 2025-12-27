@@ -1,17 +1,7 @@
 import React from 'react';
 import { Badge } from "../../ui";
 import { format } from "date-fns";
-
-// Use a local interface to avoid circular deps if needed, or import Project from types
-interface Project {
-    id: string;
-    name: string;
-    status?: string;
-    priority?: string;
-    progress?: number;
-    startDate?: string;
-    endDate?: string;
-}
+import type { Project } from "../../../types";
 
 interface TeamProjectsProps {
     projects: Project[];
@@ -31,67 +21,123 @@ const TeamProjects: React.FC<TeamProjectsProps> = ({ projects }) => {
     return (
         <div className="flex flex-col h-full bg-white">
             {/* Table Header */}
-            <div className="grid grid-cols-[2fr_1fr_1.5fr_1fr_1fr] gap-4 px-4 py-3 text-xs font-semibold text-gray-500 border-b border-gray-200 bg-gray-50">
+            <div className="grid grid-cols-[2fr_1fr_1.5fr_1fr_1fr_1.5fr] gap-4 px-6 py-4 text-xs font-semibold text-gray-500 bg-gray-50/50 border-b border-gray-100">
                 <div>Name</div>
                 <div>Status</div>
-                <div>Progress</div>
-                <div>Start Date</div>
-                <div>End Date</div>
+                <div>Task progress</div>
+                <div>Due date</div>
+                <div>Priority</div>
+                <div>Members</div>
             </div>
 
             {/* Table Rows */}
             <div className="divide-y divide-gray-100">
                 {projects.map((project) => {
-                    const status = project.status || "ACTIVE";
-                    // We removed priority from selection, so don't render it or use default
-                    const progress = project.progress ? Math.round(project.progress) : 0;
+                    // Normalize status for display matching the image
+                    let statusDisplay = project.status || "On track";
+                    // Map backend status to UI status if needed, or assume backend provides correct strings
+                    // Example mapping (adjust as needed based on actual backend data):
+                    if (statusDisplay === "ACTIVE") statusDisplay = "On track";
+                    if (statusDisplay === "ON_HOLD") statusDisplay = "On hold";
+                    if (statusDisplay === "COMPLETED") statusDisplay = "Completed";
+
+                    const completed = project.completedTasks || 0;
+                    const total = project.totalTasks || 0;
+                    const progress = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+                    const priority = project.priority || "MEDIUM";
 
                     return (
-                        <div key={project.id} className="grid grid-cols-[2fr_1fr_1.5fr_1fr_1fr] gap-4 px-4 py-3 hover:bg-gray-50 cursor-pointer items-center text-sm transition-colors border-b border-gray-100 last:border-0">
+                        <div key={project.id} className="grid grid-cols-[2fr_1fr_1.5fr_1fr_1fr_1.5fr] gap-4 px-6 py-4 hover:bg-gray-50 cursor-pointer items-center text-sm transition-colors">
                             <div className="min-w-0">
-                                <div className="flex items-center gap-3">
-                                    <span className="text-gray-700 font-medium truncate">
-                                        {project.name}
-                                    </span>
-                                </div>
+                                <span className="text-gray-700 font-medium truncate text-[15px]">
+                                    {project.name}
+                                </span>
                             </div>
+
+                            {/* Status */}
                             <div>
                                 <Badge
-                                    variant={
-                                        status === "ACTIVE" ? "success" :
-                                            status === "ON_HOLD" ? "warning" :
-                                                status === "COMPLETED" ? "primary" : "default"
-                                    }
-                                    className="gap-1.5"
+                                    variant="default"
+                                    className={`
+                                        gap-2 px-3 py-1 rounded-full font-medium border-0
+                                        ${statusDisplay === "On track" ? "bg-green-100 text-green-700" :
+                                            statusDisplay === "At risk" ? "bg-orange-100 text-orange-700" :
+                                                statusDisplay === "On hold" ? "bg-blue-100 text-blue-700" :
+                                                    "bg-gray-100 text-gray-700"}
+                                    `}
                                 >
-                                    <span className={`w-1.5 h-1.5 rounded-full ${status === "ACTIVE" ? "bg-green-600" :
-                                        status === "ON_HOLD" ? "bg-orange-600" :
-                                            status === "COMPLETED" ? "bg-blue-600" : "bg-gray-500"
-                                        }`} />
-                                    {status}
+                                    <span className={`w-1.5 h-1.5 rounded-full 
+                                        ${statusDisplay === "On track" ? "bg-green-600" :
+                                            statusDisplay === "At risk" ? "bg-orange-600" :
+                                                statusDisplay === "On hold" ? "bg-blue-600" :
+                                                    "bg-gray-500"}
+                                    `} />
+                                    {statusDisplay}
                                 </Badge>
                             </div>
+
+                            {/* Progress */}
                             <div>
-                                <div className="flex items-center gap-3">
-                                    <div className="flex-1 h-1.5 bg-blue-100 rounded-full overflow-hidden min-w-[60px]">
+                                <div className="flex items-center gap-3 w-full max-w-[180px]">
+                                    <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
                                         <div
                                             className="h-full bg-blue-500 rounded-full"
                                             style={{ width: `${progress}%` }}
                                         />
                                     </div>
-                                    <span className="text-xs text-gray-500 font-normal">
+                                    <span className="text-xs text-gray-500 font-medium min-w-[30px]">
                                         {progress}%
                                     </span>
                                 </div>
                             </div>
+
+                            {/* Due Date */}
                             <div>
-                                <div className="text-xs text-gray-500">
-                                    {formatDate(project.startDate)}
+                                <div className="text-gray-500 text-[13px]">
+                                    {formatDate(project.endDate)}
                                 </div>
                             </div>
+
+                            {/* Priority */}
                             <div>
-                                <div className="text-xs text-gray-500">
-                                    {formatDate(project.endDate)}
+                                <span className={`
+                                    px-3 py-1 rounded text-xs font-medium
+                                    ${priority === 'HIGH' || priority === 'URGENT' ? 'bg-red-50 text-red-600' :
+                                        priority === 'MEDIUM' ? 'bg-orange-50 text-orange-600' :
+                                            'bg-green-50 text-green-600'}
+                                `}>
+                                    {priority.charAt(0) + priority.slice(1).toLowerCase()}
+                                </span>
+                            </div>
+
+                            {/* Members */}
+                            <div>
+                                <div className="flex -space-x-2">
+                                    {(project.members || []).slice(0, 5).map((member, i) => (
+                                        <div
+                                            key={i}
+                                            className="w-8 h-8 rounded-full border-2 border-white overflow-hidden relative"
+                                            title={member.name}
+                                        >
+                                            {member.avatar ? (
+                                                <img
+                                                    src={member.avatar}
+                                                    alt={member.name}
+                                                    className="w-full h-full object-cover"
+                                                />
+                                            ) : (
+                                                <div className="w-full h-full bg-gray-200 flex items-center justify-center text-xs text-gray-600 font-medium">
+                                                    {member.name.charAt(0)}
+                                                </div>
+                                            )}
+                                        </div>
+                                    ))}
+                                    {(project.members?.length || 0) > 5 && (
+                                        <div className="w-8 h-8 rounded-full border-2 border-white bg-gray-100 flex items-center justify-center text-xs text-gray-500 font-medium">
+                                            +{project.members!.length - 5}
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </div>

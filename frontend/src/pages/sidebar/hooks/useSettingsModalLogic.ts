@@ -4,6 +4,7 @@ import {
   useGetSessionQuery,
   useUpdateProfileMutation,
   useLogoutMutation,
+  useGetAllUsersQuery,
 } from "../../../store/api/authApiSlice";
 import { useGetTeamsQuery } from "../../../store/api/teamApiSlice";
 import { useUploadFileMutation } from "../../../store/api/storageApiSlice";
@@ -16,6 +17,8 @@ export const useSettingsModalLogic = (
   const navigate = useNavigate();
   // Get user from RTK Query
   const { data: user } = useGetSessionQuery();
+  // Get all users from RTK Query
+  const { data: allUsers = [] } = useGetAllUsersQuery();
   // Get teams from RTK Query
   const { data: teams = [] } = useGetTeamsQuery();
   const [uploadFile] = useUploadFileMutation();
@@ -124,6 +127,7 @@ export const useSettingsModalLogic = (
 
   return {
     user,
+    allUsers,
     activeTab,
     formData,
     uploading,

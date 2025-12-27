@@ -134,6 +134,7 @@ export interface BoardViewProps {
   tasks: Task[];
   onTaskClick?: (task: Task) => void;
   onAddTask?: (status: string) => void;
+  visibleFields?: Record<string, boolean>;
 }
 
 export interface BoardColumn {
@@ -284,6 +285,7 @@ export interface TaskCardComponentProps {
   onClick?: () => void;
   onEdit?: () => void;
   onDelete?: () => void;
+  visibleFields?: Record<string, boolean>;
 }
 
 export interface Project {
@@ -312,6 +314,8 @@ export interface Project {
   priority?: "LOW" | "MEDIUM" | "HIGH" | "URGENT";
   createdAt?: string;
   updatedAt?: string;
+  completedTasks?: number;
+  totalTasks?: number;
 }
 
 export interface CreateProjectPayload {
@@ -368,11 +372,16 @@ export interface Team {
   members?: TeamMember[];
   projects?: {
     id: string;
+    key: string;
     name: string;
     status?: string;
     progress?: number;
     startDate?: string;
     endDate?: string;
+    completedTasks?: number;
+    totalTasks?: number;
+    priority?: "LOW" | "MEDIUM" | "HIGH" | "URGENT";
+    members?: { id: string; name: string; avatar?: string }[];
   }[];
   status?: string;
   priority?: string;
@@ -498,11 +507,13 @@ export interface BoardColumnProps {
   onAddTask?: (status: string) => void;
   onToggle?: () => void;
   onHide?: () => void;
+  visibleFields?: Record<string, boolean>;
 }
 
 export interface TeamTableViewProps {
   projectId?: string;
   filteredTeamId?: string;
+  sortBy?: "newest" | "oldest" | "alpha";
 }
 
 // ============================================

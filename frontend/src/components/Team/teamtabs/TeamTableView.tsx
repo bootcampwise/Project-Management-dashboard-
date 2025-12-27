@@ -3,7 +3,7 @@ import { useTeamTableView } from "../../../pages/team/hooks/useTeamTableView";
 import type { TeamTableViewProps } from '../../../types';
 import { Badge } from "../../ui";
 
-const TeamTableView: React.FC<TeamTableViewProps> = ({ filteredTeamId }) => {
+const TeamTableView: React.FC<TeamTableViewProps> = ({ filteredTeamId, sortBy = 'newest' }) => {
   const {
     allTeams,
     isLoading,
@@ -17,6 +17,18 @@ const TeamTableView: React.FC<TeamTableViewProps> = ({ filteredTeamId }) => {
   if (filteredTeamId) {
     teamsToDisplay = teamsToDisplay.filter((t: any) => t.id === filteredTeamId);
   }
+
+  // Apply sorting
+  teamsToDisplay = [...teamsToDisplay].sort((a, b) => {
+    if (sortBy === 'alpha') {
+      return (a.name || '').localeCompare(b.name || '');
+    }
+    if (sortBy === 'oldest') {
+      return new Date(a.createdAt || 0).getTime() - new Date(b.createdAt || 0).getTime();
+    }
+    // newest (default)
+    return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime();
+  });
 
   if (isLoading && teamsToDisplay.length === 0) {
     return <div className="p-8 text-center text-gray-500">Loading teams...</div>;

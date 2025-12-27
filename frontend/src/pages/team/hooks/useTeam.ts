@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { useSearchParams } from "react-router-dom";
 import {
   useGetAllTeamsQuery,
   useDeleteTeamMutation,
@@ -13,6 +14,9 @@ export const useTeam = () => {
     useGetAllTeamsQuery();
   const [deleteTeam] = useDeleteTeamMutation();
 
+  // URL Params
+  const [searchParams, setSearchParams] = useSearchParams();
+
   // Local state
   const [sidebarOpen, setSidebarOpen] = useState(window.innerWidth >= 768);
   const [activeTab, setActiveTab] = useState("Teams");
@@ -25,16 +29,30 @@ export const useTeam = () => {
   const [isMenuDropdownOpen, setIsMenuDropdownOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  // Set default team on load
-  // We keep default selection logic, but ensure 'activeTeam' drives the tabs
+  // Set default team on load or from URL
   useEffect(() => {
-    if (!teamsLoading && allTeams.length > 0 && !hasInitializedTeam) {
-      setActiveTeam(allTeams[0]);
-      setHasInitializedTeam(true);
+    if (!teamsLoading && allTeams.length > 0) {
+      const teamIdFromUrl = searchParams.get("teamId");
+
+      if (teamIdFromUrl) {
+        const foundTeam = allTeams.find((t) => t.id === teamIdFromUrl);
+        if (foundTeam) {
+          setActiveTeam(foundTeam);
+          setHasInitializedTeam(true);
+          return;
+        }
+      }
+
+      // If no URL param or team not found, and not yet initialized, behave as before
+      // (or decided logic: if we want default first team?)
+      if (!hasInitializedTeam && !teamIdFromUrl) {
+        setActiveTeam(allTeams[0]);
+        setHasInitializedTeam(true);
+      }
     } else if (!teamsLoading && allTeams.length === 0 && !hasInitializedTeam) {
       setHasInitializedTeam(true);
     }
-  }, [allTeams, teamsLoading, hasInitializedTeam]);
+  }, [allTeams, teamsLoading, hasInitializedTeam, searchParams]);
 
   // Handle window resize
   useEffect(() => {
@@ -80,7 +98,11 @@ export const useTeam = () => {
 
   const handleSwitchTeam = (team: Team | null) => {
     setActiveTeam(team);
-    // When switching team, useEffect above handles tab reset if needed
+    if (team) {
+      setSearchParams({ teamId: team.id });
+    } else {
+      setSearchParams({});
+    }
   };
 
   const handleOpenCreateTeamModal = () => {
@@ -99,6 +121,7 @@ export const useTeam = () => {
       showToast.success("Team deleted successfully");
       if (activeTeam?.id === id) {
         setActiveTeam(null);
+        setSearchParams({});
       }
       setIsMenuDropdownOpen(false);
     } catch (error) {

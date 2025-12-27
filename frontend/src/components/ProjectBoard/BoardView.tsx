@@ -6,7 +6,7 @@ import BoardColumn from './BoardColumn';
 import type { BoardViewProps, Task } from '../../types';
 import { useBoardView } from "../../pages/projectboard/hooks/useBoardView";
 
-const BoardView: React.FC<BoardViewProps> = ({ tasks, onTaskClick, onAddTask }) => {
+const BoardView: React.FC<BoardViewProps> = ({ tasks, onTaskClick, onAddTask, visibleFields }) => {
   const {
     visibleColumns,
     hiddenColumns,
@@ -40,6 +40,7 @@ const BoardView: React.FC<BoardViewProps> = ({ tasks, onTaskClick, onAddTask }) 
               onAddTask={onAddTask}
               onToggle={() => handleToggleColumn(col.id)}
               onHide={() => handleHideColumn(col.id)}
+              visibleFields={visibleFields}
             />
           </div>
         ))}

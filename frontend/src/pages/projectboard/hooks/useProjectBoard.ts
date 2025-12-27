@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../../store/hooks";
 import {
   setActiveProject,
@@ -34,7 +34,10 @@ import {
 import { useGetSessionQuery } from "../../../store/api/authApiSlice";
 
 export const useProjectBoard = () => {
-  const { projectId } = useParams();
+  const { projectId: routeProjectId } = useParams();
+  const [searchParams] = useSearchParams();
+  const queryProjectId = searchParams.get("projectId");
+  const projectId = routeProjectId || queryProjectId; // Support both route and query params
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
 

@@ -1,5 +1,7 @@
+import { boolean } from "zod";
 import { prisma } from "../config/prisma";
 import { calculateTeamProgress } from "../utils/taskProgress";
+import { TaskStatus } from "@prisma/client";
 
 export class TeamRepository {
   async create(data: {
@@ -69,7 +71,7 @@ export class TeamRepository {
   }
 
   async findAll() {
-    return prisma.team.findMany({
+    const teams = await prisma.team.findMany({
       include: {
         members: {
           select: {
@@ -87,6 +89,20 @@ export class TeamRepository {
             startDate: true,
             endDate: true,
             progress: true,
+            priority: true,
+            tasks: {
+              select: {
+                status: true,
+              },
+            },
+            members: {
+              // Fetch project members for the UI
+              select: {
+                id: true,
+                name: true,
+                avatar: true,
+              },
+            },
           },
         },
       },
@@ -94,6 +110,26 @@ export class TeamRepository {
         createdAt: "desc",
       },
     });
+
+    // Transform and calculate task counts
+    return teams.map((team: any) => ({
+      ...team,
+      projects: team.projects.map((project: any) => {
+        const totalTasks = project.tasks.length;
+        const completedTasks = project.tasks.filter(
+          (t: any) => t.status === TaskStatus.COMPLETED
+        ).length;
+
+        // Remove the raw tasks array from the output if desired, or keep it.
+        // We'll return a clean object matching the expected specific structure + new fields
+        const { tasks, ...projectData } = project;
+        return {
+          ...projectData,
+          totalTasks,
+          completedTasks,
+        };
+      }),
+    }));
   }
 
   async update(
@@ -234,7 +270,7 @@ export class TeamRepository {
         });
 
         if (team && !team.projectIds.includes(project.id)) {
-          // Add project to team's projectIds
+          // Add project to tea
           await prisma.team.update({
             where: { id: teamId },
             data: {

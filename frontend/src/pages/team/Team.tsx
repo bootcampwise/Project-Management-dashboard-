@@ -9,10 +9,6 @@ import {
   Share2,
   ChevronDown,
   Search,
-  Filter,
-  ArrowUpDown,
-  Check,
-  Plus,
   Trash2,
   Pencil,
 } from "lucide-react";
@@ -27,9 +23,10 @@ import {
   showToast,
   Button,
   Dropdown,
-  type DropdownItem,
   TeamPageSkeleton,
 } from "../../components/ui";
+import SortControl from "../../components/ui/SortControl";
+import FilterControl from "../../components/ui/FilterControl";
 
 const Team: React.FC = () => {
   const {
@@ -47,7 +44,6 @@ const Team: React.FC = () => {
     teamsLoading,
 
     menuRef,
-    handleSwitchTeam,
     handleDeleteTeam,
     handleToggleTeamFavorite,
     handleOpenCreateTeamModal,
@@ -55,6 +51,44 @@ const Team: React.FC = () => {
     teamToEdit,
     teamFiles, // Destructure the file hook data
   } = useTeam();
+
+  // Local filter/sort state for Team page
+  const [sortBy, setSortBy] = React.useState<'newest' | 'oldest' | 'alpha'>('newest');
+  const [filterPriority, setFilterPriority] = React.useState<string | null>(null);
+
+  // Sort projects based on sortBy
+  const sortedProjects = React.useMemo(() => {
+    const projects = [...(activeTeam?.projects || [])];
+    return projects.sort((a, b) => {
+      if (sortBy === 'alpha') {
+        return (a.name || '').localeCompare(b.name || '');
+      }
+      if (sortBy === 'oldest') {
+        return new Date(a.startDate || 0).getTime() - new Date(b.startDate || 0).getTime();
+      }
+      // newest (default)
+      return new Date(b.startDate || 0).getTime() - new Date(a.startDate || 0).getTime();
+    });
+  }, [activeTeam?.projects, sortBy]);
+
+  // Sort members based on sortBy
+  const sortedMembers = React.useMemo(() => {
+    const displayMembers = activeTeam
+      ? (activeTeam.members || [])
+      : Array.from(
+        new Map(
+          allTeams.flatMap(t => t.members || []).map(m => [m.id, m])
+        ).values()
+      );
+
+    return [...displayMembers].sort((a, b) => {
+      if (sortBy === 'alpha') {
+        return (a.name || '').localeCompare(b.name || '');
+      }
+      // For members, newest/oldest can use position or just keep current order
+      return 0;
+    });
+  }, [activeTeam, allTeams, sortBy]);
 
   // Show full page skeleton if initial loading
   if (teamsLoading) {
@@ -92,45 +126,10 @@ const Team: React.FC = () => {
             {/* Title & Status */}
             <div className={teamClasses.headerTitleWrapper}>
               <div className={teamClasses.headerMenuWrapper} ref={menuRef}>
-                {/* Team Switcher Dropdown */}
-                <Dropdown
-                  trigger={
-                    <div className={teamClasses.headerTitleClickable}>
-                      <h1 className={teamClasses.headerTitle}>{activeTeam?.name || "All Teams"}</h1>
-                      <ChevronDown size={16} className={teamClasses.chevronIcon(false)} />
-                    </div>
-                  }
-                  items={[
-                    { key: 'header', label: 'Switch Team', header: true },
-                    {
-                      key: 'all-teams',
-                      label: (
-                        <div className="flex items-center justify-between w-full">
-                          <span className={teamClasses.dropdownItemText}>All Teams</span>
-                          {!activeTeam && <Check size={14} />}
-                        </div>
-                      ),
-                      onClick: () => handleSwitchTeam(null)
-                    },
-                    ...allTeams.map(t => ({
-                      key: t.id,
-                      label: (
-                        <div className="flex items-center justify-between w-full">
-                          <span className={teamClasses.dropdownItemText}>{t.name}</span>
-                          {activeTeam?.id === t.id && <Check size={14} />}
-                        </div>
-                      ),
-                      onClick: () => handleSwitchTeam(t)
-                    })),
-                    { key: 'div1', divider: true } as DropdownItem,
-                    {
-                      key: 'create',
-                      label: 'Create New Team',
-                      icon: <Plus size={14} />,
-                      onClick: handleOpenCreateTeamModal
-                    }
-                  ]}
-                />
+                {/* Team Title (Static) */}
+                <div className={teamClasses.headerTitleClickable}>
+                  <h1 className={teamClasses.headerTitle}>{activeTeam?.name || "All Teams"}</h1>
+                </div>
 
                 {activeTeam && (
                   <>
@@ -257,33 +256,40 @@ const Team: React.FC = () => {
                 <span className={teamClasses.toolText}>Search</span>
               </div>
               <div className={teamClasses.toolDivider}></div>
-              <div className={teamClasses.toolItem}>
-                <Filter size={16} />
-                <span className={teamClasses.toolText}>Filter</span>
-              </div>
-              <div className={teamClasses.toolItem}>
-                <ArrowUpDown size={16} />
-                <span className={teamClasses.toolText}>Sort</span>
-              </div>
+              <FilterControl
+                value={filterPriority}
+                onChange={setFilterPriority}
+                label="Filters"
+                options={[
+                  { key: 'all', label: 'All', value: null },
+                  { key: 'urgent', label: 'Urgent', value: 'URGENT' },
+                  { key: 'high', label: 'High', value: 'HIGH' },
+                  { key: 'medium', label: 'Medium', value: 'MEDIUM' },
+                  { key: 'low', label: 'Low', value: 'LOW' },
+                ]}
+              />
+              <SortControl
+                value={sortBy}
+                onChange={setSortBy}
+                options={[
+                  { key: 'newest', label: 'Newest' },
+                  { key: 'oldest', label: 'Oldest' },
+                  { key: 'alpha', label: 'A-Z' },
+                ]}
+              />
             </div>
           </div>
 
           {/* Content Area */}
           <div className={teamClasses.contentArea}>
-            {activeTab === "Teams" && <TeamTableView filteredTeamId={activeTeam?.id} />}
-            {activeTab === "Projects" && <TeamProjects projects={activeTeam?.projects || []} />}
+            {activeTab === "Teams" && <TeamTableView filteredTeamId={activeTeam?.id} sortBy={sortBy} />}
+            {activeTab === "Projects" && <TeamProjects projects={sortedProjects} />}
             {activeTab === "Dashboard" && <TeamDashboard />}
-            {activeTab === "Members" && (() => {
-              const displayMembers = activeTeam
-                ? (activeTeam.members || [])
-                : Array.from(
-                  new Map(
-                    allTeams.flatMap(t => t.members || []).map(m => [m.id, m])
-                  ).values()
-                );
-
-              return <TeamMembers members={displayMembers} />;
-            })()}
+            {activeTab === "Members" && <TeamMembers
+              members={sortedMembers}
+              teamId={activeTeam?.id}
+              allMemberIds={activeTeam?.memberIds || activeTeam?.members?.map(m => String(m.id))}
+            />}
             {activeTab === "Files" && <TeamFiles
               allTeams={allTeams}
               {...teamFiles} // Pass all file-related props from the hook
@@ -292,7 +298,7 @@ const Team: React.FC = () => {
 
         </div>
       </main>
-      <SearchPopup isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
+      <SearchPopup isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} showProjects={false} />
       <CreateTeamModal isOpen={isCreateTeamModalOpen} onClose={() => setIsCreateTeamModalOpen(false)} teamToEdit={teamToEdit} />
     </div>
   );
