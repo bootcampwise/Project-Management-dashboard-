@@ -270,7 +270,7 @@ const Team: React.FC = () => {
               />
               <SortControl
                 value={sortBy}
-                onChange={setSortBy}
+                onChange={(value) => setSortBy(value as 'newest' | 'oldest' | 'alpha')}
                 options={[
                   { key: 'newest', label: 'Newest' },
                   { key: 'oldest', label: 'Oldest' },
@@ -283,7 +283,7 @@ const Team: React.FC = () => {
           {/* Content Area */}
           <div className={teamClasses.contentArea}>
             {activeTab === "Teams" && <TeamTableView filteredTeamId={activeTeam?.id} sortBy={sortBy} />}
-            {activeTab === "Projects" && <TeamProjects projects={sortedProjects} />}
+            {activeTab === "Projects" && <TeamProjects projects={sortedProjects} teamMembers={activeTeam?.members?.map(m => ({ id: String(m.id), name: m.name, avatar: m.avatar }))} />}
             {activeTab === "Dashboard" && <TeamDashboard />}
             {activeTab === "Members" && <TeamMembers
               members={sortedMembers}

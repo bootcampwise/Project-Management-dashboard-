@@ -8,10 +8,7 @@ import {
   type UpdateEventPayload,
 } from "../../../store/api/calendarApiSlice";
 import { showToast, getErrorMessage } from "../../../components/ui";
-
-interface UseTimelineViewProps {
-  projectId?: string;
-}
+import type { UseTimelineViewProps } from "../../../types";
 
 export const useTimelineView = ({ projectId }: UseTimelineViewProps = {}) => {
   const [events, setEvents] = useState<CalendarEvent[]>([]);

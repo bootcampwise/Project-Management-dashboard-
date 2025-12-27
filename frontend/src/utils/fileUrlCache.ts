@@ -4,10 +4,7 @@
 // Purpose: Cache signed URLs to avoid regenerating them on every click
 // URLs are cached for 5 minutes (300 seconds)
 
-type CacheItem = {
-  url: string;
-  expiresAt: number;
-};
+import type { CacheItem } from "../types";
 
 // Simple in-memory cache (no fancy data structures needed)
 const fileUrlCache: Record<string, CacheItem> = {};

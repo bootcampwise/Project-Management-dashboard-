@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
 import { Toaster } from "./components/ui";
+import { IMAGES } from "./constants/images";
 import Register from "./pages/register/Register";
 import Login from "./pages/login/Login";
 import WelcomeScreen from "./pages/welcome/Welcome";
@@ -15,7 +16,7 @@ function Home() {
     <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
       <div className="flex flex-col items-center gap-6 p-8 bg-white rounded-2xl shadow-xl">
         <img
-          src="/logo.png"
+          src={IMAGES.logo}
           alt="App Logo"
           className="w-[173px] h-[42px]"
         />

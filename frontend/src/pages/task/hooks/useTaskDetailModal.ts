@@ -5,10 +5,10 @@ import { useGetSessionQuery } from "../../../store/api/authApiSlice";
 import {
   useGetTaskQuery,
   useDeleteTaskMutation,
-  useAddSubtaskMutation,
-  useDeleteSubtaskMutation,
-  useToggleSubtaskMutation,
-  useAssignSubtaskMutation,
+  useAddSubTaskMutation,
+  useDeleteSubTaskMutation,
+  useToggleSubTaskMutation,
+  useAssignSubTaskMutation,
   useAddCommentMutation,
   useAddTagMutation,
   useAddAttachmentMutation,
@@ -42,10 +42,10 @@ export const useTaskDetailModal = ({
 
   // Mutations
   const [deleteTaskMutation] = useDeleteTaskMutation();
-  const [addSubtask] = useAddSubtaskMutation();
-  const [deleteSubtask] = useDeleteSubtaskMutation();
-  const [toggleSubtask] = useToggleSubtaskMutation();
-  const [assignSubtask] = useAssignSubtaskMutation();
+  const [addSubtask] = useAddSubTaskMutation();
+  const [deleteSubtask] = useDeleteSubTaskMutation();
+  const [toggleSubtask] = useToggleSubTaskMutation();
+  const [assignSubtask] = useAssignSubTaskMutation();
   const [addComment] = useAddCommentMutation();
   const [addTag] = useAddTagMutation();
   const [addAttachment] = useAddAttachmentMutation();

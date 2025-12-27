@@ -1,13 +1,7 @@
 import React from 'react';
 import { ChevronRight, ChevronDown, Plus, MoreHorizontal, CheckCircle2, MessageSquare, Paperclip, User } from 'lucide-react';
-import type { TableViewProps, Task } from '../../types';
+import type { ExtendedTableViewProps } from '../../types';
 import { useTableView } from "../../pages/projectboard/hooks/useTableView";
-
-interface ExtendedTableViewProps extends TableViewProps {
-  tasks?: Task[];
-  visibleFields?: Record<string, boolean>;
-  onAddTask?: (status: string) => void;
-}
 
 const TableView: React.FC<ExtendedTableViewProps> = ({ onTaskClick, tasks, visibleFields = { assignee: true, dueDate: true, label: true }, onAddTask }) => {
   const { groups, toggleGroup } = useTableView(tasks);

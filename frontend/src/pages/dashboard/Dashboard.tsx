@@ -13,9 +13,10 @@ import {
 } from "lucide-react";
 import { useDashboard } from "./hooks/useDashboard";
 import { dashboardClasses } from "./dashboardStyle";
+import { DashboardSkeleton } from "../../components/ui";
 
 const Dashboard: React.FC = () => {
-  const { sidebarOpen, setSidebarOpen } = useDashboard();
+  const { sidebarOpen, setSidebarOpen, isLoading } = useDashboard();
 
   return (
     <div className={dashboardClasses.container}>
@@ -34,81 +35,87 @@ const Dashboard: React.FC = () => {
       {/* Main content */}
       <main className={dashboardClasses.main}>
         <div className={dashboardClasses.mainContent(sidebarOpen)}>
-
-          {/* Page Header */}
-          <div className={dashboardClasses.header}>
-            <h1 className={dashboardClasses.title}>Dashboard</h1>
-          </div>
-
-          {/* Toolbar */}
-          <div className={dashboardClasses.toolbar}>
-            {/* Left: Filters */}
-            <div className={dashboardClasses.filtersWrapper}>
-              {/* All Projects Dropdown */}
-              <div className={dashboardClasses.projectsDropdown}>
-                <span className={dashboardClasses.dropdownText}>All Projects</span>
-                <ChevronDown size={16} />
+          {/* Show full skeleton while loading */}
+          {isLoading ? (
+            <DashboardSkeleton />
+          ) : (
+            <>
+              {/* Page Header */}
+              <div className={dashboardClasses.header}>
+                <h1 className={dashboardClasses.title}>Dashboard</h1>
               </div>
 
-              {/* Filters Button */}
-              <div className={dashboardClasses.filtersButton}>
-                <SlidersHorizontal size={16} />
-                <span className={dashboardClasses.filtersButtonText}>Filters</span>
-              </div>
-            </div>
+              {/* Toolbar */}
+              <div className={dashboardClasses.toolbar}>
+                {/* Left: Filters */}
+                <div className={dashboardClasses.filtersWrapper}>
+                  {/* All Projects Dropdown */}
+                  <div className={dashboardClasses.projectsDropdown}>
+                    <span className={dashboardClasses.dropdownText}>All Projects</span>
+                    <ChevronDown size={16} />
+                  </div>
 
-            {/* Right: Date & Time Range */}
-            <div className={dashboardClasses.rangeWrapper}>
-              {/* Date Display */}
-              <div className={dashboardClasses.dateDisplay}>
-                <Calendar size={16} />
-                <span className={dashboardClasses.dateText}>Aug 3, 2025</span>
-              </div>
+                  {/* Filters Button */}
+                  <div className={dashboardClasses.filtersButton}>
+                    <SlidersHorizontal size={16} />
+                    <span className={dashboardClasses.filtersButtonText}>Filters</span>
+                  </div>
+                </div>
 
-              {/* Range Selector */}
-              <div className={dashboardClasses.rangeSelector}>
-                {['D', 'W', 'M', '6M', 'Y'].map((range) => (
-                  <button
-                    key={range}
-                    className={dashboardClasses.rangeButton(range === 'M')}
-                  >
-                    {range}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
+                {/* Right: Date & Time Range */}
+                <div className={dashboardClasses.rangeWrapper}>
+                  {/* Date Display */}
+                  <div className={dashboardClasses.dateDisplay}>
+                    <Calendar size={16} />
+                    <span className={dashboardClasses.dateText}>Aug 3, 2025</span>
+                  </div>
 
-          {/* Content Section */}
-          <div className={dashboardClasses.contentSection}>
-            {/* Stats Grid */}
-            <div className={dashboardClasses.statsGridWrapper}>
-              <StatsGrid />
-            </div>
-
-            {/* Charts Section */}
-            <div className={dashboardClasses.chartsSection}>
-              {/* Completion Chart */}
-              <div className={dashboardClasses.completionChartWrapper}>
-                <CompletionChart />
+                  {/* Range Selector */}
+                  <div className={dashboardClasses.rangeSelector}>
+                    {['D', 'W', 'M', '6M', 'Y'].map((range) => (
+                      <button
+                        key={range}
+                        className={dashboardClasses.rangeButton(range === 'M')}
+                      >
+                        {range}
+                      </button>
+                    ))}
+                  </div>
+                </div>
               </div>
 
-              {/* Schedule Calendar */}
-              <div className={dashboardClasses.scheduleCalendarWrapper}>
-                <ScheduleCalendar />
-              </div>
+              {/* Content Section */}
+              <div className={dashboardClasses.contentSection}>
+                {/* Stats Grid */}
+                <div className={dashboardClasses.statsGridWrapper}>
+                  <StatsGrid />
+                </div>
 
-              {/* Budget Chart */}
-              <div className={dashboardClasses.budgetChartWrapper}>
-                <BudgetChart />
-              </div>
-            </div>
+                {/* Charts Section */}
+                <div className={dashboardClasses.chartsSection}>
+                  {/* Completion Chart */}
+                  <div className={dashboardClasses.completionChartWrapper}>
+                    <CompletionChart />
+                  </div>
 
-            {/* Latest Tasks Section */}
-            <div className={dashboardClasses.latestTasksWrapper}>
-              <LatestTasks />
-            </div>
-          </div>
+                  {/* Schedule Calendar */}
+                  <div className={dashboardClasses.scheduleCalendarWrapper}>
+                    <ScheduleCalendar />
+                  </div>
+
+                  {/* Budget Chart */}
+                  <div className={dashboardClasses.budgetChartWrapper}>
+                    <BudgetChart />
+                  </div>
+                </div>
+
+                {/* Latest Tasks Section */}
+                <div className={dashboardClasses.latestTasksWrapper}>
+                  <LatestTasks />
+                </div>
+              </div>
+            </>
+          )}
         </div >
       </main >
     </div >

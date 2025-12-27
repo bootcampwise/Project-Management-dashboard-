@@ -1,15 +1,8 @@
 import React, { useState } from 'react';
 import { Loader2, MoreHorizontal, Trash2 } from 'lucide-react';
-import type { TeamMember } from '../../../types';
+import type { TeamMembersProps } from '../../../types';
 import { useUpdateTeamMutation } from '../../../store/api/teamApiSlice';
 import { showToast, getErrorMessage } from '../../ui';
-
-interface TeamMembersProps {
-  members: TeamMember[];
-  isLoading?: boolean;
-  teamId?: string;
-  allMemberIds?: string[];
-}
 
 const TeamMembers: React.FC<TeamMembersProps> = ({ members, isLoading = false, teamId, allMemberIds = [] }) => {
   const [openMenuId, setOpenMenuId] = useState<string | number | null>(null);

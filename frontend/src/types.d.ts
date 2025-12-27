@@ -592,3 +592,159 @@ export interface ChartTooltipProps {
   payload?: Array<{ value: number; dataKey: string }>;
   label?: string;
 }
+
+// ============================================
+// API PAYLOAD TYPES
+// ============================================
+
+export interface CreateTeamPayload {
+  name: string;
+  memberIds: string[];
+  projectIds: string[];
+}
+
+export interface UpdateTeamPayload {
+  name?: string;
+  memberIds?: string[];
+  projectIds?: string[];
+}
+
+export interface UploadFileParams {
+  bucket: string;
+  path: string;
+  file: File;
+}
+
+export interface DeleteFileParams {
+  bucket: string;
+  path: string;
+}
+
+export interface UploadResult {
+  path: string;
+  publicUrl: string;
+}
+
+// API request and error types (used internally by apiSlice)
+export type ApiRequest =
+  | string
+  | {
+      url: string;
+      method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
+      body?: unknown;
+      params?: Record<string, unknown>;
+    };
+
+export interface ApiError {
+  status?: number;
+  data?: unknown;
+}
+
+// ============================================
+// UI COMPONENT PROPS TYPES
+// ============================================
+
+export interface SortOption {
+  key: string;
+  label: string;
+}
+
+export interface SortControlProps {
+  value: string;
+  onChange: (value: string) => void;
+  options: SortOption[];
+  label?: string;
+  className?: string;
+}
+
+export interface FilterOption {
+  key: string;
+  label: string;
+  value: string | null;
+}
+
+export interface FilterControlProps {
+  value: string | null;
+  onChange: (value: string | null) => void;
+  options: FilterOption[];
+  label?: string;
+  className?: string;
+  variant?: "primary" | "secondary" | "ghost";
+}
+
+export interface SkeletonProps {
+  className?: string;
+  style?: React.CSSProperties;
+}
+
+export interface GlobalSearchProps {
+  onClose?: () => void;
+  className?: string;
+  autoFocus?: boolean;
+  onClick?: (e: React.MouseEvent) => void;
+  showProjects?: boolean;
+}
+
+export interface ExtendedTableViewProps extends TableViewProps {
+  tasks?: Task[];
+  visibleFields?: Record<string, boolean>;
+  onAddTask?: (status: string) => void;
+}
+
+// ============================================
+// TEAM COMPONENT PROPS TYPES
+// ============================================
+
+export interface TeamProjectsProps {
+  projects: Project[];
+  teamMembers?: { id: string; name: string; avatar?: string }[];
+}
+
+export interface TeamMembersProps {
+  members: TeamMember[];
+  isLoading?: boolean;
+  teamId?: string;
+  allMemberIds?: string[];
+}
+
+export interface TeamFilesProps {
+  activeTeam?: Team | null;
+  allTeams?: Team[];
+  files: TeamFile[];
+  isLoading: boolean;
+  openMenuId: string | null;
+  deletingId: string | null;
+  menuRef: React.RefObject<HTMLDivElement | null>;
+  formatSize: (bytes: number | string) => string;
+  handleFileClick: (file: TeamFile) => Promise<void>;
+  handleMenuClick: (e: React.MouseEvent, fileId: string) => void;
+  handleDeleteFile: (file: TeamFile) => Promise<void>;
+  setOpenMenuId: (id: string | null) => void;
+}
+
+// ============================================
+// HOOK PROPS TYPES
+// ============================================
+
+export interface UseTimelineViewProps {
+  projectId?: string;
+}
+
+export interface UseCalendarViewProps {
+  projectId?: string;
+}
+
+// ============================================
+// UTILITY TYPES
+// ============================================
+
+export type CacheItem = {
+  url: string;
+  expiresAt: number;
+};
+
+export interface UiState {
+  sidebarCollapsed: boolean;
+  darkMode: boolean;
+  activeProjectId: string | null;
+}

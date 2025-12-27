@@ -1,23 +1,15 @@
 import { apiSlice } from "./apiSlice";
-import type { TeamMember, Team, User } from "../../types";
+import type {
+  TeamMember,
+  Team,
+  User,
+  CreateTeamPayload,
+  UpdateTeamPayload,
+} from "../../types";
 
 // ============================================
 // TEAM API ENDPOINTS
 // ============================================
-
-// Type for creating a new team
-interface CreateTeamPayload {
-  name: string;
-  memberIds: string[];
-  projectIds: string[];
-}
-
-// Type for updating a team
-interface UpdateTeamPayload {
-  name?: string;
-  memberIds?: string[];
-  projectIds?: string[];
-}
 
 export const teamApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
@@ -97,7 +89,7 @@ export const teamApiSlice = apiSlice.injectEndpoints({
           method: "PATCH",
           body: data,
         }),
-        invalidatesTags: (result, error, { id }) => [
+        invalidatesTags: (_result, _error, { id }) => [
           { type: "Team", id },
           { type: "Team", id: "LIST" },
           { type: "Team", id: "ALL_LIST" },

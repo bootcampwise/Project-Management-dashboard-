@@ -1,21 +1,7 @@
 import React from 'react';
 import { Filter, CheckCircle2 } from 'lucide-react';
 import { Button, Dropdown, type DropdownItem } from '../ui';
-
-interface FilterOption {
-    key: string;
-    label: string;
-    value: string | null;
-}
-
-interface FilterControlProps {
-    value: string | null;
-    onChange: (value: string | null) => void;
-    options: FilterOption[];
-    label?: string;
-    className?: string;
-    variant?: 'primary' | 'secondary' | 'ghost'; // Allow overriding variant based on active state
-}
+import type { FilterControlProps } from '../../types';
 
 const FilterControl: React.FC<FilterControlProps> = ({
     value,
@@ -55,8 +41,8 @@ const FilterControl: React.FC<FilterControlProps> = ({
                 <Button
                     variant={buttonVariant}
                     className={`h-9 px-3 text-sm font-medium transition-all shadow-sm ${buttonVariant === 'secondary'
-                            ? 'text-gray-700 bg-white border border-gray-200 hover:bg-gray-50 hover:border-gray-300'
-                            : ''
+                        ? 'text-gray-700 bg-white border border-gray-200 hover:bg-gray-50 hover:border-gray-300'
+                        : ''
                         } ${className}`}
                     leftIcon={<Filter size={16} className={value ? "text-white" : "text-gray-500"} />}
                 >

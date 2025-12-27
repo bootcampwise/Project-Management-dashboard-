@@ -1,7 +1,7 @@
 import React from 'react';
 import { useLogin } from './hooks/useLogin';
 import { loginStyles, loginClasses, loginMediaQuery } from './loginStyle';
-
+import { IMAGES } from '../../constants/images';
 import { Button, Input } from '../../components/ui';
 
 // Helper function to get error message from API errors
@@ -44,7 +44,7 @@ const LoginPage: React.FC = () => {
           style={loginStyles.logoContainer}
         >
           <img
-            src="/logo.png"
+            src={IMAGES.logo}
             alt="Defcon Logo"
             style={loginStyles.logoImage}
           />
@@ -171,14 +171,14 @@ const LoginPage: React.FC = () => {
                   onClick={handleGoogleSignIn}
                   className={loginClasses.socialButton}
                 >
-                  <img src="/google.png" alt="Google" className="w-5 h-5" />
+                  <img src={IMAGES.google} alt="Google" className="w-5 h-5" />
                   <span className="text-brand-orange">Google</span>
                 </button>
                 <div className={loginClasses.socialDivider}></div>
                 <button
                   className={loginClasses.socialButton}
                 >
-                  <img src="/microsoft.png" alt="Microsoft" className="w-5 h-5" />
+                  <img src={IMAGES.microsoft} alt="Microsoft" className="w-5 h-5" />
                   <span className="text-brand-orange">Microsoft</span>
                 </button>
               </div>

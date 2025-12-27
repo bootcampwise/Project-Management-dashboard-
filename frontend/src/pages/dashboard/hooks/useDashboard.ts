@@ -13,9 +13,12 @@ export const useDashboard = () => {
 
   // Prefetch core data on dashboard load - this populates the cache
   // so navigation to Projects, Tasks, and Team pages is instant
-  useGetProjectsQuery();
-  useGetTasksQuery();
-  useGetTeamsQuery();
+  const { isLoading: isProjectsLoading } = useGetProjectsQuery();
+  const { isLoading: isTasksLoading } = useGetTasksQuery();
+  const { isLoading: isTeamsLoading } = useGetTeamsQuery();
+
+  // Combined loading state for the dashboard
+  const isLoading = isProjectsLoading || isTasksLoading || isTeamsLoading;
 
   useEffect(() => {
     if (location.state?.openOnboarding) {
@@ -28,5 +31,6 @@ export const useDashboard = () => {
   return {
     sidebarOpen,
     setSidebarOpen: (open: boolean) => dispatch(setSidebarOpen(open)),
+    isLoading,
   };
 };

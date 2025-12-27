@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-
+import { IMAGES } from "../../constants/images";
 import { Button, AuthButton, Input } from "../../components/ui";
 import {
   useLoginWithGoogleMutation,
@@ -40,7 +40,7 @@ const Register: React.FC = () => {
           style={registerStyles.logoWrapper}
         >
           <img
-            src="/logo.png"
+            src={IMAGES.logo}
             alt="DEFCON Logo"
             className={registerClasses.logoImage}
             style={registerStyles.logoImage}
@@ -61,18 +61,18 @@ const Register: React.FC = () => {
           style={registerStyles.socialButtonsWrapper}
         >
           <AuthButton
-            icon="/google.png"
+            icon={IMAGES.google}
             text={isGoogleLoading ? "Loading..." : "Continue with Google"}
             onClick={handleGoogleSignIn}
             disabled={isGoogleLoading || isGithubLoading}
           />
           <AuthButton
-            icon="/github.png"
+            icon={IMAGES.github}
             text={isGithubLoading ? "Loading..." : "Continue with Github"}
             onClick={handleGithubSignIn}
             disabled={isGoogleLoading || isGithubLoading}
           />
-          <AuthButton icon="/figma.png" text="Continue with Figma" />
+          <AuthButton icon={IMAGES.figma} text="Continue with Figma" />
         </div>
 
         {/* DIVIDER */}

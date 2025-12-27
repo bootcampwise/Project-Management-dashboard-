@@ -14,15 +14,7 @@ import { Dropdown, type DropdownItem } from '../../components/ui';
 import { useGetTasksQuery } from '../../store/api/taskApiSlice';
 import { useGetProjectsQuery } from '../../store/api/projectApiSlice';
 import { useGetAllTeamsQuery } from '../../store/api/teamApiSlice';
-import type { Task } from '../../types';
-
-interface GlobalSearchProps {
-    onClose?: () => void;
-    className?: string;
-    autoFocus?: boolean;
-    onClick?: (e: React.MouseEvent) => void;
-    showProjects?: boolean;
-}
+import type { Task, Project, GlobalSearchProps } from '../../types';
 
 const GlobalSearch: React.FC<GlobalSearchProps> = ({
     onClose,
@@ -64,7 +56,7 @@ const GlobalSearch: React.FC<GlobalSearchProps> = ({
     }, [allTeams]);
 
     const filteredResults = useMemo(() => {
-        let results: (Task | any)[] = [];
+        let results: (Task | Project)[] = [];
 
         // 1. Filter Tasks
         const filteredTasks = tasks.filter(task => {
@@ -113,7 +105,7 @@ const GlobalSearch: React.FC<GlobalSearchProps> = ({
         });
 
         // 2. Filter Projects (Only if showProjects is true)
-        let filteredProjects: any[] = [];
+        let filteredProjects: Project[] = [];
         if (showProjects) {
             filteredProjects = projects.filter(project => {
                 // Skip if task-specific filters are active (Creator, Date) - unless we want to filter projects by creator?
@@ -139,21 +131,21 @@ const GlobalSearch: React.FC<GlobalSearchProps> = ({
         // Sort
         return results.sort((a, b) => {
             if (sortBy === 'alpha') {
-                const titleA = a.title || a.name || '';
-                const titleB = b.title || b.name || '';
+                const titleA = ('title' in a ? a.title : a.name) || '';
+                const titleB = ('title' in b ? b.title : b.name) || '';
                 return titleA.localeCompare(titleB);
             }
 
-            const dateA = new Date(a.createdAt || a.startDate || 0).getTime();
-            const dateB = new Date(b.createdAt || b.startDate || 0).getTime();
+            const dateA = new Date(a.createdAt || ('startDate' in a ? a.startDate : undefined) || 0).getTime();
+            const dateB = new Date(b.createdAt || ('startDate' in b ? b.startDate : undefined) || 0).getTime();
 
             return sortBy === 'newest' ? dateB - dateA : dateA - dateB;
         });
     }, [tasks, projects, searchQuery, filterCreator, filterProject, filterDate, sortBy, showProjects]);
 
     // Handlers
-    const handleResultClick = (result: any) => {
-        if (result.key) { // It's a project (projects have 'key')
+    const handleResultClick = (result: Task | Project) => {
+        if ('key' in result) { // It's a project (projects have 'key')
             navigate(`/project/${result.id}`);
         } else { // It's a task
             navigate(`/tasks?taskId=${result.id}`);
@@ -166,7 +158,7 @@ const GlobalSearch: React.FC<GlobalSearchProps> = ({
     const sortItems: DropdownItem[] = [
         { key: 'newest', label: 'Newest First', onClick: () => setSortBy('newest') },
         { key: 'oldest', label: 'Oldest First', onClick: () => setSortBy('oldest') },
-        { key: 'div1', divider: true } as any,
+        { key: 'div1', divider: true } as DropdownItem,
         { key: 'alpha', label: 'Alphabetical', onClick: () => setSortBy('alpha') },
     ];
 
@@ -320,7 +312,7 @@ const GlobalSearch: React.FC<GlobalSearchProps> = ({
 
                             if (isProject) {
                                 // Project Rendering
-                                const project = result as any; // Type assertion for brevity
+                                const project = result as Project;
                                 return (
                                     <div
                                         key={`proj-${project.id}`}

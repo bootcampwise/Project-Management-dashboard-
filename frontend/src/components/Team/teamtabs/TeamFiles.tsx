@@ -1,24 +1,8 @@
 import React from 'react';
 import { MoreHorizontal, FileText, Image, File, Loader2, Trash2 } from 'lucide-react';
-import type { TeamFile, Team } from '../../../types';
+import type { TeamFile, TeamFilesProps } from '../../../types';
 import { format } from 'date-fns';
 import { showToast } from "../../../components/ui";
-
-interface TeamFilesProps {
-  activeTeam?: Team | null;
-  allTeams?: Team[];
-  // Receive data and handlers from parent
-  files: TeamFile[];
-  isLoading: boolean;
-  openMenuId: string | null;
-  deletingId: string | null;
-  menuRef: React.RefObject<HTMLDivElement | null>;
-  formatSize: (bytes: number | string) => string;
-  handleFileClick: (file: TeamFile) => Promise<void>;
-  handleMenuClick: (e: React.MouseEvent, fileId: string) => void;
-  handleDeleteFile: (file: TeamFile) => Promise<void>;
-  setOpenMenuId: (id: string | null) => void;
-}
 
 const TeamFiles: React.FC<TeamFilesProps> = ({
   activeTeam,

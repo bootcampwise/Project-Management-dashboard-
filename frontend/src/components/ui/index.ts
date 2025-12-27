@@ -42,4 +42,16 @@ export {
   TeamPageSkeleton,
   TableRowSkeleton,
   TableSkeleton,
+  SidebarItemSkeleton,
+  SidebarSubmenuSkeleton,
+  SidebarSkeleton,
+  // Dashboard skeletons
+  StatCardSkeleton,
+  StatsGridSkeleton,
+  CompletionChartSkeleton,
+  ScheduleCalendarSkeleton,
+  LatestTasksRowSkeleton,
+  LatestTasksSkeleton,
+  BudgetChartSkeleton,
+  DashboardSkeleton,
 } from "./Skeleton";

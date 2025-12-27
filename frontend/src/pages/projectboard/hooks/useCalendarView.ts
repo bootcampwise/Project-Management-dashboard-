@@ -18,10 +18,7 @@ import {
   type UpdateEventPayload,
 } from "../../../store/api/calendarApiSlice";
 import { showToast, getErrorMessage } from "../../../components/ui";
-
-interface UseCalendarViewProps {
-  projectId?: string;
-}
+import type { UseCalendarViewProps } from "../../../types";
 
 export const useCalendarView = ({ projectId }: UseCalendarViewProps = {}) => {
   const [viewMode, setViewMode] = useState<"month" | "day">("month");

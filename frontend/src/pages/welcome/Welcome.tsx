@@ -2,6 +2,7 @@ import React from "react";
 import { useWelcome } from "./hooks/useWelcome";
 import { welcomeStyles, welcomeClasses } from "./welcomeStyle";
 import { Button } from "../../components/ui";
+import { IMAGES } from "../../constants/images";
 
 const WelcomeScreen: React.FC = () => {
   const { handleGetStarted, isLoading } = useWelcome();
@@ -22,7 +23,7 @@ const WelcomeScreen: React.FC = () => {
 
         {/* LOGO */}
         <img
-          src="/logo2.png"
+          src={IMAGES.logo2}
           alt="Defcon Logo"
           style={welcomeStyles.logo}
         />

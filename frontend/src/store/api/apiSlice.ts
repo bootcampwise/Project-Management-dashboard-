@@ -3,6 +3,7 @@ import type { BaseQueryFn } from "@reduxjs/toolkit/query";
 import axios from "axios";
 import type { AxiosError } from "axios";
 import { supabase } from "../../lib/supabase";
+import type { ApiRequest, ApiError } from "../../types";
 
 // ============================================
 // API CONFIGURATION
@@ -59,22 +60,6 @@ export function clearAuthTokenCache(): void {
 // ============================================
 // CUSTOM AXIOS BASE QUERY
 // ============================================
-
-// This type defines what we can pass to our API calls
-type ApiRequest =
-  | string // Simple: just the URL for GET requests
-  | {
-      url: string;
-      method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
-      body?: unknown;
-      params?: Record<string, unknown>;
-    };
-
-// Error type for API responses
-interface ApiError {
-  status?: number;
-  data?: unknown;
-}
 
 /**
  * This function handles all API calls for RTK Query

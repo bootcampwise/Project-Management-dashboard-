@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-
+import { IMAGES } from '../../constants/images';
 import { showToast, getErrorMessage, Input } from '../../components/ui';
 import { useRegisterMutation } from '../../store/api/authApiSlice';
 import { signupStyles, signupClasses, signupMediaQuery } from './signupStyle';
@@ -35,7 +35,7 @@ const Signup: React.FC = () => {
           style={signupStyles.logoContainer}
         >
           <img
-            src="/logo.png"
+            src={IMAGES.logo}
             alt="Defcon Logo"
             style={signupStyles.logoImage}
           />

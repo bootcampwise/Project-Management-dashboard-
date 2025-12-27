@@ -112,12 +112,12 @@ export class TeamRepository {
     });
 
     // Transform and calculate task counts
-    return teams.map((team: any) => ({
+    return teams.map((team) => ({
       ...team,
-      projects: team.projects.map((project: any) => {
+      projects: team.projects.map((project) => {
         const totalTasks = project.tasks.length;
         const completedTasks = project.tasks.filter(
-          (t: any) => t.status === TaskStatus.COMPLETED
+          (t) => t.status === TaskStatus.COMPLETED
         ).length;
 
         // Remove the raw tasks array from the output if desired, or keep it.
@@ -137,7 +137,11 @@ export class TeamRepository {
     data: { name?: string; memberIds?: string[]; projectIds?: string[] }
   ) {
     const { name, memberIds, projectIds } = data;
-    const updateData: any = {};
+    const updateData: {
+      name?: string;
+      members?: { set: { id: string }[] };
+      projects?: { set: { id: string }[] };
+    } = {};
 
     if (name !== undefined) updateData.name = name;
     if (memberIds !== undefined) {

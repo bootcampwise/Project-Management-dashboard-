@@ -1,16 +1,5 @@
 import { apiSlice } from "./apiSlice";
-import type { Task, CreateTaskPayload } from "../../types";
-
-// ============================================
-// SUBTASK TYPE
-// ============================================
-
-interface Subtask {
-  id: string;
-  title: string;
-  completed: boolean;
-  assigneeId?: string;
-}
+import type { Task, CreateTaskPayload, SubTask } from "../../types";
 
 // ============================================
 // TASK API ENDPOINTS
@@ -120,7 +109,7 @@ export const taskApiSlice = apiSlice.injectEndpoints({
     // ----------------------------------------
     // ADD SUBTASK
     // ----------------------------------------
-    addSubtask: builder.mutation<Subtask, { taskId: string; title: string }>({
+    addSubTask: builder.mutation<SubTask, { taskId: string; title: string }>({
       query: ({ taskId, title }) => ({
         url: `/tasks/${taskId}/subtasks`,
         method: "POST",
@@ -134,7 +123,7 @@ export const taskApiSlice = apiSlice.injectEndpoints({
     // ----------------------------------------
     // DELETE SUBTASK
     // ----------------------------------------
-    deleteSubtask: builder.mutation<
+    deleteSubTask: builder.mutation<
       void,
       { taskId: string; subtaskId: string }
     >({
@@ -150,8 +139,8 @@ export const taskApiSlice = apiSlice.injectEndpoints({
     // ----------------------------------------
     // TOGGLE SUBTASK COMPLETION
     // ----------------------------------------
-    toggleSubtask: builder.mutation<
-      Subtask,
+    toggleSubTask: builder.mutation<
+      SubTask,
       { taskId: string; subtaskId: string; completed: boolean }
     >({
       query: ({ taskId, subtaskId, completed }) => ({
@@ -167,8 +156,8 @@ export const taskApiSlice = apiSlice.injectEndpoints({
     // ----------------------------------------
     // ASSIGN SUBTASK TO USER
     // ----------------------------------------
-    assignSubtask: builder.mutation<
-      Subtask,
+    assignSubTask: builder.mutation<
+      SubTask,
       { taskId: string; subtaskId: string; userId: string }
     >({
       query: ({ taskId, subtaskId, userId }) => ({
@@ -262,11 +251,11 @@ export const {
   useUpdateTaskMutation,
   useUpdateTaskStatusMutation,
   useDeleteTaskMutation,
-  // Subtask mutations
-  useAddSubtaskMutation,
-  useDeleteSubtaskMutation,
-  useToggleSubtaskMutation,
-  useAssignSubtaskMutation,
+  // SubTask mutations
+  useAddSubTaskMutation,
+  useDeleteSubTaskMutation,
+  useToggleSubTaskMutation,
+  useAssignSubTaskMutation,
   // Comment & Tag mutations
   useAddCommentMutation,
   useAddTagMutation,

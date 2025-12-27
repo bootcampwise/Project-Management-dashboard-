@@ -1,6 +1,6 @@
 import React from 'react';
 import { useTeamTableView } from "../../../pages/team/hooks/useTeamTableView";
-import type { TeamTableViewProps } from '../../../types';
+import type { TeamTableViewProps, Team } from '../../../types';
 import { Badge } from "../../ui";
 
 const TeamTableView: React.FC<TeamTableViewProps> = ({ filteredTeamId, sortBy = 'newest' }) => {
@@ -11,11 +11,11 @@ const TeamTableView: React.FC<TeamTableViewProps> = ({ filteredTeamId, sortBy = 
   } = useTeamTableView();
 
   // Determine which teams to display
-  let teamsToDisplay: any[] = allTeams || [];
+  let teamsToDisplay: Team[] = allTeams || [];
 
   // If a specific team is selected (filtered), show only that team
   if (filteredTeamId) {
-    teamsToDisplay = teamsToDisplay.filter((t: any) => t.id === filteredTeamId);
+    teamsToDisplay = teamsToDisplay.filter((t) => t.id === filteredTeamId);
   }
 
   // Apply sorting
@@ -49,7 +49,7 @@ const TeamTableView: React.FC<TeamTableViewProps> = ({ filteredTeamId, sortBy = 
       {/* Table Rows */}
       <div className="divide-y divide-gray-100">
         {teamsToDisplay.length > 0 ? (
-          teamsToDisplay.map((team: any) => { // Using any temporarily to avoid strict type complex if types differ slightly, or use shared Team type
+          teamsToDisplay.map((team) => {
             const status = team.status || "On track";
             const priority = team.priority || "Medium";
             const progress = team.progress || 0;
@@ -110,7 +110,7 @@ const TeamTableView: React.FC<TeamTableViewProps> = ({ filteredTeamId, sortBy = 
                 </div>
                 <div>
                   <div className="flex -space-x-2">
-                    {(team.members || []).slice(0, 4).map((member: { id: string; name: string; avatar?: string }, i: number) => (
+                    {(team.members || []).slice(0, 4).map((member, i: number) => (
                       <div
                         key={i}
                         className="w-7 h-7 rounded-full border-2 border-white bg-gray-200 overflow-hidden flex items-center justify-center text-xs font-medium text-gray-600"

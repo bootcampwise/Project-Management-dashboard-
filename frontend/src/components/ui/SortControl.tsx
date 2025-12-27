@@ -1,19 +1,7 @@
 import React from 'react';
 import { ArrowUpDown } from 'lucide-react';
 import { Button, Dropdown, type DropdownItem } from '.';
-
-interface SortOption {
-    key: string;
-    label: string;
-}
-
-interface SortControlProps {
-    value: string;
-    onChange: (value: any) => void;
-    options: SortOption[];
-    label?: string;
-    className?: string;
-}
+import type { SortControlProps } from '../../types';
 
 const SortControl: React.FC<SortControlProps> = ({
     value,

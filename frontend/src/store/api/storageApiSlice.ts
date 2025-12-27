@@ -1,26 +1,15 @@
 import { apiSlice } from "./apiSlice";
 import { supabase } from "../../lib/supabase";
+import type {
+  UploadFileParams,
+  DeleteFileParams,
+  UploadResult,
+} from "../../types";
 
 // ============================================
 // STORAGE API ENDPOINTS
 // ============================================
 // Handles all file storage operations via Supabase storage
-
-interface UploadFileParams {
-  bucket: string;
-  path: string;
-  file: File;
-}
-
-interface DeleteFileParams {
-  bucket: string;
-  path: string;
-}
-
-interface UploadResult {
-  path: string;
-  publicUrl: string;
-}
 
 export const storageApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({

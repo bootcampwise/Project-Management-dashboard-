@@ -1,13 +1,9 @@
 import React from 'react';
 import { Badge } from "../../ui";
 import { format } from "date-fns";
-import type { Project } from "../../../types";
+import type { TeamProjectsProps } from "../../../types";
 
-interface TeamProjectsProps {
-    projects: Project[];
-}
-
-const TeamProjects: React.FC<TeamProjectsProps> = ({ projects }) => {
+const TeamProjects: React.FC<TeamProjectsProps> = ({ projects, teamMembers }) => {
 
     const formatDate = (dateString?: string) => {
         if (!dateString) return "-";
@@ -111,33 +107,44 @@ const TeamProjects: React.FC<TeamProjectsProps> = ({ projects }) => {
                                 </span>
                             </div>
 
-                            {/* Members */}
+                            {/* Members - prefer project.members if available, else fall back to teamMembers */}
                             <div>
                                 <div className="flex -space-x-2">
-                                    {(project.members || []).slice(0, 5).map((member, i) => (
-                                        <div
-                                            key={i}
-                                            className="w-8 h-8 rounded-full border-2 border-white overflow-hidden relative"
-                                            title={member.name}
-                                        >
-                                            {member.avatar ? (
-                                                <img
-                                                    src={member.avatar}
-                                                    alt={member.name}
-                                                    className="w-full h-full object-cover"
-                                                />
-                                            ) : (
-                                                <div className="w-full h-full bg-gray-200 flex items-center justify-center text-xs text-gray-600 font-medium">
-                                                    {member.name.charAt(0)}
-                                                </div>
-                                            )}
-                                        </div>
-                                    ))}
-                                    {(project.members?.length || 0) > 5 && (
-                                        <div className="w-8 h-8 rounded-full border-2 border-white bg-gray-100 flex items-center justify-center text-xs text-gray-500 font-medium">
-                                            +{project.members!.length - 5}
-                                        </div>
-                                    )}
+                                    {/* Use project.members if they exist, otherwise fall back to team members */}
+                                    {(() => {
+                                        const membersToShow = (project.members && project.members.length > 0)
+                                            ? project.members
+                                            : (teamMembers || []);
+                                        return membersToShow.slice(0, 5).map((member, i) => (
+                                            <div
+                                                key={member.id || i}
+                                                className="w-8 h-8 rounded-full border-2 border-white overflow-hidden relative"
+                                                title={member.name}
+                                            >
+                                                {member.avatar ? (
+                                                    <img
+                                                        src={member.avatar}
+                                                        alt={member.name}
+                                                        className="w-full h-full object-cover"
+                                                    />
+                                                ) : (
+                                                    <div className="w-full h-full bg-gray-200 flex items-center justify-center text-xs text-gray-600 font-medium">
+                                                        {member.name.charAt(0)}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        ));
+                                    })()}
+                                    {(() => {
+                                        const membersToShow = (project.members && project.members.length > 0)
+                                            ? project.members
+                                            : (teamMembers || []);
+                                        return membersToShow.length > 5 && (
+                                            <div className="w-8 h-8 rounded-full border-2 border-white bg-gray-100 flex items-center justify-center text-xs text-gray-500 font-medium">
+                                                +{membersToShow.length - 5}
+                                            </div>
+                                        );
+                                    })()}
                                 </div>
                             </div>
                         </div>
