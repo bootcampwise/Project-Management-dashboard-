@@ -51,7 +51,7 @@ export const taskApiSlice = apiSlice.injectEndpoints({
         method: "POST",
         body: newTask,
       }),
-      invalidatesTags: [{ type: "Task", id: "LIST" }],
+      invalidatesTags: ["Task"],
     }),
 
     // ----------------------------------------

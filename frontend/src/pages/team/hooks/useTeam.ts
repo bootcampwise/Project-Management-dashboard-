@@ -5,6 +5,7 @@ import {
 } from "../../../store/api/teamApiSlice";
 import { showToast, getErrorMessage } from "../../../components/ui";
 import type { Team } from "../../../types";
+import { useTeamFiles } from "./useTeamFiles";
 
 export const useTeam = () => {
   // Data from RTK Query
@@ -109,6 +110,21 @@ export const useTeam = () => {
     showToast.success("Team added to favorites");
   };
 
+  // Optimize: Only fetch files if we're on the Files tab OR have visited it before
+  const [hasVisitedFilesTab, setHasVisitedFilesTab] = useState(false);
+
+  useEffect(() => {
+    if (activeTab === "Files") {
+      setHasVisitedFilesTab(true);
+    }
+  }, [activeTab]);
+
+  const teamFiles = useTeamFiles(
+    activeTeam,
+    allTeams,
+    activeTab === "Files" || hasVisitedFilesTab
+  );
+
   return {
     sidebarOpen,
     setSidebarOpen,
@@ -131,5 +147,6 @@ export const useTeam = () => {
     handleSwitchTeam,
     handleDeleteTeam,
     handleToggleTeamFavorite,
+    teamFiles, // Expose the file hook data
   };
 };

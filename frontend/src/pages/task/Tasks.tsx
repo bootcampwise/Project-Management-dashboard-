@@ -8,15 +8,19 @@ import {
   TableSkeleton,
   ProjectHeaderSkeleton,
 } from '../../components/ui';
-import { Menu, Search, Filter, ArrowUpDown, Plus, Calendar, MessageSquare, Paperclip, FileText, Layout, List } from 'lucide-react';
+import { Menu, Search, Plus, Calendar, MessageSquare, Paperclip, FileText, Layout, List } from 'lucide-react';
 import TaskDetailModal from '../../components/task/TaskDetailModal';
 import CreateTaskModal from '../../components/task/CreateTaskModal';
+import SearchPopup from '../../components/sidebar/SearchPopup';
 import BoardColumn from '../../components/projectBoard/BoardColumn';
+import SortControl from '../../components/ui/SortControl';
+import FilterControl from '../../components/ui/FilterControl';
 import { useTasksPage } from './hooks/useTasksPage';
 import { DragDropContext } from '@hello-pangea/dnd';
 import { taskClasses } from './taskStyle';
 
 const Tasks: React.FC = () => {
+  const [isSearchOpen, setIsSearchOpen] = React.useState(false);
   const {
     isLoading,
     sidebarOpen,
@@ -43,6 +47,11 @@ const Tasks: React.FC = () => {
     handleShowColumn,
     handleDragEnd,
     getTasksByStatus,
+    getAllSortedTasks,
+    sortBy,
+    setSortBy,
+    filterPriority,
+    setFilterPriority,
   } = useTasksPage();
 
   // Show skeleton while loading
@@ -109,24 +118,36 @@ const Tasks: React.FC = () => {
 
               {/* Right: Actions */}
               <div className={taskClasses.actionsWrapper}>
-                <div className={taskClasses.searchButton}>
+                <div
+                  className={`${taskClasses.searchButton} cursor-pointer hover:bg-gray-100 transition-colors`}
+                  onClick={() => setIsSearchOpen(true)}
+                >
                   <Search size={16} className={taskClasses.searchIcon} />
                   <span className={taskClasses.searchText}>Search</span>
                 </div>
-                <Button
-                  variant="secondary"
-                  className={taskClasses.filterButton}
-                  leftIcon={<Filter size={16} />}
-                >
-                  Filters
-                </Button>
-                <Button
-                  variant="secondary"
-                  className={taskClasses.filterButton}
-                  leftIcon={<ArrowUpDown size={16} />}
-                >
-                  Sort by
-                </Button>
+                <FilterControl
+                  value={filterPriority}
+                  onChange={setFilterPriority}
+                  label="Filters"
+                  options={[
+                    { key: 'all', label: 'All Priorities', value: null },
+                    { key: 'urgent', label: 'Urgent', value: 'URGENT' },
+                    { key: 'high', label: 'High', value: 'HIGH' },
+                    { key: 'medium', label: 'Medium', value: 'MEDIUM' },
+                    { key: 'low', label: 'Low', value: 'LOW' },
+                  ]}
+                />
+                <SortControl
+                  value={sortBy}
+                  onChange={setSortBy}
+                  options={[
+                    { key: 'newest', label: 'Newest' },
+                    { key: 'oldest', label: 'Oldest' },
+                    { key: 'dueDate', label: 'Due Date' },
+                    { key: 'priority', label: 'Priority' },
+                    { key: 'alpha', label: 'A-Z' },
+                  ]}
+                />
                 <Button
                   variant="primary"
                   onClick={() => handleOpenCreateTask()}
@@ -224,8 +245,10 @@ const Tasks: React.FC = () => {
 
                 {/* Table Rows */}
                 <div className={taskClasses.listBody}>
-                  {columns.flatMap((column) =>
-                    getTasksByStatus(column.id).map((task) => (
+                  {getAllSortedTasks().map((task) => {
+                    // Find the column for this task to get color/title
+                    const taskColumn = columns.find(c => c.id === task.status) || { color: 'bg-gray-400', title: task.status };
+                    return (
                       <div
                         key={task.id}
                         onClick={() => handleTaskClick(task)}
@@ -321,13 +344,13 @@ const Tasks: React.FC = () => {
                         <div className={taskClasses.statusWrapper}>
                           <div
                             className={taskClasses.statusDot}
-                            style={{ backgroundColor: column.color }}
+                            style={{ backgroundColor: taskColumn.color.startsWith('bg-') ? undefined : taskColumn.color }}
                           />
-                          <span className={taskClasses.statusText}>{column.title}</span>
+                          <span className={taskClasses.statusText}>{taskColumn.title}</span>
                         </div>
                       </div>
-                    ))
-                  )}
+                    );
+                  })}
                 </div>
               </div>
             </div>
@@ -351,6 +374,12 @@ const Tasks: React.FC = () => {
         onCreate={handleCreateTask}
         task={taskToEdit}
         onUpdate={handleUpdateTask}
+      />
+
+      <SearchPopup
+        isOpen={isSearchOpen}
+        onClose={() => setIsSearchOpen(false)}
+        showProjects={false}
       />
     </div>
   );

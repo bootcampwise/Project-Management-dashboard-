@@ -3,26 +3,37 @@ import { MoreHorizontal, FileText, Image, File, Loader2, Trash2 } from 'lucide-r
 import type { TeamFile, Team } from '../../../types';
 import { format } from 'date-fns';
 import { showToast } from "../../../components/ui";
-import { useTeamFiles } from "../../../pages/team/hooks/useTeamFiles";
 
 interface TeamFilesProps {
   activeTeam?: Team | null;
+  allTeams?: Team[];
+  // Receive data and handlers from parent
+  files: TeamFile[];
+  isLoading: boolean;
+  openMenuId: string | null;
+  deletingId: string | null;
+  menuRef: React.RefObject<HTMLDivElement | null>;
+  formatSize: (bytes: number | string) => string;
+  handleFileClick: (file: TeamFile) => Promise<void>;
+  handleMenuClick: (e: React.MouseEvent, fileId: string) => void;
+  handleDeleteFile: (file: TeamFile) => Promise<void>;
+  setOpenMenuId: (id: string | null) => void;
 }
 
-const TeamFiles: React.FC<TeamFilesProps> = ({ activeTeam }) => {
-  const {
-    files,
-    isLoading,
-    openMenuId,
-    deletingId,
-    menuRef,
-    formatSize,
-    handleFileClick,
-    handleMenuClick,
-    handleDeleteFile,
-    setOpenMenuId
-  } = useTeamFiles(activeTeam);
-
+const TeamFiles: React.FC<TeamFilesProps> = ({
+  activeTeam,
+  allTeams = [],
+  files,
+  isLoading,
+  openMenuId,
+  deletingId,
+  menuRef,
+  formatSize,
+  handleFileClick,
+  handleMenuClick,
+  handleDeleteFile,
+  setOpenMenuId
+}) => {
   const getFileIcon = (file: TeamFile) => {
     const type = file.type || file.mimeType || '';
     if (type.includes('image')) return <Image className="text-teal-500" size={20} />;
@@ -80,9 +91,9 @@ const TeamFiles: React.FC<TeamFilesProps> = ({ activeTeam }) => {
 
         {/* Rows with 2px gap */}
         <div className="flex flex-col gap-[2px] bg-gray-50">
-          {!activeTeam?.projects?.length ? (
+          {(!activeTeam && (!allTeams || !allTeams.some(t => t.projects?.length))) || (activeTeam && !activeTeam.projects?.length) ? (
             <div className="px-6 py-8 text-center text-gray-500 text-sm italic">
-              No projects assigned to this team.
+              No projects assigned to {activeTeam ? "this team" : "any team"}.
             </div>
           ) : isLoading ? (
             // Skeleton loading - looks like actual file rows
@@ -179,7 +190,8 @@ const TeamFiles: React.FC<TeamFilesProps> = ({ activeTeam }) => {
                   </div>
                 </div>
               </div>
-            )))}
+            ))
+          )}
         </div>
       </div>
     </div>
@@ -187,4 +199,3 @@ const TeamFiles: React.FC<TeamFilesProps> = ({ activeTeam }) => {
 };
 
 export default TeamFiles;
-

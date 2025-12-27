@@ -13,7 +13,11 @@ import {
   clearCachedFileUrl,
 } from "../../../utils/fileUrlCache";
 
-export const useTeamFiles = (activeTeam?: Team | null) => {
+export const useTeamFiles = (
+  activeTeam?: Team | null,
+  allTeams: Team[] = [],
+  enabled: boolean = true
+) => {
   // State for files fetched from team's projects
   const [allFiles, setAllFiles] = useState<TeamFile[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -28,18 +32,32 @@ export const useTeamFiles = (activeTeam?: Team | null) => {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  // Fetch files from all projects belonging to the active team
-  useEffect(() => {
-    const fetchFilesFromTeamProjects = async () => {
-      if (!activeTeam?.projects?.length) {
-        setAllFiles([]);
-        return;
-      }
+  // Fetch files from all projects belonging to the active team or all teams
+  // Use project IDs as dependency to prevent infinite loops from unstable object references
+  const projectsToFetch = activeTeam
+    ? activeTeam.projects
+    : allTeams.flatMap((t) => t.projects || []);
 
+  // Memoize the project IDs string to use as a stable dependency
+  const projectIdsString =
+    projectsToFetch
+      ?.map((p) => p.id)
+      .sort()
+      .join(",") || "";
+
+  useEffect(() => {
+    if (!enabled) return;
+
+    if (!projectsToFetch?.length) {
+      setAllFiles([]);
+      return;
+    }
+
+    const fetchFilesFromTeamProjects = async () => {
       setIsLoading(true);
       try {
         // Fetch files from all team projects in parallel
-        const projectIds = activeTeam.projects.map((p) => p.id);
+        const projectIds = projectsToFetch.map((p) => p.id);
         const results = await Promise.all(
           projectIds.map((projectId) =>
             fetchProjectAttachments(projectId)
@@ -50,6 +68,9 @@ export const useTeamFiles = (activeTeam?: Team | null) => {
 
         // Combine all files from all projects
         const combinedFiles = results.flat();
+
+        // Only update if files have actually changed to prevent loops
+        // (Simple length check or deep comparison could be better, but we rely on simple reference update for now)
         setAllFiles(combinedFiles);
       } catch (error) {
         console.error("Error fetching team files:", error);
@@ -60,13 +81,22 @@ export const useTeamFiles = (activeTeam?: Team | null) => {
     };
 
     fetchFilesFromTeamProjects();
-  }, [activeTeam?.projects, fetchProjectAttachments]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [projectIdsString, fetchProjectAttachments, enabled]);
 
-  // Filter files by active team's member IDs
+  // Filter files by active team's member IDs (if active team selected)
   const files = useMemo(() => {
-    if (!activeTeam || !activeTeam.memberIds?.length) {
-      return allFiles; // No team member filter, show all files
+    if (!activeTeam) {
+      // If "All Teams", we might still want to filter by valid users, or just show everything found in the projects.
+      // Current requirement implies showing all files from these projects.
+      // We can deduplicate if needed, but file IDs should be unique.
+      return allFiles;
     }
+
+    if (!activeTeam.memberIds?.length) {
+      return allFiles;
+    }
+
     return allFiles.filter(
       (file) => file.user?.id && activeTeam.memberIds.includes(file.user.id)
     );

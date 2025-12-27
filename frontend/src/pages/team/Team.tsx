@@ -53,6 +53,7 @@ const Team: React.FC = () => {
     handleOpenCreateTeamModal,
     handleEditTeam,
     teamToEdit,
+    teamFiles, // Destructure the file hook data
   } = useTeam();
 
   // Show full page skeleton if initial loading
@@ -272,8 +273,21 @@ const Team: React.FC = () => {
             {activeTab === "Teams" && <TeamTableView filteredTeamId={activeTeam?.id} />}
             {activeTab === "Projects" && <TeamProjects projects={activeTeam?.projects || []} />}
             {activeTab === "Dashboard" && <TeamDashboard />}
-            {activeTab === "Members" && <TeamMembers members={activeTeam?.members || []} />}
-            {activeTab === "Files" && <TeamFiles activeTeam={activeTeam} />}
+            {activeTab === "Members" && (() => {
+              const displayMembers = activeTeam
+                ? (activeTeam.members || [])
+                : Array.from(
+                  new Map(
+                    allTeams.flatMap(t => t.members || []).map(m => [m.id, m])
+                  ).values()
+                );
+
+              return <TeamMembers members={displayMembers} />;
+            })()}
+            {activeTab === "Files" && <TeamFiles
+              allTeams={allTeams}
+              {...teamFiles} // Pass all file-related props from the hook
+            />}
           </div>
 
         </div>

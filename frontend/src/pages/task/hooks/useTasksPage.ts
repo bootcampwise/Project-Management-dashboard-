@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import type { DropResult } from "@hello-pangea/dnd";
 import type { Task, CreateTaskPayload } from "../../../types";
 import {
@@ -33,6 +34,19 @@ export const useTasksPage = () => {
   const [modalInitialStatus, setModalInitialStatus] = useState<
     string | undefined
   >(undefined);
+
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // Watch for taskId in URL and open modal
+  useEffect(() => {
+    const taskIdFromUrl = searchParams.get("taskId");
+    if (taskIdFromUrl && tasks.length > 0) {
+      const task = tasks.find((t) => String(t.id) === taskIdFromUrl);
+      if (task) {
+        handleTaskClick(task);
+      }
+    }
+  }, [searchParams, tasks]);
 
   // Column State
   const [columns, setColumns] = useState([
@@ -96,12 +110,110 @@ export const useTasksPage = () => {
 
   const [isAddSectionOpen, setIsAddSectionOpen] = useState(false);
 
+  // Filter & Sort State
+  const [sortBy, setSortBy] = useState<
+    "newest" | "oldest" | "dueDate" | "priority" | "alpha"
+  >("newest");
+  const [filterPriority, setFilterPriority] = useState<string | null>(null);
+
   // Derived Data
   const visibleColumns = columns.filter((col) => col.isVisible);
   const hiddenColumns = columns.filter((col) => !col.isVisible);
 
   const getTasksByStatus = (status: string) => {
-    return tasks.filter((task) => task.status === status);
+    let filtered = tasks.filter((task) => task.status === status);
+
+    // Filter by Priority
+    if (filterPriority) {
+      filtered = filtered.filter((t) => t.priority === filterPriority);
+    }
+
+    // Sort
+    const sorted = filtered.sort((a, b) => {
+      // Helper for creation date with fallback to updatedAt or 0
+      const getCreationTime = (t: typeof a) => {
+        if (t.createdAt) return new Date(t.createdAt).getTime();
+        // Fallback to updatedAt if createdAt is missing
+        if (t.updatedAt) return new Date(t.updatedAt).getTime();
+        return 0;
+      };
+
+      if (sortBy === "alpha") {
+        const nameA = a.name || a.title || "";
+        const nameB = b.name || b.title || "";
+        return nameA.localeCompare(nameB);
+      }
+      if (sortBy === "dueDate") {
+        const dateA = a.dueDate ? new Date(a.dueDate).getTime() : Infinity; // Keep no-date items at the bottom
+        const dateB = b.dueDate ? new Date(b.dueDate).getTime() : Infinity;
+        return dateA - dateB;
+      }
+      if (sortBy === "priority") {
+        const priorityOrder: Record<string, number> = {
+          URGENT: 1,
+          HIGH: 2,
+          MEDIUM: 3,
+          LOW: 4,
+        };
+        const pA = priorityOrder[a.priority || ""] || 5;
+        const pB = priorityOrder[b.priority || ""] || 5;
+        return pA - pB;
+      }
+      if (sortBy === "oldest") {
+        return getCreationTime(a) - getCreationTime(b);
+      }
+      // newest (default)
+      return getCreationTime(b) - getCreationTime(a);
+    });
+
+    return sorted;
+  };
+
+  // Get ALL tasks sorted (for List view - ignores status grouping)
+  const getAllSortedTasks = () => {
+    let filtered = [...tasks];
+
+    // Filter by Priority
+    if (filterPriority) {
+      filtered = filtered.filter((t) => t.priority === filterPriority);
+    }
+
+    // Helper for creation date
+    const getCreationTime = (t: Task) => {
+      if (t.createdAt) return new Date(t.createdAt).getTime();
+      if (t.updatedAt) return new Date(t.updatedAt).getTime();
+      return 0;
+    };
+
+    // Sort
+    return filtered.sort((a, b) => {
+      if (sortBy === "alpha") {
+        const nameA = a.name || a.title || "";
+        const nameB = b.name || b.title || "";
+        return nameA.localeCompare(nameB);
+      }
+      if (sortBy === "dueDate") {
+        const dateA = a.dueDate ? new Date(a.dueDate).getTime() : Infinity;
+        const dateB = b.dueDate ? new Date(b.dueDate).getTime() : Infinity;
+        return dateA - dateB;
+      }
+      if (sortBy === "priority") {
+        const priorityOrder: Record<string, number> = {
+          URGENT: 1,
+          HIGH: 2,
+          MEDIUM: 3,
+          LOW: 4,
+        };
+        const pA = priorityOrder[a.priority || ""] || 5;
+        const pB = priorityOrder[b.priority || ""] || 5;
+        return pA - pB;
+      }
+      if (sortBy === "oldest") {
+        return getCreationTime(a) - getCreationTime(b);
+      }
+      // newest (default)
+      return getCreationTime(b) - getCreationTime(a);
+    });
   };
 
   // Handlers
@@ -199,7 +311,12 @@ export const useTasksPage = () => {
     }
   };
 
-  const closeTaskDetail = () => setSelectedTask(null);
+  const closeTaskDetail = () => {
+    setSelectedTask(null);
+    const newParams = new URLSearchParams(searchParams);
+    newParams.delete("taskId");
+    setSearchParams(newParams);
+  };
 
   const handleDeleteTask = (task: Task) => {
     showToast.confirm({
@@ -246,6 +363,10 @@ export const useTasksPage = () => {
     setIsAddSectionOpen,
     visibleColumns,
     hiddenColumns,
+    sortBy,
+    setSortBy,
+    filterPriority,
+    setFilterPriority,
 
     // Handlers
     handleTaskClick,
@@ -261,5 +382,6 @@ export const useTasksPage = () => {
     handleShowColumn,
     handleDragEnd,
     getTasksByStatus,
+    getAllSortedTasks,
   };
 };

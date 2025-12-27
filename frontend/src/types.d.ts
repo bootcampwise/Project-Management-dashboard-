@@ -70,6 +70,8 @@ export interface Task {
   attachments?: number | Attachment[];
   date?: string;
   description?: string;
+  createdAt?: string;
+  updatedAt?: string;
   creator?: { id: string; name: string; avatar?: string };
 }
 
@@ -407,6 +409,7 @@ export interface TeamState {
 export interface SearchPopupProps {
   isOpen: boolean;
   onClose: () => void;
+  showProjects?: boolean;
 }
 export interface SettingsModalProps {
   isOpen: boolean;
