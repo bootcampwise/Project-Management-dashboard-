@@ -22,10 +22,10 @@ const TeamOverviewChart: React.FC = () => {
   const total = chartData.reduce((sum, item) => sum + item.value, 0);
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 p-6 w-full lg:flex-1 h-[333px]">
+    <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 w-full lg:flex-1 h-[333px]">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
-        <h3 className="text-lg font-medium text-gray-700">Overview</h3>
+        <h3 className="text-lg font-medium text-gray-700 dark:text-gray-200">Overview</h3>
         <Select
           options={[
             { value: '2024', label: '2024' },
@@ -38,7 +38,7 @@ const TeamOverviewChart: React.FC = () => {
       </div>
 
       {/* Total Amount */}
-      <div className="text-3xl font-semibold text-gray-900 mb-6">
+      <div className="text-3xl font-semibold text-gray-900 dark:text-white mb-6">
         ${total.toLocaleString()}
       </div>
 
@@ -46,11 +46,11 @@ const TeamOverviewChart: React.FC = () => {
       <div className="flex items-center justify-end gap-6 mb-6">
         <div className="flex items-center gap-2">
           <div className="w-3 h-3 rounded-full bg-blue-500"></div>
-          <span className="text-sm text-gray-600">Billable</span>
+          <span className="text-sm text-gray-600 dark:text-gray-400">Billable</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded-full bg-gray-200"></div>
-          <span className="text-sm text-gray-600">Non-billable</span>
+          <div className="w-3 h-3 rounded-full bg-gray-200 dark:bg-gray-600"></div>
+          <span className="text-sm text-gray-600 dark:text-gray-400">Non-billable</span>
         </div>
       </div>
 
@@ -70,7 +70,7 @@ const TeamOverviewChart: React.FC = () => {
             dataKey="month"
             axisLine={false}
             tickLine={false}
-            tick={{ fill: '#6B7280', fontSize: 13 }}
+            tick={{ fill: '#9CA3AF', fontSize: 13 }}
             dy={10}
           />
           <Bar
@@ -80,7 +80,7 @@ const TeamOverviewChart: React.FC = () => {
             {chartData.map((entry, index) => (
               <Cell
                 key={`cell-${index}`}
-                fill={entry.isHighlighted ? '#3B82F6' : '#E5E7EB'}
+                fill={entry.isHighlighted ? '#3B82F6' : '#4B5563'}
               />
             ))}
           </Bar>

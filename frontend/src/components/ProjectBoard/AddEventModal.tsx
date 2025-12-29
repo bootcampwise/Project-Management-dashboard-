@@ -2,8 +2,6 @@ import React from 'react';
 import { X, Type } from 'lucide-react';
 import { IconButton, Select, Input, Textarea } from '../ui';
 import type { AddEventModalProps } from '../../types';
-
-
 import { useAddEventModal } from "../../pages/projectboard/hooks/useAddEventModal";
 
 

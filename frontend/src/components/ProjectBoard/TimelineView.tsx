@@ -60,22 +60,22 @@ const TimelineView: React.FC<TimelineViewProps> = ({ projectId }) => {
   const eventRows = groupEventsIntoRows();
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 font-sans text-sm h-full flex flex-col p-6">
+    <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 font-sans text-sm h-full flex flex-col p-6">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
-        <h3 className="text-lg font-medium text-gray-700 flex items-center gap-2">
+        <h3 className="text-lg font-medium text-gray-700 dark:text-gray-200 flex items-center gap-2">
           Timeline
           {isLoading && <Loader2 size={16} className="animate-spin text-blue-500" />}
         </h3>
-        <span className="text-sm text-gray-500">{format(currentDate, 'MMMM d, yyyy')}</span>
+        <span className="text-sm text-gray-500 dark:text-gray-400">{format(currentDate, 'MMMM d, yyyy')}</span>
       </div>
 
       {/* Timeline Content */}
       <div className="flex-1">
         {/* Time Header */}
-        <div className="flex bg-gray-100 rounded-lg py-2 mb-6">
+        <div className="flex bg-gray-100 dark:bg-gray-800 rounded-lg py-2 mb-6">
           {dayHours.map(hour => (
-            <div key={hour} className="flex-1 text-center text-xs font-medium text-gray-600 border-r border-gray-200 last:border-0">
+            <div key={hour} className="flex-1 text-center text-xs font-medium text-gray-600 dark:text-gray-400 border-r border-gray-200 dark:border-gray-700 last:border-0">
               {hour}
             </div>
           ))}
@@ -87,7 +87,7 @@ const TimelineView: React.FC<TimelineViewProps> = ({ projectId }) => {
             <Loader2 size={24} className="animate-spin text-blue-500" />
           </div>
         ) : events.length === 0 ? (
-          <div className="text-center py-10 text-gray-400">
+          <div className="text-center py-10 text-gray-400 dark:text-gray-500">
             <p>No events scheduled for today.</p>
             <p className="text-sm mt-1">Click "Add" to create an event</p>
           </div>
@@ -119,7 +119,7 @@ const TimelineView: React.FC<TimelineViewProps> = ({ projectId }) => {
                             e.stopPropagation();
                             setEditingEvent(event);
                           }}
-                          className="p-0.5 text-gray-400 hover:text-blue-500 hover:bg-blue-50 rounded"
+                          className="p-0.5 text-gray-400 dark:text-gray-500 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded"
                           title="Edit event"
                         >
                           <Pencil size={10} />
@@ -129,16 +129,16 @@ const TimelineView: React.FC<TimelineViewProps> = ({ projectId }) => {
                             e.stopPropagation();
                             deleteEvent(event.id, event.title);
                           }}
-                          className="p-0.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded"
+                          className="p-0.5 text-gray-400 dark:text-gray-500 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 rounded"
                           title="Delete event"
                         >
                           <X size={10} />
                         </button>
                       </div>
-                      <h4 className="font-medium text-gray-700 text-[11px] leading-tight mb-0.5 truncate pr-6">
+                      <h4 className="font-medium text-gray-700 dark:text-gray-200 text-[11px] leading-tight mb-0.5 truncate pr-6">
                         {event.title}
                       </h4>
-                      <span className="text-[10px] text-gray-400">
+                      <span className="text-[10px] text-gray-400 dark:text-gray-500">
                         {formatEventTime(event.start, event.end)}
                       </span>
                     </div>

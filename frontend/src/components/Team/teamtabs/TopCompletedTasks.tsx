@@ -43,12 +43,12 @@ const TopCompletedTasks: React.FC = () => {
 
   return (
     <div
-      className="bg-white rounded-lg border border-gray-200 p-6 w-full lg:w-[336px] h-[328px]"
+      className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 w-full lg:w-[336px] h-[328px]"
     >
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
-        <h3 className="text-lg font-medium text-gray-700">Top completed tasks</h3>
-        <button className="flex items-center gap-2 px-3 py-1.5 border border-gray-300 rounded-md text-sm text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+        <h3 className="text-lg font-medium text-gray-700 dark:text-gray-200">Top completed tasks</h3>
+        <button className="flex items-center gap-2 px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded-md text-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors">
           <span>This week</span>
           <ChevronDown size={16} />
         </button>
@@ -61,7 +61,7 @@ const TopCompletedTasks: React.FC = () => {
             {/* Left: Avatar, Name, Role */}
             <div className="flex items-center gap-3">
               {/* Avatar */}
-              <div className="w-9 h-9 rounded-full bg-gray-300 overflow-hidden flex-shrink-0">
+              <div className="w-9 h-9 rounded-full bg-gray-300 dark:bg-gray-600 overflow-hidden flex-shrink-0">
                 {member.avatar ? (
                   <img
                     src={member.avatar}
@@ -77,17 +77,17 @@ const TopCompletedTasks: React.FC = () => {
 
               {/* Name and Role */}
               <div className="flex flex-col gap-[2px]">
-                <span className="text-[13px] font-medium text-gray-700 leading-none">
+                <span className="text-[13px] font-medium text-gray-700 dark:text-gray-200 leading-none">
                   {member.name}
                 </span>
-                <span className="text-[10px] text-gray-400 leading-none">
+                <span className="text-[10px] text-gray-400 dark:text-gray-500 leading-none">
                   {member.role}
                 </span>
               </div>
             </div>
 
             {/* Right: Task Count */}
-            <div className="text-base font-normal text-gray-600">
+            <div className="text-base font-normal text-gray-600 dark:text-gray-300">
               {member.tasksCompleted}
             </div>
           </div>

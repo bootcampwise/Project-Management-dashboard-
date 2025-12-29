@@ -31,17 +31,17 @@ const TeamFiles: React.FC<TeamFilesProps> = ({
 
     // Show confirmation toast
     showToast.custom((t) => (
-      <div className={`${t.visible ? 'animate-enter' : 'animate-leave'} bg-white rounded-xl shadow-lg p-4 min-w-[280px] border border-gray-100`}>
+      <div className={`${t.visible ? 'animate-enter' : 'animate-leave'} bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4 min-w-[280px] border border-gray-100 dark:border-gray-700`}>
         <div className="mb-3">
-          <h3 className="font-semibold text-gray-900 text-base">Delete File?</h3>
-          <p className="text-sm text-gray-500 mt-1">
-            Are you sure you want to delete <span className="font-semibold text-gray-700">"{file.name}"</span>? This action cannot be undone.
+          <h3 className="font-semibold text-gray-900 dark:text-white text-base">Delete File?</h3>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+            Are you sure you want to delete <span className="font-semibold text-gray-700 dark:text-gray-300">"{file.name}"</span>? This action cannot be undone.
           </p>
         </div>
         <div className="flex items-center justify-end gap-2">
           <button
             onClick={() => showToast.dismiss(t.id)}
-            className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+            className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
           >
             Cancel
           </button>
@@ -63,10 +63,10 @@ const TeamFiles: React.FC<TeamFilesProps> = ({
   };
 
   return (
-    <div className="flex-1 bg-white">
+    <div className="flex-1 bg-white dark:bg-gray-900">
       <div className="min-w-[800px]">
         {/* Header */}
-        <div className="grid grid-cols-[2.5fr_1fr_1fr_1.5fr] gap-4 px-6 py-3 bg-gray-50 border-b border-gray-200 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+        <div className="grid grid-cols-[2.5fr_1fr_1fr_1.5fr] gap-4 px-6 py-3 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
           <div>Name</div>
           <div>size</div>
           <div>date upload</div>
@@ -74,38 +74,38 @@ const TeamFiles: React.FC<TeamFilesProps> = ({
         </div>
 
         {/* Rows with 2px gap */}
-        <div className="flex flex-col gap-[2px] bg-gray-50">
+        <div className="flex flex-col gap-[2px] bg-gray-50 dark:bg-gray-800">
           {(!activeTeam && (!allTeams || !allTeams.some(t => t.projects?.length))) || (activeTeam && !activeTeam.projects?.length) ? (
-            <div className="px-6 py-8 text-center text-gray-500 text-sm italic">
+            <div className="px-6 py-8 text-center text-gray-500 dark:text-gray-400 text-sm italic">
               No projects assigned to {activeTeam ? "this team" : "any team"}.
             </div>
           ) : isLoading ? (
             // Skeleton loading - looks like actual file rows
             <>
               {[1, 2, 3, 4, 5].map((i) => (
-                <div key={i} className="grid grid-cols-[2.5fr_1fr_1fr_1.5fr] gap-4 px-6 h-[43px] items-center bg-white animate-pulse">
+                <div key={i} className="grid grid-cols-[2.5fr_1fr_1fr_1.5fr] gap-4 px-6 h-[43px] items-center bg-white dark:bg-gray-900 animate-pulse">
                   <div className="flex items-center gap-3">
-                    <div className="w-5 h-5 bg-gray-200 rounded" />
-                    <div className="h-4 bg-gray-200 rounded w-48" />
+                    <div className="w-5 h-5 bg-gray-200 dark:bg-gray-700 rounded" />
+                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-48" />
                   </div>
-                  <div className="h-4 bg-gray-200 rounded w-16" />
-                  <div className="h-4 bg-gray-200 rounded w-24" />
+                  <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-16" />
+                  <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-24" />
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-gray-200 rounded-full" />
-                    <div className="h-4 bg-gray-200 rounded w-24" />
+                    <div className="w-8 h-8 bg-gray-200 dark:bg-gray-700 rounded-full" />
+                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-24" />
                   </div>
                 </div>
               ))}
             </>
           ) : files.length === 0 ? (
-            <div className="px-6 py-8 text-center text-gray-500 text-sm italic">
+            <div className="px-6 py-8 text-center text-gray-500 dark:text-gray-400 text-sm italic">
               No files uploaded by team members.
             </div>
           ) : (
             files.map((file) => (
               <div
                 key={file.id}
-                className={`grid grid-cols-[2.5fr_1fr_1fr_1.5fr] gap-4 px-6 h-[43px] items-center bg-white hover:bg-gray-50 transition-colors cursor-pointer overflow-visible ${deletingId === file.id ? 'opacity-50' : ''} `}
+                className={`grid grid-cols-[2.5fr_1fr_1fr_1.5fr] gap-4 px-6 h-[43px] items-center bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors cursor-pointer overflow-visible ${deletingId === file.id ? 'opacity-50' : ''} `}
                 onClick={() => handleFileClick(file)}
               >
                 {/* Name Column */}
@@ -113,16 +113,16 @@ const TeamFiles: React.FC<TeamFilesProps> = ({
                   <div className="p-1 flex-shrink-0">
                     {getFileIcon(file)}
                   </div>
-                  <span className="text-sm font-semibold text-gray-600 truncate hover:text-blue-600 hover:underline" title={file.name}>{file.name}</span>
+                  <span className="text-sm font-semibold text-gray-600 dark:text-gray-300 truncate hover:text-blue-600 dark:hover:text-blue-400 hover:underline" title={file.name}>{file.name}</span>
                 </div>
 
                 {/* Size */}
-                <div className="text-sm text-gray-500">
+                <div className="text-sm text-gray-500 dark:text-gray-400">
                   {formatSize(file.size)}
                 </div>
 
                 {/* Date */}
-                <div className="text-sm text-gray-500">
+                <div className="text-sm text-gray-500 dark:text-gray-400">
                   {file.createdAt ? format(new Date(file.createdAt), 'MMM d, yyyy') : '-'}
                 </div>
 
@@ -133,21 +133,21 @@ const TeamFiles: React.FC<TeamFilesProps> = ({
                       <img
                         src={file.user.avatar}
                         alt={file.user.name}
-                        className="w-8 h-8 rounded-full object-cover border border-gray-200 flex-shrink-0"
+                        className="w-8 h-8 rounded-full object-cover border border-gray-200 dark:border-gray-700 flex-shrink-0"
                       />
                     ) : (
-                      <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-xs font-bold text-gray-600 flex-shrink-0">
+                      <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-xs font-bold text-gray-600 dark:text-gray-300 flex-shrink-0">
                         {file.user?.name?.charAt(0) || "?"}
                       </div>
                     )}
-                    <span className="text-sm text-gray-600 truncate">{file.user?.name || "Unknown"}</span>
+                    <span className="text-sm text-gray-600 dark:text-gray-400 truncate">{file.user?.name || "Unknown"}</span>
                   </div>
 
                   {/* Three dots menu */}
                   <div className="relative flex-shrink-0">
                     <button
                       onClick={(e) => handleMenuClick(e, file.id)}
-                      className="text-gray-400 hover:text-gray-600 p-1.5 rounded hover:bg-gray-100"
+                      className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 p-1.5 rounded hover:bg-gray-100 dark:hover:bg-gray-700"
                     >
                       {deletingId === file.id ? (
                         <Loader2 size={18} className="animate-spin" />
@@ -159,12 +159,12 @@ const TeamFiles: React.FC<TeamFilesProps> = ({
                     {openMenuId === file.id && (
                       <div
                         ref={menuRef}
-                        className="absolute right-0 top-full mt-1 w-36 bg-white rounded-lg shadow-xl border border-gray-200 py-1"
+                        className="absolute right-0 top-full mt-1 w-36 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 py-1"
                         style={{ zIndex: 9999 }}
                       >
                         <button
                           onClick={(e) => handleDelete(e, file)}
-                          className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                          className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors"
                         >
                           <Trash2 size={16} />
                           Delete

@@ -51,9 +51,9 @@ const TopEarning: React.FC = () => {
       case 'orange':
         return 'bg-orange-400';
       case 'gray':
-        return 'bg-gray-300';
+        return 'bg-gray-300 dark:bg-gray-600';
       default:
-        return 'bg-gray-300';
+        return 'bg-gray-300 dark:bg-gray-600';
     }
   };
 
@@ -69,13 +69,13 @@ const TopEarning: React.FC = () => {
 
   return (
     <div
-      className="bg-white rounded-lg border border-gray-200 w-full h-full flex flex-col"
+      className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 w-full h-full flex flex-col"
       style={{ padding: '6px' }}
     >
       {/* Header */}
       <div className="flex items-center justify-between mb-2 px-2 pt-2 flex-shrink-0">
-        <h3 className="text-lg font-medium text-gray-700">Top earning</h3>
-        <button className="flex items-center gap-2 px-3 py-1.5 border border-gray-300 rounded-md text-sm text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+        <h3 className="text-lg font-medium text-gray-700 dark:text-gray-200">Top earning</h3>
+        <button className="flex items-center gap-2 px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded-md text-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors">
           <span>This month</span>
           <ChevronDown size={16} />
         </button>
@@ -86,7 +86,7 @@ const TopEarning: React.FC = () => {
         {projects.map((project, index) => (
           <div
             key={`${project.id}-${index}`}
-            className="w-full flex items-center justify-between mx-auto px-1 h-[52px] border-b border-gray-100"
+            className="w-full flex items-center justify-between mx-auto px-1 h-[52px] border-b border-gray-100 dark:border-gray-700"
           >
             {/* Left: Icon, Name, Tasks */}
             <div className="flex items-center gap-3 overflow-hidden">
@@ -97,17 +97,17 @@ const TopEarning: React.FC = () => {
 
               {/* Name and Tasks */}
               <div className="flex flex-col justify-center overflow-hidden min-w-0 gap-[5px]">
-                <span className="text-[13px] font-medium text-gray-700 truncate leading-none">
+                <span className="text-[13px] font-medium text-gray-700 dark:text-gray-200 truncate leading-none">
                   {project.name}
                 </span>
-                <span className="text-[10px] text-gray-400 truncate leading-none">
+                <span className="text-[10px] text-gray-400 dark:text-gray-500 truncate leading-none">
                   {project.completedTasks} completed tasks
                 </span>
               </div>
             </div>
 
             {/* Right: Earning */}
-            <div className="text-sm font-medium text-gray-700 whitespace-nowrap ml-2">
+            <div className="text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap ml-2">
               ${project.earning.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </div>
           </div>

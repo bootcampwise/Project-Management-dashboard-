@@ -9,13 +9,13 @@ import { StatCard } from '../../ui';
 
 const TeamDashboard: React.FC = () => {
   return (
-    <div className="p-6 bg-gray-50">
+    <div className="p-6 bg-gray-50 dark:bg-gray-900">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-base font-normal text-gray-600">Teamspace overview</h2>
+        <h2 className="text-base font-normal text-gray-600 dark:text-gray-400">Teamspace overview</h2>
 
         {/* Dropdown */}
-        <button className="flex items-center gap-2 px-3 py-1.5 border border-gray-300 rounded-md text-sm text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+        <button className="flex items-center gap-2 px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded-md text-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
           <span>All projects</span>
           <ChevronDown size={16} />
         </button>
