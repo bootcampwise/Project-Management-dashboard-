@@ -10,6 +10,7 @@ import ProjectBoard from "./pages/projectboard/ProjectBoard";
 import Tasks from "./pages/task/Tasks";
 import Team from "./pages/team/Team";
 import { useAuthListener } from './pages/login/hooks/useAuthListener';
+import { useTheme } from './pages/sidebar/hooks/useTheme';
 
 function Home() {
   return (
@@ -45,6 +46,8 @@ function Home() {
 
 function App() {
   useAuthListener();
+  // Apply theme at app level to ensure immediate updates
+  useTheme();
   return (
     <BrowserRouter>
       <Toaster position="top-right" />

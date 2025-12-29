@@ -256,6 +256,25 @@ export const useTaskDetailModal = ({
     }
   };
 
+  // Simplified tag addition for sub-components
+  const handleAddTag = async (tagText: string) => {
+    if (!tagText.trim() || !task) return;
+    try {
+      const currentTags =
+        task.tags?.map((t: NonNullable<Task["tags"]>[number]) => t.text) || [];
+      if (currentTags.includes(tagText.trim())) return;
+
+      await addTag({
+        taskId: String(task.id),
+        tags: [...currentTags, tagText.trim()],
+      }).unwrap();
+      refetchTask();
+      showToast.success("Tag added");
+    } catch (error) {
+      showToast.error(`Failed to add tag. ${getErrorMessage(error)}`);
+    }
+  };
+
   const handleDownload = async (
     e: React.MouseEvent,
     attachment: Attachment
@@ -317,6 +336,7 @@ export const useTaskDetailModal = ({
     handleToggleSubtask,
     handleAddComment,
     handleTagSubmit,
+    handleAddTag,
     handleDownload,
   };
 };

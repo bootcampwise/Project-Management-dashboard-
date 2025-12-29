@@ -118,10 +118,10 @@ export const useSettingsModalLogic = (
         department: formData.department,
         hasCompletedOnboarding: true,
       }).unwrap();
-      showToast.success("Profile updated successfully");
+      showToast.success("Settings saved successfully");
       onClose();
     } catch (error) {
-      showToast.error(`Failed to update profile. ${getErrorMessage(error)}`);
+      showToast.error(`Failed to save settings. ${getErrorMessage(error)}`);
     }
   };
 

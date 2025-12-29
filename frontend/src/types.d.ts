@@ -222,6 +222,65 @@ export interface StatCardProps {
 }
 
 // ============================================
+// TASK DETAIL COMPONENT PROPS
+// ============================================
+
+export interface TaskDetailHeaderProps {
+  onEdit: () => void;
+  onDelete: () => void;
+  onClose: () => void;
+}
+
+export interface TaskPropertiesProps {
+  task: Task;
+  onAddTag: (tag: string) => void;
+}
+
+export interface TaskDescriptionProps {
+  description?: string;
+}
+
+// Flexible member type to handle both User and TeamMember
+export interface MemberItem {
+  id: string | number;
+  name: string;
+  email?: string;
+  avatar?: string;
+}
+
+export interface TaskAttachmentsProps {
+  attachments: Attachment[];
+  onUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onDownload: (e: React.MouseEvent, attachment: Attachment) => void;
+}
+
+export interface TaskSubtasksProps {
+  subtasks: SubTask[];
+  newSubtask: string;
+  setNewSubtask: (value: string) => void;
+  filteredTeamMembers: MemberItem[];
+  subtaskAssigneeSearch: string;
+  setSubtaskAssigneeSearch: (value: string) => void;
+  onAddSubtask: (e: React.KeyboardEvent<HTMLInputElement>) => void;
+  onToggle: (id: string, completed: boolean) => void;
+  onDelete: (id: string) => void;
+  onAssign: (
+    subtaskId: string,
+    userId: string,
+    action: "add" | "remove"
+  ) => void;
+}
+
+export interface TaskCommentsProps {
+  comments: Comment[];
+  user?: User | null;
+  newComment: string;
+  setNewComment: (value: string) => void;
+  onAddComment: () => void;
+  isSubmitting: boolean;
+}
+
+// ============================================
 // CREATE TASK & EVENT TYPES
 // ============================================
 
