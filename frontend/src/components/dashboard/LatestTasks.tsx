@@ -1,18 +1,8 @@
 import React from 'react';
 import { ArrowUpDown, FileText } from 'lucide-react';
+import type { LatestTask } from '../../types';
 
-interface Task {
-  id: number;
-  name: string;
-  project: string;
-  subtasks: string;
-  status: string;
-  priority: string;
-  startDate: string;
-  endDate: string;
-}
-
-const tasks: Task[] = [
+const tasks: LatestTask[] = [
   {
     id: 1,
     name: 'Design Landing Page',

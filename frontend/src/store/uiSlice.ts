@@ -1,35 +1,9 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
-import type { Project, Task } from "../types";
+import type { Project, Task, UiState } from "../types";
 
 // ============================================
 // UI STATE - All UI-related state
 // ============================================
-
-interface UiState {
-  // Sidebar
-  sidebarOpen: boolean;
-  sidebarSections: {
-    mobileApp: boolean;
-    diadora: boolean;
-  };
-
-  // Settings Modal
-  isSettingsOpen: boolean;
-
-  // Project-related UI
-  activeProject: Project | null;
-  activeTab: string;
-  isCreateProjectModalOpen: boolean;
-  isTeamModalOpen: boolean;
-  isTemplateLibraryOpen: boolean;
-
-  // Task-related UI
-  selectedTask: Task | null;
-  activeView: "kanban" | "list";
-
-  // Theme
-  theme: "light" | "dark";
-}
 
 const initialState: UiState = {
   sidebarOpen: typeof window !== "undefined" && window.innerWidth >= 768,

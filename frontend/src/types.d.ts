@@ -257,12 +257,28 @@ export interface CalendarEvent {
 // ============================================
 
 export interface UiState {
+  // Sidebar
   sidebarOpen: boolean;
-  isSettingsOpen: boolean;
   sidebarSections: {
     mobileApp: boolean;
     diadora: boolean;
   };
+
+  // Settings Modal
+  isSettingsOpen: boolean;
+
+  // Project-related UI
+  activeProject: Project | null;
+  activeTab: string;
+  isCreateProjectModalOpen: boolean;
+  isTeamModalOpen: boolean;
+  isTemplateLibraryOpen: boolean;
+
+  // Task-related UI
+  selectedTask: Task | null;
+  activeView: "kanban" | "list";
+
+  // Theme
   theme: "light" | "dark";
 }
 
@@ -743,8 +759,17 @@ export type CacheItem = {
   expiresAt: number;
 };
 
-export interface UiState {
-  sidebarCollapsed: boolean;
-  darkMode: boolean;
-  activeProjectId: string | null;
+// ============================================
+// DASHBOARD LATEST TASKS
+// ============================================
+
+export interface LatestTask {
+  id: number;
+  name: string;
+  project: string;
+  subtasks: string;
+  status: string;
+  priority: string;
+  startDate: string;
+  endDate: string;
 }
