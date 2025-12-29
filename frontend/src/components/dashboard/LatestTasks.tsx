@@ -58,55 +58,55 @@ const tasks: Task[] = [
 const LatestTasks: React.FC = () => {
   return (
     <div
-      className="bg-white rounded-xl shadow-sm border border-gray-100/60 p-3 flex flex-col overflow-hidden w-full h-[260px]"
+      className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100/60 dark:border-gray-700/60 p-3 flex flex-col overflow-hidden w-full h-[260px]"
     >
-      <h3 className="text-sm font-semibold text-gray-800 mb-2">Latest Tasks</h3>
+      <h3 className="text-sm font-semibold text-gray-800 dark:text-white mb-2">Latest Tasks</h3>
 
       <div className="overflow-x-auto flex-1 w-full">
         <table className="w-full min-w-[900px]">
-          <thead className="bg-[#F7F9FB]">
+          <thead className="bg-[#F7F9FB] dark:bg-gray-700">
             <tr>
               <th className="py-1 px-3 text-left w-8">
-                <div className="w-3 h-3 rounded border border-gray-400"></div>
+                <div className="w-3 h-3 rounded border border-gray-400 dark:border-gray-500"></div>
               </th>
-              <th className="py-1.5 px-3 text-left font-medium text-gray-500 text-[10px] uppercase tracking-wider">
-                <div className="flex items-center gap-1 cursor-pointer hover:text-gray-700">
+              <th className="py-1.5 px-3 text-left font-medium text-gray-500 dark:text-gray-400 text-[10px] uppercase tracking-wider">
+                <div className="flex items-center gap-1 cursor-pointer hover:text-gray-700 dark:hover:text-gray-300">
                   Task Name
                   <ArrowUpDown size={10} />
                 </div>
               </th>
-              <th className="py-1.5 px-3 text-left font-medium text-gray-500 text-[10px] uppercase tracking-wider">
-                <div className="flex items-center gap-1 cursor-pointer hover:text-gray-700">
+              <th className="py-1.5 px-3 text-left font-medium text-gray-500 dark:text-gray-400 text-[10px] uppercase tracking-wider">
+                <div className="flex items-center gap-1 cursor-pointer hover:text-gray-700 dark:hover:text-gray-300">
                   Project Name
                   <ArrowUpDown size={10} />
                 </div>
               </th>
-              <th className="py-1.5 px-3 text-left font-medium text-gray-500 text-[10px] uppercase tracking-wider">
-                <div className="flex items-center gap-1 cursor-pointer hover:text-gray-700">
+              <th className="py-1.5 px-3 text-left font-medium text-gray-500 dark:text-gray-400 text-[10px] uppercase tracking-wider">
+                <div className="flex items-center gap-1 cursor-pointer hover:text-gray-700 dark:hover:text-gray-300">
                   Subtasks
                   <ArrowUpDown size={10} />
                 </div>
               </th>
-              <th className="py-1.5 px-3 text-left font-medium text-gray-500 text-[10px] uppercase tracking-wider">
-                <div className="flex items-center gap-1 cursor-pointer hover:text-gray-700">
+              <th className="py-1.5 px-3 text-left font-medium text-gray-500 dark:text-gray-400 text-[10px] uppercase tracking-wider">
+                <div className="flex items-center gap-1 cursor-pointer hover:text-gray-700 dark:hover:text-gray-300">
                   Status
                   <ArrowUpDown size={10} />
                 </div>
               </th>
-              <th className="py-1.5 px-3 text-left font-medium text-gray-500 text-[10px] uppercase tracking-wider">
-                <div className="flex items-center gap-1 cursor-pointer hover:text-gray-700">
+              <th className="py-1.5 px-3 text-left font-medium text-gray-500 dark:text-gray-400 text-[10px] uppercase tracking-wider">
+                <div className="flex items-center gap-1 cursor-pointer hover:text-gray-700 dark:hover:text-gray-300">
                   Priority
                   <ArrowUpDown size={10} />
                 </div>
               </th>
-              <th className="py-1.5 px-3 text-left font-medium text-gray-500 text-[10px] uppercase tracking-wider">
-                <div className="flex items-center gap-1 cursor-pointer hover:text-gray-700">
+              <th className="py-1.5 px-3 text-left font-medium text-gray-500 dark:text-gray-400 text-[10px] uppercase tracking-wider">
+                <div className="flex items-center gap-1 cursor-pointer hover:text-gray-700 dark:hover:text-gray-300">
                   Start Date
                   <ArrowUpDown size={10} />
                 </div>
               </th>
-              <th className="py-1.5 px-3 text-left font-medium text-gray-500 text-[10px] uppercase tracking-wider">
-                <div className="flex items-center gap-1 cursor-pointer hover:text-gray-700">
+              <th className="py-1.5 px-3 text-left font-medium text-gray-500 dark:text-gray-400 text-[10px] uppercase tracking-wider">
+                <div className="flex items-center gap-1 cursor-pointer hover:text-gray-700 dark:hover:text-gray-300">
                   End Date
                   <ArrowUpDown size={10} />
                 </div>
@@ -115,19 +115,19 @@ const LatestTasks: React.FC = () => {
           </thead>
           <tbody>
             {tasks.map((task) => (
-              <tr key={task.id} className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
+              <tr key={task.id} className="border-b border-gray-50 dark:border-gray-700 hover:bg-gray-50/50 dark:hover:bg-gray-700/50 transition-colors">
                 <td className="py-1.5 px-3">
-                  <div className="w-3 h-3 rounded border border-gray-400 cursor-pointer hover:border-[#004e76]"></div>
+                  <div className="w-3 h-3 rounded border border-gray-400 dark:border-gray-500 cursor-pointer hover:border-[#004e76]"></div>
                 </td>
-                <td className="py-1.5 px-3 text-xs font-medium text-gray-700">
+                <td className="py-1.5 px-3 text-xs font-medium text-gray-700 dark:text-gray-200">
                   {task.name}
                 </td>
-                <td className="py-1.5 px-3 text-xs text-gray-500">
+                <td className="py-1.5 px-3 text-xs text-gray-500 dark:text-gray-400">
                   {task.project}
                 </td>
-                <td className="py-1.5 px-3 text-xs text-gray-500">
+                <td className="py-1.5 px-3 text-xs text-gray-500 dark:text-gray-400">
                   <div className="flex items-center gap-1.5">
-                    <FileText size={12} className="text-[#004e76]" />
+                    <FileText size={12} className="text-[#004e76] dark:text-blue-400" />
                     <span>{task.subtasks}</span>
                   </div>
                 </td>
@@ -144,9 +144,9 @@ const LatestTasks: React.FC = () => {
                 <td className="py-1.5 px-3">
                   <span className={`
                                         px-2 py-0.5 rounded text-[10px] font-medium inline-flex items-center gap-1
-                                        ${task.priority === 'High' ? 'bg-red-50 text-red-600' : ''}
-                                        ${task.priority === 'Medium' ? 'bg-yellow-50 text-yellow-600' : ''}
-                                        ${task.priority === 'Low' ? 'bg-green-50 text-green-600' : ''}
+                                        ${task.priority === 'High' ? 'bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400' : ''}
+                                        ${task.priority === 'Medium' ? 'bg-yellow-50 dark:bg-yellow-900/30 text-yellow-600 dark:text-yellow-400' : ''}
+                                        ${task.priority === 'Low' ? 'bg-green-50 dark:bg-green-900/30 text-green-600 dark:text-green-400' : ''}
                                     `}>
                     <div className={`
                                             w-1 h-1 rounded-full
@@ -157,10 +157,10 @@ const LatestTasks: React.FC = () => {
                     {task.priority}
                   </span>
                 </td>
-                <td className="py-1.5 px-3 text-xs text-gray-500">
+                <td className="py-1.5 px-3 text-xs text-gray-500 dark:text-gray-400">
                   {task.startDate}
                 </td>
-                <td className="py-1.5 px-3 text-xs text-gray-500">
+                <td className="py-1.5 px-3 text-xs text-gray-500 dark:text-gray-400">
                   {task.endDate}
                 </td>
               </tr>

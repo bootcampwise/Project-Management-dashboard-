@@ -16,9 +16,9 @@ export const IconButton: React.FC<IconButtonProps> = ({
   ...props
 }) => {
   const variantStyles = {
-    outline: 'bg-white border border-gray-300 hover:bg-gray-50',
-    filled: 'bg-gray-100 border border-gray-200 hover:bg-gray-200',
-    ghost: 'hover:bg-gray-100',
+    outline: 'bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700',
+    filled: 'bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-600',
+    ghost: 'hover:bg-gray-100 dark:hover:bg-gray-800',
   };
 
   const sizeStyles = {
@@ -37,7 +37,7 @@ export const IconButton: React.FC<IconButtonProps> = ({
     <button
       className={`
         inline-flex items-center justify-center gap-2
-        rounded-md transition-colors text-gray-600
+        rounded-md transition-colors text-gray-600 dark:text-gray-400
         ${variantStyles[variant]}
         ${sizeStyles[size]}
         ${iconSizeStyles[size]}

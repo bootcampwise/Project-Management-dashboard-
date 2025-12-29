@@ -26,6 +26,9 @@ interface UiState {
   // Task-related UI
   selectedTask: Task | null;
   activeView: "kanban" | "list";
+
+  // Theme
+  theme: "light" | "dark";
 }
 
 const initialState: UiState = {
@@ -42,6 +45,10 @@ const initialState: UiState = {
   activeTab: "Board",
   selectedTask: null,
   activeView: "kanban",
+  theme:
+    (typeof window !== "undefined" &&
+      (localStorage.getItem("theme") as "light" | "dark")) ||
+    "light",
 };
 
 const uiSlice = createSlice({
@@ -92,6 +99,11 @@ const uiSlice = createSlice({
     setActiveView: (state, action: PayloadAction<"kanban" | "list">) => {
       state.activeView = action.payload;
     },
+
+    // Theme (pure reducer - side effects handled in useTheme hook)
+    setTheme: (state, action: PayloadAction<"light" | "dark">) => {
+      state.theme = action.payload;
+    },
   },
 });
 
@@ -107,6 +119,7 @@ export const {
   setTemplateLibraryOpen,
   setSelectedTask,
   setActiveView,
+  setTheme,
 } = uiSlice.actions;
 
 export default uiSlice.reducer;

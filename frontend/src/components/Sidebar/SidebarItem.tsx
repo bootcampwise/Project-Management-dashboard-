@@ -31,13 +31,13 @@ const SidebarItem: React.FC<SidebarItemProps> = ({
       className={`
                 flex items-center px-3 py-1.5 mb-0.5 cursor-pointer rounded-md transition
                 ${isActive
-          ? "bg-gray-100 text-gray-900"
-          : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+          ? "bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white"
+          : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white"
         }
             `}
     >
       {/* Chevron column / spacer */}
-      <div className="w-4 flex items-center justify-center text-gray-400 flex-shrink-0">
+      <div className="w-4 flex items-center justify-center text-gray-400 dark:text-gray-500 flex-shrink-0">
         {hasSubmenu &&
           (isOpen ? <ChevronDown size={14} /> : <ChevronRight size={14} />)}
       </div>
@@ -48,7 +48,7 @@ const SidebarItem: React.FC<SidebarItemProps> = ({
         style={{ marginLeft: indent * 12 }}
       >
         {/* Icon */}
-        {Icon && <Icon size={18} className="text-gray-500" />}
+        {Icon && <Icon size={18} className="text-gray-500 dark:text-gray-400" />}
 
         {/* Badge (project icon) */}
         {badge && <div className="flex-shrink-0">{badge}</div>}

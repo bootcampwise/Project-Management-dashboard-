@@ -77,14 +77,14 @@ export const Dropdown: React.FC<DropdownProps> = ({
         <div
           className={`
             absolute z-50 mt-1 py-1 min-w-[160px]
-            bg-white border border-gray-200 rounded-lg shadow-lg
+            bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg
             ${align === 'right' ? 'right-0' : 'left-0'}
             ${menuClassName}
           `.trim()}
         >
           {items.map((item) => {
             if (item.divider) {
-              return <div key={item.key} className="my-1 border-t border-gray-100" />;
+              return <div key={item.key} className="my-1 border-t border-gray-100 dark:border-gray-700" />;
             }
 
             if (item.custom) {
@@ -93,7 +93,7 @@ export const Dropdown: React.FC<DropdownProps> = ({
 
             if (item.header) {
               return (
-                <div key={item.key} className="px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                <div key={item.key} className="px-3 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                   {item.label}
                 </div>
               );
@@ -115,10 +115,10 @@ export const Dropdown: React.FC<DropdownProps> = ({
                   w-full flex items-center gap-2 px-3 py-2 text-sm text-left
                   transition-colors
                   ${item.disabled
-                    ? 'text-gray-300 cursor-not-allowed'
+                    ? 'text-gray-300 dark:text-gray-600 cursor-not-allowed'
                     : item.danger
-                      ? 'text-red-600 hover:bg-red-50'
-                      : 'text-gray-700 hover:bg-gray-50'
+                      ? 'text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30'
+                      : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
                   }
                 `.trim().replace(/\s+/g, ' ')}
               >

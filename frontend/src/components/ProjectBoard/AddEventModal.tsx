@@ -25,15 +25,15 @@ const AddEventModal: React.FC<AddEventModalProps> = ({ isOpen, onClose, onAdd, o
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm" onClick={onClose}>
       <div
-        className="bg-white rounded-xl shadow-2xl w-full max-w-lg mx-4 flex flex-col max-h-[90vh]"
+        className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-lg mx-4 flex flex-col max-h-[90vh]"
         onClick={e => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-          <h2 className="text-xl font-bold text-gray-800">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-700">
+          <h2 className="text-xl font-bold text-gray-800 dark:text-white">
             {isEditMode ? 'Edit Event' : 'Add Event in Calendar'}
           </h2>
-          <IconButton icon={<X size={20} />} onClick={onClose} className="text-gray-400 hover:text-gray-600" disabled={isLoading} />
+          <IconButton icon={<X size={20} />} onClick={onClose} className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300" disabled={isLoading} />
         </div>
 
         {/* Body */}
@@ -52,8 +52,8 @@ const AddEventModal: React.FC<AddEventModalProps> = ({ isOpen, onClose, onAdd, o
 
           {/* Event Type */}
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1.5 flex items-center gap-2">
-              <Type size={16} className="text-gray-400" />
+            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5 flex items-center gap-2">
+              <Type size={16} className="text-gray-400 dark:text-gray-500" />
               Event Type
             </label>
             <Select
@@ -112,10 +112,10 @@ const AddEventModal: React.FC<AddEventModalProps> = ({ isOpen, onClose, onAdd, o
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-4 border-t border-gray-100 bg-gray-50/50 rounded-b-xl flex items-center justify-end gap-3">
+        <div className="px-6 py-4 border-t border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900/50 rounded-b-xl flex items-center justify-end gap-3">
           <button
             onClick={onClose}
-            className="px-5 py-2.5 text-sm font-medium text-gray-600 hover:text-gray-800 hover:bg-white border boundary-transparent hover:border-gray-200 rounded-lg transition-all"
+            className="px-5 py-2.5 text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-white hover:bg-white dark:hover:bg-gray-700 border border-transparent hover:border-gray-200 dark:hover:border-gray-600 rounded-lg transition-all"
             disabled={isLoading}
           >
             Cancel

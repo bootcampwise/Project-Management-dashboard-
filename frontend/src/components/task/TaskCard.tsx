@@ -50,7 +50,7 @@ const TaskCard: React.FC<TaskCardComponentProps> = ({
   return (
     <div
       onClick={onClick}
-      className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-all cursor-pointer group relative"
+      className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md dark:hover:shadow-gray-900/50 transition-all cursor-pointer group relative"
     >
       {/* Three-dot Menu - appears on hover */}
       {(onEdit || onDelete) && (
@@ -60,7 +60,7 @@ const TaskCard: React.FC<TaskCardComponentProps> = ({
         >
           <Dropdown
             trigger={
-              <button className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors">
+              <button className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
                 <MoreVertical size={16} />
               </button>
             }
@@ -80,13 +80,13 @@ const TaskCard: React.FC<TaskCardComponentProps> = ({
       )}
 
       {/* Title */}
-      <h3 className="text-gray-900 font-bold mb-1 text-[15px] leading-snug group-hover:text-blue-600 transition-colors pr-8">
+      <h3 className="text-gray-900 dark:text-white font-bold mb-1 text-[15px] leading-snug group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors pr-8">
         {title}
       </h3>
 
       {/* Description */}
       {description && (
-        <p className="text-gray-500 text-xs mb-4 line-clamp-2 leading-relaxed">
+        <p className="text-gray-500 dark:text-gray-400 text-xs mb-4 line-clamp-2 leading-relaxed">
           {description}
         </p>
       )}
@@ -95,13 +95,13 @@ const TaskCard: React.FC<TaskCardComponentProps> = ({
       {visibleFields.assignee !== false && (
         <div className="mb-4">
           <div className="flex items-center">
-            <span className="text-xs text-gray-400 mr-2 font-medium">Assignee:</span>
+            <span className="text-xs text-gray-400 dark:text-gray-500 mr-2 font-medium">Assignee:</span>
             <div className="flex -space-x-2">
               {displayAssignees.length > 0 ? (
                 displayAssignees.slice(0, 3).map((a, i) => (
                   <div
                     key={i}
-                    className="w-6 h-6 rounded-full border-2 border-white overflow-hidden bg-gray-100 flex items-center justify-center text-[9px] font-bold text-gray-500"
+                    className="w-6 h-6 rounded-full border-2 border-white dark:border-gray-800 overflow-hidden bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-[9px] font-bold text-gray-500 dark:text-gray-400"
                     title={a.name}
                   >
                     {a.avatar ? (
@@ -112,12 +112,12 @@ const TaskCard: React.FC<TaskCardComponentProps> = ({
                   </div>
                 ))
               ) : (
-                <div className="w-6 h-6 rounded-full border-2 border-white border-dashed bg-gray-50 flex items-center justify-center">
-                  <span className="text-gray-300 text-[10px]">?</span>
+                <div className="w-6 h-6 rounded-full border-2 border-white dark:border-gray-800 border-dashed bg-gray-50 dark:bg-gray-700 flex items-center justify-center">
+                  <span className="text-gray-300 dark:text-gray-500 text-[10px]">?</span>
                 </div>
               )}
               {displayAssignees.length > 3 && (
-                <div className="w-6 h-6 rounded-full border-2 border-white bg-gray-100 flex items-center justify-center text-[9px] font-medium text-gray-500">
+                <div className="w-6 h-6 rounded-full border-2 border-white dark:border-gray-800 bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-[9px] font-medium text-gray-500 dark:text-gray-400">
                   +{displayAssignees.length - 3}
                 </div>
               )}
@@ -131,7 +131,7 @@ const TaskCard: React.FC<TaskCardComponentProps> = ({
         <div className="flex items-center justify-between mb-4">
           {/* Date */}
           {visibleFields.dueDate !== false && (
-            <div className="flex items-center gap-1.5 text-gray-400">
+            <div className="flex items-center gap-1.5 text-gray-400 dark:text-gray-500">
               <Flag size={14} className="stroke-current" />
               <span className="text-xs font-medium">
                 {date ? formatDate(date) : 'No date'}
@@ -153,21 +153,21 @@ const TaskCard: React.FC<TaskCardComponentProps> = ({
       )}
 
       {/* Footer Stats */}
-      <div className="flex items-center gap-4 border-t border-gray-50 pt-3">
+      <div className="flex items-center gap-4 border-t border-gray-50 dark:border-gray-700 pt-3">
         {/* Subtasks */}
-        <div className="flex items-center gap-1.5 text-gray-400 hover:text-gray-600 transition-colors">
+        <div className="flex items-center gap-1.5 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
           <ListTodo size={14} />
           <span className="text-xs font-medium">{subtasks}</span>
         </div>
 
         {/* Comments */}
-        <div className="flex items-center gap-1.5 text-gray-400 hover:text-gray-600 transition-colors">
+        <div className="flex items-center gap-1.5 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
           <MessageSquare size={14} />
           <span className="text-xs font-medium">{comments}</span>
         </div>
 
         {/* Attachments */}
-        <div className="flex items-center gap-1.5 text-gray-400 hover:text-gray-600 transition-colors">
+        <div className="flex items-center gap-1.5 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
           <Paperclip size={14} />
           <span className="text-xs font-medium">{attachments}</span>
         </div>

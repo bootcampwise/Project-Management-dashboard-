@@ -9,6 +9,7 @@ import {
 import { useGetTeamsQuery } from "../../../store/api/teamApiSlice";
 import { useUploadFileMutation } from "../../../store/api/storageApiSlice";
 import { useTheme } from "../../sidebar/hooks/useTheme";
+import { showToast, getErrorMessage } from "../../../components/ui";
 
 export const useSettingsModalLogic = (
   initialTab: string,
@@ -109,14 +110,19 @@ export const useSettingsModalLogic = (
     }
   };
 
-  const handleSave = () => {
-    updateProfile({
-      name: formData.name,
-      jobTitle: formData.jobTitle,
-      department: formData.department,
-      hasCompletedOnboarding: true,
-    });
-    onClose();
+  const handleSave = async () => {
+    try {
+      await updateProfile({
+        name: formData.name,
+        jobTitle: formData.jobTitle,
+        department: formData.department,
+        hasCompletedOnboarding: true,
+      }).unwrap();
+      showToast.success("Profile updated successfully");
+      onClose();
+    } catch (error) {
+      showToast.error(`Failed to update profile. ${getErrorMessage(error)}`);
+    }
   };
 
   const handleLogout = async () => {

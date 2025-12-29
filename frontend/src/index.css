@@ -10,6 +10,32 @@
 @tailwind utilities;
 
 /* ============================================
+   THEME VARIABLES (Light/Dark)
+   ============================================ */
+
+:root {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f9fafb;
+  --bg-tertiary: #f3f4f6;
+  --text-primary: #111827;
+  --text-secondary: #6b7280;
+  --text-muted: #9ca3af;
+  --border-color: #e5e7eb;
+  --sidebar-bg: #f7f8fa;
+}
+
+.dark {
+  --bg-primary: #111827;
+  --bg-secondary: #1f2937;
+  --bg-tertiary: #374151;
+  --text-primary: #f9fafb;
+  --text-secondary: #d1d5db;
+  --text-muted: #9ca3af;
+  --border-color: #374151;
+  --sidebar-bg: #1f2937;
+}
+
+/* ============================================
    BASE STYLES
    ============================================ */
 
@@ -17,11 +43,12 @@
   html {
     font-family: "Inter", sans-serif;
     font-size: 0.875rem; /* 14px base */
-    color: #1f2937; /* gray-800 */
+    color: var(--text-primary);
   }
 
   body {
-    background-color: #ffffff;
+    background-color: var(--bg-primary);
+    transition: background-color 0.2s ease, color 0.2s ease;
   }
 }
 

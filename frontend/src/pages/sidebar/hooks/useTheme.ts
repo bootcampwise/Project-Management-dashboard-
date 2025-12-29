@@ -1,17 +1,29 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
+import { useAppSelector, useAppDispatch } from "../../../store/hooks";
+import { setTheme } from "../../../store/uiSlice";
 
+/**
+ * Hook for managing theme state.
+ * - Reads theme from Redux store
+ * - Applies side effects (localStorage + DOM) when theme changes
+ * - Returns current theme and toggle function
+ */
 export const useTheme = () => {
-  const [theme, setTheme] = useState(localStorage.getItem("theme") || "light");
+  const theme = useAppSelector((state) => state.ui.theme);
+  const dispatch = useAppDispatch();
 
+  // Apply side effects when theme changes
   useEffect(() => {
-    const root = window.document.documentElement;
-    root.classList.remove("light", "dark");
-    root.classList.add(theme);
+    // Save to localStorage
     localStorage.setItem("theme", theme);
+
+    // Apply to DOM
+    document.documentElement.classList.remove("light", "dark");
+    document.documentElement.classList.add(theme);
   }, [theme]);
 
-  const toggleTheme = (newTheme: string) => {
-    setTheme(newTheme);
+  const toggleTheme = (newTheme: "light" | "dark") => {
+    dispatch(setTheme(newTheme));
   };
 
   return { theme, toggleTheme };

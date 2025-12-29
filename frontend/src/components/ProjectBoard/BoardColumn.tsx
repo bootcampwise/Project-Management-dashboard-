@@ -11,19 +11,19 @@ const BoardColumn: React.FC<BoardColumnProps> = ({ title, count, color, tasks, s
   if (collapsed) {
     return (
       <div
-        className="w-12 flex flex-col items-center py-4 h-full bg-gray-100 rounded-lg cursor-pointer hover:bg-gray-200 transition-colors"
+        className="w-12 flex flex-col items-center py-4 h-full bg-gray-100 dark:bg-gray-800 rounded-lg cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
         onClick={onToggle}
         title="Click to expand"
       >
         <div className="flex flex-col items-center gap-4 mt-2 h-full">
           <div className={`w-2 h-2 rounded-full ${color}`}></div>
           <span
-            className="text-gray-700 font-semibold text-sm tracking-wide whitespace-nowrap"
+            className="text-gray-700 dark:text-gray-300 font-semibold text-sm tracking-wide whitespace-nowrap"
             style={{ writingMode: 'vertical-rl', textOrientation: 'mixed' }}
           >
             {title}
           </span>
-          <span className="text-gray-400 font-medium text-xs mt-2">{count}</span>
+          <span className="text-gray-400 dark:text-gray-500 font-medium text-xs mt-2">{count}</span>
         </div>
       </div>
     );
@@ -35,8 +35,8 @@ const BoardColumn: React.FC<BoardColumnProps> = ({ title, count, color, tasks, s
       <div className="flex items-center justify-between mb-4 px-1 group">
         <div className="flex items-center gap-2 cursor-pointer flex-1" onClick={onToggle}>
           <div className={`w-2 h-2 rounded-full ${color}`}></div>
-          <h2 className="font-semibold text-gray-700 whitespace-nowrap">{title}</h2>
-          <span className="text-gray-400 font-medium">{count}</span>
+          <h2 className="font-semibold text-gray-700 dark:text-gray-200 whitespace-nowrap">{title}</h2>
+          <span className="text-gray-400 dark:text-gray-500 font-medium">{count}</span>
         </div>
 
         {/* Column Menu */}
@@ -46,7 +46,7 @@ const BoardColumn: React.FC<BoardColumnProps> = ({ title, count, color, tasks, s
               e.stopPropagation();
               setIsMenuOpen(!isMenuOpen);
             }}
-            className="opacity-0 group-hover:opacity-100 p-1 hover:bg-gray-100 rounded text-gray-400 hover:text-gray-600 transition-all"
+            className="opacity-0 group-hover:opacity-100 p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-all"
           >
             <MoreHorizontal size={16} />
           </button>
@@ -57,14 +57,14 @@ const BoardColumn: React.FC<BoardColumnProps> = ({ title, count, color, tasks, s
                 className="fixed inset-0 z-10"
                 onClick={() => setIsMenuOpen(false)}
               />
-              <div className="absolute right-0 top-full mt-1 w-40 bg-white border border-gray-200 rounded-lg shadow-lg z-20 py-1">
+              <div className="absolute right-0 top-full mt-1 w-40 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-20 py-1">
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
                     setIsMenuOpen(false);
                     onHide && onHide();
                   }}
-                  className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+                  className="w-full text-left px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 flex items-center gap-2"
                 >
                   <EyeOff size={14} />
                   <span>Hide section</span>
@@ -118,7 +118,7 @@ const BoardColumn: React.FC<BoardColumnProps> = ({ title, count, color, tasks, s
             {/* Add Task Button at bottom of list */}
             <button
               onClick={() => onAddTask && onAddTask(status || title)}
-              className="flex items-center gap-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 p-2 rounded-md transition-colors mt-2 text-sm font-medium w-full text-left"
+              className="flex items-center gap-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 p-2 rounded-md transition-colors mt-2 text-sm font-medium w-full text-left"
             >
               <Plus size={16} />
               <span>Add task</span>

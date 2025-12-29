@@ -46,22 +46,22 @@ export const Modal: React.FC<ModalProps> = ({
     >
       <div
         className={`
-          bg-white rounded-xl shadow-2xl w-full mx-4 flex flex-col max-h-[90vh]
+          bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full mx-4 flex flex-col max-h-[90vh]
           ${sizeStyles[size]}
         `.trim()}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
         {(title || showCloseButton) && (
-          <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+          <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-700">
             {title && (
-              <h2 className="text-xl font-bold text-gray-800">{title}</h2>
+              <h2 className="text-xl font-bold text-gray-800 dark:text-white">{title}</h2>
             )}
             {showCloseButton && (
               <IconButton
                 icon={<X size={20} />}
                 onClick={onClose}
-                className="text-gray-400 hover:text-gray-600 ml-auto"
+                className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 ml-auto"
                 aria-label="Close modal"
               />
             )}
@@ -73,7 +73,7 @@ export const Modal: React.FC<ModalProps> = ({
 
         {/* Footer */}
         {footer && (
-          <div className="px-6 py-4 border-t border-gray-100 bg-gray-50/50 rounded-b-xl">
+          <div className="px-6 py-4 border-t border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900/50 rounded-b-xl">
             {footer}
           </div>
         )}

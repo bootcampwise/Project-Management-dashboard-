@@ -110,11 +110,11 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
     <>
       <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
         <div className="absolute inset-0 bg-black/50" onClick={onClose} />
-        <div className="relative bg-white rounded-lg shadow-xl w-full max-w-5xl h-[600px] flex overflow-hidden z-10 text-left">
+        <div className="relative bg-white dark:bg-gray-900 rounded-lg shadow-xl w-full max-w-5xl h-[600px] flex overflow-hidden z-10 text-left">
           {/* Left Sidebar */}
-          <div className="w-64 bg-gray-50 border-r border-gray-200 flex-shrink-0 p-6">
+          <div className="w-64 bg-gray-50 dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex-shrink-0 p-6">
             <div className="mb-6">
-              <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
+              <h3 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
                 Settings
               </h3>
               <nav className="space-y-1">
@@ -123,8 +123,8 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                     key={tab}
                     onClick={() => handleTabChange(tab)}
                     className={`w-full text-left px-3 py-2 text-sm font-medium rounded-md ${activeTab === tab
-                      ? "bg-gray-200 text-gray-900"
-                      : "text-gray-600 hover:bg-gray-100"
+                      ? "bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white"
+                      : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
                       }`}
                   >
                     {tab}
@@ -160,9 +160,9 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
           </div>
 
           {/* Main Content */}
-          <div className="flex-1 flex flex-col bg-white">
-            <div className="flex items-center justify-between px-8 py-5 border-b border-gray-200">
-              <h2 className="text-xl font-semibold text-gray-800">{activeTab}</h2>
+          <div className="flex-1 flex flex-col bg-white dark:bg-gray-900">
+            <div className="flex items-center justify-between px-8 py-5 border-b border-gray-200 dark:border-gray-700">
+              <h2 className="text-xl font-semibold text-gray-800 dark:text-white">{activeTab}</h2>
               <IconButton
                 icon={<X size={20} />}
                 onClick={onClose}
@@ -284,6 +284,46 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                         { value: 'English', label: 'English' },
                         { value: 'Spanish', label: 'Spanish' },
                         { value: 'French', label: 'French' }
+                      ]}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-500 mb-1">
+                      Time zone
+                    </label>
+                    <Select
+                      defaultValue="Islamabad"
+                      options={[
+                        { value: 'Islamabad', label: 'Islamad' },
+                        { value: 'UTC', label: 'UTC' },
+                        { value: 'EST', label: 'EST (Eastern Standard Time)' },
+                        { value: 'PST', label: 'PST (Pacific Standard Time)' },
+                        { value: 'GMT', label: 'GMT (Greenwich Mean Time)' }
+                      ]}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-500 mb-1">
+                      Time format
+                    </label>
+                    <Select
+                      defaultValue="24h"
+                      options={[
+                        { value: '24h', label: '13:00' },
+                        { value: '12h', label: '1:00 PM' }
+                      ]}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-500 mb-1">
+                      Date Format
+                    </label>
+                    <Select
+                      defaultValue="DD-MM-YYYY"
+                      options={[
+                        { value: 'DD-MM-YYYY', label: 'DD-MM-YYYY' },
+                        { value: 'MM-DD-YYYY', label: 'MM-DD-YYYY' },
+                        { value: 'YYYY-MM-DD', label: 'YYYY-MM-DD' }
                       ]}
                     />
                   </div>
@@ -442,7 +482,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
               )}
             </div>
 
-            <div className="px-8 py-4 border-t border-gray-200 flex items-center justify-between">
+            <div className="px-8 py-4 border-t border-gray-200 dark:border-gray-700 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <button
                   className="px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700 shadow-sm"
@@ -451,7 +491,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                   Save
                 </button>
                 <button
-                  className="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-md text-sm font-medium hover:bg-gray-50 shadow-sm"
+                  className="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 rounded-md text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-700 shadow-sm"
                   onClick={onClose}
                 >
                   Cancel
