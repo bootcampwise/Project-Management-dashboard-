@@ -1,12 +1,6 @@
 import React from 'react';
 import { toast, Toaster, type ToastOptions } from 'react-hot-toast';
 
-export interface ToastProps {
-  message: string;
-  type?: 'success' | 'error' | 'loading' | 'info';
-  duration?: number;
-}
-
 // ============================================
 // TOAST COLORS - INTENTIONAL EXCEPTION
 // ============================================

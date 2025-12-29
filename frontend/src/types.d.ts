@@ -214,8 +214,11 @@ export interface AuthButtonProps {
 export interface StatCardProps {
   title: string;
   value: string | number;
+  trend?: "positive" | "negative";
+  trendText?: string;
   change?: string;
   icon?: React.ReactNode;
+  className?: string;
 }
 
 // ============================================
@@ -772,4 +775,166 @@ export interface LatestTask {
   priority: string;
   startDate: string;
   endDate: string;
+}
+
+// ============================================
+// UI COMPONENT PROPS
+// ============================================
+
+export interface ToastProps {
+  message: string;
+  type?: "success" | "error" | "loading" | "info";
+  duration?: number;
+}
+
+export interface TextareaProps
+  extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
+  label?: string;
+  error?: string;
+  helperText?: string;
+}
+
+export interface TagProps {
+  text: string;
+  onRemove?: () => void;
+  size?: "sm" | "md";
+  className?: string;
+}
+
+export interface StatusDotProps {
+  color?: "green" | "red" | "blue" | "gray" | "yellow" | "orange" | "purple";
+  size?: "xs" | "sm" | "md";
+  className?: string;
+}
+
+export interface SelectOption {
+  value: string;
+  label: string;
+  disabled?: boolean;
+}
+
+export interface SelectProps
+  extends Omit<React.SelectHTMLAttributes<HTMLSelectElement>, "children"> {
+  label?: string;
+  error?: string;
+  options: SelectOption[];
+  placeholder?: string;
+}
+
+export interface ModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  title?: string;
+  children: React.ReactNode;
+  footer?: React.ReactNode;
+  size?: "sm" | "md" | "lg" | "xl" | "full";
+  showCloseButton?: boolean;
+  closeOnBackdrop?: boolean;
+}
+
+export interface LetterIconProps {
+  letter: string;
+  size?: "sm" | "md" | "lg";
+  color?: "gray" | "blue" | "green" | "red" | "purple";
+  className?: string;
+}
+
+export interface InputProps
+  extends React.InputHTMLAttributes<HTMLInputElement> {
+  label?: string;
+  error?: string;
+  helperText?: string;
+}
+
+export interface IconButtonProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  icon: React.ReactNode;
+  text?: string;
+  variant?: "outline" | "filled" | "ghost";
+  size?: "sm" | "md" | "lg";
+}
+
+export interface DropdownItem {
+  key: string;
+  label: React.ReactNode;
+  icon?: React.ReactNode;
+  onClick?: () => void;
+  disabled?: boolean;
+  danger?: boolean;
+  divider?: boolean;
+  header?: boolean;
+  custom?: boolean;
+  preventClose?: boolean;
+}
+
+export interface DropdownProps {
+  trigger: React.ReactNode;
+  items: DropdownItem[];
+  align?: "left" | "right";
+  className?: string;
+  menuClassName?: string;
+}
+
+export interface ButtonProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  variant?: "primary" | "secondary" | "ghost" | "danger";
+  size?: "sm" | "md" | "lg";
+  isLoading?: boolean;
+  leftIcon?: React.ReactNode;
+  rightIcon?: React.ReactNode;
+}
+
+export interface BadgeProps {
+  children: React.ReactNode;
+  variant?: "default" | "primary" | "success" | "warning" | "danger" | "info";
+  size?: "sm" | "md";
+  removable?: boolean;
+  onRemove?: () => void;
+  className?: string;
+}
+
+export interface AvatarProps {
+  src?: string | null;
+  name?: string;
+  size?: "xs" | "sm" | "md" | "lg" | "xl";
+  className?: string;
+}
+
+// ============================================
+// CALENDAR API TYPES
+// ============================================
+
+export type EventType =
+  | "MEETING"
+  | "DEADLINE"
+  | "EVENT"
+  | "HOLIDAY"
+  | "REMINDER";
+
+export interface CalendarEventApi {
+  id: string;
+  title: string;
+  type: EventType;
+  start: string;
+  end?: string;
+  description?: string;
+  projectId?: string;
+  createdAt: string;
+}
+
+export interface CreateEventPayload {
+  title: string;
+  type: EventType;
+  start: string;
+  end?: string;
+  description?: string;
+  projectId?: string;
+}
+
+export interface UpdateEventPayload {
+  title?: string;
+  type?: EventType;
+  start?: string;
+  end?: string;
+  description?: string;
 }

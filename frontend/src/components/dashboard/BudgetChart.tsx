@@ -40,16 +40,16 @@ const chartData = [
 const CustomTooltip = ({ active, payload }: ChartTooltipProps) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-white p-3 rounded-lg shadow-lg border border-gray-100 text-sm">
+      <div className="bg-white dark:bg-gray-800 p-3 rounded-lg shadow-lg border border-gray-100 dark:border-gray-700 text-sm">
         <div className="flex items-center gap-2 mb-1">
           <div className="w-2 h-2 rounded-full bg-[#93C5FD]"></div>
-          <span className="text-gray-600 font-medium">567k</span>
+          <span className="text-gray-600 dark:text-gray-300 font-medium">567k</span>
         </div>
         <div className="flex items-center gap-2 mb-2">
           <div className="w-2 h-2 rounded-full bg-[#004e76]"></div>
-          <span className="text-gray-600 font-medium">103k</span>
+          <span className="text-gray-600 dark:text-gray-300 font-medium">103k</span>
         </div>
-        <div className="text-gray-400 text-xs text-center border-t border-gray-100 pt-2 mt-1">
+        <div className="text-gray-400 dark:text-gray-500 text-xs text-center border-t border-gray-100 dark:border-gray-700 pt-2 mt-1">
           Aug 15,2025
         </div>
       </div>
@@ -60,11 +60,11 @@ const CustomTooltip = ({ active, payload }: ChartTooltipProps) => {
 
 export function BudgetChart() {
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100/60 p-4 h-full flex flex-col justify-between">
+    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100/60 dark:border-gray-700/60 p-4 h-full flex flex-col justify-between">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-xl font-semibold text-gray-800">Budget and Expenses</h3>
-        <div className="flex items-center gap-1 bg-green-50 px-2 py-1 rounded text-sm text-green-600 font-medium">
+        <h3 className="text-xl font-semibold text-gray-800 dark:text-white">Budget and Expenses</h3>
+        <div className="flex items-center gap-1 bg-green-50 dark:bg-green-900/30 px-2 py-1 rounded text-sm text-green-600 dark:text-green-400 font-medium">
           <ArrowUpRight size={16} />
           <span>54.7%</span>
         </div>
@@ -132,11 +132,11 @@ export function BudgetChart() {
       <div className="flex items-center justify-center gap-6 mt-2">
         <div className="flex items-center gap-2">
           <div className="w-2.5 h-2.5 rounded-full bg-[#93C5FD]" />
-          <span className="text-sm text-gray-500">Budget</span>
+          <span className="text-sm text-gray-500 dark:text-gray-400">Budget</span>
         </div>
         <div className="flex items-center gap-2">
           <div className="w-2.5 h-2.5 rounded-full bg-[#004e76]" />
-          <span className="text-sm text-gray-500">Expenses</span>
+          <span className="text-sm text-gray-500 dark:text-gray-400">Expenses</span>
         </div>
       </div>
     </div>

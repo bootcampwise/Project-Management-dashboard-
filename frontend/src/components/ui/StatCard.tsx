@@ -1,13 +1,6 @@
 import React from 'react';
 import { ArrowUpRight, ArrowDownRight } from 'lucide-react';
-
-export interface StatCardProps {
-  title: string;
-  value: string | number;
-  trend?: 'positive' | 'negative';
-  trendText?: string;
-  className?: string;
-}
+import type { StatCardProps } from '../../types';
 
 export const StatCard: React.FC<StatCardProps> = ({
   title,

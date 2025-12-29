@@ -1,10 +1,5 @@
 import React from 'react';
-
-export interface StatusDotProps {
-    color?: 'green' | 'red' | 'blue' | 'gray' | 'yellow' | 'orange' | 'purple';
-    size?: 'xs' | 'sm' | 'md';
-    className?: string;
-}
+import type { StatusDotProps } from '../../types';
 
 const sizeClasses = {
     xs: 'w-1.5 h-1.5',

@@ -1,47 +1,16 @@
 import { apiSlice } from "./apiSlice";
+import type {
+  EventType,
+  CalendarEventApi,
+  CreateEventPayload,
+  UpdateEventPayload,
+} from "../../types";
 
-// ============================================
-// CALENDAR TYPES
-// ============================================
+// Re-export types for backward compatibility
+export type { EventType, CreateEventPayload, UpdateEventPayload };
 
-// Event types matching the backend
-export type EventType =
-  | "MEETING"
-  | "DEADLINE"
-  | "EVENT"
-  | "HOLIDAY"
-  | "REMINDER";
-
-// Calendar event from API
-export interface CalendarEvent {
-  id: string;
-  title: string;
-  type: EventType;
-  start: string; // ISO date string
-  end?: string; // ISO date string
-  description?: string;
-  projectId?: string;
-  createdAt: string;
-}
-
-// Payload for creating an event
-export interface CreateEventPayload {
-  title: string;
-  type: EventType;
-  start: string;
-  end?: string;
-  description?: string;
-  projectId?: string;
-}
-
-// Payload for updating an event
-export interface UpdateEventPayload {
-  title?: string;
-  type?: EventType;
-  start?: string;
-  end?: string;
-  description?: string;
-}
+// Alias for API usage
+export type CalendarEvent = CalendarEventApi;
 
 // ============================================
 // CALENDAR API ENDPOINTS

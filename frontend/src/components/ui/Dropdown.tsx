@@ -1,25 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-
-export interface DropdownItem {
-  key: string;
-  label: React.ReactNode;
-  icon?: React.ReactNode;
-  onClick?: () => void;
-  disabled?: boolean;
-  danger?: boolean;
-  divider?: boolean;
-  header?: boolean;
-  custom?: boolean;
-  preventClose?: boolean;
-}
-
-export interface DropdownProps {
-  trigger: React.ReactNode;
-  items: DropdownItem[];
-  align?: 'left' | 'right';
-  className?: string;
-  menuClassName?: string;
-}
+import type { DropdownProps } from '../../types';
 
 export const Dropdown: React.FC<DropdownProps> = ({
   trigger,

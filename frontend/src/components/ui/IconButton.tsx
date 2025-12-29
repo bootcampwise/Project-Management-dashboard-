@@ -1,11 +1,5 @@
 import React from 'react';
-
-export interface IconButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  icon: React.ReactNode;
-  text?: string;
-  variant?: 'outline' | 'filled' | 'ghost';
-  size?: 'sm' | 'md' | 'lg';
-}
+import type { IconButtonProps } from '../../types';
 
 export const IconButton: React.FC<IconButtonProps> = ({
   icon,

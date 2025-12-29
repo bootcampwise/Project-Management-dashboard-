@@ -1,17 +1,5 @@
-import React, { forwardRef } from 'react';
-
-export interface SelectOption {
-  value: string;
-  label: string;
-  disabled?: boolean;
-}
-
-export interface SelectProps extends Omit<React.SelectHTMLAttributes<HTMLSelectElement>, 'children'> {
-  label?: string;
-  error?: string;
-  options: SelectOption[];
-  placeholder?: string;
-}
+import { forwardRef } from 'react';
+import type { SelectProps } from '../../types';
 
 export const Select = forwardRef<HTMLSelectElement, SelectProps>(
   ({ label, error, options, placeholder, className = '', id, ...props }, ref) => {

@@ -1,11 +1,5 @@
 import React from 'react';
-
-export interface AvatarProps {
-  src?: string | null;
-  name?: string;
-  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
-  className?: string;
-}
+import type { AvatarProps } from '../../types';
 
 const sizeStyles: Record<string, { container: string; text: string }> = {
   xs: { container: 'w-5 h-5', text: 'text-[8px]' },

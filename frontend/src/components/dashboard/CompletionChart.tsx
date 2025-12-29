@@ -17,11 +17,11 @@ const chartData = [
 export function CompletionChart() {
   return (
     <div
-      className="bg-white rounded-xl shadow-sm border border-gray-100/60 p-4 flex flex-col justify-between w-full lg:w-[304px] h-auto min-h-[337px]"
+      className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100/60 dark:border-gray-700/60 p-4 flex flex-col justify-between w-full lg:w-[304px] h-auto min-h-[337px]"
     >
       <div className="flex flex-col gap-1">
-        <h3 className="text-lg font-semibold leading-none tracking-tight">Completion</h3>
-        <p className="text-xs text-gray-500">Task completion status</p>
+        <h3 className="text-lg font-semibold leading-none tracking-tight text-gray-800 dark:text-white">Completion</h3>
+        <p className="text-xs text-gray-500 dark:text-gray-400">Task completion status</p>
       </div>
 
       <div className="flex-1 flex items-center justify-center min-h-0">
@@ -64,14 +64,14 @@ export function CompletionChart() {
                         <tspan
                           x={viewBox.cx}
                           y={viewBox.cy}
-                          className="fill-gray-900 text-3xl font-bold italic"
+                          className="fill-gray-900 dark:fill-white text-3xl font-bold italic"
                         >
                           {chartData[0].visitors.toLocaleString()}%
                         </tspan>
                         <tspan
                           x={viewBox.cx}
                           y={(viewBox.cy || 0) + 24}
-                          className="fill-gray-500 text-sm"
+                          className="fill-gray-500 dark:fill-gray-400 text-sm"
                         >
                           Completed
                         </tspan>
@@ -86,13 +86,13 @@ export function CompletionChart() {
       </div>
 
       <div className="flex flex-col gap-2 text-sm pt-2">
-        <div className="flex items-center justify-between text-gray-500">
+        <div className="flex items-center justify-between text-gray-500 dark:text-gray-400">
           <span className="text-xs">Projects:</span>
-          <span className="font-medium text-gray-700 text-xs">670/1050</span>
+          <span className="font-medium text-gray-700 dark:text-gray-300 text-xs">670/1050</span>
         </div>
-        <div className="flex items-center justify-between text-gray-500">
+        <div className="flex items-center justify-between text-gray-500 dark:text-gray-400">
           <span className="text-xs">Completed Tasks:</span>
-          <span className="font-medium text-gray-700 text-xs">2774/4192</span>
+          <span className="font-medium text-gray-700 dark:text-gray-300 text-xs">2774/4192</span>
         </div>
       </div>
     </div>

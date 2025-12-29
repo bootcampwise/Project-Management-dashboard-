@@ -1,12 +1,6 @@
 import React from 'react';
 import { X } from 'lucide-react';
-
-export interface TagProps {
-    text: string;
-    onRemove?: () => void;
-    size?: 'sm' | 'md';
-    className?: string;
-}
+import type { TagProps } from '../../types';
 
 // Generate consistent colors based on tag text
 const getTagColor = (tagText: string): { bg: string; text: string; border: string } => {

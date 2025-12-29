@@ -1,17 +1,7 @@
 import React from 'react';
 import { X } from 'lucide-react';
 import { IconButton } from './IconButton';
-
-export interface ModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  title?: string;
-  children: React.ReactNode;
-  footer?: React.ReactNode;
-  size?: 'sm' | 'md' | 'lg' | 'xl' | 'full';
-  showCloseButton?: boolean;
-  closeOnBackdrop?: boolean;
-}
+import type { ModalProps } from '../../types';
 
 const sizeStyles: Record<string, string> = {
   sm: 'max-w-sm',

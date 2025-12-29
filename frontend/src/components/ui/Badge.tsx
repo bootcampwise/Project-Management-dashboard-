@@ -1,14 +1,6 @@
 import React from 'react';
 import { X } from 'lucide-react';
-
-export interface BadgeProps {
-  children: React.ReactNode;
-  variant?: 'default' | 'primary' | 'success' | 'warning' | 'danger' | 'info';
-  size?: 'sm' | 'md';
-  removable?: boolean;
-  onRemove?: () => void;
-  className?: string;
-}
+import type { BadgeProps } from '../../types';
 
 const variantStyles: Record<string, string> = {
   default: 'bg-gray-100 text-gray-700 border-gray-200',

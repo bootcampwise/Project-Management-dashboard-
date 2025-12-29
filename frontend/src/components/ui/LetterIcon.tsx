@@ -1,11 +1,5 @@
 import React from 'react';
-
-export interface LetterIconProps {
-  letter: string;
-  size?: 'sm' | 'md' | 'lg';
-  color?: 'gray' | 'blue' | 'green' | 'red' | 'purple';
-  className?: string;
-}
+import type { LetterIconProps } from '../../types';
 
 const sizeStyles: Record<string, string> = {
   sm: 'w-4 h-4 text-[8px]',

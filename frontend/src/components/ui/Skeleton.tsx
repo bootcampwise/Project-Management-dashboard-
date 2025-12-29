@@ -12,7 +12,7 @@ import type { SkeletonProps } from "../../types";
  */
 export const Skeleton: React.FC<SkeletonProps> = ({ className = "", style }) => (
     <div
-        className={`animate-pulse bg-gray-200 rounded ${className}`}
+        className={`animate-pulse bg-gray-200 dark:bg-gray-700 rounded ${className}`}
         style={style}
     />
 );
@@ -21,7 +21,7 @@ export const Skeleton: React.FC<SkeletonProps> = ({ className = "", style }) => 
  * Skeleton for task cards in Kanban view
  */
 export const TaskCardSkeleton: React.FC = () => (
-    <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100 space-y-3">
+    <div className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-100 dark:border-gray-700 space-y-3">
         <div className="flex justify-between items-start">
             <Skeleton className="h-4 w-3/4" />
             <Skeleton className="h-4 w-4 rounded-full" />
@@ -42,7 +42,7 @@ export const TaskCardSkeleton: React.FC = () => (
  * Skeleton for a single column in Kanban view
  */
 export const KanbanColumnSkeleton: React.FC = () => (
-    <div className="flex-shrink-0 w-72 bg-gray-50 rounded-xl p-4">
+    <div className="flex-shrink-0 w-72 bg-gray-50 dark:bg-gray-800 rounded-xl p-4">
         <div className="flex items-center justify-between mb-4">
             <Skeleton className="h-5 w-24" />
             <Skeleton className="h-5 w-8 rounded-full" />
@@ -71,7 +71,7 @@ export const KanbanBoardSkeleton: React.FC = () => (
  * Skeleton for project header area
  */
 export const ProjectHeaderSkeleton: React.FC = () => (
-    <div className="flex items-center justify-between p-4 border-b border-gray-200">
+    <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
         <div className="flex items-center gap-3">
             <Skeleton className="h-10 w-10 rounded-lg" />
             <div>
@@ -90,7 +90,7 @@ export const ProjectHeaderSkeleton: React.FC = () => (
  * Skeleton for tab navigation
  */
 export const TabsSkeleton: React.FC = () => (
-    <div className="flex gap-2 p-4 border-b border-gray-200">
+    <div className="flex gap-2 p-4 border-b border-gray-200 dark:border-gray-700">
         <Skeleton className="h-9 w-20 rounded-lg" />
         <Skeleton className="h-9 w-20 rounded-lg" />
         <Skeleton className="h-9 w-20 rounded-lg" />
@@ -102,7 +102,7 @@ export const TabsSkeleton: React.FC = () => (
  * Skeleton for team member row
  */
 export const TeamMemberSkeleton: React.FC = () => (
-    <div className="flex items-center gap-4 p-4 border-b border-gray-100">
+    <div className="flex items-center gap-4 p-4 border-b border-gray-100 dark:border-gray-700">
         <Skeleton className="h-10 w-10 rounded-full" />
         <div className="flex-1">
             <Skeleton className="h-4 w-32 mb-2" />
@@ -116,7 +116,7 @@ export const TeamMemberSkeleton: React.FC = () => (
  * Skeleton for team members list
  */
 export const TeamMembersListSkeleton: React.FC = () => (
-    <div className="bg-white rounded-xl overflow-hidden">
+    <div className="bg-white dark:bg-gray-800 rounded-xl overflow-hidden">
         <TeamMemberSkeleton />
         <TeamMemberSkeleton />
         <TeamMemberSkeleton />
@@ -129,7 +129,7 @@ export const TeamMembersListSkeleton: React.FC = () => (
  * Skeleton for file row in files tab
  */
 export const FileRowSkeleton: React.FC = () => (
-    <div className="grid grid-cols-[2.5fr_1fr_1fr_1.5fr] gap-4 px-6 h-[43px] items-center bg-white">
+    <div className="grid grid-cols-[2.5fr_1fr_1fr_1.5fr] gap-4 px-6 h-[43px] items-center bg-white dark:bg-gray-900">
         <div className="flex items-center gap-3">
             <Skeleton className="h-5 w-5 rounded" />
             <Skeleton className="h-4 w-48" />
@@ -147,7 +147,7 @@ export const FileRowSkeleton: React.FC = () => (
  * Skeleton for files list
  */
 export const FilesListSkeleton: React.FC = () => (
-    <div className="flex flex-col gap-[2px] bg-gray-50">
+    <div className="flex flex-col gap-[2px] bg-gray-50 dark:bg-gray-800">
         <FileRowSkeleton />
         <FileRowSkeleton />
         <FileRowSkeleton />
@@ -184,7 +184,7 @@ export const TeamPageSkeleton: React.FC = () => (
  * Skeleton for table view
  */
 export const TableRowSkeleton: React.FC = () => (
-    <div className="grid grid-cols-6 gap-4 px-4 py-3 border-b border-gray-100">
+    <div className="grid grid-cols-6 gap-4 px-4 py-3 border-b border-gray-100 dark:border-gray-700">
         <Skeleton className="h-4 w-full col-span-2" />
         <Skeleton className="h-4 w-20" />
         <Skeleton className="h-4 w-24" />
@@ -194,8 +194,8 @@ export const TableRowSkeleton: React.FC = () => (
 );
 
 export const TableSkeleton: React.FC = () => (
-    <div className="bg-white rounded-xl overflow-hidden">
-        <div className="grid grid-cols-6 gap-4 px-4 py-3 bg-gray-50 border-b border-gray-200">
+    <div className="bg-white dark:bg-gray-800 rounded-xl overflow-hidden">
+        <div className="grid grid-cols-6 gap-4 px-4 py-3 bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600">
             <Skeleton className="h-4 w-16 col-span-2" />
             <Skeleton className="h-4 w-12" />
             <Skeleton className="h-4 w-16" />
@@ -274,7 +274,7 @@ export const SidebarSkeleton: React.FC = () => (
         </div>
 
         {/* Footer skeleton */}
-        <div className="mt-auto p-2 border-t border-gray-200">
+        <div className="mt-auto p-2 border-t border-gray-200 dark:border-gray-700">
             <SidebarItemSkeleton />
             <SidebarItemSkeleton />
         </div>
@@ -285,7 +285,7 @@ export const SidebarSkeleton: React.FC = () => (
  * Skeleton for a single stat card
  */
 export const StatCardSkeleton: React.FC = () => (
-    <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100 flex flex-col gap-2">
+    <div className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col gap-2">
         <Skeleton className="h-4 w-20" />
         <Skeleton className="h-8 w-16" />
         <Skeleton className="h-3 w-32" />
@@ -308,7 +308,7 @@ export const StatsGridSkeleton: React.FC = () => (
  * Skeleton for the completion chart
  */
 export const CompletionChartSkeleton: React.FC = () => (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100/60 p-4 flex flex-col justify-between w-full lg:w-[304px] h-auto min-h-[337px]">
+    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100/60 dark:border-gray-700/60 p-4 flex flex-col justify-between w-full lg:w-[304px] h-auto min-h-[337px]">
         <div className="flex flex-col gap-1">
             <Skeleton className="h-5 w-24" />
             <Skeleton className="h-3 w-32" />
@@ -333,7 +333,7 @@ export const CompletionChartSkeleton: React.FC = () => (
  * Skeleton for the schedule calendar
  */
 export const ScheduleCalendarSkeleton: React.FC = () => (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100/60 p-4 flex flex-col overflow-hidden w-full lg:w-[304px] h-[338px]">
+    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100/60 dark:border-gray-700/60 p-4 flex flex-col overflow-hidden w-full lg:w-[304px] h-[338px]">
         {/* Title */}
         <Skeleton className="h-5 w-20 mb-3" />
 
@@ -361,7 +361,7 @@ export const ScheduleCalendarSkeleton: React.FC = () => (
         </div>
 
         {/* Tabs skeleton */}
-        <div className="bg-gray-50 p-1 rounded-lg flex mb-3">
+        <div className="bg-gray-50 dark:bg-gray-700 p-1 rounded-lg flex mb-3">
             <Skeleton className="flex-1 h-6 rounded-md mx-0.5" />
             <Skeleton className="flex-1 h-6 rounded-md mx-0.5" />
             <Skeleton className="flex-1 h-6 rounded-md mx-0.5" />
@@ -379,7 +379,7 @@ export const ScheduleCalendarSkeleton: React.FC = () => (
  * Skeleton for a single row in latest tasks table
  */
 export const LatestTasksRowSkeleton: React.FC = () => (
-    <tr className="border-b border-gray-50">
+    <tr className="border-b border-gray-50 dark:border-gray-700">
         <td className="py-1.5 px-3"><Skeleton className="h-3 w-3 rounded" /></td>
         <td className="py-1.5 px-3"><Skeleton className="h-4 w-32" /></td>
         <td className="py-1.5 px-3"><Skeleton className="h-4 w-20" /></td>
@@ -395,11 +395,11 @@ export const LatestTasksRowSkeleton: React.FC = () => (
  * Skeleton for the latest tasks table
  */
 export const LatestTasksSkeleton: React.FC = () => (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100/60 p-3 flex flex-col overflow-hidden w-full h-[260px]">
+    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100/60 dark:border-gray-700/60 p-3 flex flex-col overflow-hidden w-full h-[260px]">
         <Skeleton className="h-4 w-24 mb-2" />
         <div className="overflow-x-auto flex-1 w-full">
             <table className="w-full min-w-[900px]">
-                <thead className="bg-[#F7F9FB]">
+                <thead className="bg-[#F7F9FB] dark:bg-gray-700">
                     <tr>
                         <th className="py-1 px-3 w-8"><Skeleton className="h-3 w-3 rounded" /></th>
                         <th className="py-1.5 px-3"><Skeleton className="h-3 w-16" /></th>
@@ -426,7 +426,7 @@ export const LatestTasksSkeleton: React.FC = () => (
  * Skeleton for budget chart
  */
 export const BudgetChartSkeleton: React.FC = () => (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100/60 p-4 flex flex-col w-full lg:flex-1 h-auto min-h-[337px]">
+    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100/60 dark:border-gray-700/60 p-4 flex flex-col w-full lg:flex-1 h-auto min-h-[337px]">
         <div className="flex items-center justify-between mb-4">
             <div>
                 <Skeleton className="h-5 w-16 mb-1" />
