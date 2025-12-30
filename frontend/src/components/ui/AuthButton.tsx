@@ -14,7 +14,7 @@ const AuthButton: React.FC<AuthButtonProps> = ({ icon, text, onClick, disabled }
       className="w-full justify-start gap-4 h-12 text-base"
       leftIcon={<img src={icon} alt={text} className="w-6 h-6" />}
     >
-      <span className="text-gray-700 font-bold">{text}</span>
+      <span className="text-gray-700 dark:text-gray-200 font-bold">{text}</span>
     </Button>
   );
 };

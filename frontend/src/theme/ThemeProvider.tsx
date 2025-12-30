@@ -1,5 +1,5 @@
 import React, { createContext, useEffect, useState } from 'react';
-import type { Theme, ThemeContextValue } from './types';
+import type { Theme, ThemeContextValue } from '../types/theme.types';
 
 const STORAGE_KEY = 'app-theme';
 

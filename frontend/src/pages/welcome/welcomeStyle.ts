@@ -48,11 +48,12 @@ export const welcomeStyles = {
 };
 
 export const welcomeClasses = {
-  loadingWrapper: "min-h-screen bg-white flex items-center justify-center",
+  loadingWrapper:
+    "min-h-screen bg-white dark:bg-gray-900 flex items-center justify-center",
   loadingSpinner:
     "animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500",
   container:
-    "min-h-screen bg-white flex flex-col items-center justify-center p-4 font-sans text-gray-900",
+    "min-h-screen bg-white dark:bg-gray-900 flex flex-col items-center justify-center p-4 font-sans text-gray-900 dark:text-white",
   contentWrapper: "w-full max-w-3xl flex flex-col items-center",
 
   button: "hover:bg-blue-600 transition-all",

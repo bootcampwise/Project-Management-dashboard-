@@ -8,7 +8,7 @@ import {
 } from "../../../store/api/authApiSlice";
 import { useGetTeamsQuery } from "../../../store/api/teamApiSlice";
 import { useUploadFileMutation } from "../../../store/api/storageApiSlice";
-import { useTheme } from "../../../theme";
+import { useTheme } from "../../../theme/useTheme";
 import { showToast, getErrorMessage } from "../../../components/ui";
 
 export const useSettingsModalLogic = (

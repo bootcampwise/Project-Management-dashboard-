@@ -10,7 +10,7 @@ import ProjectBoard from "./pages/projectboard/ProjectBoard";
 import Tasks from "./pages/task/Tasks";
 import Team from "./pages/team/Team";
 import { useAuthListener } from './pages/login/hooks/useAuthListener';
-import { ThemeProvider } from './theme';
+import { ThemeProvider } from './theme/ThemeProvider';
 
 function Home() {
   return (

@@ -153,42 +153,45 @@ export const loginStyles = {
 };
 
 export const loginClasses = {
-  pageWrapper: "bg-gray-50 flex justify-center items-start overflow-x-hidden",
+  pageWrapper:
+    "bg-gray-50 dark:bg-gray-900 flex justify-center items-start overflow-x-hidden",
   logoWrapper: "absolute hidden md:block",
   mainContainer:
-    "bg-white flex flex-col md:flex-row rounded-lg shadow-md overflow-hidden border border-gray-200 login-container",
-  leftPanel: "hidden md:flex flex-col md:w-1/2 bg-off-white",
+    "bg-white dark:bg-gray-800 flex flex-col md:flex-row rounded-lg shadow-md dark:shadow-gray-900 overflow-hidden border border-gray-200 dark:border-gray-700 login-container",
+  leftPanel: "hidden md:flex flex-col md:w-1/2 bg-off-white dark:bg-gray-700",
   badgeWrapper: "flex items-center gap-2",
   badge:
     "inline-flex items-center gap-1 rounded-full text-xs font-bold text-white bg-brand-orange",
-  featureTitle: "text-gray-900",
-  featureDescription: "text-gray-900",
+  featureTitle: "text-gray-900 dark:text-white",
+  featureDescription: "text-gray-900 dark:text-gray-300",
   learnMoreLink: "text-brand-orange",
-  bottomBoxOuter: "bg-off-white shadow-lg",
-  bottomBoxInner: "bg-white shadow-glow",
-  rightPanel: "w-full md:w-1/2 p-6 md:p-8 flex flex-col justify-start mt-0",
-  formTitle: "text-3xl font-semibold text-gray-900 mb-4 text-center",
+  bottomBoxOuter: "bg-off-white dark:bg-gray-600 shadow-lg",
+  bottomBoxInner: "bg-white dark:bg-gray-800 shadow-glow",
+  rightPanel:
+    "w-full md:w-1/2 p-6 md:p-8 flex flex-col justify-start mt-0 bg-white dark:bg-gray-800",
+  formTitle:
+    "text-3xl font-semibold text-gray-900 dark:text-white mb-4 text-center",
   form: "space-y-4",
-  labelWrapper: "block mb-2 text-gray-900",
+  labelWrapper: "block mb-2 text-gray-900 dark:text-gray-200",
   input:
-    "w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-200 focus:border-blue-400 outline-none text-gray-700 placeholder-gray-400",
+    "w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-800 focus:border-blue-400 outline-none text-gray-700 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-700",
   passwordHeader: "flex justify-between items-center mb-2",
   forgotPassword: "text-sm text-blue-500 hover:text-blue-600 font-medium",
-  error: "text-red-600 text-sm text-center",
+  error: "text-red-600 dark:text-red-400 text-sm text-center",
   submitButton:
     "w-full py-3 rounded-md text-white font-bold text-sm shadow-sm transition-colors disabled:opacity-50 bg-brand-blue hover:bg-blue-700",
   socialWrapper: "flex items-center justify-center gap-8 py-2",
   socialButton: "flex items-center gap-2 text-sm font-medium",
-  socialDivider: "h-5 w-px bg-gray-300",
+  socialDivider: "h-5 w-px bg-gray-300 dark:bg-gray-600",
   ssoButton:
-    "w-full py-3 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors text-gray-900",
+    "w-full py-3 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-gray-900 dark:text-gray-200 bg-white dark:bg-gray-800",
   dividerWrapper: "relative flex py-2 items-center",
-  dividerLine: "flex-grow border-t border-gray-200",
-  dividerText: "flex-shrink-0 mx-4 uppercase text-gray-900",
+  dividerLine: "flex-grow border-t border-gray-200 dark:border-gray-600",
+  dividerText: "flex-shrink-0 mx-4 uppercase text-gray-900 dark:text-gray-300",
   signUpWrapper: "text-center space-y-2",
   signUpText: "text-brand-orange",
   signUpButton:
-    "w-auto px-8 py-3 border border-gray-300 rounded-md font-semibold text-sm transition-colors text-brand-orange bg-white hover:bg-gray-50",
+    "w-auto px-8 py-3 border border-gray-300 dark:border-gray-600 rounded-md font-semibold text-sm transition-colors text-brand-orange bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700",
 };
 
 export const loginMediaQuery = `

@@ -135,7 +135,7 @@ const LoginPage: React.FC = () => {
               {/* Password */}
               <div>
                 <div className={loginClasses.passwordHeader}>
-                  <span className="text-sm font-medium text-gray-700">Password <span className="text-black">*</span></span>
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Password <span className="text-black dark:text-white">*</span></span>
                   <a href="#" className={loginClasses.forgotPassword}>
                     Forgot password?
                   </a>

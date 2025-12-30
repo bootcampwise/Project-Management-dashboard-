@@ -105,30 +105,30 @@ export const registerStyles = {
 
 export const registerClasses = {
   pageContainer:
-    "bg-white flex flex-col items-center justify-start overflow-x-hidden",
+    "bg-white dark:bg-gray-900 flex flex-col items-center justify-start overflow-x-hidden",
   contentWrapper: "flex flex-col items-center",
 
   logoWrapper: "flex items-center justify-center",
   logoImage: "object-contain",
 
-  header: "text-center text-gray-900",
+  header: "text-center text-gray-900 dark:text-white",
 
   socialButtonsWrapper: "flex flex-col items-center w-full",
 
   dividerWrapper: "flex items-center justify-center w-full",
-  dividerLine: "w-full border-t border-gray-200",
+  dividerLine: "w-full border-t border-gray-200 dark:border-gray-700",
 
   emailSection: "flex flex-col w-full",
-  label: "text-gray-500",
+  label: "text-gray-500 dark:text-gray-400",
   input:
-    "border border-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500",
+    "border border-gray-200 dark:border-gray-600 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-200",
 
   continueButton: "flex items-center justify-center w-full",
 
   loginLinkWrapper:
-    "flex gap-2 text-md text-gray-400 font-sm font-inter mb-[128px]",
+    "flex gap-2 text-md text-gray-400 dark:text-gray-500 font-sm font-inter mb-[128px]",
   loginLink: "text-blue-500 hover:text-blue-600",
 
-  footer: "flex justify-center gap-8 w-full text-gray-500",
-  footerItem: "whitespace-nowrap hover:text-gray-700",
+  footer: "flex justify-center gap-8 w-full text-gray-500 dark:text-gray-400",
+  footerItem: "whitespace-nowrap hover:text-gray-700 dark:hover:text-gray-300",
 };
