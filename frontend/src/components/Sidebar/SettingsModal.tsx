@@ -18,8 +18,8 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
     uploading,
     fileInputRef,
     teams,
-    theme,
-    toggleTheme,
+    pendingTheme,
+    setPendingTheme,
     handleTabChange,
     handleInputChange,
     handlePhotoUpload,
@@ -266,8 +266,8 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                       Theme
                     </label>
                     <Select
-                      value={theme}
-                      onChange={(e) => toggleTheme(e.target.value as "light" | "dark")}
+                      value={pendingTheme}
+                      onChange={(e) => setPendingTheme(e.target.value as "light" | "dark")}
                       options={[
                         { value: 'light', label: 'Light' },
                         { value: 'dark', label: 'Dark' }

@@ -8,7 +8,7 @@ import {
 } from "../../../store/api/authApiSlice";
 import { useGetTeamsQuery } from "../../../store/api/teamApiSlice";
 import { useUploadFileMutation } from "../../../store/api/storageApiSlice";
-import { useTheme } from "../../sidebar/hooks/useTheme";
+import { useTheme } from "../../../theme";
 import { showToast, getErrorMessage } from "../../../components/ui";
 
 export const useSettingsModalLogic = (
@@ -25,11 +25,14 @@ export const useSettingsModalLogic = (
   const [uploadFile] = useUploadFileMutation();
   const [updateProfile] = useUpdateProfileMutation();
   const [logout] = useLogoutMutation();
-  const { theme, toggleTheme } = useTheme();
+  const { theme, setTheme } = useTheme();
 
   const [activeTab, setActiveTab] = useState("Profile");
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Store pending theme selection (only applied on Save)
+  const [pendingTheme, setPendingTheme] = useState<"light" | "dark">(theme);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -118,6 +121,12 @@ export const useSettingsModalLogic = (
         department: formData.department,
         hasCompletedOnboarding: true,
       }).unwrap();
+
+      // Apply theme only on save
+      if (pendingTheme !== theme) {
+        setTheme(pendingTheme);
+      }
+
       showToast.success("Settings saved successfully");
       onClose();
     } catch (error) {
@@ -139,8 +148,8 @@ export const useSettingsModalLogic = (
     uploading,
     fileInputRef,
     teams,
-    theme,
-    toggleTheme,
+    pendingTheme,
+    setPendingTheme,
     handleTabChange,
     handleInputChange,
     handlePhotoUpload,

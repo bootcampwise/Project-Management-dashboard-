@@ -10,7 +10,7 @@ import ProjectBoard from "./pages/projectboard/ProjectBoard";
 import Tasks from "./pages/task/Tasks";
 import Team from "./pages/team/Team";
 import { useAuthListener } from './pages/login/hooks/useAuthListener';
-import { useTheme } from './pages/sidebar/hooks/useTheme';
+import { ThemeProvider } from './theme';
 
 function Home() {
   return (
@@ -44,10 +44,8 @@ function Home() {
   );
 }
 
-function App() {
+function AppContent() {
   useAuthListener();
-  // Apply theme at app level to ensure immediate updates
-  useTheme();
   return (
     <BrowserRouter>
       <Toaster position="top-right" />
@@ -67,4 +65,13 @@ function App() {
   );
 }
 
+function App() {
+  return (
+    <ThemeProvider>
+      <AppContent />
+    </ThemeProvider>
+  );
+}
+
 export default App;
+
