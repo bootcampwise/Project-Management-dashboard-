@@ -70,26 +70,28 @@ const TeamProjects: React.FC<TeamProjectsProps> = ({
                   variant="default"
                   className={`
                                         gap-2 px-3 py-1 rounded-full font-medium border-0
-                                        ${statusDisplay === "On track"
-                      ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400"
-                      : statusDisplay === "At risk"
-                        ? "bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400"
-                        : statusDisplay === "On hold"
-                          ? "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400"
-                          : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
-                    }
+                                        ${
+                                          statusDisplay === "On track"
+                                            ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400"
+                                            : statusDisplay === "At risk"
+                                              ? "bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400"
+                                              : statusDisplay === "On hold"
+                                                ? "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400"
+                                                : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
+                                        }
                                     `}
                 >
                   <span
                     className={`w-1.5 h-1.5 rounded-full 
-                                        ${statusDisplay === "On track"
-                        ? "bg-green-600 dark:bg-green-400"
-                        : statusDisplay === "At risk"
-                          ? "bg-orange-600 dark:bg-orange-400"
-                          : statusDisplay === "On hold"
-                            ? "bg-blue-600 dark:bg-blue-400"
-                            : "bg-gray-500 dark:bg-gray-400"
-                      }
+                                        ${
+                                          statusDisplay === "On track"
+                                            ? "bg-green-600 dark:bg-green-400"
+                                            : statusDisplay === "At risk"
+                                              ? "bg-orange-600 dark:bg-orange-400"
+                                              : statusDisplay === "On hold"
+                                                ? "bg-blue-600 dark:bg-blue-400"
+                                                : "bg-gray-500 dark:bg-gray-400"
+                                        }
                                     `}
                   />
                   {statusDisplay}
@@ -120,13 +122,14 @@ const TeamProjects: React.FC<TeamProjectsProps> = ({
                 <span
                   className={`
                                     px-3 py-1 rounded text-xs font-medium
-                                    ${priority === "HIGH" ||
-                      priority === "URGENT"
-                      ? "bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400"
-                      : priority === "MEDIUM"
-                        ? "bg-orange-50 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400"
-                        : "bg-green-50 dark:bg-green-900/30 text-green-600 dark:text-green-400"
-                    }
+                                    ${
+                                      priority === "HIGH" ||
+                                      priority === "URGENT"
+                                        ? "bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400"
+                                        : priority === "MEDIUM"
+                                          ? "bg-orange-50 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400"
+                                          : "bg-green-50 dark:bg-green-900/30 text-green-600 dark:text-green-400"
+                                    }
                                 `}
                 >
                   {priority.charAt(0) + priority.slice(1).toLowerCase()}

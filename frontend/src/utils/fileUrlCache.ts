@@ -18,7 +18,7 @@ export function getCachedFileUrl(filePath: string): string | null {
 export function setCachedFileUrl(
   filePath: string,
   url: string,
-  expiresInSeconds: number = 300
+  expiresInSeconds: number = 300,
 ): void {
   fileUrlCache[filePath] = {
     url,

@@ -16,7 +16,7 @@ import {
 export const useTeamFiles = (
   activeTeam?: Team | null,
   allTeams: Team[] = [],
-  enabled: boolean = true
+  enabled: boolean = true,
 ) => {
   const [allFiles, setAllFiles] = useState<TeamFile[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -56,8 +56,8 @@ export const useTeamFiles = (
           projectIds.map((projectId) =>
             fetchProjectAttachments(projectId)
               .unwrap()
-              .catch(() => [])
-          )
+              .catch(() => []),
+          ),
         );
 
         const combinedFiles = results.flat();
@@ -97,7 +97,7 @@ export const useTeamFiles = (
     }
 
     return taskAttachments.filter(
-      (file) => file.user?.id && activeTeam.memberIds.includes(file.user.id)
+      (file) => file.user?.id && activeTeam.memberIds.includes(file.user.id),
     );
   }, [allFiles, activeTeam]);
 

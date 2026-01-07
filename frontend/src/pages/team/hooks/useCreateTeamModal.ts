@@ -12,7 +12,7 @@ import { showToast, getErrorMessage } from "../../../components/ui";
 export const useCreateTeamModal = (
   isOpen: boolean,
   onClose: () => void,
-  teamToEdit?: Team | null
+  teamToEdit?: Team | null,
 ) => {
   const { data: members = [], isLoading: isMembersLoading } =
     useGetTeamMembersQuery(undefined, { skip: !isOpen });
@@ -50,7 +50,7 @@ export const useCreateTeamModal = (
   const filteredMembers = members.filter(
     (member) =>
       member.name.toLowerCase().includes(membersInput.toLowerCase()) ||
-      member.email.toLowerCase().includes(membersInput.toLowerCase())
+      member.email.toLowerCase().includes(membersInput.toLowerCase()),
   );
 
   const toggleMemberSelection = (member: TeamMember) => {
@@ -64,7 +64,7 @@ export const useCreateTeamModal = (
   const handleProjectToggle = (projectId: string) => {
     if (selectedProjectIds.includes(projectId)) {
       setSelectedProjectIds(
-        selectedProjectIds.filter((id) => id !== projectId)
+        selectedProjectIds.filter((id) => id !== projectId),
       );
     } else {
       setSelectedProjectIds([...selectedProjectIds, projectId]);
@@ -109,8 +109,8 @@ export const useCreateTeamModal = (
     } catch (error) {
       showToast.error(
         `Failed to ${isEditing ? "update" : "create"} team. ${getErrorMessage(
-          error
-        )}`
+          error,
+        )}`,
       );
     } finally {
       setIsSubmitting(false);

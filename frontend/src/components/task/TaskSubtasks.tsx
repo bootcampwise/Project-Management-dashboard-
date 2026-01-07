@@ -15,7 +15,7 @@ const TaskSubtasks: React.FC<TaskSubtasksProps> = ({
   onAssign,
 }) => {
   const [assigningSubtaskId, setAssigningSubtaskId] = useState<string | null>(
-    null
+    null,
   );
 
   const completedCount = subtasks?.filter((st) => st.completed).length || 0;
@@ -38,16 +38,18 @@ const TaskSubtasks: React.FC<TaskSubtasksProps> = ({
         <div className="flex items-center gap-3 mb-4">
           <div className="flex-1 h-2 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
             <div
-              className={`h-full transition-all duration-300 ${subtaskProgress === 100 ? "bg-green-500" : "bg-blue-500"
-                }`}
+              className={`h-full transition-all duration-300 ${
+                subtaskProgress === 100 ? "bg-green-500" : "bg-blue-500"
+              }`}
               style={{ width: `${subtaskProgress}%` }}
             />
           </div>
           <span
-            className={`text-xs font-medium min-w-[40px] ${subtaskProgress === 100
+            className={`text-xs font-medium min-w-[40px] ${
+              subtaskProgress === 100
                 ? "text-green-600 dark:text-green-400"
                 : "text-gray-500 dark:text-gray-400"
-              }`}
+            }`}
           >
             {subtaskProgress}%
           </span>
@@ -67,17 +69,19 @@ const TaskSubtasks: React.FC<TaskSubtasksProps> = ({
               >
                 <CheckCircle2
                   size={18}
-                  className={`cursor-pointer transition-colors ${subtask.completed
+                  className={`cursor-pointer transition-colors ${
+                    subtask.completed
                       ? "text-green-500"
                       : "text-gray-300 dark:text-gray-600 hover:text-gray-400 dark:hover:text-gray-500"
-                    }`}
+                  }`}
                 />
               </button>
               <span
-                className={`text-sm ${subtask.completed
+                className={`text-sm ${
+                  subtask.completed
                     ? "text-gray-400 dark:text-gray-500 line-through"
                     : "text-gray-700 dark:text-gray-200 font-medium"
-                  }`}
+                }`}
               >
                 {subtask.title}
               </span>
@@ -107,15 +111,15 @@ const TaskSubtasks: React.FC<TaskSubtasksProps> = ({
                 <button
                   onClick={() =>
                     setAssigningSubtaskId(
-                      assigningSubtaskId === subtask.id ? null : subtask.id
+                      assigningSubtaskId === subtask.id ? null : subtask.id,
                     )
                   }
                   className="focus:outline-none flex items-center"
                   title={
                     subtask.assignees?.length
                       ? `Assigned to ${subtask.assignees
-                        .map((a) => a.name)
-                        .join(", ")}`
+                          .map((a) => a.name)
+                          .join(", ")}`
                       : "Click to assign"
                   }
                 >
@@ -184,7 +188,7 @@ const TaskSubtasks: React.FC<TaskSubtasksProps> = ({
                       {filteredTeamMembers.length > 0 ? (
                         filteredTeamMembers.map((member) => {
                           const isAssigned = subtask.assignees?.some(
-                            (a) => String(a.id) === String(member.id)
+                            (a) => String(a.id) === String(member.id),
                           );
                           return (
                             <button
@@ -193,19 +197,21 @@ const TaskSubtasks: React.FC<TaskSubtasksProps> = ({
                                 onAssign(
                                   subtask.id,
                                   String(member.id),
-                                  isAssigned ? "remove" : "add"
+                                  isAssigned ? "remove" : "add",
                                 );
                               }}
-                              className={`w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors ${isAssigned
+                              className={`w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors ${
+                                isAssigned
                                   ? "bg-blue-50 dark:bg-blue-900/30"
                                   : ""
-                                }`}
+                              }`}
                             >
                               <div
-                                className={`w-4 h-4 rounded border flex items-center justify-center flex-shrink-0 ${isAssigned
+                                className={`w-4 h-4 rounded border flex items-center justify-center flex-shrink-0 ${
+                                  isAssigned
                                     ? "bg-blue-500 border-blue-500"
                                     : "border-gray-300 dark:border-gray-600"
-                                  }`}
+                                }`}
                               >
                                 {isAssigned && (
                                   <CheckCircle2
@@ -226,10 +232,11 @@ const TaskSubtasks: React.FC<TaskSubtasksProps> = ({
                                 </div>
                               )}
                               <span
-                                className={`truncate ${isAssigned
+                                className={`truncate ${
+                                  isAssigned
                                     ? "text-blue-700 dark:text-blue-400 font-medium"
                                     : "text-gray-700 dark:text-gray-200"
-                                  }`}
+                                }`}
                               >
                                 {member.name}
                               </span>
@@ -257,7 +264,7 @@ const TaskSubtasks: React.FC<TaskSubtasksProps> = ({
               <span className="text-xs text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity">
                 {new Date(subtask.createdAt || Date.now()).toLocaleDateString(
                   "en-US",
-                  { month: "short", day: "numeric" }
+                  { month: "short", day: "numeric" },
                 )}
               </span>
             </div>

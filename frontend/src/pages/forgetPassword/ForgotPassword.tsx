@@ -141,8 +141,9 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({
                   onChange={(e) => handleOtpChange(index, e.target.value)}
                   onKeyDown={(e) => handleOtpKeyDown(index, e)}
                   onPaste={handleOtpPaste}
-                  className={`${forgotPasswordClasses.otpInput} ${digit ? forgotPasswordClasses.otpInputFilled : ""
-                    }`}
+                  className={`${forgotPasswordClasses.otpInput} ${
+                    digit ? forgotPasswordClasses.otpInputFilled : ""
+                  }`}
                   style={forgotPasswordStyles.otpInput}
                   autoFocus={index === 0}
                 />

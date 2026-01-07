@@ -82,7 +82,7 @@ export const teamApiSlice = apiSlice.injectEndpoints({
           { type: "Team", id: "LIST" },
           { type: "Team", id: "ALL_LIST" },
         ],
-      }
+      },
     ),
 
     deleteTeam: builder.mutation<void, string>({

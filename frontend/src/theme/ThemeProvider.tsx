@@ -4,7 +4,7 @@ import type { Theme, ThemeContextValue } from "../types/theme.types";
 const STORAGE_KEY = "app-theme";
 
 export const ThemeContext = createContext<ThemeContextValue | undefined>(
-  undefined
+  undefined,
 );
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({

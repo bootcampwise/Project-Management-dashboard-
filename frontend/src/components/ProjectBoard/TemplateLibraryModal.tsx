@@ -161,10 +161,11 @@ const TemplateLibraryModal: React.FC<TemplateLibraryModalProps> = ({
               <button
                 key={category.name}
                 onClick={() => setActiveCategory(category.name)}
-                className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-[15px] transition-all duration-200 ${activeCategory === category.name
+                className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-[15px] transition-all duration-200 ${
+                  activeCategory === category.name
                     ? "bg-gray-200 text-gray-900 font-medium shadow-sm"
                     : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
-                  }`}
+                }`}
               >
                 <category.icon
                   size={20}

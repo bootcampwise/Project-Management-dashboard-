@@ -15,7 +15,7 @@ import { setTimeFormat } from "../../../store/uiSlice";
 
 export const useSettingsModalLogic = (
   initialTab: string,
-  onClose: () => void
+  onClose: () => void,
 ) => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
@@ -35,7 +35,7 @@ export const useSettingsModalLogic = (
 
   const [pendingTheme, setPendingTheme] = useState<"light" | "dark">(theme);
   const [pendingTimeFormat, setPendingTimeFormat] = useState<"12h" | "24h">(
-    currentTimeFormat
+    currentTimeFormat,
   );
 
   const [formData, setFormData] = useState({
@@ -65,7 +65,7 @@ export const useSettingsModalLogic = (
   };
 
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
     const { id, value } = e.target;
     setFormData((prev) => ({
@@ -75,7 +75,7 @@ export const useSettingsModalLogic = (
   };
 
   const handlePhotoUpload = async (
-    event: React.ChangeEvent<HTMLInputElement>
+    event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     try {
       setUploading(true);

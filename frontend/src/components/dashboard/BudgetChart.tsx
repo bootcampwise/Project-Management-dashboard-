@@ -123,7 +123,7 @@ export function BudgetChart({
 
           const hourExpenses = hourTasks.reduce(
             (sum, t) => sum + (t.actualCost || 0),
-            0
+            0,
           );
 
           const label =
@@ -252,10 +252,11 @@ export function BudgetChart({
           </p>
         </div>
         <div
-          className={`flex items-center gap-1 px-2 py-1 rounded text-sm font-medium ${isOverBudget
-            ? "bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400"
-            : "bg-green-50 dark:bg-green-900/30 text-green-600 dark:text-green-400"
-            }`}
+          className={`flex items-center gap-1 px-2 py-1 rounded text-sm font-medium ${
+            isOverBudget
+              ? "bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400"
+              : "bg-green-50 dark:bg-green-900/30 text-green-600 dark:text-green-400"
+          }`}
         >
           {isOverBudget ? (
             <ArrowDownRight size={16} />

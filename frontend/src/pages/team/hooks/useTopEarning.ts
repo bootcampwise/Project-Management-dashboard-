@@ -3,7 +3,7 @@ import { useGetTopEarningQuery } from "../../../store/api/teamApiSlice";
 import type { TopEarningProject } from "../../../types";
 
 export const useTopEarning = (
-  teamId?: string
+  teamId?: string,
 ): {
   range: string;
   setRange: React.Dispatch<React.SetStateAction<string>>;
@@ -14,7 +14,7 @@ export const useTopEarning = (
 
   const { data: projects = [], isLoading } = useGetTopEarningQuery(
     { teamId: teamId || "", range },
-    { skip: !teamId }
+    { skip: !teamId },
   );
 
   return {

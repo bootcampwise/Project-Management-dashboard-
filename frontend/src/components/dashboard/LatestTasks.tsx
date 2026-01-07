@@ -1,7 +1,10 @@
 import React from "react";
 import { ArrowUp, ArrowDown, FileText } from "lucide-react";
 import type { LatestTasksProps } from "../../types";
-import { useLatestTasks, type SortDirection } from "../../pages/dashboard/hooks/useLatestTasks";
+import {
+  useLatestTasks,
+  type SortDirection,
+} from "../../pages/dashboard/hooks/useLatestTasks";
 
 const formatDate = (date: string | Date | null | undefined): string => {
   if (!date) return "-";

@@ -15,7 +15,7 @@ export const useCreateProjectModal = ({
   const [dueDate, setDueDate] = useState("");
   const [selectedTeamId, setSelectedTeamId] = useState<string>("");
   const [privacy, setPrivacy] = useState<"public" | "private" | "team">(
-    "public"
+    "public",
   );
   const [isCreating, setIsCreating] = useState(false);
 

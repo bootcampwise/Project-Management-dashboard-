@@ -159,11 +159,11 @@ const Tasks: React.FC = () => {
                   onChange={(value) =>
                     setSortBy(
                       value as
-                      | "priority"
-                      | "dueDate"
-                      | "newest"
-                      | "oldest"
-                      | "alpha"
+                        | "priority"
+                        | "dueDate"
+                        | "newest"
+                        | "oldest"
+                        | "alpha",
                     )
                   }
                   options={[
@@ -230,28 +230,28 @@ const Tasks: React.FC = () => {
                       items={
                         hiddenColumns.length > 0
                           ? hiddenColumns.map((col) => ({
-                            key: col.id,
-                            label: (
-                              <div className="flex items-center gap-2">
-                                <div
-                                  className={taskClasses.columnDot(col.color)}
-                                ></div>
-                                {col.title}
-                              </div>
-                            ),
-                            onClick: () => handleShowColumn(col.id),
-                          }))
-                          : [
-                            {
-                              key: "empty",
-                              custom: true,
+                              key: col.id,
                               label: (
-                                <div className={taskClasses.addSectionEmpty}>
-                                  All sections visible
+                                <div className="flex items-center gap-2">
+                                  <div
+                                    className={taskClasses.columnDot(col.color)}
+                                  ></div>
+                                  {col.title}
                                 </div>
                               ),
-                            },
-                          ]
+                              onClick: () => handleShowColumn(col.id),
+                            }))
+                          : [
+                              {
+                                key: "empty",
+                                custom: true,
+                                label: (
+                                  <div className={taskClasses.addSectionEmpty}>
+                                    All sections visible
+                                  </div>
+                                ),
+                              },
+                            ]
                       }
                     />
                   </div>
@@ -281,7 +281,7 @@ const Tasks: React.FC = () => {
                 >
                   {getAllSortedTasks().map((task) => {
                     const taskColumn = columns.find(
-                      (c) => c.id === task.status
+                      (c) => c.id === task.status,
                     ) || { color: "bg-gray-400", title: task.status };
                     return (
                       <motion.div
@@ -310,27 +310,27 @@ const Tasks: React.FC = () => {
                             {(typeof task.comments === "number"
                               ? task.comments
                               : task.comments?.length || 0) > 0 && (
-                                <div className={taskClasses.taskStat}>
-                                  <MessageSquare size={11} />
-                                  <span>
-                                    {typeof task.comments === "number"
-                                      ? task.comments
-                                      : task.comments?.length}
-                                  </span>
-                                </div>
-                              )}
+                              <div className={taskClasses.taskStat}>
+                                <MessageSquare size={11} />
+                                <span>
+                                  {typeof task.comments === "number"
+                                    ? task.comments
+                                    : task.comments?.length}
+                                </span>
+                              </div>
+                            )}
                             {(typeof task.attachments === "number"
                               ? task.attachments
                               : task.attachments?.length || 0) > 0 && (
-                                <div className={taskClasses.taskStat}>
-                                  <Paperclip size={11} />
-                                  <span>
-                                    {typeof task.attachments === "number"
-                                      ? task.attachments
-                                      : task.attachments?.length}
-                                  </span>
-                                </div>
-                              )}
+                              <div className={taskClasses.taskStat}>
+                                <Paperclip size={11} />
+                                <span>
+                                  {typeof task.attachments === "number"
+                                    ? task.attachments
+                                    : task.attachments?.length}
+                                </span>
+                              </div>
+                            )}
                           </div>
                         </div>
 
@@ -371,7 +371,7 @@ const Tasks: React.FC = () => {
                                     month: "short",
                                     day: "numeric",
                                     year: "numeric",
-                                  }
+                                  },
                                 )}
                               </span>
                             </>
@@ -385,7 +385,7 @@ const Tasks: React.FC = () => {
                             <Badge
                               variant={
                                 task.priority === "URGENT" ||
-                                  task.priority === "HIGH"
+                                task.priority === "HIGH"
                                   ? "danger"
                                   : task.priority === "MEDIUM"
                                     ? "warning"
@@ -405,7 +405,7 @@ const Tasks: React.FC = () => {
                             className={taskClasses.statusDot}
                             style={{
                               backgroundColor: taskColumn.color.startsWith(
-                                "bg-"
+                                "bg-",
                               )
                                 ? undefined
                                 : taskColumn.color,

@@ -8,7 +8,7 @@ const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 export const useForgotPassword = (
   initialEmail: string = "",
-  onSuccess: () => void
+  onSuccess: () => void,
 ) => {
   const [view, setView] = useState<ForgotPasswordView>("email");
   const [resetEmail, setResetEmail] = useState(initialEmail);
@@ -123,7 +123,7 @@ export const useForgotPassword = (
         otpInputRefs.current[index - 1]?.focus();
       }
     },
-    [otp]
+    [otp],
   );
 
   const handleOtpPaste = useCallback((e: React.ClipboardEvent) => {
@@ -179,7 +179,7 @@ export const useForgotPassword = (
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/;
     if (!passwordRegex.test(newPassword)) {
       showToast.error(
-        "Password must be 8+ chars with uppercase, lowercase, number & special character"
+        "Password must be 8+ chars with uppercase, lowercase, number & special character",
       );
       return;
     }
@@ -206,7 +206,7 @@ export const useForgotPassword = (
       }
 
       showToast.success(
-        "Password updated! Please log in with your new password."
+        "Password updated! Please log in with your new password.",
       );
       clearSensitiveData();
       await supabase.auth.signOut();

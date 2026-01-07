@@ -22,7 +22,7 @@ export const useScheduleCalendar = (projectId?: string | "all") => {
     projectId as string,
     {
       skip: isAllProjects,
-    }
+    },
   );
 
   const events = isAllProjects ? allEvents : projectEvents;
@@ -132,7 +132,7 @@ export const useScheduleCalendar = (projectId?: string | "all") => {
         return isSameDate && isTypeMatch;
       })
       .sort(
-        (a, b) => new Date(a.start).getTime() - new Date(b.start).getTime()
+        (a, b) => new Date(a.start).getTime() - new Date(b.start).getTime(),
       );
   }, [events, selectedDate, activeTab]);
 

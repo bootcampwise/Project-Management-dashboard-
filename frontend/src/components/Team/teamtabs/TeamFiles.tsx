@@ -41,8 +41,9 @@ const TeamFiles: React.FC<TeamFilesProps> = ({
     showToast.custom(
       (t) => (
         <div
-          className={`${t.visible ? "animate-enter" : "animate-leave"
-            } bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4 min-w-[280px] border border-gray-100 dark:border-gray-700`}
+          className={`${
+            t.visible ? "animate-enter" : "animate-leave"
+          } bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4 min-w-[280px] border border-gray-100 dark:border-gray-700`}
         >
           <div className="mb-3">
             <h3 className="font-semibold text-gray-900 dark:text-white text-base">
@@ -78,7 +79,7 @@ const TeamFiles: React.FC<TeamFilesProps> = ({
       {
         duration: 5000,
         position: "top-center",
-      }
+      },
     );
   };
 
@@ -95,7 +96,7 @@ const TeamFiles: React.FC<TeamFilesProps> = ({
         <div className="flex flex-col gap-[2px] bg-gray-50 dark:bg-gray-800">
           {(!activeTeam &&
             (!allTeams || !allTeams.some((t) => t.projects?.length))) ||
-            (activeTeam && !activeTeam.projects?.length) ? (
+          (activeTeam && !activeTeam.projects?.length) ? (
             <div className="px-6 py-8 text-center text-gray-500 dark:text-gray-400 text-sm italic">
               No projects assigned to {activeTeam ? "this team" : "any team"}.
             </div>
@@ -127,8 +128,9 @@ const TeamFiles: React.FC<TeamFilesProps> = ({
             files.map((file) => (
               <div
                 key={file.id}
-                className={`grid grid-cols-[2.5fr_1fr_1fr_1.5fr] gap-4 px-6 h-[43px] items-center bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors cursor-pointer overflow-visible ${deletingId === file.id ? "opacity-50" : ""
-                  } `}
+                className={`grid grid-cols-[2.5fr_1fr_1fr_1.5fr] gap-4 px-6 h-[43px] items-center bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors cursor-pointer overflow-visible ${
+                  deletingId === file.id ? "opacity-50" : ""
+                } `}
                 onClick={() => handleFileClick(file)}
               >
                 <div className="flex items-center gap-3 overflow-hidden">

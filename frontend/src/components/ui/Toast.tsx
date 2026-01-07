@@ -116,17 +116,17 @@ export const showToast = {
       success: string | ((data: T) => string);
       error: string | ((err: unknown) => string);
     },
-    options?: ToastOptions
+    options?: ToastOptions,
   ) => {
     const errorHandler =
       typeof messages.error === "function"
         ? messages.error
         : (err: unknown) => {
-          const extracted = getErrorMessage(err);
-          return extracted !== "Unknown error occurred"
-            ? extracted
-            : (messages.error as string);
-        };
+            const extracted = getErrorMessage(err);
+            return extracted !== "Unknown error occurred"
+              ? extracted
+              : (messages.error as string);
+          };
 
     return toast.promise(
       promise,
@@ -135,13 +135,13 @@ export const showToast = {
         success: messages.success,
         error: errorHandler,
       },
-      { ...defaultOptions, ...options }
+      { ...defaultOptions, ...options },
     );
   },
 
   custom: (
     renderer: (t: import("react-hot-toast").Toast) => React.JSX.Element,
-    options?: ToastOptions
+    options?: ToastOptions,
   ) => toast.custom(renderer, options),
 
   confirm: (config: {
@@ -186,8 +186,9 @@ export const showToast = {
     return toast.custom(
       (t) => (
         <div
-          className={`bg-white rounded-xl shadow-lg border border-gray-200 p-4 max-w-sm ${t.visible ? "animate-enter" : "animate-leave"
-            }`}
+          className={`bg-white rounded-xl shadow-lg border border-gray-200 p-4 max-w-sm ${
+            t.visible ? "animate-enter" : "animate-leave"
+          }`}
         >
           <div className="flex items-start gap-3">
             <div
@@ -271,7 +272,7 @@ export const showToast = {
           </div>
         </div>
       ),
-      { duration: 3000, position: "top-center" }
+      { duration: 3000, position: "top-center" },
     );
   },
 };

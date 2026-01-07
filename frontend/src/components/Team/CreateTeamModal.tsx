@@ -78,43 +78,43 @@ const CreateTeamModal: React.FC<CreateTeamModalProps> = ({
               items={
                 isProjectsLoading
                   ? [
-                    {
-                      key: "loading",
-                      custom: true,
-                      label: (
-                        <div className="p-3 text-center text-sm text-gray-400 dark:text-gray-500">
-                          Loading projects...
-                        </div>
-                      ),
-                    },
-                  ]
-                  : projects.length > 0
-                    ? projects.map((project) => ({
-                      key: project.id,
-                      preventClose: true,
-                      label: (
-                        <div className="flex items-center justify-between w-full">
-                          <span className="text-gray-700 dark:text-gray-300">
-                            {project.name}
-                          </span>
-                          {selectedProjectIds.includes(project.id) && (
-                            <Check size={14} className="text-blue-500" />
-                          )}
-                        </div>
-                      ),
-                      onClick: () => handleProjectToggle(project.id),
-                    }))
-                    : [
                       {
-                        key: "empty",
+                        key: "loading",
                         custom: true,
                         label: (
                           <div className="p-3 text-center text-sm text-gray-400 dark:text-gray-500">
-                            No projects found
+                            Loading projects...
                           </div>
                         ),
                       },
                     ]
+                  : projects.length > 0
+                    ? projects.map((project) => ({
+                        key: project.id,
+                        preventClose: true,
+                        label: (
+                          <div className="flex items-center justify-between w-full">
+                            <span className="text-gray-700 dark:text-gray-300">
+                              {project.name}
+                            </span>
+                            {selectedProjectIds.includes(project.id) && (
+                              <Check size={14} className="text-blue-500" />
+                            )}
+                          </div>
+                        ),
+                        onClick: () => handleProjectToggle(project.id),
+                      }))
+                    : [
+                        {
+                          key: "empty",
+                          custom: true,
+                          label: (
+                            <div className="p-3 text-center text-sm text-gray-400 dark:text-gray-500">
+                              No projects found
+                            </div>
+                          ),
+                        },
+                      ]
               }
             />
           </div>
@@ -144,13 +144,14 @@ const CreateTeamModal: React.FC<CreateTeamModalProps> = ({
             ) : filteredMembers.length > 0 ? (
               filteredMembers.map((member) => {
                 const isSelected = selectedMembers.some(
-                  (m) => m.id === member.id
+                  (m) => m.id === member.id,
                 );
                 return (
                   <div
                     key={member.id}
-                    className={`flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-700 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/50 px-2 rounded ${isSelected ? "bg-blue-50 dark:bg-blue-900/20" : ""
-                      }`}
+                    className={`flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-700 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/50 px-2 rounded ${
+                      isSelected ? "bg-blue-50 dark:bg-blue-900/20" : ""
+                    }`}
                     onClick={() => toggleMemberSelection(member)}
                   >
                     <div className="flex items-center gap-3">
@@ -172,10 +173,11 @@ const CreateTeamModal: React.FC<CreateTeamModalProps> = ({
                       </div>
                     </div>
                     <button
-                      className={`flex items-center gap-1 text-xs font-medium ${isSelected
-                        ? "text-blue-600 dark:text-blue-400"
-                        : "text-gray-400 dark:text-gray-500"
-                        }`}
+                      className={`flex items-center gap-1 text-xs font-medium ${
+                        isSelected
+                          ? "text-blue-600 dark:text-blue-400"
+                          : "text-gray-400 dark:text-gray-500"
+                      }`}
                     >
                       {isSelected && <Check size={14} />}
                       <span>{isSelected ? "Selected" : "Select"}</span>
@@ -196,10 +198,11 @@ const CreateTeamModal: React.FC<CreateTeamModalProps> = ({
             <button
               onClick={handleCreateOrUpdateTeam}
               disabled={isSubmitting || !teamName.trim()}
-              className={`px-6 py-2 bg-blue-500 text-white text-sm font-medium rounded-md shadow-sm shadow-blue-200 dark:shadow-blue-900 transition-colors ${isSubmitting || !teamName.trim()
-                ? "opacity-50 cursor-not-allowed"
-                : "hover:bg-blue-600"
-                }`}
+              className={`px-6 py-2 bg-blue-500 text-white text-sm font-medium rounded-md shadow-sm shadow-blue-200 dark:shadow-blue-900 transition-colors ${
+                isSubmitting || !teamName.trim()
+                  ? "opacity-50 cursor-not-allowed"
+                  : "hover:bg-blue-600"
+              }`}
             >
               {isSubmitting
                 ? isEditing

@@ -189,7 +189,7 @@ export interface TaskSubtasksProps {
   onAssign: (
     subtaskId: string,
     userId: string,
-    action: "add" | "remove"
+    action: "add" | "remove",
   ) => void;
 }
 
@@ -215,7 +215,7 @@ export interface CreateTaskModalProps {
   onCreate?: (taskData: CreateTaskPayload) => void;
   onUpdate?: (
     taskId: string,
-    taskData: CreateTaskPayload
+    taskData: CreateTaskPayload,
   ) => void | Promise<void>;
   initialStatus?: string;
   task?: Task | null;
@@ -234,7 +234,7 @@ export interface UseCreateTaskModalProps {
   onCreate?: (taskData: CreateTaskPayload) => void | Promise<void>;
   onUpdate?: (
     taskId: string,
-    taskData: CreateTaskPayload
+    taskData: CreateTaskPayload,
   ) => void | Promise<void>;
   initialStatus?: string;
   task?: Task | null;

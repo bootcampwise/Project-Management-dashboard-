@@ -37,10 +37,11 @@ const FilterControl: React.FC<FilterControlProps> = ({
       trigger={
         <Button
           variant={buttonVariant}
-          className={`h-9 px-3 text-sm font-medium transition-all shadow-sm ${buttonVariant === "secondary"
+          className={`h-9 px-3 text-sm font-medium transition-all shadow-sm ${
+            buttonVariant === "secondary"
               ? "text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-300 dark:hover:border-gray-500"
               : ""
-            } ${className}`}
+          } ${className}`}
           leftIcon={
             <Filter
               size={16}

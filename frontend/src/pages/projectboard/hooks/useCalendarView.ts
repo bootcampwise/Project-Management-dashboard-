@@ -43,7 +43,7 @@ export const useCalendarView = ({ projectId }: UseCalendarViewProps = {}) => {
       setEvents(result);
     } catch (error) {
       showToast.error(
-        `Failed to fetch calendar events. ${getErrorMessage(error)}`
+        `Failed to fetch calendar events. ${getErrorMessage(error)}`,
       );
     }
   }, [projectId, currentDate, fetchEvents]);
@@ -95,7 +95,7 @@ export const useCalendarView = ({ projectId }: UseCalendarViewProps = {}) => {
         loading: `Deleting "${eventTitle}"...`,
         success: `Event "${eventTitle}" deleted!`,
         error: "Failed to delete event.",
-      }
+      },
     );
   };
 
@@ -107,7 +107,7 @@ export const useCalendarView = ({ projectId }: UseCalendarViewProps = {}) => {
       }).unwrap();
 
       setEvents((prev) =>
-        prev.map((e) => (e.id === eventId ? { ...e, ...updatedEvent } : e))
+        prev.map((e) => (e.id === eventId ? { ...e, ...updatedEvent } : e)),
       );
       showToast.success("Event updated successfully!");
       return updatedEvent;

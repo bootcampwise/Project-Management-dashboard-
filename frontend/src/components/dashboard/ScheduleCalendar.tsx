@@ -24,9 +24,9 @@ const ScheduleCalendar: React.FC<ScheduleCalendarProps> = ({ projectId }) => {
     });
     const endTime = end
       ? new Date(end).toLocaleTimeString([], {
-        hour: "numeric",
-        minute: "2-digit",
-      })
+          hour: "numeric",
+          minute: "2-digit",
+        })
       : "";
     return endTime ? `${startTime} - ${endTime}` : startTime;
   };
@@ -107,12 +107,13 @@ const ScheduleCalendar: React.FC<ScheduleCalendarProps> = ({ projectId }) => {
                     }
                     className={`
                         w-6 h-6 flex items-center justify-center rounded-full text-xs font-medium cursor-pointer transition-colors relative
-                        ${dateObj.selected
-                        ? "bg-blue-600 text-white shadow-sm"
-                        : dateObj.isToday
-                          ? "bg-blue-50 text-blue-600 font-bold border border-blue-200"
-                          : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                      }
+                        ${
+                          dateObj.selected
+                            ? "bg-blue-600 text-white shadow-sm"
+                            : dateObj.isToday
+                              ? "bg-blue-50 text-blue-600 font-bold border border-blue-200"
+                              : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                        }
                     `}
                   >
                     {dateObj.day}
@@ -137,9 +138,10 @@ const ScheduleCalendar: React.FC<ScheduleCalendarProps> = ({ projectId }) => {
               onClick={() => setActiveTab(tab)}
               className={`
                 flex-1 py-1 text-xs font-medium rounded-md transition-all duration-200
-                ${activeTab === tab
-                  ? "text-blue-900 dark:text-blue-400 bg-white dark:bg-gray-800 shadow-sm"
-                  : "text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300"
+                ${
+                  activeTab === tab
+                    ? "text-blue-900 dark:text-blue-400 bg-white dark:bg-gray-800 shadow-sm"
+                    : "text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300"
                 }
             `}
             >

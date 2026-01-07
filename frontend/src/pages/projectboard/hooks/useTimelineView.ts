@@ -111,8 +111,8 @@ export const useTimelineView = ({
       projectIds && projectIds.length > 0
         ? projectIds
         : projectId
-        ? [projectId]
-        : [];
+          ? [projectId]
+          : [];
 
     if (idsToFetch.length === 0) return;
 
@@ -123,17 +123,17 @@ export const useTimelineView = ({
       const allEvents = results.flat();
       const uniqueEvents = allEvents.filter(
         (event, index, self) =>
-          index === self.findIndex((e) => e.id === event.id)
+          index === self.findIndex((e) => e.id === event.id),
       );
 
       uniqueEvents.sort(
-        (a, b) => new Date(a.start).getTime() - new Date(b.start).getTime()
+        (a, b) => new Date(a.start).getTime() - new Date(b.start).getTime(),
       );
 
       setEvents(uniqueEvents);
     } catch (error) {
       showToast.error(
-        `Failed to fetch today's events. ${getErrorMessage(error)}`
+        `Failed to fetch today's events. ${getErrorMessage(error)}`,
       );
     }
   }, [projectId, projectIds, fetchTodayEvents]);
@@ -236,7 +236,7 @@ export const useTimelineView = ({
         loading: `Deleting "${eventTitle}"...`,
         success: `Event "${eventTitle}" deleted!`,
         error: "Failed to delete event.",
-      }
+      },
     );
   };
 
@@ -248,7 +248,7 @@ export const useTimelineView = ({
       }).unwrap();
 
       setEvents((prev) =>
-        prev.map((e) => (e.id === eventId ? { ...e, ...updatedEvent } : e))
+        prev.map((e) => (e.id === eventId ? { ...e, ...updatedEvent } : e)),
       );
       showToast.success("Event updated successfully!");
       return updatedEvent;

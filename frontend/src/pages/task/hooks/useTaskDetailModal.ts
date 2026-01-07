@@ -30,7 +30,7 @@ export const useTaskDetailModal = ({
 
   const { data: taskData, refetch: refetchTask } = useGetTaskQuery(
     String(initialTask?.id || ""),
-    { skip: !isOpen || !initialTask?.id }
+    { skip: !isOpen || !initialTask?.id },
   );
 
   const [deleteTaskMutation] = useDeleteTaskMutation();
@@ -51,7 +51,7 @@ export const useTaskDetailModal = ({
   const [isAddingTag, setIsAddingTag] = useState(false);
   const [tagInput, setTagInput] = useState("");
   const [assigningSubtaskId, setAssigningSubtaskId] = useState<string | null>(
-    null
+    null,
   );
   const [subtaskAssigneeSearch, setSubtaskAssigneeSearch] = useState("");
 
@@ -63,7 +63,7 @@ export const useTaskDetailModal = ({
     return teamMembers.filter(
       (member) =>
         member.name?.toLowerCase().includes(searchLower) ||
-        member.email?.toLowerCase().includes(searchLower)
+        member.email?.toLowerCase().includes(searchLower),
     );
   }, [teamMembers, subtaskAssigneeSearch]);
 
@@ -94,7 +94,7 @@ export const useTaskDetailModal = ({
 
       const fileName = `${Date.now()}-${file.name.replace(
         /[^a-zA-Z0-9.-]/g,
-        "_"
+        "_",
       )}`;
       const filePath = `${user.id}/${fileName}`;
 
@@ -117,7 +117,7 @@ export const useTaskDetailModal = ({
     } catch (error) {
       showToast.error(
         `Failed to upload attachment. ${getErrorMessage(error)}`,
-        { id: toastId }
+        { id: toastId },
       );
     }
   };
@@ -155,7 +155,7 @@ export const useTaskDetailModal = ({
   const handleAssignSubtask = async (
     subtaskId: string,
     assigneeId: string,
-    _action: "add" | "remove"
+    _action: "add" | "remove",
   ) => {
     if (!task) return;
     try {
@@ -168,7 +168,7 @@ export const useTaskDetailModal = ({
       showToast.success("Subtask assignee updated");
     } catch (error) {
       showToast.error(
-        `Failed to update subtask assignees. ${getErrorMessage(error)}`
+        `Failed to update subtask assignees. ${getErrorMessage(error)}`,
       );
     }
   };
@@ -255,7 +255,7 @@ export const useTaskDetailModal = ({
 
   const handleDownload = async (
     e: React.MouseEvent,
-    attachment: Attachment
+    attachment: Attachment,
   ) => {
     e.stopPropagation();
     try {

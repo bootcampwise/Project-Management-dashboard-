@@ -146,7 +146,7 @@ export const useTeam = () => {
   const teamFiles = useTeamFiles(
     activeTeam,
     allTeams,
-    activeTab === "Files" || hasVisitedFilesTab
+    activeTab === "Files" || hasVisitedFilesTab,
   );
 
   return {

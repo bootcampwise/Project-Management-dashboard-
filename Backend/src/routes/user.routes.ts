@@ -12,7 +12,7 @@ const controller = new UserController();
 router.post(
   "/check-email",
   authLimiter,
-  controller.checkEmailExists.bind(controller)
+  controller.checkEmailExists.bind(controller),
 );
 
 router.use(authenticate);

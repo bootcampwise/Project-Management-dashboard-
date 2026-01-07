@@ -172,8 +172,9 @@ export const SidebarItemSkeleton: React.FC<{ indent?: number }> = ({
   indent = 0,
 }) => (
   <div
-    className={`flex items-center gap-3 px-4 py-2 ${indent ? "pl-" + (indent + 4) : ""
-      }`}
+    className={`flex items-center gap-3 px-4 py-2 ${
+      indent ? "pl-" + (indent + 4) : ""
+    }`}
   >
     <Skeleton className="h-4 w-4 rounded" />
     <Skeleton className="h-4 w-24" />

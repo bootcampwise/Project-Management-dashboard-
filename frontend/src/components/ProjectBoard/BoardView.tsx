@@ -65,28 +65,28 @@ const BoardView: React.FC<BoardViewProps> = ({
             items={
               hiddenColumns.length > 0
                 ? hiddenColumns.map((col) => ({
-                  key: col.id,
-                  label: (
-                    <div className="flex items-center gap-2">
-                      <div
-                        className={`w-2 h-2 rounded-full ${col.color}`}
-                      ></div>
-                      {col.title}
-                    </div>
-                  ),
-                  onClick: () => handleShowColumn(col.id),
-                }))
-                : [
-                  {
-                    key: "empty",
-                    custom: true,
+                    key: col.id,
                     label: (
-                      <div className="px-4 py-2 text-sm text-gray-500">
-                        All sections visible
+                      <div className="flex items-center gap-2">
+                        <div
+                          className={`w-2 h-2 rounded-full ${col.color}`}
+                        ></div>
+                        {col.title}
                       </div>
                     ),
-                  },
-                ]
+                    onClick: () => handleShowColumn(col.id),
+                  }))
+                : [
+                    {
+                      key: "empty",
+                      custom: true,
+                      label: (
+                        <div className="px-4 py-2 text-sm text-gray-500">
+                          All sections visible
+                        </div>
+                      ),
+                    },
+                  ]
             }
           />
         </div>

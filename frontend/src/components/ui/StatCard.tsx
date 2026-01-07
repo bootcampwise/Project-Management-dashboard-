@@ -50,17 +50,20 @@ export const StatCard: React.FC<StatCardProps> = ({
           <div
             className={`
                mt-5 flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium w-fit 
-              ${isPositive
-                ? "bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400"
-                : ""
+              ${
+                isPositive
+                  ? "bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400"
+                  : ""
               }
-              ${isNegative
-                ? "bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400"
-                : ""
+              ${
+                isNegative
+                  ? "bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400"
+                  : ""
               }
-              ${!isPositive && !isNegative
-                ? "bg-gray-50 dark:bg-gray-700 text-gray-500 dark:text-gray-400"
-                : ""
+              ${
+                !isPositive && !isNegative
+                  ? "bg-gray-50 dark:bg-gray-700 text-gray-500 dark:text-gray-400"
+                  : ""
               }
             `.trim()}
           >

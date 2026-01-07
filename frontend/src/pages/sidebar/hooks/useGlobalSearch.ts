@@ -8,7 +8,7 @@ import type { Task, Project } from "../../../types";
 
 export const useGlobalSearch = (
   showProjects: boolean = true,
-  onClose?: () => void
+  onClose?: () => void,
 ) => {
   const { data: tasks = [] } = useGetTasksQuery();
   const { data: projects = [] } = useGetProjectsQuery();
@@ -69,7 +69,7 @@ export const useGlobalSearch = (
         const startOfToday = new Date(
           today.getFullYear(),
           today.getMonth(),
-          today.getDate()
+          today.getDate(),
         );
 
         if (filterDate === "today") {
@@ -114,10 +114,10 @@ export const useGlobalSearch = (
       }
 
       const dateA = new Date(
-        a.createdAt || ("startDate" in a ? a.startDate : undefined) || 0
+        a.createdAt || ("startDate" in a ? a.startDate : undefined) || 0,
       ).getTime();
       const dateB = new Date(
-        b.createdAt || ("startDate" in b ? b.startDate : undefined) || 0
+        b.createdAt || ("startDate" in b ? b.startDate : undefined) || 0,
       ).getTime();
 
       return sortBy === "newest" ? dateB - dateA : dateA - dateB;

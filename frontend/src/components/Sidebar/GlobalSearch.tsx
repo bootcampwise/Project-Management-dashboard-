@@ -137,10 +137,11 @@ const GlobalSearch: React.FC<GlobalSearchProps> = ({
         <Dropdown
           trigger={
             <button
-              className={`flex items-center gap-1.5 px-3 py-1.5 border rounded text-sm transition-colors ${sortBy !== "newest"
+              className={`flex items-center gap-1.5 px-3 py-1.5 border rounded text-sm transition-colors ${
+                sortBy !== "newest"
                   ? "bg-blue-50 dark:bg-blue-900/30 border-blue-200 dark:border-blue-700 text-blue-600 dark:text-blue-400"
                   : "bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:border-gray-300 dark:hover:border-gray-500"
-                }`}
+              }`}
             >
               <SortAsc size={14} />
               <span>
@@ -158,10 +159,11 @@ const GlobalSearch: React.FC<GlobalSearchProps> = ({
         <Dropdown
           trigger={
             <button
-              className={`flex items-center gap-1.5 px-3 py-1.5 border rounded text-sm transition-colors ${filterCreator
+              className={`flex items-center gap-1.5 px-3 py-1.5 border rounded text-sm transition-colors ${
+                filterCreator
                   ? "bg-blue-50 dark:bg-blue-900/30 border-blue-200 dark:border-blue-700 text-blue-600 dark:text-blue-400"
                   : "bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:border-gray-300 dark:hover:border-gray-500"
-                }`}
+              }`}
             >
               <UserIcon size={14} />
               <span className="truncate max-w-[150px]">
@@ -177,10 +179,11 @@ const GlobalSearch: React.FC<GlobalSearchProps> = ({
           <Dropdown
             trigger={
               <button
-                className={`flex items-center gap-1.5 px-3 py-1.5 border rounded text-sm transition-colors ${filterProject
+                className={`flex items-center gap-1.5 px-3 py-1.5 border rounded text-sm transition-colors ${
+                  filterProject
                     ? "bg-blue-50 dark:bg-blue-900/30 border-blue-200 dark:border-blue-700 text-blue-600 dark:text-blue-400"
                     : "bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:border-gray-300 dark:hover:border-gray-500"
-                  }`}
+                }`}
               >
                 <LayoutGrid size={14} />
                 <span className="truncate max-w-[150px]">
@@ -196,10 +199,11 @@ const GlobalSearch: React.FC<GlobalSearchProps> = ({
         <Dropdown
           trigger={
             <button
-              className={`flex items-center gap-1.5 px-3 py-1.5 border rounded text-sm transition-colors ${filterDate
+              className={`flex items-center gap-1.5 px-3 py-1.5 border rounded text-sm transition-colors ${
+                filterDate
                   ? "bg-blue-50 dark:bg-blue-900/30 border-blue-200 dark:border-blue-700 text-blue-600 dark:text-blue-400"
                   : "bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:border-gray-300 dark:hover:border-gray-500"
-                }`}
+              }`}
             >
               <Calendar size={14} />
               <span>{getDateLabel()}</span>
@@ -271,7 +275,7 @@ const GlobalSearch: React.FC<GlobalSearchProps> = ({
                     p.id ===
                     (typeof task.project === "string"
                       ? task.project
-                      : task.project?.id)
+                      : task.project?.id),
                 );
                 const creator = task.creator || {
                   name: "Unknown",
@@ -288,10 +292,11 @@ const GlobalSearch: React.FC<GlobalSearchProps> = ({
                     onClick={() => handleResultClick(task)}
                   >
                     <div
-                      className={`mt-0.5 ${task.status === "COMPLETED"
+                      className={`mt-0.5 ${
+                        task.status === "COMPLETED"
                           ? "text-green-500"
                           : "text-gray-400 dark:text-gray-500 group-hover:text-blue-500 dark:group-hover:text-blue-400"
-                        }`}
+                      }`}
                     >
                       <CheckCircle2 size={18} />
                     </div>

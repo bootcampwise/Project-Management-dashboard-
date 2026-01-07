@@ -61,10 +61,10 @@ const Team: React.FC = () => {
   const shouldReduceMotion = useReducedMotion();
 
   const [sortBy, setSortBy] = React.useState<"newest" | "oldest" | "alpha">(
-    "newest"
+    "newest",
   );
   const [filterPriority, setFilterPriority] = React.useState<string | null>(
-    null
+    null,
   );
 
   const sortedProjects = React.useMemo(() => {
@@ -90,10 +90,10 @@ const Team: React.FC = () => {
     const displayMembers = activeTeam
       ? activeTeam.members || []
       : Array.from(
-        new Map(
-          allTeams.flatMap((t) => t.members || []).map((m) => [m.id, m])
-        ).values()
-      );
+          new Map(
+            allTeams.flatMap((t) => t.members || []).map((m) => [m.id, m]),
+          ).values(),
+        );
 
     return [...displayMembers].sort((a, b) => {
       if (sortBy === "alpha") {
@@ -233,7 +233,7 @@ const Team: React.FC = () => {
                                     </div>
                                   </div>
                                 ),
-                                teamStyles.toastOptions
+                                teamStyles.toastOptions,
                               );
                             },
                           },

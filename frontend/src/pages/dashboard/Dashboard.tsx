@@ -117,17 +117,18 @@ const Dashboard: React.FC = () => {
                       {selectedProject === "all"
                         ? "All Projects"
                         : projects.find((p) => p.id === selectedProject)
-                          ?.name || "All Projects"}
+                            ?.name || "All Projects"}
                     </span>
                     <ChevronDown size={16} />
                   </div>
                   {isDropdownOpen && (
                     <div className="absolute top-full left-0 mt-1 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50 max-h-60 overflow-y-auto">
                       <button
-                        className={`w-full px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700 ${selectedProject === "all"
+                        className={`w-full px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700 ${
+                          selectedProject === "all"
                             ? "bg-blue-50 dark:bg-blue-900/20 text-blue-600"
                             : "text-gray-700 dark:text-gray-300"
-                          }`}
+                        }`}
                         onClick={() => {
                           setSelectedProject("all");
                           setIsDropdownOpen(false);
@@ -138,10 +139,11 @@ const Dashboard: React.FC = () => {
                       {projects.map((project) => (
                         <button
                           key={project.id}
-                          className={`w-full px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700 truncate ${selectedProject === project.id
+                          className={`w-full px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700 truncate ${
+                            selectedProject === project.id
                               ? "bg-blue-50 dark:bg-blue-900/20 text-blue-600"
                               : "text-gray-700 dark:text-gray-300"
-                            }`}
+                          }`}
                           onClick={() => {
                             setSelectedProject(project.id);
                             setIsDropdownOpen(false);
@@ -155,8 +157,9 @@ const Dashboard: React.FC = () => {
                 </div>
                 <div className="relative">
                   <div
-                    className={`${dashboardClasses.filtersButton} ${hasActiveFilters ? "ring-2 ring-blue-500" : ""
-                      }`}
+                    className={`${dashboardClasses.filtersButton} ${
+                      hasActiveFilters ? "ring-2 ring-blue-500" : ""
+                    }`}
                     onClick={() => setIsFiltersOpen(!isFiltersOpen)}
                   >
                     <SlidersHorizontal size={16} />
@@ -249,7 +252,7 @@ const Dashboard: React.FC = () => {
                       <span className="inline-flex items-center gap-1 px-2 py-1 bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 text-xs rounded-full">
                         {
                           priorityOptions.find(
-                            (p) => p.value === priorityFilter
+                            (p) => p.value === priorityFilter,
                           )?.label
                         }
                         <X
@@ -295,7 +298,7 @@ const Dashboard: React.FC = () => {
                     <button
                       key={range}
                       className={dashboardClasses.rangeButton(
-                        range === selectedRange
+                        range === selectedRange,
                       )}
                       onClick={() => setSelectedRange(range)}
                     >

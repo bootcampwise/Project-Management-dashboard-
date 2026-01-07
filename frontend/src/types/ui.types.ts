@@ -102,23 +102,23 @@ export interface SelectOption {
   disabled?: boolean;
 }
 
-export interface SelectProps
-  extends Omit<React.SelectHTMLAttributes<HTMLSelectElement>, "children"> {
+export interface SelectProps extends Omit<
+  React.SelectHTMLAttributes<HTMLSelectElement>,
+  "children"
+> {
   label?: string;
   error?: string;
   options: SelectOption[];
   placeholder?: string;
 }
 
-export interface InputProps
-  extends React.InputHTMLAttributes<HTMLInputElement> {
+export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
   error?: string;
   helperText?: string;
 }
 
-export interface TextareaProps
-  extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
+export interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
   label?: string;
   error?: string;
   helperText?: string;
@@ -180,16 +180,14 @@ export interface LetterIconProps {
   className?: string;
 }
 
-export interface IconButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+export interface IconButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   icon: React.ReactNode;
   text?: string;
   variant?: "outline" | "filled" | "ghost";
   size?: "sm" | "md" | "lg";
 }
 
-export interface ButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: "primary" | "secondary" | "ghost" | "danger";
   size?: "sm" | "md" | "lg";
   isLoading?: boolean;

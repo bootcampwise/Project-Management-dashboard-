@@ -89,14 +89,15 @@ const TeamTableView: React.FC<TeamTableViewProps> = ({
                     className="gap-1.5"
                   >
                     <span
-                      className={`w-1.5 h-1.5 rounded-full ${status === "On track"
+                      className={`w-1.5 h-1.5 rounded-full ${
+                        status === "On track"
                           ? "bg-green-600"
                           : status === "At risk"
                             ? "bg-orange-600"
                             : status === "On hold"
                               ? "bg-blue-600"
                               : "bg-gray-500"
-                        }`}
+                      }`}
                     />
                     {status}
                   </Badge>

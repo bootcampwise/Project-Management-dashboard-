@@ -41,7 +41,7 @@ export const useCreateTaskModal = ({
       setTags(
         task.tags
           ? task.tags.map((t) => (typeof t === "string" ? t : t.text))
-          : []
+          : [],
       );
       setDescription(task.description || "");
       setAttachments([]);
@@ -116,7 +116,7 @@ export const useCreateTaskModal = ({
   }, [selectedProject, allUsers]);
 
   const filteredMembers = uniqueMembers.filter((member) =>
-    (member.name || "").toLowerCase().includes(assigneeSearch.toLowerCase())
+    (member.name || "").toLowerCase().includes(assigneeSearch.toLowerCase()),
   );
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -128,7 +128,7 @@ export const useCreateTaskModal = ({
           id: String(m.id),
           name: m.name,
           avatar: m.avatar,
-        }))
+        })),
       );
     }
   }, [teamMembers]);
@@ -175,7 +175,7 @@ export const useCreateTaskModal = ({
     setAssigneeIds((prev) =>
       prev.includes(memberId)
         ? prev.filter((id) => id !== memberId)
-        : [...prev, memberId]
+        : [...prev, memberId],
     );
   };
 
@@ -207,7 +207,7 @@ export const useCreateTaskModal = ({
         for (const file of attachments) {
           const fileName = `${Date.now()}-${file.name.replace(
             /[^a-zA-Z0-9.-]/g,
-            "_"
+            "_",
           )}`;
           const filePath = `${user.id}/${fileName}`;
 

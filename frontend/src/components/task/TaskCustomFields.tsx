@@ -165,17 +165,18 @@ const AddFieldModal: React.FC<AddFieldModalProps> = ({
                     key={fieldType}
                     type="button"
                     onClick={() => setType(fieldType)}
-                    className={`flex items-center gap-2 px-3 py-2 rounded-lg border transition-colors ${type === fieldType
-                      ? "border-blue-500 bg-blue-50 dark:bg-blue-900/30 text-blue-600"
-                      : "border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700"
-                      }`}
+                    className={`flex items-center gap-2 px-3 py-2 rounded-lg border transition-colors ${
+                      type === fieldType
+                        ? "border-blue-500 bg-blue-50 dark:bg-blue-900/30 text-blue-600"
+                        : "border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700"
+                    }`}
                   >
                     {fieldTypeIcons[fieldType]}
                     <span className="text-sm">
                       {fieldTypeLabels[fieldType]}
                     </span>
                   </button>
-                )
+                ),
               )}
             </div>
           </div>

@@ -34,14 +34,14 @@ export const calculateAverageProgress = (progressValues: number[]): number => {
 
 export const calculateTeamProgress = (
   tasks: TaskForProgress[],
-  teamMemberIds: string[]
+  teamMemberIds: string[],
 ): number => {
   const safeTeamMemberIds = teamMemberIds.map((id) => String(id));
 
   const teamTasks = tasks.filter((task) =>
     task.assigneeIds.some((assigneeId) =>
-      safeTeamMemberIds.includes(String(assigneeId))
-    )
+      safeTeamMemberIds.includes(String(assigneeId)),
+    ),
   );
 
   if (teamTasks.length === 0) {

@@ -30,13 +30,13 @@ const SidebarItem: React.FC<SidebarItemProps> = ({
       onClick={handleClick}
       className={`
                 flex items-center px-3 py-1.5 mb-0.5 cursor-pointer rounded-md transition
-                ${isActive
-          ? "bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white"
-          : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white"
-        }
+                ${
+                  isActive
+                    ? "bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white"
+                    : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white"
+                }
             `}
     >
-
       <div className="w-4 flex items-center justify-center text-gray-400 dark:text-gray-500 flex-shrink-0">
         {hasSubmenu &&
           (isOpen ? <ChevronDown size={14} /> : <ChevronRight size={14} />)}

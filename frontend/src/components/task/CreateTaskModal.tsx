@@ -90,9 +90,9 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
                 : projects.length === 0
                   ? [{ value: "", label: "No projects found" }]
                   : projects.map((project) => ({
-                    value: project.id,
-                    label: project.name,
-                  }))
+                      value: project.id,
+                      label: project.name,
+                    }))
             }
           />
 
@@ -148,7 +148,7 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
                   const val = e.target.value;
                   if (/^\d*\.?\d*$/.test(val.replace("$", ""))) {
                     setActualCost(
-                      val.startsWith("$") ? val : val ? `$${val}` : ""
+                      val.startsWith("$") ? val : val ? `$${val}` : "",
                     );
                   }
                 }}
@@ -218,10 +218,11 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
                             handleToggleAssignee(member.id);
                             setAssigneeSearch("");
                           }}
-                          className={`px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer flex items-center justify-between transition-colors ${isSelected
+                          className={`px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer flex items-center justify-between transition-colors ${
+                            isSelected
                               ? "bg-blue-50/50 dark:bg-blue-900/20"
                               : ""
-                            } `}
+                          } `}
                         >
                           <div className="flex items-center gap-2">
                             <div className="w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-800 flex items-center justify-center text-blue-600 dark:text-blue-400 font-bold text-xs overflow-hidden">
@@ -357,10 +358,11 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
           <button
             onClick={handleCreate}
             disabled={!title.trim() || isLoading}
-            className={`px-5 py-2.5 text-sm font-medium text-white rounded-lg shadow-sm transition-all flex items-center gap-2 ${!title.trim() || isLoading
+            className={`px-5 py-2.5 text-sm font-medium text-white rounded-lg shadow-sm transition-all flex items-center gap-2 ${
+              !title.trim() || isLoading
                 ? "bg-gray-300 dark:bg-gray-600 cursor-not-allowed"
                 : "bg-blue-600 hover:bg-blue-700 active:bg-blue-800 hover:shadow-md"
-              } `}
+            } `}
           >
             {isLoading
               ? task

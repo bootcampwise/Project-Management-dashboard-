@@ -41,10 +41,11 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
 
   return (
     <div
-      className={`p-4 transition-colors cursor-pointer ${notification.isRead
+      className={`p-4 transition-colors cursor-pointer ${
+        notification.isRead
           ? "hover:bg-gray-50 dark:hover:bg-gray-700/50"
           : "bg-blue-50/50 dark:bg-blue-900/20 hover:bg-blue-50 dark:hover:bg-blue-900/30"
-        }`}
+      }`}
       onClick={handleClick}
     >
       <div className="flex gap-3">
@@ -82,7 +83,7 @@ const NotificationsPopup: React.FC<NotificationsPopupProps> = ({
       pollingInterval: 30000,
       refetchOnFocus: true,
       refetchOnReconnect: true,
-    }
+    },
   );
 
   const [markAllAsRead, { isLoading: isMarkingAll }] =

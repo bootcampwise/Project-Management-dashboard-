@@ -37,7 +37,7 @@ const TaskProperties: React.FC<TaskPropertiesProps> = ({ task, onAddTag }) => {
           <div className="inline-flex items-center gap-2.5 px-1 py-1 rounded hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors cursor-pointer">
             <div
               className={`w-2.5 h-2.5 rounded-full ${getStatusColor(
-                task.status
+                task.status,
               )}`}
             ></div>
             <span className="text-gray-700 dark:text-gray-200 font-medium">
@@ -112,12 +112,13 @@ const TaskProperties: React.FC<TaskPropertiesProps> = ({ task, onAddTag }) => {
         </div>
         <div>
           <span
-            className={`inline-block px-3 py-1 rounded text-xs font-medium ${task.priority === "HIGH" || task.priority === "URGENT"
+            className={`inline-block px-3 py-1 rounded text-xs font-medium ${
+              task.priority === "HIGH" || task.priority === "URGENT"
                 ? "bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400"
                 : task.priority === "MEDIUM"
                   ? "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-600 dark:text-yellow-400"
                   : "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400"
-              }`}
+            }`}
           >
             {task.priority.charAt(0) + task.priority.slice(1).toLowerCase()}
           </span>
@@ -129,9 +130,9 @@ const TaskProperties: React.FC<TaskPropertiesProps> = ({ task, onAddTag }) => {
         <div className="text-gray-700 dark:text-gray-200 font-medium py-1 px-1">
           {task.dueDate
             ? new Date(task.dueDate).toLocaleDateString("en-US", {
-              month: "short",
-              day: "numeric",
-            })
+                month: "short",
+                day: "numeric",
+              })
             : "-"}
         </div>
 

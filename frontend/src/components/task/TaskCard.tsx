@@ -172,7 +172,7 @@ const TaskCard: React.FC<TaskCardComponentProps> = ({
             <Badge
               variant={
                 priority?.toUpperCase() === "URGENT" ||
-                  priority?.toUpperCase() === "HIGH"
+                priority?.toUpperCase() === "HIGH"
                   ? "danger"
                   : priority?.toUpperCase() === "LOW"
                     ? "success"

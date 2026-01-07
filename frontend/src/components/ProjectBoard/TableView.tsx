@@ -97,7 +97,6 @@ const TableView: React.FC<ExtendedTableViewProps> = ({
                           className="text-gray-300 dark:text-gray-600 hover:text-blue-500 transition-colors flex-shrink-0"
                           onClick={(e) => {
                             e.stopPropagation();
-
                           }}
                         >
                           <CheckCircle2 size={16} strokeWidth={1.5} />
@@ -123,8 +122,8 @@ const TableView: React.FC<ExtendedTableViewProps> = ({
                       {visibleFields.assignee && (
                         <div className="flex items-center gap-2 h-full px-4 border-r border-gray-100 dark:border-gray-700">
                           {!task.assignee ||
-                            task.assignee.name === "Unassigned" ||
-                            !task.assignee.name ? (
+                          task.assignee.name === "Unassigned" ||
+                          !task.assignee.name ? (
                             <div className="flex items-center gap-2 group/assignee opacity-50 hover:opacity-100 transition-opacity">
                               <div className="w-5 h-5 rounded-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 border-dashed flex items-center justify-center text-gray-400 dark:text-gray-500 hover:border-gray-400 dark:hover:border-gray-500 transition-colors">
                                 <User size={10} />
@@ -158,9 +157,9 @@ const TableView: React.FC<ExtendedTableViewProps> = ({
                         <div className="text-gray-500 dark:text-gray-400 h-full flex items-center px-4 border-r border-gray-100 dark:border-gray-700">
                           {task.dueDate
                             ? new Date(task.dueDate).toLocaleDateString(
-                              "en-US",
-                              { month: "short", day: "numeric" },
-                            )
+                                "en-US",
+                                { month: "short", day: "numeric" },
+                              )
                             : ""}
                         </div>
                       )}

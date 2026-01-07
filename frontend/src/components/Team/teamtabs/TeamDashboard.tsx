@@ -71,19 +71,19 @@ const TeamDashboard: React.FC<TeamDashboardProps> = ({ teamId }) => {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <StatCard
           title="Completed tasks"
-          value={isStatsLoading ? "..." : stats?.completedTasks ?? 0}
+          value={isStatsLoading ? "..." : (stats?.completedTasks ?? 0)}
           trend="positive"
           trendText="67.18%"
         />
         <StatCard
           title="Incompleted tasks"
-          value={isStatsLoading ? "..." : stats?.incompletedTasks ?? 0}
+          value={isStatsLoading ? "..." : (stats?.incompletedTasks ?? 0)}
           trend="negative"
           trendText="54.29%"
         />
         <StatCard
           title="Overdue tasks"
-          value={isStatsLoading ? "..." : stats?.overdueTasks ?? 0}
+          value={isStatsLoading ? "..." : (stats?.overdueTasks ?? 0)}
           trendText="14.11%"
         />
         <StatCard

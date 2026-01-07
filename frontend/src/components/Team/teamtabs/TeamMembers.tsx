@@ -130,7 +130,7 @@ const TeamMembers: React.FC<TeamMembersProps> = ({
                 <div className="flex items-center gap-2 flex-wrap">
                   <span
                     className={`px-2 py-0.5 rounded text-[11px] font-medium ${getGroupStyle(
-                      "team"
+                      "team",
                     )}`}
                   >
                     Team Member

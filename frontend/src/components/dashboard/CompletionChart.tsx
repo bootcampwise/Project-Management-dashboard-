@@ -10,7 +10,6 @@ import {
 } from "recharts";
 import type { CompletionChartProps } from "../../types";
 
-
 const CHART_COLORS = {
   primary: "var(--chart-primary)",
   primaryLight: "var(--chart-primary-light)",
@@ -22,7 +21,6 @@ export function CompletionChart({
   tasks = [],
   projects = [],
 }: CompletionChartProps) {
-
   const stats = useMemo(() => {
     const filteredTasks = tasks;
     const filteredProjects = projects;

@@ -89,24 +89,24 @@ export const useBoardView = () => {
   const handleToggleColumn = (columnId: string) => {
     setColumns((prev) =>
       prev.map((col) =>
-        col.id === columnId ? { ...col, collapsed: !col.collapsed } : col
-      )
+        col.id === columnId ? { ...col, collapsed: !col.collapsed } : col,
+      ),
     );
   };
 
   const handleHideColumn = (columnId: string) => {
     setColumns((prev) =>
       prev.map((col) =>
-        col.id === columnId ? { ...col, isVisible: false } : col
-      )
+        col.id === columnId ? { ...col, isVisible: false } : col,
+      ),
     );
   };
 
   const handleShowColumn = (columnId: string) => {
     setColumns((prev) =>
       prev.map((col) =>
-        col.id === columnId ? { ...col, isVisible: true } : col
-      )
+        col.id === columnId ? { ...col, isVisible: true } : col,
+      ),
     );
     setIsAddSectionOpen(false);
   };

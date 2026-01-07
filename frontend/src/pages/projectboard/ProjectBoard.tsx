@@ -89,10 +89,10 @@ const ProjectBoard: React.FC = () => {
   const shouldReduceMotion = useReducedMotion();
 
   const [sortBy, setSortBy] = React.useState<"newest" | "oldest" | "alpha">(
-    "newest"
+    "newest",
   );
   const [filterPriority, setFilterPriority] = React.useState<string | null>(
-    null
+    null,
   );
   const [isStatusDropdownOpen, setIsStatusDropdownOpen] = React.useState(false);
 
@@ -297,7 +297,7 @@ const ProjectBoard: React.FC = () => {
                         key: "switch",
                         label: "Switch Project",
                         icon: <ChevronRight size={14} />,
-                        onClick: () => { },
+                        onClick: () => {},
                       },
                       {
                         key: "delete",
@@ -319,14 +319,15 @@ const ProjectBoard: React.FC = () => {
                   onClick={() => setIsStatusDropdownOpen(!isStatusDropdownOpen)}
                 >
                   <div
-                    className={`w-2 h-2 rounded-full ${activeProject?.status === "COMPLETED"
-                      ? "bg-emerald-500"
-                      : activeProject?.status === "ON_HOLD"
-                        ? "bg-yellow-500"
-                        : activeProject?.status === "CANCELED"
-                          ? "bg-red-500"
-                          : "bg-green-500"
-                      }`}
+                    className={`w-2 h-2 rounded-full ${
+                      activeProject?.status === "COMPLETED"
+                        ? "bg-emerald-500"
+                        : activeProject?.status === "ON_HOLD"
+                          ? "bg-yellow-500"
+                          : activeProject?.status === "CANCELED"
+                            ? "bg-red-500"
+                            : "bg-green-500"
+                    }`}
                   ></div>
                   <span>{activeProject?.status || "ACTIVE"}</span>
                   <ChevronDown size={14} className="ml-1" />
@@ -358,10 +359,11 @@ const ProjectBoard: React.FC = () => {
                     ].map((status) => (
                       <button
                         key={status.value}
-                        className={`w-full px-4 py-2 text-left text-sm flex items-center gap-2 hover:bg-gray-100 dark:hover:bg-gray-700 ${activeProject?.status === status.value
-                          ? "bg-blue-50 dark:bg-blue-900/20 text-blue-600"
-                          : "text-gray-700 dark:text-gray-300"
-                          }`}
+                        className={`w-full px-4 py-2 text-left text-sm flex items-center gap-2 hover:bg-gray-100 dark:hover:bg-gray-700 ${
+                          activeProject?.status === status.value
+                            ? "bg-blue-50 dark:bg-blue-900/20 text-blue-600"
+                            : "text-gray-700 dark:text-gray-300"
+                        }`}
                         onClick={() => {
                           handleUpdateProjectStatus(status.value);
                           setIsStatusDropdownOpen(false);
@@ -389,8 +391,8 @@ const ProjectBoard: React.FC = () => {
 
                   const uniqueMembers = Array.from(
                     new Map(
-                      allMembers.filter((m) => m).map((m) => [m!.id, m])
-                    ).values()
+                      allMembers.filter((m) => m).map((m) => [m!.id, m]),
+                    ).values(),
                   );
 
                   return (
@@ -612,7 +614,7 @@ const ProjectBoard: React.FC = () => {
         isOpen={isAddEventModalOpen}
         onClose={() => setIsAddEventModalOpen(false)}
         projectId={activeProject?.id}
-        onAdd={(_event) => { }}
+        onAdd={(_event) => {}}
       />
 
       <SearchPopup

@@ -51,7 +51,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
     (user) =>
       user.name?.toLowerCase().includes(memberSearch.toLowerCase()) ||
       user.email?.toLowerCase().includes(memberSearch.toLowerCase()) ||
-      user.jobTitle?.toLowerCase().includes(memberSearch.toLowerCase())
+      user.jobTitle?.toLowerCase().includes(memberSearch.toLowerCase()),
   );
 
   const handleInviteClick = () => {
@@ -99,7 +99,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
 
       const addedCount = newMemberIds.length;
       showToast.success(
-        `Added ${addedCount} member${addedCount > 1 ? "s" : ""} to ${team.name}`
+        `Added ${addedCount} member${addedCount > 1 ? "s" : ""} to ${team.name}`,
       );
       setShowTeamPopup(false);
       setSelectedMembers([]);
@@ -126,7 +126,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
           window.location.href = "/login";
         } catch (error) {
           showToast.error(
-            `Failed to delete account. ${getErrorMessage(error)}`
+            `Failed to delete account. ${getErrorMessage(error)}`,
           );
         }
       },
@@ -150,10 +150,11 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                   <button
                     key={tab}
                     onClick={() => handleTabChange(tab)}
-                    className={`w-full text-left px-3 py-2 text-sm font-medium rounded-md ${activeTab === tab
+                    className={`w-full text-left px-3 py-2 text-sm font-medium rounded-md ${
+                      activeTab === tab
                         ? "bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white"
                         : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                      }`}
+                    }`}
                   >
                     {tab}
                   </button>
@@ -173,10 +174,11 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                 </button>
                 <button
                   onClick={() => handleTabChange("Members")}
-                  className={`w-full text-left px-3 py-2 text-sm font-medium rounded-md ${activeTab === "Members"
+                  className={`w-full text-left px-3 py-2 text-sm font-medium rounded-md ${
+                    activeTab === "Members"
                       ? "bg-gray-200 text-gray-900"
                       : "text-gray-600 hover:bg-gray-100"
-                    }`}
+                  }`}
                 >
                   Members
                 </button>
@@ -272,16 +274,16 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                       options={
                         teams && teams.length > 0
                           ? teams.map((team) => ({
-                            value: team.name,
-                            label: team.name,
-                          }))
+                              value: team.name,
+                              label: team.name,
+                            }))
                           : [
-                            {
-                              value: "",
-                              label: "No teams found",
-                              disabled: true,
-                            },
-                          ]
+                              {
+                                value: "",
+                                label: "No teams found",
+                                disabled: true,
+                              },
+                            ]
                       }
                     />
                   </div>
@@ -409,10 +411,11 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                         />
                       )}
                       <button
-                        className={`px-6 py-2 rounded-md text-sm font-medium shadow-sm transition-colors ${selectedMembers.length > 0
+                        className={`px-6 py-2 rounded-md text-sm font-medium shadow-sm transition-colors ${
+                          selectedMembers.length > 0
                             ? "bg-blue-600 text-white hover:bg-blue-700"
                             : "bg-gray-300 text-gray-500 cursor-not-allowed"
-                          }`}
+                        }`}
                         onClick={handleInviteClick}
                         disabled={
                           selectedMembers.length === 0 || isAddingToTeam
@@ -420,10 +423,11 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                       >
                         {isAddingToTeam
                           ? "Adding..."
-                          : `Invite${selectedMembers.length > 1
-                            ? ` (${selectedMembers.length})`
-                            : ""
-                          }`}
+                          : `Invite${
+                              selectedMembers.length > 1
+                                ? ` (${selectedMembers.length})`
+                                : ""
+                            }`}
                       </button>
                     </div>
                     {selectedMembers.length === 0 && (
@@ -446,30 +450,32 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                         const memberTeams = teams.filter(
                           (t) =>
                             t.memberIds?.includes(member.id) ||
-                            t.members?.some((m) => m.id === member.id)
+                            t.members?.some((m) => m.id === member.id),
                         );
                         const teamCount = memberTeams.length;
 
                         return (
                           <div
                             key={member.id}
-                            className={`flex items-center justify-between py-3 px-2 rounded-lg transition-colors cursor-pointer ${selectedMembers.some((m) => m.id === member.id)
+                            className={`flex items-center justify-between py-3 px-2 rounded-lg transition-colors cursor-pointer ${
+                              selectedMembers.some((m) => m.id === member.id)
                                 ? "bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700"
                                 : "hover:bg-gray-50 dark:hover:bg-gray-800"
-                              }`}
+                            }`}
                             onClick={() => toggleMemberSelection(member)}
                           >
                             <div className="flex items-center gap-3">
                               <div
-                                className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${selectedMembers.some(
-                                  (m) => m.id === member.id
-                                )
+                                className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${
+                                  selectedMembers.some(
+                                    (m) => m.id === member.id,
+                                  )
                                     ? "border-blue-500 bg-blue-500"
                                     : "border-gray-300"
-                                  }`}
+                                }`}
                               >
                                 {selectedMembers.some(
-                                  (m) => m.id === member.id
+                                  (m) => m.id === member.id,
                                 ) && <Check size={12} className="text-white" />}
                               </div>
                               <div className="rounded-full overflow-hidden flex items-center justify-center">
@@ -497,7 +503,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                                     setOpenTeamDropdown(
                                       openTeamDropdown === member.id
                                         ? null
-                                        : member.id
+                                        : member.id,
                                     );
                                   }}
                                 >
@@ -506,10 +512,11 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                                     {teamCount !== 1 ? "s" : ""}
                                   </span>
                                   <svg
-                                    className={`w-4 h-4 transition-transform ${openTeamDropdown === member.id
+                                    className={`w-4 h-4 transition-transform ${
+                                      openTeamDropdown === member.id
                                         ? "rotate-180"
                                         : ""
-                                      }`}
+                                    }`}
                                     fill="none"
                                     stroke="currentColor"
                                     viewBox="0 0 24 24"
@@ -708,7 +715,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                   const existingMemberIds =
                     team.memberIds || team.members?.map((m) => m.id) || [];
                   const alreadyInTeam = selectedMembers.filter((m) =>
-                    existingMemberIds.includes(m.id)
+                    existingMemberIds.includes(m.id),
                   ).length;
                   const allAlreadyMembers =
                     alreadyInTeam === selectedMembers.length;
@@ -720,14 +727,16 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                         !allAlreadyMembers && handleAddToTeam(team.id)
                       }
                       disabled={allAlreadyMembers || isAddingToTeam}
-                      className={`w-full flex items-center justify-between px-4 py-3 rounded-lg border transition-colors ${allAlreadyMembers
+                      className={`w-full flex items-center justify-between px-4 py-3 rounded-lg border transition-colors ${
+                        allAlreadyMembers
                           ? "bg-gray-100 border-gray-200 cursor-not-allowed"
                           : "bg-white border-gray-200 hover:border-blue-300 hover:bg-blue-50 cursor-pointer"
-                        }`}
+                      }`}
                     >
                       <span
-                        className={`font-medium ${allAlreadyMembers ? "text-gray-400" : "text-gray-900"
-                          }`}
+                        className={`font-medium ${
+                          allAlreadyMembers ? "text-gray-400" : "text-gray-900"
+                        }`}
                       >
                         {team.name}
                       </span>
@@ -735,8 +744,9 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                         <span className="text-xs text-gray-400">
                           {allAlreadyMembers
                             ? "All already members"
-                            : `${alreadyInTeam} already member${alreadyInTeam > 1 ? "s" : ""
-                            }`}
+                            : `${alreadyInTeam} already member${
+                                alreadyInTeam > 1 ? "s" : ""
+                              }`}
                         </span>
                       )}
                     </button>

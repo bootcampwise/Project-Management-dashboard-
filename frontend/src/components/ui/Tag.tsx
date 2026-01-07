@@ -3,7 +3,7 @@ import { X } from "lucide-react";
 import type { TagProps } from "../../types";
 
 const getTagColor = (
-  tagText: string
+  tagText: string,
 ): { bg: string; text: string; border: string } => {
   const colors = [
     { bg: "bg-blue-50", text: "text-blue-700", border: "border-blue-100" },

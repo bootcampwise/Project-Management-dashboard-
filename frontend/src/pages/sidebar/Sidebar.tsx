@@ -62,7 +62,7 @@ const Sidebar: React.FC<SidebarProps> = ({ open, onClose }) => {
   };
 
   const handleCreateProject = async (
-    data: CreateProjectPayload
+    data: CreateProjectPayload,
   ): Promise<void> => {
     try {
       await createProject(data).unwrap();

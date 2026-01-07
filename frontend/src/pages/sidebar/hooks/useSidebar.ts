@@ -10,7 +10,7 @@ import {
 export const useSidebar = () => {
   const dispatch = useAppDispatch();
   const { sidebarOpen, isSettingsOpen, sidebarSections } = useAppSelector(
-    (state) => state.ui
+    (state) => state.ui,
   );
   useEffect(() => {
     const handleResize = () => {

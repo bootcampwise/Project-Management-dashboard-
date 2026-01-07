@@ -9,7 +9,6 @@ import TaskAttachments from "./TaskAttachments";
 import TaskSubtasks from "./TaskSubtasks";
 import TaskComments from "./TaskComments";
 
-
 const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
   isOpen,
   onClose,

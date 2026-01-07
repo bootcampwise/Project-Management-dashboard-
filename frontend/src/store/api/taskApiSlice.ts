@@ -57,7 +57,7 @@ export const taskApiSlice = apiSlice.injectEndpoints({
             if (task) {
               task.status = status;
             }
-          })
+          }),
         );
 
         try {

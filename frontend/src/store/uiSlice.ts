@@ -40,7 +40,7 @@ const uiSlice = createSlice({
     },
     toggleSidebarSection: (
       state,
-      action: PayloadAction<keyof UiState["sidebarSections"]>
+      action: PayloadAction<keyof UiState["sidebarSections"]>,
     ) => {
       state.sidebarSections[action.payload] =
         !state.sidebarSections[action.payload];

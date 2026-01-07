@@ -10,7 +10,6 @@ import { PrivateRoute } from "./components/auth/PrivateRoute";
 import { PublicRoute } from "./components/auth/PublicRoute";
 import { useGetSessionQuery } from "./store/api/authApiSlice";
 
-
 import Welcome from "./pages/welcome/Welcome";
 import Login from "./pages/login/Login";
 import Signup from "./pages/signup/Signup";
@@ -19,7 +18,6 @@ import Dashboard from "./pages/dashboard/Dashboard";
 import ProjectBoard from "./pages/projectboard/ProjectBoard";
 import Team from "./pages/team/Team";
 import Tasks from "./pages/task/Tasks";
-
 
 const LandingRedirect = () => {
   const { data: session, isLoading } = useGetSessionQuery(undefined, {
@@ -30,7 +28,6 @@ const LandingRedirect = () => {
 
   return <Navigate to={session ? "/dashboard" : "/register"} replace />;
 };
-
 
 function App() {
   return (

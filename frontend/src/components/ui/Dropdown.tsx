@@ -100,11 +100,12 @@ export const Dropdown: React.FC<DropdownProps> = ({
                 className={`
                   w-full flex items-center gap-2 px-3 py-2 text-sm text-left
                   transition-colors
-                  ${item.disabled
-                    ? "text-gray-300 dark:text-gray-600 cursor-not-allowed"
-                    : item.danger
-                      ? "text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30"
-                      : "text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
+                  ${
+                    item.disabled
+                      ? "text-gray-300 dark:text-gray-600 cursor-not-allowed"
+                      : item.danger
+                        ? "text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30"
+                        : "text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
                   }
                   ${item.className || ""}
                 `

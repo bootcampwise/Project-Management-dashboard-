@@ -33,7 +33,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       children,
       ...props
     },
-    ref
+    ref,
   ) => {
     const isDisabled = disabled || isLoading;
     const isPrimary = variant === "primary";
@@ -100,7 +100,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         {!isLoading && rightIcon}
       </motion.button>
     );
-  }
+  },
 );
 
 Button.displayName = "Button";

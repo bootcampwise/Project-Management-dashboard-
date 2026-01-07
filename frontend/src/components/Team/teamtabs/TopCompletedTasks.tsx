@@ -61,8 +61,9 @@ const TopCompletedTasks: React.FC<TopCompletedTasksProps> = ({
             <div key={member.id} className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div
-                  className={`w-9 h-9 rounded-full ${member.avatarColor || getAvatarColor(index)
-                    } overflow-hidden flex-shrink-0 flex items-center justify-center`}
+                  className={`w-9 h-9 rounded-full ${
+                    member.avatarColor || getAvatarColor(index)
+                  } overflow-hidden flex-shrink-0 flex items-center justify-center`}
                 >
                   {member.avatar ? (
                     <img

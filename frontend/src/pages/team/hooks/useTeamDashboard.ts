@@ -17,7 +17,7 @@ export const useTeamDashboard = (teamId?: string) => {
 
   const { data: stats, isLoading: isStatsLoading } = useGetTeamStatsQuery(
     { teamId: teamId || "", projectId: selectedProjectId || undefined },
-    { skip: !teamId }
+    { skip: !teamId },
   );
 
   const projectItems = useMemo(() => {

@@ -6,21 +6,21 @@ export const useTeamOverviewChart = (teamId?: string) => {
 
   const { data: chartData = [], isLoading } = useGetYearlyOverviewQuery(
     { teamId: teamId || "", year: parseInt(year) },
-    { skip: !teamId }
+    { skip: !teamId },
   );
 
   const total = useMemo(
     () =>
       chartData.reduce(
         (sum, item) => sum + (item.billable ?? item.value ?? 0),
-        0
+        0,
       ),
-    [chartData]
+    [chartData],
   );
 
   const maxValue = useMemo(
     () => Math.max(...chartData.map((d) => d.billable ?? d.value ?? 0)),
-    [chartData]
+    [chartData],
   );
 
   const minDisplayValue = maxValue > 0 ? maxValue * 0.15 : 10;
@@ -37,7 +37,7 @@ export const useTeamOverviewChart = (teamId?: string) => {
           isMax: actualVal === maxValue && actualVal > 0,
         };
       }),
-    [chartData, minDisplayValue, maxValue]
+    [chartData, minDisplayValue, maxValue],
   );
 
   return {

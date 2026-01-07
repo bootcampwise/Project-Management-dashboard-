@@ -137,8 +137,8 @@ export const useTableView = (tasks: Task[] = []) => {
   const toggleGroup = (groupId: string) => {
     setGroups((prev) =>
       prev.map((g) =>
-        g.id === groupId ? { ...g, isCollapsed: !g.isCollapsed } : g
-      )
+        g.id === groupId ? { ...g, isCollapsed: !g.isCollapsed } : g,
+      ),
     );
   };
 

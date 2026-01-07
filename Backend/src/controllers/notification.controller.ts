@@ -12,7 +12,7 @@ export class NotificationController {
       const { sub: supabaseId } = req.user!;
       const user = await userService.getUserBySupabaseId(supabaseId);
       const notifications = await notificationService.getUserNotifications(
-        user.id
+        user.id,
       );
       sendSuccess(res, notifications);
     } catch (error) {

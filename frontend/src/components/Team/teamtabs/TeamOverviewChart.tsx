@@ -12,7 +12,6 @@ import { Select } from "../../ui";
 import type { TeamOverviewChartProps } from "../../../types";
 import { useTeamOverviewChart } from "../../../pages/team/hooks/useTeamOverviewChart";
 
-
 const CHART_COLORS = {
   highlight: "var(--chart-highlight)",
   inactive: "var(--chart-inactive)",
@@ -53,7 +52,6 @@ const TeamOverviewChart: React.FC<TeamOverviewChartProps> = ({ teamId }) => {
         <div className="text-3xl font-normal text-gray-900 dark:text-white">
           {isLoading ? "..." : `$${total.toLocaleString()}`}
         </div>
-
 
         <div className="flex items-center gap-3">
           <div className="flex items-center justify-center px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-900/20 text-xs font-medium text-blue-600 dark:text-blue-400">
@@ -104,14 +102,26 @@ const TeamOverviewChart: React.FC<TeamOverviewChartProps> = ({ teamId }) => {
               }}
             />
             <Bar dataKey="value" radius={[8, 8, 8, 8]}>
-              {processedData.map((entry: { month: string; value: number; actualValue: number; isMax: boolean }, index: number) => (
-                <Cell
-                  key={`cell-${index}`}
-                  fill={
-                    entry.isMax ? CHART_COLORS.highlight : CHART_COLORS.inactive
-                  }
-                />
-              ))}
+              {processedData.map(
+                (
+                  entry: {
+                    month: string;
+                    value: number;
+                    actualValue: number;
+                    isMax: boolean;
+                  },
+                  index: number,
+                ) => (
+                  <Cell
+                    key={`cell-${index}`}
+                    fill={
+                      entry.isMax
+                        ? CHART_COLORS.highlight
+                        : CHART_COLORS.inactive
+                    }
+                  />
+                ),
+              )}
             </Bar>
           </BarChart>
         </ResponsiveContainer>
