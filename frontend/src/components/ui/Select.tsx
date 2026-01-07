@@ -1,9 +1,12 @@
-import { forwardRef } from 'react';
-import type { SelectProps } from '../../types';
+import { forwardRef } from "react";
+import type { SelectProps } from "../../types";
 
 export const Select = forwardRef<HTMLSelectElement, SelectProps>(
-  ({ label, error, options, placeholder, className = '', id, ...props }, ref) => {
-    const selectId = id || label?.toLowerCase().replace(/\s+/g, '-');
+  (
+    { label, error, options, placeholder, className = "", id, ...props },
+    ref,
+  ) => {
+    const selectId = id || label?.toLowerCase().replace(/\s+/g, "-");
 
     return (
       <div className="w-full">
@@ -25,16 +28,20 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
               appearance-none bg-white dark:bg-gray-800 cursor-pointer
               transition-all duration-200
               focus:outline-none focus:ring-2 focus:ring-blue-50 dark:focus:ring-blue-900/50 focus:border-blue-500
-              ${error
-                ? 'border-red-300 dark:border-red-700 focus:border-red-500 focus:ring-red-50 dark:focus:ring-red-900/50'
-                : 'border-gray-200 dark:border-gray-600'
+              ${
+                error
+                  ? "border-red-300 dark:border-red-700 focus:border-red-500 focus:ring-red-50 dark:focus:ring-red-900/50"
+                  : "border-gray-200 dark:border-gray-600"
               }
-              ${props.disabled
-                ? 'bg-gray-50 dark:bg-gray-700 cursor-not-allowed text-gray-500 dark:text-gray-400'
-                : 'text-gray-700 dark:text-gray-200'
+              ${
+                props.disabled
+                  ? "bg-gray-50 dark:bg-gray-700 cursor-not-allowed text-gray-500 dark:text-gray-400"
+                  : "text-gray-700 dark:text-gray-200"
               }
               ${className}
-            `.trim().replace(/\s+/g, ' ')}
+            `
+              .trim()
+              .replace(/\s+/g, " ")}
             {...props}
           >
             {placeholder && (
@@ -43,7 +50,11 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
               </option>
             )}
             {options.map((option) => (
-              <option key={option.value} value={option.value} disabled={option.disabled}>
+              <option
+                key={option.value}
+                value={option.value}
+                disabled={option.disabled}
+              >
                 {option.label}
               </option>
             ))}
@@ -71,7 +82,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
         )}
       </div>
     );
-  }
+  },
 );
 
-Select.displayName = 'Select';
+Select.displayName = "Select";

@@ -1,14 +1,14 @@
-import React from 'react';
-import { X } from 'lucide-react';
-import { IconButton } from './IconButton';
-import type { ModalProps } from '../../types';
+import React from "react";
+import { X } from "lucide-react";
+import { IconButton } from "./IconButton";
+import type { ModalProps } from "../../types";
 
 const sizeStyles: Record<string, string> = {
-  sm: 'max-w-sm',
-  md: 'max-w-lg',
-  lg: 'max-w-2xl',
-  xl: 'max-w-4xl',
-  full: 'max-w-[90vw]',
+  sm: "max-w-sm",
+  md: "max-w-lg",
+  lg: "max-w-2xl",
+  xl: "max-w-4xl",
+  full: "max-w-[90vw]",
 };
 
 export const Modal: React.FC<ModalProps> = ({
@@ -17,7 +17,7 @@ export const Modal: React.FC<ModalProps> = ({
   title,
   children,
   footer,
-  size = 'md',
+  size = "md",
   showCloseButton = true,
   closeOnBackdrop = true,
 }) => {
@@ -41,11 +41,12 @@ export const Modal: React.FC<ModalProps> = ({
         `.trim()}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header */}
         {(title || showCloseButton) && (
           <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-700">
             {title && (
-              <h2 className="text-xl font-bold text-gray-800 dark:text-white">{title}</h2>
+              <h2 className="text-xl font-bold text-gray-800 dark:text-white">
+                {title}
+              </h2>
             )}
             {showCloseButton && (
               <IconButton
@@ -58,10 +59,8 @@ export const Modal: React.FC<ModalProps> = ({
           </div>
         )}
 
-        {/* Body */}
         <div className="flex-1 overflow-y-auto p-6">{children}</div>
 
-        {/* Footer */}
         {footer && (
           <div className="px-6 py-4 border-t border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900/50 rounded-b-xl">
             {footer}
@@ -72,4 +71,4 @@ export const Modal: React.FC<ModalProps> = ({
   );
 };
 
-Modal.displayName = 'Modal';
+Modal.displayName = "Modal";

@@ -25,11 +25,13 @@ import {
   useGetProjectsQuery,
   useCreateProjectMutation,
   useDeleteProjectMutation,
+  useUpdateProjectMutation,
 } from "../../../store/api/projectApiSlice";
 import {
   useGetTasksQuery,
   useCreateTaskMutation,
   useUpdateTaskMutation,
+  useDeleteTaskMutation,
 } from "../../../store/api/taskApiSlice";
 import { useGetSessionQuery } from "../../../store/api/authApiSlice";
 
@@ -37,11 +39,9 @@ export const useProjectBoard = () => {
   const { projectId: routeProjectId } = useParams();
   const [searchParams] = useSearchParams();
   const queryProjectId = searchParams.get("projectId");
-  const projectId = routeProjectId || queryProjectId; // Support both route and query params
+  const projectId = routeProjectId || queryProjectId;
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-
-  // UI State from Redux
   const {
     sidebarOpen,
     activeProject,
@@ -51,20 +51,16 @@ export const useProjectBoard = () => {
     isTemplateLibraryOpen,
     selectedTask,
   } = useAppSelector((state) => state.ui);
-
-  // Data from RTK Query
   const { data: projects = [], isLoading: projectsLoading } =
     useGetProjectsQuery();
   const { data: tasks = [] } = useGetTasksQuery();
   const { data: user, isLoading: sessionLoading } = useGetSessionQuery();
-
-  // API Mutations
   const [createProject] = useCreateProjectMutation();
   const [deleteProject] = useDeleteProjectMutation();
+  const [updateProject] = useUpdateProjectMutation();
   const [createTask] = useCreateTaskMutation();
   const [updateTask] = useUpdateTaskMutation();
-
-  // Local State
+  const [deleteTask] = useDeleteTaskMutation();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isCreateTaskModalOpen, setIsCreateTaskModalOpen] = useState(false);
   const [isAddEventModalOpen, setIsAddEventModalOpen] = useState(false);
@@ -72,36 +68,24 @@ export const useProjectBoard = () => {
     string | undefined
   >(undefined);
   const [taskToEdit, setTaskToEdit] = useState<Task | null>(null);
-
-  // Header Dropdown States
   const [isProjectDropdownOpen, setIsProjectDropdownOpen] = useState(false);
   const [isMenuDropdownOpen, setIsMenuDropdownOpen] = useState(false);
 
-  // Effects
   useEffect(() => {
-    dispatch(setSelectedTask(null)); // Clear selected task on mount
+    dispatch(setSelectedTask(null));
   }, [dispatch]);
 
-  // ============================================
-  // PROJECT RESTORATION (CRITICAL FOR FAST UX)
-  // ============================================
   useEffect(() => {
-    // Wait for session and projects to be ready
     if (sessionLoading || projectsLoading || projects.length === 0) return;
-
     const userId = user?.id;
-
-    // Priority 1: URL parameter
     if (projectId) {
       const proj = projects.find((p) => p.id === projectId);
       if (proj && proj.id !== activeProject?.id) {
         dispatch(setActiveProject(proj));
-        saveLastProjectId(proj.id, userId); // Save for future refreshes
+        saveLastProjectId(proj.id, userId);
       }
       return;
     }
-
-    // Priority 2: Restore from localStorage (user-specific)
     const lastProjectId = getLastProjectId(userId);
     if (lastProjectId) {
       const lastProject = projects.find((p) => p.id === lastProjectId);
@@ -110,8 +94,6 @@ export const useProjectBoard = () => {
         return;
       }
     }
-
-    // Priority 3: Default to first project (only if nothing else works)
     if (!activeProject) {
       dispatch(setActiveProject(projects[0]));
       saveLastProjectId(projects[0].id, userId);
@@ -126,7 +108,6 @@ export const useProjectBoard = () => {
     dispatch,
   ]);
 
-  // Save project ID whenever activeProject changes (user-specific)
   useEffect(() => {
     if (activeProject?.id && user?.id) {
       saveLastProjectId(activeProject.id, user.id);
@@ -140,14 +121,12 @@ export const useProjectBoard = () => {
     { id: "Timeline", icon: List },
   ];
 
-  // Derived State
   const projectTasks = tasks.filter((task) => {
     if (typeof task.project === "string")
       return task.project === activeProject?.name;
     return task.project?.id === activeProject?.id;
   });
 
-  // Handlers
   const handleCreateProject = async (data: CreateProjectPayload) => {
     try {
       await createProject(data).unwrap();
@@ -248,20 +227,37 @@ export const useProjectBoard = () => {
     }
   };
 
+  const handleDeleteTask = async (task: Task) => {
+    if (!task.id) return;
+    try {
+      await deleteTask(String(task.id)).unwrap();
+    } catch (error) {
+      console.error("Failed to delete task", error);
+    }
+  };
+
+  const handleUpdateProjectStatus = async (status: string) => {
+    if (!activeProject?.id) return;
+    try {
+      const result = await updateProject({
+        id: activeProject.id,
+        data: { status },
+      }).unwrap();
+      dispatch(setActiveProject(result));
+    } catch (error) {
+      console.error("Failed to update project status", error);
+    }
+  };
+
   return {
-    // Data
     projects,
     activeProject,
     projectTasks,
     selectedTask,
     tabs,
     projectId,
-
-    // Loading states for skeleton display
     isLoading: projectsLoading || sessionLoading,
     tasksLoading: !tasks.length && projectsLoading,
-
-    // UI States
     sidebarOpen,
     activeTab,
     isCreateModalOpen: isCreateProjectModalOpen,
@@ -275,7 +271,6 @@ export const useProjectBoard = () => {
     isProjectDropdownOpen,
     isMenuDropdownOpen,
 
-    // Setters
     setSidebarOpen: (open: boolean) => dispatch(setSidebarOpen(open)),
     setActiveTab: (tab: string) => dispatch(setActiveTab(tab)),
     setIsCreateModalOpen: (open: boolean) =>
@@ -290,8 +285,6 @@ export const useProjectBoard = () => {
     setIsMenuDropdownOpen,
     setSelectedTask: (task: Task | null) => dispatch(setSelectedTask(task)),
     setTaskToEdit,
-
-    // Handlers
     handleCreateProject,
     handleOpenTemplateLibrary,
     handleSelectTemplate,
@@ -303,5 +296,7 @@ export const useProjectBoard = () => {
     handleCreateTask,
     handleUpdateTask,
     handleDeleteProject,
+    handleDeleteTask,
+    handleUpdateProjectStatus,
   };
 };

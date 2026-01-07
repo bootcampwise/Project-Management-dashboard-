@@ -14,7 +14,6 @@ export const useCreateTeamModal = (
   onClose: () => void,
   teamToEdit?: Team | null
 ) => {
-  // RTK Query hooks
   const { data: members = [], isLoading: isMembersLoading } =
     useGetTeamMembersQuery(undefined, { skip: !isOpen });
   const { data: projects = [], isLoading: isProjectsLoading } =
@@ -24,22 +23,16 @@ export const useCreateTeamModal = (
   const [createTeam] = useCreateTeamMutation();
   const [updateTeam] = useUpdateTeamMutation();
 
-  // Form State
   const [teamName, setTeamName] = useState("");
   const [membersInput, setMembersInput] = useState("");
   const [selectedMembers, setSelectedMembers] = useState<TeamMember[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
-
-  // Project Selection State
   const [selectedProjectIds, setSelectedProjectIds] = useState<string[]>([]);
   const [isProjectDropdownOpen, setIsProjectDropdownOpen] = useState(false);
-
-  // Loading State
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const isEditing = !!teamToEdit;
 
-  // Initialize form when opening
   useEffect(() => {
     if (isOpen) {
       if (teamToEdit) {
@@ -105,13 +98,9 @@ export const useCreateTeamModal = (
         }).unwrap();
         showToast.success("Team created successfully!");
       }
-
-      // Refresh teams and projects lists
       refetchTeams();
       refetchProjects();
       onClose();
-
-      // Reset form
       if (!isEditing) {
         setTeamName("");
         setSelectedMembers([]);
@@ -140,14 +129,12 @@ export const useCreateTeamModal = (
     isMembersLoading,
     filteredMembers,
     toggleMemberSelection,
-    // Projects
     projects,
     isProjectsLoading,
     selectedProjectIds,
     isProjectDropdownOpen,
     setIsProjectDropdownOpen,
     handleProjectToggle,
-    // Creation/Update
     isSubmitting,
     handleCreateOrUpdateTeam,
     isEditing,

@@ -108,8 +108,10 @@ export const registerClasses = {
     "bg-white dark:bg-gray-900 flex flex-col items-center justify-start overflow-x-hidden",
   contentWrapper: "flex flex-col items-center",
 
-  logoWrapper: "flex items-center justify-center",
-  logoImage: "object-contain",
+  logoWrapper: "relative flex items-center justify-center",
+  logoBacklight:
+    "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[220px] h-[100px] bg-white/80 blur-[45px] rounded-full dark:block hidden pointer-events-none",
+  logoImage: "object-contain relative z-10",
 
   header: "text-center text-gray-900 dark:text-white",
 
@@ -123,7 +125,20 @@ export const registerClasses = {
   input:
     "border border-gray-200 dark:border-gray-600 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-200",
 
-  continueButton: "flex items-center justify-center w-full",
+  continueButton:
+    "flex items-center justify-center w-full bg-brand-blue text-white hover:bg-blue-600",
+  createAccountButton:
+    "flex items-center justify-center w-full bg-brand-blue text-white hover:bg-blue-600 mt-4",
+
+  stepWrapper: "w-full",
+
+  emailDisplay:
+    "mb-4 p-3 bg-gray-100 dark:bg-gray-800 rounded-lg flex items-center justify-between",
+  emailDisplayText: "text-sm text-gray-600 dark:text-gray-300",
+  changeButton: "text-sm text-brand-blue hover:underline",
+
+  inputWithMargin:
+    "border border-gray-200 dark:border-gray-600 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-200 mb-4",
 
   loginLinkWrapper:
     "flex gap-2 text-md text-gray-400 dark:text-gray-500 font-sm font-inter mb-[128px]",

@@ -1,60 +1,59 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 import {
   useGetAllTeamsQuery,
   useDeleteTeamMutation,
+  usePrefetchTeam,
 } from "../../../store/api/teamApiSlice";
 import { showToast, getErrorMessage } from "../../../components/ui";
 import type { Team } from "../../../types";
 import { useTeamFiles } from "./useTeamFiles";
 
 export const useTeam = () => {
-  // Data from RTK Query
   const { data: allTeams = [], isLoading: teamsLoading } =
     useGetAllTeamsQuery();
   const [deleteTeam] = useDeleteTeamMutation();
-
-  // URL Params
   const [searchParams, setSearchParams] = useSearchParams();
 
-  // Local state
   const [sidebarOpen, setSidebarOpen] = useState(window.innerWidth >= 768);
   const [activeTab, setActiveTab] = useState("Teams");
-  const [activeTeam, setActiveTeam] = useState<Team | null>(null);
   const [teamToEdit, setTeamToEdit] = useState<Team | null>(null);
-  const [hasInitializedTeam, setHasInitializedTeam] = useState(false);
+  const [hasInitializedTab, setHasInitializedTab] = useState(false);
 
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isCreateTeamModalOpen, setIsCreateTeamModalOpen] = useState(false);
   const [isMenuDropdownOpen, setIsMenuDropdownOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  // Set default team on load or from URL
-  useEffect(() => {
-    if (!teamsLoading && allTeams.length > 0) {
-      const teamIdFromUrl = searchParams.get("teamId");
-
-      if (teamIdFromUrl) {
-        const foundTeam = allTeams.find((t) => t.id === teamIdFromUrl);
-        if (foundTeam) {
-          setActiveTeam(foundTeam);
-          setHasInitializedTeam(true);
-          return;
-        }
-      }
-
-      // If no URL param or team not found, and not yet initialized, behave as before
-      // (or decided logic: if we want default first team?)
-      if (!hasInitializedTeam && !teamIdFromUrl) {
-        setActiveTeam(allTeams[0]);
-        setHasInitializedTeam(true);
-      }
-    } else if (!teamsLoading && allTeams.length === 0 && !hasInitializedTeam) {
-      setHasInitializedTeam(true);
+  const activeTeam = useMemo(() => {
+    if (teamsLoading || allTeams.length === 0) {
+      return null;
     }
-  }, [allTeams, teamsLoading, hasInitializedTeam, searchParams]);
 
-  // Handle window resize
+    const teamIdFromUrl = searchParams.get("teamId");
+
+    if (teamIdFromUrl) {
+      const foundTeam = allTeams.find((t) => t.id === teamIdFromUrl);
+      if (foundTeam) {
+        return foundTeam;
+      }
+    }
+
+    return null;
+  }, [allTeams, teamsLoading, searchParams]);
+
+  const prefetchTeamStats = usePrefetchTeam("getTeamStats");
+  const prefetchMemberStats = usePrefetchTeam("getTeamMemberStats");
+  const prefetchTeam = usePrefetchTeam("getTeam");
+
+  useEffect(() => {
+    if (activeTeam?.id) {
+      prefetchTeamStats({ teamId: activeTeam.id });
+      prefetchMemberStats(activeTeam.id);
+      prefetchTeam(activeTeam.id);
+    }
+  }, [activeTeam?.id, prefetchTeamStats, prefetchMemberStats, prefetchTeam]);
+
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth < 768) {
@@ -68,7 +67,6 @@ export const useTeam = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Close menus when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
@@ -82,22 +80,27 @@ export const useTeam = () => {
     };
   }, []);
 
-  // Dynamic Tabs based on Active Team
   const tabs = activeTeam
     ? ["Projects", "Dashboard", "Members", "Files"]
     : ["Teams", "Dashboard", "Members", "Files"];
-
-  // Reset to first tab when switching between All Teams (Teams tab) and Specific Team (Projects tab)
   useEffect(() => {
     if (activeTeam && activeTab === "Teams") {
       setActiveTab("Projects");
+      setHasInitializedTab(true);
     } else if (!activeTeam && activeTab === "Projects") {
       setActiveTab("Teams");
+      setHasInitializedTab(true);
+    } else if (!hasInitializedTab && !teamsLoading) {
+      if (activeTeam) {
+        setActiveTab("Projects");
+      } else {
+        setActiveTab("Teams");
+      }
+      setHasInitializedTab(true);
     }
-  }, [activeTeam, activeTab]);
+  }, [activeTeam, activeTab, hasInitializedTab, teamsLoading]);
 
   const handleSwitchTeam = (team: Team | null) => {
-    setActiveTeam(team);
     if (team) {
       setSearchParams({ teamId: team.id });
     } else {
@@ -120,7 +123,6 @@ export const useTeam = () => {
       await deleteTeam(id).unwrap();
       showToast.success("Team deleted successfully");
       if (activeTeam?.id === id) {
-        setActiveTeam(null);
         setSearchParams({});
       }
       setIsMenuDropdownOpen(false);
@@ -133,7 +135,6 @@ export const useTeam = () => {
     showToast.success("Team added to favorites");
   };
 
-  // Optimize: Only fetch files if we're on the Files tab OR have visited it before
   const [hasVisitedFilesTab, setHasVisitedFilesTab] = useState(false);
 
   useEffect(() => {
@@ -170,6 +171,6 @@ export const useTeam = () => {
     handleSwitchTeam,
     handleDeleteTeam,
     handleToggleTeamFavorite,
-    teamFiles, // Expose the file hook data
+    teamFiles,
   };
 };

@@ -1,7 +1,3 @@
-// ============================================
-// CALENDAR TYPES
-// ============================================
-
 export interface CalendarTask {
   id: number | string;
   title: string;
@@ -59,16 +55,13 @@ export interface UpdateEventPayload {
   description?: string;
 }
 
-// ============================================
-// CALENDAR VIEW PROPS
-// ============================================
-
 export interface CalendarViewProps {
   projectId?: string;
 }
 
 export interface TimelineViewProps {
   projectId?: string;
+  projectIds?: string[];
 }
 
 export interface AddEventModalProps {
@@ -87,10 +80,6 @@ export interface AddEventModalProps {
   } | null;
 }
 
-// ============================================
-// CALENDAR HOOK PROPS
-// ============================================
-
 export interface UseAddEventModalProps {
   onClose: () => void;
   onAdd?: (event: CalendarEvent) => void;
@@ -108,6 +97,7 @@ export interface UseAddEventModalProps {
 
 export interface UseTimelineViewProps {
   projectId?: string;
+  projectIds?: string[];
 }
 
 export interface UseCalendarViewProps {

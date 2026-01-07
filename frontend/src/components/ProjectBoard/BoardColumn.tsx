@@ -1,11 +1,25 @@
-import React from 'react';
-import { Plus, MoreHorizontal, EyeOff } from 'lucide-react';
-import { Droppable, Draggable } from '@hello-pangea/dnd';
-import type { BoardColumnProps } from '../../types';
-import TaskCard from '../task/TaskCard';
-import { useBoardColumn } from '../../pages/projectboard/hooks/useBoardColumn';
+import React from "react";
+import { Plus, MoreHorizontal, EyeOff } from "lucide-react";
+import { Droppable, Draggable } from "@hello-pangea/dnd";
+import type { BoardColumnProps } from "../../types";
+import TaskCard from "../task/TaskCard";
+import { useBoardColumn } from "../../pages/projectboard/hooks/useBoardColumn";
 
-const BoardColumn: React.FC<BoardColumnProps> = ({ title, count, color, tasks, status, collapsed = false, onTaskClick, onEditTask, onDeleteTask, onAddTask, onToggle, onHide, visibleFields }) => {
+const BoardColumn: React.FC<BoardColumnProps> = ({
+  title,
+  count,
+  color,
+  tasks,
+  status,
+  collapsed = false,
+  onTaskClick,
+  onEditTask,
+  onDeleteTask,
+  onAddTask,
+  onToggle,
+  onHide,
+  visibleFields,
+}) => {
   const { isMenuOpen, setIsMenuOpen } = useBoardColumn();
 
   if (collapsed) {
@@ -19,11 +33,13 @@ const BoardColumn: React.FC<BoardColumnProps> = ({ title, count, color, tasks, s
           <div className={`w-2 h-2 rounded-full ${color}`}></div>
           <span
             className="text-gray-700 dark:text-gray-300 font-semibold text-sm tracking-wide whitespace-nowrap"
-            style={{ writingMode: 'vertical-rl', textOrientation: 'mixed' }}
+            style={{ writingMode: "vertical-rl", textOrientation: "mixed" }}
           >
             {title}
           </span>
-          <span className="text-gray-400 dark:text-gray-500 font-medium text-xs mt-2">{count}</span>
+          <span className="text-gray-400 dark:text-gray-500 font-medium text-xs mt-2">
+            {count}
+          </span>
         </div>
       </div>
     );
@@ -31,15 +47,20 @@ const BoardColumn: React.FC<BoardColumnProps> = ({ title, count, color, tasks, s
 
   return (
     <div className="flex-1 min-w-0 flex flex-col h-full">
-      {/* Header */}
       <div className="flex items-center justify-between mb-4 px-1 group">
-        <div className="flex items-center gap-2 cursor-pointer flex-1" onClick={onToggle}>
+        <div
+          className="flex items-center gap-2 cursor-pointer flex-1"
+          onClick={onToggle}
+        >
           <div className={`w-2 h-2 rounded-full ${color}`}></div>
-          <h2 className="font-semibold text-gray-700 dark:text-gray-200 whitespace-nowrap">{title}</h2>
-          <span className="text-gray-400 dark:text-gray-500 font-medium">{count}</span>
+          <h2 className="font-semibold text-gray-700 dark:text-gray-200 whitespace-nowrap">
+            {title}
+          </h2>
+          <span className="text-gray-400 dark:text-gray-500 font-medium">
+            {count}
+          </span>
         </div>
 
-        {/* Column Menu */}
         <div className="relative">
           <button
             onClick={(e) => {
@@ -75,7 +96,6 @@ const BoardColumn: React.FC<BoardColumnProps> = ({ title, count, color, tasks, s
         </div>
       </div>
 
-      {/* Task List */}
       <Droppable droppableId={status || title}>
         {(provided) => (
           <div
@@ -84,26 +104,58 @@ const BoardColumn: React.FC<BoardColumnProps> = ({ title, count, color, tasks, s
             {...provided.droppableProps}
           >
             {tasks.map((task, index) => (
-              <Draggable key={task.id} draggableId={String(task.id)} index={index}>
+              <Draggable
+                key={task.id}
+                draggableId={String(task.id)}
+                index={index}
+              >
                 {(provided) => (
                   <div
                     ref={provided.innerRef}
                     {...provided.draggableProps}
                     {...provided.dragHandleProps}
-                    style={{ ...provided.draggableProps.style, marginBottom: '0.75rem' }}
+                    style={{
+                      ...provided.draggableProps.style,
+                      marginBottom: "0.75rem",
+                    }}
                   >
                     <TaskCard
                       title={task.title || task.name}
-                      project={typeof task.project === 'string' ? task.project : task.project?.name}
+                      project={
+                        typeof task.project === "string"
+                          ? task.project
+                          : task.project?.name
+                      }
                       description={task.description}
                       priority={task.priority}
                       tags={task.tags}
-                      assignee={task.assignee || { name: 'Unassigned' }}
-                      assignees={task.assignees?.map(a => ({ name: a.name, avatar: a.avatar || undefined }))}
-                      comments={typeof task.comments === 'number' ? task.comments : (Array.isArray(task.comments) ? task.comments.length : 0)}
-                      attachments={typeof task.attachments === 'number' ? task.attachments : (Array.isArray(task.attachments) ? task.attachments.length : 0)}
-                      subtasks={typeof task.subtasks === 'number' ? task.subtasks : (Array.isArray(task.subtasks) ? task.subtasks.length : 0)}
-                      date={task.date || task.dueDate || ''}
+                      assignee={task.assignee || { name: "Unassigned" }}
+                      assignees={task.assignees?.map((a) => ({
+                        name: a.name,
+                        avatar: a.avatar || undefined,
+                      }))}
+                      comments={
+                        typeof task.comments === "number"
+                          ? task.comments
+                          : Array.isArray(task.comments)
+                            ? task.comments.length
+                            : 0
+                      }
+                      attachments={
+                        typeof task.attachments === "number"
+                          ? task.attachments
+                          : Array.isArray(task.attachments)
+                            ? task.attachments.length
+                            : 0
+                      }
+                      subtasks={
+                        typeof task.subtasks === "number"
+                          ? task.subtasks
+                          : Array.isArray(task.subtasks)
+                            ? task.subtasks.length
+                            : 0
+                      }
+                      date={task.date || task.dueDate || ""}
                       onClick={() => onTaskClick && onTaskClick(task)}
                       onEdit={() => onEditTask && onEditTask(task)}
                       onDelete={() => onDeleteTask && onDeleteTask(task)}
@@ -115,7 +167,6 @@ const BoardColumn: React.FC<BoardColumnProps> = ({ title, count, color, tasks, s
             ))}
             {provided.placeholder}
 
-            {/* Add Task Button at bottom of list */}
             <button
               onClick={() => onAddTask && onAddTask(status || title)}
               className="flex items-center gap-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 p-2 rounded-md transition-colors mt-2 text-sm font-medium w-full text-left"

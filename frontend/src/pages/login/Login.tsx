@@ -1,21 +1,26 @@
-import React from 'react';
-import { useLogin } from './hooks/useLogin';
-import { loginStyles, loginClasses, loginMediaQuery } from './loginStyle';
-import { IMAGES } from '../../constants/images';
-import { Button, Input } from '../../components/ui';
+import React from "react";
+import { useLogin } from "./hooks/useLogin";
+import { loginStyles, loginClasses, loginMediaQuery } from "./loginStyle";
+import { IMAGES } from "../../constants/images";
+import { Button, Input } from "../../components/ui";
+import { AnimatePresence, motion } from "framer-motion";
+import ForgotPassword from "../forgetPassword/ForgotPassword";
 
-// Helper function to get error message from API errors
 const getErrorMessage = (error: unknown): string => {
-  if (error && typeof error === 'object' && 'data' in error) {
+  if (error && typeof error === "object" && "data" in error) {
     const apiError = error as { data?: unknown };
-    if (typeof apiError.data === 'string') {
+    if (typeof apiError.data === "string") {
       return apiError.data;
     }
-    if (apiError.data && typeof apiError.data === 'object' && 'message' in apiError.data) {
+    if (
+      apiError.data &&
+      typeof apiError.data === "object" &&
+      "message" in apiError.data
+    ) {
       return String((apiError.data as { message: unknown }).message);
     }
   }
-  return 'Login failed. Please try again.';
+  return "Login failed. Please try again.";
 };
 
 const LoginPage: React.FC = () => {
@@ -28,7 +33,10 @@ const LoginPage: React.FC = () => {
     error,
     handleGoogleSignIn,
     handleSubmit,
-    navigate
+    navigate,
+    authView,
+    handleForgotPassword,
+    handleBackToLogin,
   } = useLogin();
 
   return (
@@ -38,11 +46,11 @@ const LoginPage: React.FC = () => {
         className={loginClasses.pageWrapper}
         style={loginStyles.pageContainer}
       >
-        {/* Logo above container */}
         <div
           className={loginClasses.logoWrapper}
           style={loginStyles.logoContainer}
         >
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[220px] h-[100px] bg-white/80 blur-[45px] rounded-full dark:block hidden pointer-events-none" />
           <img
             src={IMAGES.logo}
             alt="Defcon Logo"
@@ -50,20 +58,16 @@ const LoginPage: React.FC = () => {
           />
         </div>
 
-        {/* Main Container */}
         <div
           className={loginClasses.mainContainer}
           style={loginStyles.loginContainer}
         >
-          {/* LEFT PANEL */}
-          <div
-            className={loginClasses.leftPanel}
-            style={loginStyles.leftPanel}
-          >
-            {/* Top Content Area */}
+          <div className={loginClasses.leftPanel} style={loginStyles.leftPanel}>
             <div>
-              {/* Badge and Title */}
-              <div className={loginClasses.badgeWrapper} style={{ marginBottom: '16px' }}>
+              <div
+                className={loginClasses.badgeWrapper}
+                style={loginStyles.badgeWrapperStyle}
+              >
                 <span
                   className={loginClasses.badge}
                   style={loginStyles.newBadge}
@@ -83,17 +87,21 @@ const LoginPage: React.FC = () => {
                   </svg>
                   NEW
                 </span>
-                <span className={loginClasses.featureTitle} style={loginStyles.featureTitle}>
+                <span
+                  className={loginClasses.featureTitle}
+                  style={loginStyles.featureTitle}
+                >
                   Reporting Dashboard
                 </span>
               </div>
 
-              {/* Description */}
-              <p className={loginClasses.featureDescription} style={loginStyles.featureDescription}>
-                Our all-new Reporting Dashboard lets you build custom
-                reports and visualize project data with charts, KPIs,
-                and real-time filters — giving you clearer insights to
-                make smarter decisions.{' '}
+              <p
+                className={loginClasses.featureDescription}
+                style={loginStyles.featureDescription}
+              >
+                Our all-new Reporting Dashboard lets you build custom reports
+                and visualize project data with charts, KPIs, and real-time
+                filters — giving you clearer insights to make smarter decisions.{" "}
                 <a
                   href="#"
                   className={`font-semibold hover:underline ${loginClasses.learnMoreLink}`}
@@ -103,122 +111,166 @@ const LoginPage: React.FC = () => {
               </p>
             </div>
 
-            {/* Bottom Area - Middle Container with White Box */}
             <div style={loginStyles.bottomBoxContainer}>
-              <div className={loginClasses.bottomBoxOuter} style={loginStyles.bottomBoxOuter}>
-                <div className={loginClasses.bottomBoxInner} style={loginStyles.bottomBoxInner}></div>
+              <div
+                className={loginClasses.bottomBoxOuter}
+                style={loginStyles.bottomBoxOuter}
+              >
+                <div
+                  className={loginClasses.bottomBoxInner}
+                  style={loginStyles.bottomBoxInner}
+                ></div>
               </div>
             </div>
           </div>
 
-          {/* RIGHT PANEL */}
           <div className={loginClasses.rightPanel}>
-            <h2
-              className={loginClasses.formTitle}
-              style={loginStyles.formTitle}
-            >
-              Log in to your account
-            </h2>
+            <AnimatePresence mode="wait">
+              {authView === "login" ? (
+                <motion.div
+                  key="login-form"
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 20 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <h2
+                    className={loginClasses.formTitle}
+                    style={loginStyles.formTitle}
+                  >
+                    Log in to your account
+                  </h2>
 
-            <form className={loginClasses.form} onSubmit={handleSubmit}>
-              {/* Email */}
-              <Input
-                type="email"
-                label="Email Address"
-                required
-                placeholder="name@company.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className={loginClasses.input}
-              />
+                  <form className={loginClasses.form} onSubmit={handleSubmit}>
+                    <Input
+                      type="email"
+                      label="Email Address"
+                      required
+                      placeholder="name@company.com"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className={loginClasses.input}
+                      data-cy="email-input"
+                    />
 
-              {/* Password */}
-              <div>
-                <div className={loginClasses.passwordHeader}>
-                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Password <span className="text-black dark:text-white">*</span></span>
-                  <a href="#" className={loginClasses.forgotPassword}>
-                    Forgot password?
-                  </a>
-                </div>
-                <Input
-                  type="password"
-                  placeholder="Password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  className={loginClasses.input}
-                />
-              </div>
+                    <div>
+                      <div className={loginClasses.passwordHeader}>
+                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                          Password{" "}
+                          <span className="text-black dark:text-white">*</span>
+                        </span>
+                        <button
+                          type="button"
+                          onClick={handleForgotPassword}
+                          className={loginClasses.forgotPassword}
+                        >
+                          Forgot password?
+                        </button>
+                      </div>
+                      <Input
+                        type="password"
+                        placeholder="Password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                        className={loginClasses.input}
+                        data-cy="password-input"
+                      />
+                    </div>
 
-              {/* Login Button */}
-              {error && (
-                <div className={loginClasses.error}>{getErrorMessage(error)}</div>
+                    {error && (
+                      <div className={loginClasses.error}>
+                        {getErrorMessage(error)}
+                      </div>
+                    )}
+                    <Button
+                      type="submit"
+                      variant="primary"
+                      size="lg"
+                      isLoading={isLoading}
+                      className={loginClasses.submitButton}
+                      data-cy="login-button"
+                    >
+                      Log in
+                    </Button>
+
+                    <div className={loginClasses.socialWrapper}>
+                      <button
+                        type="button"
+                        onClick={handleGoogleSignIn}
+                        className={loginClasses.socialButton}
+                      >
+                        <img
+                          src={IMAGES.google}
+                          alt="Google"
+                          className="w-5 h-5"
+                        />
+                        <span className="text-brand-orange">Google</span>
+                      </button>
+                      <div className={loginClasses.socialDivider}></div>
+                      <button
+                        className={`${loginClasses.socialButton} opacity-50 cursor-not-allowed`}
+                        disabled
+                      >
+                        <img
+                          src={IMAGES.microsoft}
+                          alt="Microsoft"
+                          className="w-5 h-5"
+                        />
+                        <span className="text-brand-orange">Microsoft</span>
+                      </button>
+                    </div>
+
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      className={loginClasses.ssoButton}
+                      style={loginStyles.ssoButton}
+                    >
+                      Sign in with your identity provider (SSO/SAML)
+                    </Button>
+
+                    <div className={loginClasses.dividerWrapper}>
+                      <div className={loginClasses.dividerLine}></div>
+                      <span
+                        className={loginClasses.dividerText}
+                        style={loginStyles.dividerText}
+                      >
+                        OR
+                      </span>
+                      <div className={loginClasses.dividerLine}></div>
+                    </div>
+
+                    <div className={loginClasses.signUpWrapper}>
+                      <p style={loginStyles.signUpText}>
+                        Don't have an account?
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => navigate("/signup")}
+                        className={loginClasses.signUpButton}
+                      >
+                        Sign up for free
+                      </button>
+                    </div>
+                  </form>
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="forgot-password"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <ForgotPassword
+                    initialEmail={email}
+                    onBack={handleBackToLogin}
+                    onSuccess={handleBackToLogin}
+                  />
+                </motion.div>
               )}
-              <Button
-                type="submit"
-                variant="primary"
-                size="lg"
-                isLoading={isLoading}
-                className={loginClasses.submitButton}
-              >
-                Log in
-              </Button>
-
-              {/* Social Login */}
-              <div className={loginClasses.socialWrapper}>
-                <button
-                  type="button"
-                  onClick={handleGoogleSignIn}
-                  className={loginClasses.socialButton}
-                >
-                  <img src={IMAGES.google} alt="Google" className="w-5 h-5" />
-                  <span className="text-brand-orange">Google</span>
-                </button>
-                <div className={loginClasses.socialDivider}></div>
-                <button
-                  className={loginClasses.socialButton}
-                >
-                  <img src={IMAGES.microsoft} alt="Microsoft" className="w-5 h-5" />
-                  <span className="text-brand-orange">Microsoft</span>
-                </button>
-              </div>
-
-              {/* SSO Button */}
-              <Button
-                type="button"
-                variant="secondary"
-                className={loginClasses.ssoButton}
-                style={loginStyles.ssoButton}
-              >
-                Sign in with your identity provider (SSO/SAML)
-              </Button>
-
-              {/* Divider */}
-              <div className={loginClasses.dividerWrapper}>
-                <div className={loginClasses.dividerLine}></div>
-                <span
-                  className={loginClasses.dividerText}
-                  style={loginStyles.dividerText}
-                >
-                  OR
-                </span>
-                <div className={loginClasses.dividerLine}></div>
-              </div>
-
-              {/* Sign Up */}
-              <div className={loginClasses.signUpWrapper}>
-                <p style={loginStyles.signUpText}>
-                  Don't have an account?
-                </p>
-                <button
-                  type="button"
-                  onClick={() => navigate('/signup')}
-                  className={loginClasses.signUpButton}
-                >
-                  Sign up for free
-                </button>
-              </div>
-            </form>
+            </AnimatePresence>
           </div>
         </div>
       </div>

@@ -1,11 +1,14 @@
-import React from 'react';
-import type { AuthButtonProps } from '../../types';
+import React from "react";
+import type { AuthButtonProps } from "../../types";
 
+import { Button } from "./Button";
 
-
-import { Button } from './Button';
-
-const AuthButton: React.FC<AuthButtonProps> = ({ icon, text, onClick, disabled }) => {
+const AuthButton: React.FC<AuthButtonProps> = ({
+  icon,
+  text,
+  onClick,
+  disabled,
+}) => {
   return (
     <Button
       variant="secondary"

@@ -3,25 +3,11 @@ import { supabase } from "../../lib/supabase";
 import type { User } from "../../types";
 import { clearLastProjectId } from "../../utils/projectStorage";
 
-// ============================================
-// AUTH API ENDPOINTS
-// ============================================
-// This file handles all authentication:
-// - Email/password login and registration
-// - OAuth login (Google, GitHub)
-// - Session management
-// - Profile updates
-
 export const authApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
-    // ----------------------------------------
-    // LOGIN WITH EMAIL - Sign in with email and password
-    // ----------------------------------------
-    // Usage: const [login, { isLoading }] = useLoginMutation()
     login: builder.mutation<User, { email: string; password: string }>({
       queryFn: async ({ email, password }, _api, _options, fetchWithBQ) => {
         try {
-          // Step 1: Sign in with Supabase
           const { data, error } = await supabase.auth.signInWithPassword({
             email,
             password,
@@ -30,7 +16,6 @@ export const authApiSlice = apiSlice.injectEndpoints({
           if (error) throw error;
           if (!data.user) throw new Error("No user data returned");
 
-          // Step 2: Create/update profile in our backend
           await fetchWithBQ({
             url: "/users/profile",
             method: "POST",
@@ -40,17 +25,14 @@ export const authApiSlice = apiSlice.injectEndpoints({
             },
           });
 
-          // Step 3: Get the full user profile from backend
           const result = await fetchWithBQ({ url: "/users/profile" });
           const backendProfile = result.data as User;
 
-          // Step 4: Build the user object
           const user: User = {
             id: data.user.id,
             email: data.user.email || "",
             name: backendProfile?.name || data.user.email || "User",
-            avatar:
-              backendProfile?.avatar || data.user.user_metadata?.avatar_url,
+            avatar: backendProfile?.avatar,
             jobTitle: backendProfile?.jobTitle,
             department: backendProfile?.department,
             hasCompletedOnboarding: backendProfile?.hasCompletedOnboarding,
@@ -66,23 +48,18 @@ export const authApiSlice = apiSlice.injectEndpoints({
       invalidatesTags: ["User"],
     }),
 
-    // ----------------------------------------
-    // LOGIN WITH GOOGLE - OAuth redirect
-    // ----------------------------------------
-    // Usage: const [loginWithGoogle, { isLoading }] = useLoginWithGoogleMutation()
     loginWithGoogle: builder.mutation<void, void>({
       queryFn: async () => {
         try {
           const { error } = await supabase.auth.signInWithOAuth({
             provider: "google",
             options: {
-              redirectTo: `${window.location.origin}/welcome`,
+              redirectTo: `${window.location.origin}/dashboard`,
             },
           });
 
           if (error) throw error;
 
-          // Note: This will redirect the browser, so we won't reach here
           return { data: undefined };
         } catch (err: unknown) {
           const message =
@@ -92,10 +69,6 @@ export const authApiSlice = apiSlice.injectEndpoints({
       },
     }),
 
-    // ----------------------------------------
-    // LOGIN WITH GITHUB - OAuth redirect
-    // ----------------------------------------
-    // Usage: const [loginWithGithub, { isLoading }] = useLoginWithGithubMutation()
     loginWithGithub: builder.mutation<void, void>({
       queryFn: async () => {
         try {
@@ -108,7 +81,6 @@ export const authApiSlice = apiSlice.injectEndpoints({
 
           if (error) throw error;
 
-          // Note: This will redirect the browser, so we won't reach here
           return { data: undefined };
         } catch (err: unknown) {
           const message =
@@ -118,14 +90,9 @@ export const authApiSlice = apiSlice.injectEndpoints({
       },
     }),
 
-    // ----------------------------------------
-    // REGISTER - Create a new account
-    // ----------------------------------------
-    // Usage: const [register, { isLoading }] = useRegisterMutation()
     register: builder.mutation<User, { email: string; password: string }>({
       queryFn: async ({ email, password }, _api, _options, fetchWithBQ) => {
         try {
-          // Step 1: Create account with Supabase
           const { data, error } = await supabase.auth.signUp({
             email,
             password,
@@ -134,28 +101,24 @@ export const authApiSlice = apiSlice.injectEndpoints({
           if (error) throw error;
           if (!data.user) throw new Error("No user data returned");
 
-          // Step 2: Create profile in our backend
           await fetchWithBQ({
             url: "/users/profile",
             method: "POST",
             body: {
               name: data.user.user_metadata?.full_name || email.split("@")[0],
-              avatar: data.user.user_metadata?.avatar_url,
+              avatar: undefined,
               email: email,
             },
           });
 
-          // Step 3: Get the full user profile from backend
           const result = await fetchWithBQ({ url: "/users/profile" });
           const backendProfile = result.data as User;
 
-          // Step 4: Build the user object
           const user: User = {
             id: data.user.id,
             email: data.user.email || "",
             name: backendProfile?.name || data.user.email || "User",
-            avatar:
-              backendProfile?.avatar || data.user.user_metadata?.avatar_url,
+            avatar: backendProfile?.avatar,
             jobTitle: backendProfile?.jobTitle,
             department: backendProfile?.department,
             hasCompletedOnboarding: backendProfile?.hasCompletedOnboarding,
@@ -172,16 +135,10 @@ export const authApiSlice = apiSlice.injectEndpoints({
       invalidatesTags: ["User"],
     }),
 
-    // ----------------------------------------
-    // LOGOUT - Sign out the user
-    // ----------------------------------------
-    // Usage: const [logout] = useLogoutMutation()
     logout: builder.mutation<null, void>({
       queryFn: async () => {
         try {
-          // Clear cached auth token first for security
           clearAuthTokenCache();
-          // Clear saved project ID
           clearLastProjectId();
 
           const { error } = await supabase.auth.signOut();
@@ -193,16 +150,15 @@ export const authApiSlice = apiSlice.injectEndpoints({
         }
       },
       invalidatesTags: ["User", "Project", "Task", "Team"],
+      async onQueryStarted(_, { dispatch, queryFulfilled }) {
+        await queryFulfilled;
+        dispatch(apiSlice.util.resetApiState());
+      },
     }),
 
-    // ----------------------------------------
-    // GET SESSION - Check if user is logged in
-    // ----------------------------------------
-    // Usage: const { data: user, isLoading } = useGetSessionQuery()
     getSession: builder.query<User | null, void>({
       queryFn: async (_arg, _api, _options, fetchWithBQ) => {
         try {
-          // Step 1: Check if we have a session in Supabase
           const { data: sessionData, error } = await supabase.auth.getSession();
 
           if (error) throw error;
@@ -210,11 +166,9 @@ export const authApiSlice = apiSlice.injectEndpoints({
 
           const supabaseUser = sessionData.session.user;
 
-          // Step 2: Get the backend profile
           const result = await fetchWithBQ({ url: "/users/profile" });
           const backendProfile = (result.data as User) || {};
 
-          // Step 3: Build the user object
           const user: User = {
             id: supabaseUser.id,
             email: supabaseUser.email || "",
@@ -223,8 +177,7 @@ export const authApiSlice = apiSlice.injectEndpoints({
               supabaseUser.user_metadata?.full_name ||
               supabaseUser.email ||
               "User",
-            avatar:
-              backendProfile.avatar || supabaseUser.user_metadata?.avatar_url,
+            avatar: backendProfile.avatar,
             jobTitle: backendProfile.jobTitle,
             department: backendProfile.department,
             hasCompletedOnboarding: backendProfile.hasCompletedOnboarding,
@@ -240,11 +193,6 @@ export const authApiSlice = apiSlice.injectEndpoints({
       },
       providesTags: ["User"],
     }),
-
-    // ----------------------------------------
-    // UPDATE PROFILE - Update user information
-    // ----------------------------------------
-    // Usage: const [updateProfile] = useUpdateProfileMutation()
     updateProfile: builder.mutation<User, Partial<User>>({
       query: (userData) => ({
         url: "/users/profile",
@@ -254,39 +202,29 @@ export const authApiSlice = apiSlice.injectEndpoints({
       invalidatesTags: ["User"],
     }),
 
-    // ----------------------------------------
-    // GET ALL USERS - Fetch all registered users
-    // ----------------------------------------
-    // Usage: const { data: users } = useGetAllUsersQuery()
     getAllUsers: builder.query<User[], void>({
       query: () => "/users",
       providesTags: ["User"],
     }),
+    deleteAccount: builder.mutation<void, void>({
+      query: () => ({
+        url: "/users/profile",
+        method: "DELETE",
+      }),
+      invalidatesTags: ["User", "Project", "Task", "Team"],
+    }),
   }),
 });
 
-// ============================================
-// EXPORT HOOKS
-// ============================================
-// React hooks for using these endpoints in components
-
 export const {
-  // Email/Password Auth
   useLoginMutation,
   useRegisterMutation,
   useLogoutMutation,
-
-  // OAuth Auth
   useLoginWithGoogleMutation,
   useLoginWithGithubMutation,
-
-  // Session
   useGetSessionQuery,
   useLazyGetSessionQuery,
-
-  // Profile
   useUpdateProfileMutation,
-
-  // Users
   useGetAllUsersQuery,
+  useDeleteAccountMutation,
 } = authApiSlice;

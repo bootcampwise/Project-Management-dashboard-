@@ -1,9 +1,8 @@
 import React from "react";
 import { useUpdateTaskStatusMutation } from "../../../store/api/taskApiSlice";
 import type { DropResult } from "@hello-pangea/dnd";
-import type { BoardColumnState } from "../../../types";
+import type { BoardColumnState, Task } from "../../../types";
 
-// Default column configuration for the board view
 const DEFAULT_COLUMNS: BoardColumnState[] = [
   {
     id: "BACKLOG",
@@ -66,7 +65,6 @@ const DEFAULT_COLUMNS: BoardColumnState[] = [
 export const useBoardView = () => {
   const [updateTaskStatus] = useUpdateTaskStatusMutation();
 
-  // Column configuration with visibility state
   const [columns, setColumns] =
     React.useState<BoardColumnState[]>(DEFAULT_COLUMNS);
 
@@ -84,7 +82,7 @@ export const useBoardView = () => {
       return;
     }
 
-    const newStatus = destination.droppableId;
+    const newStatus = destination.droppableId as Task["status"];
     updateTaskStatus({ id: draggableId, status: newStatus });
   };
 

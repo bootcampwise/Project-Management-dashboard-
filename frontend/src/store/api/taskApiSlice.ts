@@ -1,18 +1,10 @@
 import { apiSlice } from "./apiSlice";
 import type { Task, CreateTaskPayload, SubTask } from "../../types";
 
-// ============================================
-// TASK API ENDPOINTS
-// ============================================
-
 export const taskApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
-    // ----------------------------------------
-    // GET ALL TASKS
-    // ----------------------------------------
     getTasks: builder.query<Task[], void>({
       query: () => "/tasks",
-      // Tasks are real-time critical - shorter cache
       keepUnusedDataFor: 60,
       providesTags: (result) =>
         result
@@ -23,17 +15,11 @@ export const taskApiSlice = apiSlice.injectEndpoints({
           : [{ type: "Task", id: "LIST" }],
     }),
 
-    // ----------------------------------------
-    // GET SINGLE TASK BY ID
-    // ----------------------------------------
     getTask: builder.query<Task, string>({
       query: (taskId) => `/tasks/${taskId}`,
       providesTags: (_result, _error, taskId) => [{ type: "Task", id: taskId }],
     }),
 
-    // ----------------------------------------
-    // CREATE A NEW TASK
-    // ----------------------------------------
     createTask: builder.mutation<Task, CreateTaskPayload>({
       query: (newTask) => ({
         url: "/tasks",
@@ -43,9 +29,6 @@ export const taskApiSlice = apiSlice.injectEndpoints({
       invalidatesTags: ["Task"],
     }),
 
-    // ----------------------------------------
-    // UPDATE A TASK
-    // ----------------------------------------
     updateTask: builder.mutation<
       Task,
       { id: string; data: Partial<CreateTaskPayload> }
@@ -58,10 +41,6 @@ export const taskApiSlice = apiSlice.injectEndpoints({
       invalidatesTags: (_result, _error, { id }) => [{ type: "Task", id }],
     }),
 
-    // ----------------------------------------
-    // UPDATE TASK STATUS (for drag & drop)
-    // ----------------------------------------
-    // Uses OPTIMISTIC UPDATES for instant UI response
     updateTaskStatus: builder.mutation<
       Task,
       { id: string; status: Task["status"] }
@@ -71,12 +50,9 @@ export const taskApiSlice = apiSlice.injectEndpoints({
         method: "PATCH",
         body: { status },
       }),
-      // ⚡ OPTIMISTIC UPDATE - Update UI immediately, sync with backend
       async onQueryStarted({ id, status }, { dispatch, queryFulfilled }) {
-        // Optimistically update the cache immediately
         const patchResult = dispatch(
           taskApiSlice.util.updateQueryData("getTasks", undefined, (draft) => {
-            // Find the task and update its status
             const task = draft.find((t) => t.id === id);
             if (task) {
               task.status = status;
@@ -85,30 +61,23 @@ export const taskApiSlice = apiSlice.injectEndpoints({
         );
 
         try {
-          // Wait for the actual API response
           await queryFulfilled;
         } catch {
-          // If the API call fails, revert the optimistic update
           patchResult.undo();
         }
       },
       invalidatesTags: (_result, _error, { id }) => [{ type: "Task", id }],
     }),
 
-    // ----------------------------------------
-    // DELETE A TASK
-    // ----------------------------------------
     deleteTask: builder.mutation<void, string>({
       query: (taskId) => ({
         url: `/tasks/${taskId}`,
         method: "DELETE",
       }),
-      invalidatesTags: [{ type: "Task", id: "LIST" }],
+
+      invalidatesTags: [{ type: "Task", id: "LIST" }, "Team", "Project"],
     }),
 
-    // ----------------------------------------
-    // ADD SUBTASK
-    // ----------------------------------------
     addSubTask: builder.mutation<SubTask, { taskId: string; title: string }>({
       query: ({ taskId, title }) => ({
         url: `/tasks/${taskId}/subtasks`,
@@ -120,9 +89,6 @@ export const taskApiSlice = apiSlice.injectEndpoints({
       ],
     }),
 
-    // ----------------------------------------
-    // DELETE SUBTASK
-    // ----------------------------------------
     deleteSubTask: builder.mutation<
       void,
       { taskId: string; subtaskId: string }
@@ -136,9 +102,6 @@ export const taskApiSlice = apiSlice.injectEndpoints({
       ],
     }),
 
-    // ----------------------------------------
-    // TOGGLE SUBTASK COMPLETION
-    // ----------------------------------------
     toggleSubTask: builder.mutation<
       SubTask,
       { taskId: string; subtaskId: string; completed: boolean }
@@ -153,9 +116,6 @@ export const taskApiSlice = apiSlice.injectEndpoints({
       ],
     }),
 
-    // ----------------------------------------
-    // ASSIGN SUBTASK TO USER
-    // ----------------------------------------
     assignSubTask: builder.mutation<
       SubTask,
       { taskId: string; subtaskId: string; userId: string }
@@ -170,9 +130,6 @@ export const taskApiSlice = apiSlice.injectEndpoints({
       ],
     }),
 
-    // ----------------------------------------
-    // ADD COMMENT TO TASK
-    // ----------------------------------------
     addComment: builder.mutation<
       unknown,
       { taskId: string; content: string; userId: string }
@@ -187,9 +144,6 @@ export const taskApiSlice = apiSlice.injectEndpoints({
       ],
     }),
 
-    // ----------------------------------------
-    // ADD TAG TO TASK
-    // ----------------------------------------
     addTag: builder.mutation<Task, { taskId: string; tags: string[] }>({
       query: ({ taskId, tags }) => ({
         url: `/tasks/${taskId}`,
@@ -201,9 +155,6 @@ export const taskApiSlice = apiSlice.injectEndpoints({
       ],
     }),
 
-    // ----------------------------------------
-    // ADD ATTACHMENT TO TASK
-    // ----------------------------------------
     addAttachment: builder.mutation<
       unknown,
       {
@@ -224,9 +175,6 @@ export const taskApiSlice = apiSlice.injectEndpoints({
       ],
     }),
 
-    // ----------------------------------------
-    // DELETE ATTACHMENT
-    // ----------------------------------------
     deleteAttachment: builder.mutation<void, string>({
       query: (attachmentId) => ({
         url: `/attachments/${attachmentId}`,
@@ -237,29 +185,20 @@ export const taskApiSlice = apiSlice.injectEndpoints({
   }),
 });
 
-// ============================================
-// EXPORT HOOKS
-// ============================================
-
 export const {
-  // Queries
   useGetTasksQuery,
   useGetTaskQuery,
   useLazyGetTaskQuery,
-  // Basic mutations
   useCreateTaskMutation,
   useUpdateTaskMutation,
   useUpdateTaskStatusMutation,
   useDeleteTaskMutation,
-  // SubTask mutations
   useAddSubTaskMutation,
   useDeleteSubTaskMutation,
   useToggleSubTaskMutation,
   useAssignSubTaskMutation,
-  // Comment & Tag mutations
   useAddCommentMutation,
   useAddTagMutation,
-  // Attachment mutations
   useAddAttachmentMutation,
   useDeleteAttachmentMutation,
 } = taskApiSlice;

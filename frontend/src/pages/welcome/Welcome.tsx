@@ -5,9 +5,9 @@ import { Button } from "../../components/ui";
 import { IMAGES } from "../../constants/images";
 
 const WelcomeScreen: React.FC = () => {
-  const { handleGetStarted, isLoading } = useWelcome();
+  const { handleGetStarted, isLoading, shouldRedirect } = useWelcome();
 
-  if (isLoading) {
+  if (isLoading || shouldRedirect) {
     return (
       <div className={welcomeClasses.loadingWrapper}>
         <div className={welcomeClasses.loadingSpinner}></div>
@@ -17,29 +17,16 @@ const WelcomeScreen: React.FC = () => {
 
   return (
     <div className={welcomeClasses.container}>
-
-      {/* Content Wrapper */}
       <div className={welcomeClasses.contentWrapper}>
+        <img src={IMAGES.logo2} alt="Defcon Logo" style={welcomeStyles.logo} />
+        <h1 style={welcomeStyles.title}>Welcome To Defcon</h1>
 
-        {/* LOGO */}
-        <img
-          src={IMAGES.logo2}
-          alt="Defcon Logo"
-          style={welcomeStyles.logo}
-        />
-
-        {/* TITLE */}
-        <h1 style={welcomeStyles.title}>
-          Welcome To Defcon
-        </h1>
-
-        {/* DESCRIPTION */}
         <p style={welcomeStyles.description}>
-          Welcome to your Project Management Dashboard<br />
+          Welcome to your Project Management Dashboard
+          <br />
           track progress, manage tasks, and keep your team aligned.
         </p>
 
-        {/* BUTTON */}
         <Button
           variant="primary"
           style={welcomeStyles.button}

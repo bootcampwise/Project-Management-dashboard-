@@ -21,6 +21,8 @@ export const signupStyles = {
   logoImage: {
     width: "173px",
     height: "42px",
+    position: "relative",
+    zIndex: 10,
   } as CSSProperties,
 
   loginContainer: {
@@ -68,6 +70,10 @@ export const signupStyles = {
   learnMoreLink: {
     textDecoration: "none",
     fontWeight: 600,
+  } as CSSProperties,
+
+  badgeWrapperStyle: {
+    marginBottom: "16px",
   } as CSSProperties,
 
   bottomBoxContainer: {

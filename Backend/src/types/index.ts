@@ -1,6 +1,3 @@
-// Shared Types - TODO: Add common TypeScript interfaces and types
-
-// Common request/response types
 export interface ApiResponse<T = unknown> {
   success: boolean;
   data?: T;
@@ -8,7 +5,6 @@ export interface ApiResponse<T = unknown> {
   error?: string;
 }
 
-// Pagination types
 export interface PaginationParams {
   page?: number;
   limit?: number;
@@ -16,4 +12,6 @@ export interface PaginationParams {
   sortOrder?: "asc" | "desc";
 }
 
-// TODO: Add more shared types as needed
+export * from "./user.types";
+export * from "./task.types";
+export * from "./project.types";

@@ -1,11 +1,9 @@
-/** @type {import('tailwindcss').Config} */
 export default {
   content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
   darkMode: "class",
   theme: {
     extend: {
       colors: {
-        // Primary - Blue (buttons, links, focus states)
         blue: {
           50: "#eff6ff",
           100: "#dbeafe",
@@ -17,7 +15,6 @@ export default {
           700: "#1d4ed8",
           800: "#1e40af",
         },
-        // Gray - UI elements (text, borders, backgrounds)
         gray: {
           50: "#f9fafb",
           100: "#f3f4f6",
@@ -30,7 +27,6 @@ export default {
           800: "#1f2937",
           900: "#111827",
         },
-        // Green - Success states
         green: {
           50: "#f0fdf4",
           100: "#dcfce7",
@@ -41,7 +37,6 @@ export default {
           600: "#16a34a",
           700: "#15803d",
         },
-        // Red - Errors, high priority
         red: {
           50: "#fef2f2",
           100: "#fee2e2",
@@ -51,7 +46,6 @@ export default {
           600: "#dc2626",
           700: "#b91c1c",
         },
-        // Orange - Warnings
         orange: {
           50: "#fff7ed",
           100: "#ffedd5",
@@ -61,7 +55,6 @@ export default {
           600: "#ea580c",
           700: "#c2410c",
         },
-        // Yellow - Medium priority
         yellow: {
           50: "#fefce8",
           100: "#fef9c3",
@@ -69,7 +62,6 @@ export default {
           500: "#eab308",
           600: "#ca8a04",
         },
-        // Purple - UI labels
         purple: {
           50: "#faf5ff",
           100: "#f3e8ff",
@@ -77,14 +69,12 @@ export default {
           600: "#9333ea",
           700: "#7e22ce",
         },
-        // Indigo - Completed status
         indigo: {
           50: "#eef2ff",
           100: "#e0e7ff",
           500: "#6366f1",
           600: "#4f46e5",
         },
-        // Teal - Calendar events
         teal: {
           50: "#f0fdfa",
           100: "#ccfbf1",
@@ -92,7 +82,6 @@ export default {
           600: "#0d9488",
           700: "#0f766e",
         },
-        // Rose - Calendar events
         rose: {
           50: "#fff1f2",
           100: "#ffe4e6",
@@ -100,7 +89,6 @@ export default {
           600: "#e11d48",
           700: "#be123c",
         },
-        // Emerald - Calendar events
         emerald: {
           50: "#ecfdf5",
           100: "#d1fae5",
@@ -108,53 +96,44 @@ export default {
           600: "#059669",
           700: "#047857",
         },
-        // Amber - Medium priority
         amber: {
           50: "#fffbeb",
           100: "#fef3c7",
           600: "#d97706",
         },
-        // Cyan - Tags
         cyan: {
           100: "#cffafe",
           700: "#0e7490",
         },
-        // Violet - Tags
         violet: {
           100: "#ede9fe",
           700: "#6d28d9",
         },
-        // Fuchsia - Tags
         fuchsia: {
           100: "#fae8ff",
           700: "#a21caf",
         },
-        // Pink - Tags
         pink: {
           100: "#fce7f3",
           700: "#be185d",
         },
-        // Brand colors
         brand: {
           orange: "#f57d2c",
           blue: "#6696f5",
           "blue-light": "#a5c2f8",
         },
-        // Custom backgrounds
         sidebar: "#f7f8fa",
         "off-white": "#fcf9f7",
       },
-      // Typography
       fontSize: {
-        xs: "0.625rem", // 10px
-        "2xs": "0.6875rem", // 11px
-        sm: "0.75rem", // 12px
-        base: "0.875rem", // 14px
-        lg: "1rem", // 16px
-        xl: "1.125rem", // 18px
-        "2xl": "1.25rem", // 20px
+        xs: "0.625rem",
+        "2xs": "0.6875rem",
+        sm: "0.75rem",
+        base: "0.875rem",
+        lg: "1rem",
+        xl: "1.125rem",
+        "2xl": "1.25rem",
       },
-      // Custom Box Shadows
       boxShadow: {
         glow: "0 10px 40px 20px rgba(241, 241, 241, 1), 0 6px 25px 12px rgba(209, 213, 219, 0.5), 0 2px 10px 5px rgba(0, 0, 0, 0.05)",
         "glow-sm":

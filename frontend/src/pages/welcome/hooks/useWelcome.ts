@@ -8,30 +8,29 @@ import {
 export const useWelcome = () => {
   const navigate = useNavigate();
 
-  // Get user from RTK Query instead of Redux state
   const { data: user, isLoading } = useGetSessionQuery();
 
-  useEffect(() => {
-    if (!user) return;
-
-    // Scenario A: Completed Onboarding -> Dashboard (Skip Welcome)
-    if (user.hasCompletedOnboarding) {
-      navigate("/dashboard");
-      return;
-    }
-
-    // Scenario C: Returning Incomplete User -> Dashboard + Settings (Skip Welcome)
-    // Check if account created > 2 minutes ago
+  const shouldRedirect = (() => {
+    if (!user) return false;
+    if (user.hasCompletedOnboarding) return true;
     if (user.createdAt) {
       const createdTime = new Date(user.createdAt).getTime();
       const now = Date.now();
-      const isNewUser = now - createdTime < 2 * 60 * 1000; // 2 minutes
+      const isNewUser = now - createdTime < 2 * 60 * 1000;
+      if (!isNewUser) return true;
+    }
+    return false;
+  })();
 
-      if (!isNewUser) {
+  useEffect(() => {
+    if (shouldRedirect) {
+      if (user?.hasCompletedOnboarding) {
+        navigate("/dashboard");
+      } else {
         navigate("/dashboard", { state: { openOnboarding: true } });
       }
     }
-  }, [user, navigate]);
+  }, [shouldRedirect, user, navigate]);
 
   const [updateProfile] = useUpdateProfileMutation();
 
@@ -43,5 +42,6 @@ export const useWelcome = () => {
   return {
     handleGetStarted,
     isLoading,
+    shouldRedirect,
   };
 };

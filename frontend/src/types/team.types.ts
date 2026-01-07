@@ -1,10 +1,6 @@
 import type React from "react";
 import type { Project } from "./project.types";
 
-// ============================================
-// TEAM TYPES
-// ============================================
-
 export interface TeamMember {
   id: number | string;
   name: string;
@@ -12,7 +8,7 @@ export interface TeamMember {
   position: string;
   groups: string[];
   location: string;
-  avatar: string;
+  avatar?: string;
 }
 
 export interface Team {
@@ -74,10 +70,6 @@ export interface TeamFile {
   };
 }
 
-// ============================================
-// TEAM PAYLOAD TYPES
-// ============================================
-
 export interface CreateTeamPayload {
   name: string;
   memberIds: string[];
@@ -89,10 +81,6 @@ export interface UpdateTeamPayload {
   memberIds?: string[];
   projectIds?: string[];
 }
-
-// ============================================
-// TEAM COMPONENT PROPS
-// ============================================
 
 export interface CreateTeamModalProps {
   isOpen: boolean;
@@ -138,4 +126,54 @@ export interface TeamTableViewProps {
   projectId?: string;
   filteredTeamId?: string;
   sortBy?: "newest" | "oldest" | "alpha";
+}
+
+export interface TopEarningProps {
+  teamId?: string;
+}
+
+export interface TeamOverviewChartProps {
+  teamId?: string;
+}
+
+export interface TeamDashboardProps {
+  teamId?: string;
+}
+
+export interface TopEarningProject {
+  id: string;
+  name: string;
+  completedTasks: number;
+  earning: number;
+}
+
+export interface YearlyOverviewData {
+  month: string;
+  billable?: number;
+  value?: number;
+}
+
+export interface TeamMemberStats {
+  id: string;
+  name: string;
+  avatar?: string;
+  role?: string;
+  tasksCompleted: number;
+  tasksInProgress: number;
+  totalTasks: number;
+  hoursLogged?: number;
+  productivity?: number;
+}
+
+export interface TeamStats {
+  totalMembers: number;
+  totalProjects: number;
+  totalTasks: number;
+  completedTasks: number;
+  incompletedTasks: number;
+  inProgressTasks: number;
+  overdueTasks?: number;
+  completionRate: number;
+  averageProductivity?: number;
+  totalIncome?: number;
 }

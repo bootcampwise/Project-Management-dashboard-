@@ -8,7 +8,6 @@ export class TeamService {
   }
 
   async createTeam(name: string, projectIds: string[], memberIds: string[]) {
-    // Validate inputs
     if (!name) {
       throw new Error("Team name is required");
     }
@@ -42,7 +41,7 @@ export class TeamService {
 
   async updateTeam(
     id: string,
-    data: { name?: string; memberIds?: string[]; projectIds?: string[] }
+    data: { name?: string; memberIds?: string[]; projectIds?: string[] },
   ) {
     return this.teamRepository.update(id, data);
   }
@@ -51,11 +50,22 @@ export class TeamService {
     return this.teamRepository.delete(id);
   }
 
-  /**
-   * Synchronize project-team bidirectional relationships.
-   * Finds all projects with teamIds and ensures those teams have the project in their projectIds.
-   */
   async syncProjectTeamRelationships() {
     return this.teamRepository.syncProjectTeamRelationships();
+  }
+
+  async getTeamOverviewStats(teamId: string, projectId?: string) {
+    return this.teamRepository.getTeamOverviewStats(teamId, projectId);
+  }
+
+  async getTeamMemberStats(teamId: string) {
+    return this.teamRepository.getTeamMemberStats(teamId);
+  }
+  async getTopEarningProjects(teamId: string, range?: string) {
+    return this.teamRepository.getTopEarningProjects(teamId, range);
+  }
+
+  async getYearlyIncomeOverview(teamId: string, year: number) {
+    return this.teamRepository.getYearlyIncomeOverview(teamId, year);
   }
 }

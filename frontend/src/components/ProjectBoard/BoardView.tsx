@@ -1,12 +1,19 @@
-import { DragDropContext } from '@hello-pangea/dnd';
-import React from 'react';
-import { Plus } from 'lucide-react';
-import { Dropdown } from '../ui';
-import BoardColumn from './BoardColumn';
-import type { BoardViewProps, Task } from '../../types';
+import { DragDropContext } from "@hello-pangea/dnd";
+import React from "react";
+import { Plus } from "lucide-react";
+import { Dropdown } from "../ui";
+import BoardColumn from "./BoardColumn";
+import type { BoardViewProps, Task } from "../../types";
 import { useBoardView } from "../../pages/projectboard/hooks/useBoardView";
 
-const BoardView: React.FC<BoardViewProps> = ({ tasks, onTaskClick, onAddTask, visibleFields }) => {
+const BoardView: React.FC<BoardViewProps> = ({
+  tasks,
+  onTaskClick,
+  onEditTask,
+  onDeleteTask,
+  onAddTask,
+  visibleFields,
+}) => {
   const {
     visibleColumns,
     hiddenColumns,
@@ -14,7 +21,7 @@ const BoardView: React.FC<BoardViewProps> = ({ tasks, onTaskClick, onAddTask, vi
     handleDragEnd,
     handleToggleColumn,
     handleHideColumn,
-    handleShowColumn
+    handleShowColumn,
   } = useBoardView();
 
   const getTasksByStatus = (status: string) => {
@@ -27,7 +34,7 @@ const BoardView: React.FC<BoardViewProps> = ({ tasks, onTaskClick, onAddTask, vi
         {visibleColumns.map((col) => (
           <div
             key={col.id}
-            className={`h-full transition-all duration-300 ${col.collapsed ? 'w-12 min-w-[48px]' : 'flex-1 min-w-[280px]'}`}
+            className={`h-full transition-all duration-300 ${col.collapsed ? "w-12 min-w-[48px]" : "flex-1 min-w-[280px]"}`}
           >
             <BoardColumn
               title={col.title}
@@ -37,6 +44,8 @@ const BoardView: React.FC<BoardViewProps> = ({ tasks, onTaskClick, onAddTask, vi
               status={col.id}
               collapsed={col.collapsed}
               onTaskClick={onTaskClick}
+              onEditTask={onEditTask}
+              onDeleteTask={onDeleteTask}
               onAddTask={onAddTask}
               onToggle={() => handleToggleColumn(col.id)}
               onHide={() => handleHideColumn(col.id)}
@@ -45,39 +54,38 @@ const BoardView: React.FC<BoardViewProps> = ({ tasks, onTaskClick, onAddTask, vi
           </div>
         ))}
 
-        {/* Add Section Button & Dropdown */}
         <div className="relative min-w-[120px] pt-1">
           <Dropdown
             trigger={
-              <button
-                className="flex items-center gap-2 text-gray-400 hover:text-gray-600 transition-colors text-sm font-medium whitespace-nowrap"
-              >
+              <button className="flex items-center gap-2 text-gray-400 hover:text-gray-600 transition-colors text-sm font-medium whitespace-nowrap">
                 <Plus size={16} />
                 <span>Add section</span>
               </button>
             }
             items={
               hiddenColumns.length > 0
-                ? hiddenColumns.map(col => ({
+                ? hiddenColumns.map((col) => ({
                   key: col.id,
                   label: (
                     <div className="flex items-center gap-2">
-                      <div className={`w-2 h-2 rounded-full ${col.color}`}></div>
+                      <div
+                        className={`w-2 h-2 rounded-full ${col.color}`}
+                      ></div>
                       {col.title}
                     </div>
                   ),
-                  onClick: () => handleShowColumn(col.id)
+                  onClick: () => handleShowColumn(col.id),
                 }))
                 : [
                   {
-                    key: 'empty',
+                    key: "empty",
                     custom: true,
                     label: (
                       <div className="px-4 py-2 text-sm text-gray-500">
                         All sections visible
                       </div>
-                    )
-                  }
+                    ),
+                  },
                 ]
             }
           />
@@ -88,4 +96,3 @@ const BoardView: React.FC<BoardViewProps> = ({ tasks, onTaskClick, onAddTask, vi
 };
 
 export default BoardView;
-

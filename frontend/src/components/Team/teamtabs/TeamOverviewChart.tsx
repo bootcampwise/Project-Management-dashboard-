@@ -1,91 +1,121 @@
-import React from 'react';
-import { BarChart, Bar, XAxis, CartesianGrid, ResponsiveContainer, Cell } from 'recharts';
-import { Select } from '../../ui';
+import React from "react";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  CartesianGrid,
+  ResponsiveContainer,
+  Cell,
+  Tooltip,
+} from "recharts";
+import { Select } from "../../ui";
+import type { TeamOverviewChartProps } from "../../../types";
+import { useTeamOverviewChart } from "../../../pages/team/hooks/useTeamOverviewChart";
 
-const TeamOverviewChart: React.FC = () => {
-  const chartData = [
-    { month: "Jan", value: 12000, isHighlighted: false },
-    { month: "Feb", value: 18000, isHighlighted: false },
-    { month: "Mar", value: 14000, isHighlighted: false },
-    { month: "Apr", value: 16000, isHighlighted: false },
-    { month: "May", value: 13000, isHighlighted: false },
-    { month: "Jun", value: 28000, isHighlighted: true },
-    { month: "Jul", value: 11000, isHighlighted: false },
-    { month: "Aug", value: 19000, isHighlighted: false },
-    { month: "Sep", value: 9000, isHighlighted: false },
-    { month: "Oct", value: 17000, isHighlighted: false },
-    { month: "Nov", value: 12000, isHighlighted: false },
-    { month: "Dec", value: 15000, isHighlighted: false },
+
+const CHART_COLORS = {
+  highlight: "var(--chart-highlight)",
+  inactive: "var(--chart-inactive)",
+  axisText: "var(--chart-axis-text)",
+  tooltipBg: "var(--chart-tooltip-bg)",
+  tooltipBorder: "var(--chart-tooltip-border)",
+};
+
+const TeamOverviewChart: React.FC<TeamOverviewChartProps> = ({ teamId }) => {
+  const { year, setYear, isLoading, total, processedData } =
+    useTeamOverviewChart(teamId);
+
+  const yearOptions = [
+    { value: "2026", label: "2026" },
+    { value: "2025", label: "2025" },
+    { value: "2024", label: "2024" },
+    { value: "2023", label: "2023" },
+    { value: "2022", label: "2022" },
   ];
 
-  // Calculate total
-  const total = chartData.reduce((sum, item) => sum + item.value, 0);
-
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 w-full lg:flex-1 h-[333px]">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <h3 className="text-lg font-medium text-gray-700 dark:text-gray-200">Overview</h3>
-        <Select
-          options={[
-            { value: '2024', label: '2024' },
-            { value: '2023', label: '2023' },
-            { value: '2022', label: '2022' }
-          ]}
-          value="2024"
-          onChange={() => { }}
-        />
-      </div>
-
-      {/* Total Amount */}
-      <div className="text-3xl font-semibold text-gray-900 dark:text-white mb-6">
-        ${total.toLocaleString()}
-      </div>
-
-      {/* Legend */}
-      <div className="flex items-center justify-end gap-6 mb-6">
-        <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded-full bg-blue-500"></div>
-          <span className="text-sm text-gray-600 dark:text-gray-400">Billable</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded-full bg-gray-200 dark:bg-gray-600"></div>
-          <span className="text-sm text-gray-600 dark:text-gray-400">Non-billable</span>
+    <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 w-full lg:flex-1 h-[333px] flex flex-col">
+      <div className="flex items-center justify-between mb-2">
+        <h3 className="text-base font-normal text-gray-500 dark:text-gray-400">
+          Overview
+        </h3>
+        <div className="w-24">
+          <Select
+            options={yearOptions}
+            value={year}
+            onChange={(e) => setYear(e.target.value)}
+            className="border-gray-200 h-9 text-sm py-1"
+          />
         </div>
       </div>
 
-      {/* Chart */}
-      <ResponsiveContainer width="100%" height={180}>
-        <BarChart
-          data={chartData}
-          margin={{ top: 10, right: 10, left: 10, bottom: 10 }}
-          barSize={40}
-        >
-          <CartesianGrid
-            strokeDasharray="0"
-            stroke="#f0f0f0"
-            vertical={false}
-          />
-          <XAxis
-            dataKey="month"
-            axisLine={false}
-            tickLine={false}
-            tick={{ fill: '#9CA3AF', fontSize: 13 }}
-            dy={10}
-          />
-          <Bar
-            dataKey="value"
-            radius={[8, 8, 0, 0]}
+      <div className="flex items-center justify-between mb-4">
+        <div className="text-3xl font-normal text-gray-900 dark:text-white">
+          {isLoading ? "..." : `$${total.toLocaleString()}`}
+        </div>
+
+
+        <div className="flex items-center gap-3">
+          <div className="flex items-center justify-center px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-900/20 text-xs font-medium text-blue-600 dark:text-blue-400">
+            Billable
+          </div>
+          <div className="flex items-center justify-center px-3 py-1 rounded-full bg-gray-100 dark:bg-gray-700 text-xs font-medium text-gray-500 dark:text-gray-400">
+            Non-billable
+          </div>
+        </div>
+      </div>
+
+      <div className="flex-1 min-h-0">
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart
+            data={processedData}
+            margin={{ top: 10, right: 0, left: 0, bottom: 0 }}
+            barSize={32}
           >
-            {chartData.map((entry, index) => (
-              <Cell
-                key={`cell-${index}`}
-                fill={entry.isHighlighted ? '#3B82F6' : '#4B5563'}
-              />
-            ))}
-          </Bar>
-        </BarChart>
-      </ResponsiveContainer>
+            <CartesianGrid
+              strokeDasharray="0"
+              stroke="transparent"
+              vertical={false}
+              horizontal={false}
+            />
+            <XAxis
+              dataKey="month"
+              axisLine={false}
+              tickLine={false}
+              tick={{ fill: CHART_COLORS.axisText, fontSize: 12 }}
+              dy={10}
+              interval={0}
+            />
+            <Tooltip
+              cursor={{ fill: "transparent" }}
+              contentStyle={{
+                backgroundColor: CHART_COLORS.tooltipBg,
+                borderRadius: "8px",
+                border: `1px solid ${CHART_COLORS.tooltipBorder}`,
+                boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+              }}
+              formatter={(
+                value: number,
+                _name: string,
+                props: { payload?: { actualValue?: number } },
+              ) => {
+                const actualVal = props.payload?.actualValue ?? value;
+                return [`$${actualVal.toLocaleString()}`, "Income"];
+              }}
+            />
+            <Bar dataKey="value" radius={[8, 8, 8, 8]}>
+              {processedData.map((entry: { month: string; value: number; actualValue: number; isMax: boolean }, index: number) => (
+                <Cell
+                  key={`cell-${index}`}
+                  fill={
+                    entry.isMax ? CHART_COLORS.highlight : CHART_COLORS.inactive
+                  }
+                />
+              ))}
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
     </div>
   );
 };

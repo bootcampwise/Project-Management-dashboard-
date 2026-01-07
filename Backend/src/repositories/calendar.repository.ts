@@ -22,7 +22,17 @@ export class CalendarRepository {
     });
   }
 
-  // Get events within a date range (for calendar month/week view)
+  async findByProjectIds(projectIds: string[]) {
+    return prisma.calendarEvent.findMany({
+      where: {
+        projectId: {
+          in: projectIds,
+        },
+      },
+      orderBy: { start: "asc" },
+    });
+  }
+
   async findByDateRange(projectId: string, startDate: Date, endDate: Date) {
     return prisma.calendarEvent.findMany({
       where: {
@@ -36,7 +46,6 @@ export class CalendarRepository {
     });
   }
 
-  // Get today's events for timeline view
   async findTodayEvents(projectId: string, todayStart: Date, todayEnd: Date) {
     return prisma.calendarEvent.findMany({
       where: {
@@ -50,7 +59,6 @@ export class CalendarRepository {
     });
   }
 
-  // Get a single event by ID
   async findById(id: string) {
     return prisma.calendarEvent.findUnique({
       where: { id },
@@ -65,7 +73,7 @@ export class CalendarRepository {
       start?: Date;
       end?: Date;
       description?: string;
-    }
+    },
   ) {
     return prisma.calendarEvent.update({
       where: { id },

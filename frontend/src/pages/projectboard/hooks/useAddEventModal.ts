@@ -22,27 +22,22 @@ export const useAddEventModal = ({
   const [endTime, setEndTime] = useState("");
   const [description, setDescription] = useState("");
 
-  // RTK Query mutations
   const [createEvent, { isLoading: isCreating }] = useCreateEventMutation();
   const [updateEvent, { isLoading: isUpdating }] = useUpdateEventMutation();
 
   const isLoading = isCreating || isUpdating;
   const isEditMode = !!event;
 
-  // Pre-fill form when editing
   useEffect(() => {
     if (event) {
       setTitle(event.title || "");
       setEventType(event.type || "MEETING");
-
-      // Parse start date and time
       if (event.start) {
         const startDate = new Date(event.start);
         setDate(format(startDate, "yyyy-MM-dd"));
         setStartTime(format(startDate, "HH:mm"));
       }
 
-      // Parse end time
       if (event.end) {
         const endDate = new Date(event.end);
         setEndTime(format(endDate, "HH:mm"));
@@ -91,7 +86,6 @@ export const useAddEventModal = ({
       }
 
       if (isEditMode && event) {
-        // Update existing event
         await updateEvent({
           id: event.id,
           data: {
@@ -117,7 +111,6 @@ export const useAddEventModal = ({
         if (onUpdate) onUpdate(updatedEvent);
         showToast.success(`Event "${title}" updated successfully!`);
       } else {
-        // Create new event
         const createdEvent = await createEvent({
           title,
           type: eventType as EventType,

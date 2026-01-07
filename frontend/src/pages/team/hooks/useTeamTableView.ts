@@ -5,32 +5,30 @@ import { useNavigate } from "react-router-dom";
 export const useTeamTableView = () => {
   const navigate = useNavigate();
 
-  // Get ALL teams from the database
   const { data: allTeams = [], isLoading: teamsLoading } =
     useGetAllTeamsQuery();
 
   const isLoading = teamsLoading;
 
   const getStatusColor = (status: string = "On track") => {
-    // Normalize status to lowercase for comparison if needed, or stick to specific set
     switch (status) {
       case "On track":
-      case "ACTIVE": // Backend status
+      case "ACTIVE":
         return {
           bg: "bg-green-50",
           text: "text-green-700",
           dot: "bg-green-500",
         };
       case "At risk":
-      case "ON_HOLD": // Backend status
+      case "ON_HOLD":
         return {
           bg: "bg-orange-50",
           text: "text-orange-700",
           dot: "bg-orange-500",
         };
       case "On hold":
-      case "ARCHIVED": // Backend status
-      case "COMPLETED": // Backend status
+      case "ARCHIVED":
+      case "COMPLETED":
         return { bg: "bg-blue-50", text: "text-blue-700", dot: "bg-blue-500" };
       default:
         return { bg: "bg-gray-50", text: "text-gray-700", dot: "bg-gray-500" };

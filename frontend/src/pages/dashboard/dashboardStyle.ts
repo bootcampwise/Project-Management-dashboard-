@@ -1,5 +1,6 @@
 export const dashboardClasses = {
-  container: "flex h-screen bg-white dark:bg-gray-900 relative font-sans",
+  container:
+    "flex h-full min-h-screen bg-white dark:bg-gray-900 relative font-sans",
   main: "flex-1 overflow-y-auto bg-white dark:bg-gray-900",
   mainContent: (sidebarOpen: boolean) =>
     `transition-all duration-300 flex-1 flex flex-col ${
@@ -11,11 +12,11 @@ export const dashboardClasses = {
       sidebarOpen ? "md:hidden" : "block"
     }`,
   header:
-    "px-6 py-4 flex flex-col md:flex-row md:items-center justify-between gap-4",
+    "px-6 pt-6 pb-2 flex flex-col md:flex-row md:items-center justify-between gap-4",
   title: "text-2xl font-bold text-gray-800 dark:text-white",
 
   toolbar:
-    "px-6 pb-6 flex flex-col md:flex-row md:items-center justify-between gap-4",
+    "mt-6 px-6 pb-6 flex flex-col md:flex-row md:items-center justify-between gap-4",
 
   filtersWrapper: "flex items-center gap-6",
   projectsDropdown:

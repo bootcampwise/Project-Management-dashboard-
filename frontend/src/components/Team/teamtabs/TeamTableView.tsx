@@ -1,42 +1,46 @@
-import React from 'react';
+import React from "react";
+import { motion } from "framer-motion";
+import { listContainerVariants, listItemVariants } from "../../../utils/motion";
 import { useTeamTableView } from "../../../pages/team/hooks/useTeamTableView";
-import type { TeamTableViewProps, Team } from '../../../types';
+import type { TeamTableViewProps, Team } from "../../../types";
 import { Badge } from "../../ui";
 
-const TeamTableView: React.FC<TeamTableViewProps> = ({ filteredTeamId, sortBy = 'newest' }) => {
-  const {
-    allTeams,
-    isLoading,
-    formatDate,
-  } = useTeamTableView();
+const TeamTableView: React.FC<TeamTableViewProps> = ({
+  filteredTeamId,
+  sortBy = "newest",
+}) => {
+  const { allTeams, isLoading, formatDate } = useTeamTableView();
 
-  // Determine which teams to display
   let teamsToDisplay: Team[] = allTeams || [];
 
-  // If a specific team is selected (filtered), show only that team
   if (filteredTeamId) {
     teamsToDisplay = teamsToDisplay.filter((t) => t.id === filteredTeamId);
   }
 
-  // Apply sorting
   teamsToDisplay = [...teamsToDisplay].sort((a, b) => {
-    if (sortBy === 'alpha') {
-      return (a.name || '').localeCompare(b.name || '');
+    if (sortBy === "alpha") {
+      return (a.name || "").localeCompare(b.name || "");
     }
-    if (sortBy === 'oldest') {
-      return new Date(a.createdAt || 0).getTime() - new Date(b.createdAt || 0).getTime();
+    if (sortBy === "oldest") {
+      return (
+        new Date(a.createdAt || 0).getTime() -
+        new Date(b.createdAt || 0).getTime()
+      );
     }
-    // newest (default)
-    return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime();
+    return (
+      new Date(b.createdAt || 0).getTime() -
+      new Date(a.createdAt || 0).getTime()
+    );
   });
 
   if (isLoading && teamsToDisplay.length === 0) {
-    return <div className="p-8 text-center text-gray-500">Loading teams...</div>;
+    return (
+      <div className="p-8 text-center text-gray-500">Loading teams...</div>
+    );
   }
 
   return (
     <div className="flex flex-col h-full bg-white">
-      {/* Table Header */}
       <div className="grid grid-cols-[2fr_1fr_1.5fr_1fr_1fr_2fr] gap-4 px-4 py-3 text-xs font-semibold text-gray-500 border-b border-gray-200 bg-gray-50">
         <div>Name</div>
         <div>Status</div>
@@ -46,8 +50,12 @@ const TeamTableView: React.FC<TeamTableViewProps> = ({ filteredTeamId, sortBy = 
         <div>Members</div>
       </div>
 
-      {/* Table Rows */}
-      <div className="divide-y divide-gray-100">
+      <motion.div
+        className="divide-y divide-gray-100"
+        variants={listContainerVariants}
+        initial="hidden"
+        animate="show"
+      >
         {teamsToDisplay.length > 0 ? (
           teamsToDisplay.map((team) => {
             const status = team.status || "On track";
@@ -55,7 +63,11 @@ const TeamTableView: React.FC<TeamTableViewProps> = ({ filteredTeamId, sortBy = 
             const progress = team.progress || 0;
 
             return (
-              <div key={team.id} className="grid grid-cols-[2fr_1fr_1.5fr_1fr_1fr_2fr] gap-4 px-4 py-3 hover:bg-gray-50 cursor-pointer items-center text-sm transition-colors border-b border-gray-100 last:border-0">
+              <motion.div
+                key={team.id}
+                className="grid grid-cols-[2fr_1fr_1.5fr_1fr_1fr_2fr] gap-4 px-4 py-3 hover:bg-gray-50 cursor-pointer items-center text-sm transition-colors border-b border-gray-100 last:border-0"
+                variants={listItemVariants}
+              >
                 <div className="min-w-0">
                   <div className="flex items-center gap-3">
                     <span className="text-gray-700 font-medium truncate">
@@ -66,16 +78,26 @@ const TeamTableView: React.FC<TeamTableViewProps> = ({ filteredTeamId, sortBy = 
                 <div>
                   <Badge
                     variant={
-                      status === "On track" ? "success" :
-                        status === "At risk" ? "warning" :
-                          status === "On hold" ? "primary" : "default"
+                      status === "On track"
+                        ? "success"
+                        : status === "At risk"
+                          ? "warning"
+                          : status === "On hold"
+                            ? "primary"
+                            : "default"
                     }
                     className="gap-1.5"
                   >
-                    <span className={`w-1.5 h-1.5 rounded-full ${status === "On track" ? "bg-green-600" :
-                      status === "At risk" ? "bg-orange-600" :
-                        status === "On hold" ? "bg-blue-600" : "bg-gray-500"
-                      }`} />
+                    <span
+                      className={`w-1.5 h-1.5 rounded-full ${status === "On track"
+                          ? "bg-green-600"
+                          : status === "At risk"
+                            ? "bg-orange-600"
+                            : status === "On hold"
+                              ? "bg-blue-600"
+                              : "bg-gray-500"
+                        }`}
+                    />
                     {status}
                   </Badge>
                 </div>
@@ -100,9 +122,13 @@ const TeamTableView: React.FC<TeamTableViewProps> = ({ filteredTeamId, sortBy = 
                 <div>
                   <Badge
                     variant={
-                      priority === "High" ? "danger" :
-                        priority === "Medium" ? "warning" :
-                          priority === "Low" ? "success" : "default"
+                      priority === "High"
+                        ? "danger"
+                        : priority === "Medium"
+                          ? "warning"
+                          : priority === "Low"
+                            ? "success"
+                            : "default"
                     }
                   >
                     {priority}
@@ -110,23 +136,25 @@ const TeamTableView: React.FC<TeamTableViewProps> = ({ filteredTeamId, sortBy = 
                 </div>
                 <div>
                   <div className="flex -space-x-2">
-                    {(team.members || []).slice(0, 4).map((member, i: number) => (
-                      <div
-                        key={i}
-                        className="w-7 h-7 rounded-full border-2 border-white bg-gray-200 overflow-hidden flex items-center justify-center text-xs font-medium text-gray-600"
-                        title={member.name}
-                      >
-                        {member.avatar ? (
-                          <img
-                            src={member.avatar}
-                            alt=""
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          "U"
-                        )}
-                      </div>
-                    ))}
+                    {(team.members || [])
+                      .slice(0, 4)
+                      .map((member, i: number) => (
+                        <div
+                          key={i}
+                          className="w-7 h-7 rounded-full border-2 border-white bg-gray-200 overflow-hidden flex items-center justify-center text-xs font-medium text-gray-600"
+                          title={member.name}
+                        >
+                          {member.avatar ? (
+                            <img
+                              src={member.avatar}
+                              alt=""
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            "U"
+                          )}
+                        </div>
+                      ))}
                     {(team.members?.length || 0) > 4 && (
                       <div className="w-7 h-7 rounded-full border-2 border-white bg-gray-50 flex items-center justify-center text-[10px] font-medium text-gray-500">
                         +{(team.members?.length || 0) - 4}
@@ -134,7 +162,7 @@ const TeamTableView: React.FC<TeamTableViewProps> = ({ filteredTeamId, sortBy = 
                     )}
                   </div>
                 </div>
-              </div>
+              </motion.div>
             );
           })
         ) : (
@@ -142,7 +170,7 @@ const TeamTableView: React.FC<TeamTableViewProps> = ({ filteredTeamId, sortBy = 
             "No teams found. Create a team to get started!"
           </div>
         )}
-      </div>
+      </motion.div>
     </div>
   );
 };

@@ -1,8 +1,12 @@
 import { Request, Response, NextFunction } from "express";
 import { CalendarService } from "../services/calendar.service";
+import { ProjectService } from "../services/project.service";
+import { UserService } from "../services/user.service";
 import { sendSuccess } from "../utils/response";
 
 const calendarService = new CalendarService();
+const projectService = new ProjectService();
+const userService = new UserService();
 
 export class CalendarController {
   async createEvent(req: Request, res: Response, next: NextFunction) {
@@ -13,7 +17,6 @@ export class CalendarController {
       next(error);
     }
   }
-
   async getProjectEvents(req: Request, res: Response, next: NextFunction) {
     try {
       const { projectId } = req.params;
@@ -24,24 +27,35 @@ export class CalendarController {
     }
   }
 
-  // Get events by date range for calendar view
+  async getAllEvents(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { sub: supabaseId } = req.user!;
+      const user = await userService.getUserBySupabaseId(supabaseId);
+      const projects = await projectService.getUserProjects(user.id);
+      const projectIds = projects.map((p) => p.id);
+
+      const events = await calendarService.getEventsForProjects(projectIds);
+      sendSuccess(res, events);
+    } catch (error) {
+      next(error);
+    }
+  }
+
   async getEventsByDateRange(req: Request, res: Response, next: NextFunction) {
     try {
       const { projectId } = req.params;
       const { startDate, endDate } = req.query;
 
       if (!startDate || !endDate) {
-        return res
-          .status(400)
-          .json({
-            message: "startDate and endDate query parameters are required",
-          });
+        return res.status(400).json({
+          message: "startDate and endDate query parameters are required",
+        });
       }
 
       const events = await calendarService.getEventsByDateRange(
         projectId,
         startDate as string,
-        endDate as string
+        endDate as string,
       );
       sendSuccess(res, events);
     } catch (error) {
@@ -49,7 +63,6 @@ export class CalendarController {
     }
   }
 
-  // Get today's events for timeline
   async getTodayEvents(req: Request, res: Response, next: NextFunction) {
     try {
       const { projectId } = req.params;
@@ -60,7 +73,6 @@ export class CalendarController {
     }
   }
 
-  // Get a single event by ID
   async getEvent(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = req.params;

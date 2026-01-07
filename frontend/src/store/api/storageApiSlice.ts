@@ -6,14 +6,8 @@ import type {
   UploadResult,
 } from "../../types";
 
-// ============================================
-// STORAGE API ENDPOINTS
-// ============================================
-// Handles all file storage operations via Supabase storage
-
 export const storageApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
-    // Upload a file to Supabase storage
     uploadFile: builder.mutation<UploadResult, UploadFileParams>({
       queryFn: async ({ bucket, path, file }) => {
         try {
@@ -41,7 +35,6 @@ export const storageApiSlice = apiSlice.injectEndpoints({
       },
     }),
 
-    // Delete a file from storage
     deleteFile: builder.mutation<void, DeleteFileParams>({
       queryFn: async ({ bucket, path }) => {
         try {
@@ -56,7 +49,6 @@ export const storageApiSlice = apiSlice.injectEndpoints({
       },
     }),
 
-    // Get public URL for a file (lazy query for on-demand fetching)
     downloadFile: builder.query<string, { bucket: string; path: string }>({
       queryFn: async ({ bucket, path }) => {
         try {

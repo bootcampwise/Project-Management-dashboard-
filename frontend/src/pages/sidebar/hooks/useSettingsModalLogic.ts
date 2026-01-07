@@ -6,33 +6,37 @@ import {
   useLogoutMutation,
   useGetAllUsersQuery,
 } from "../../../store/api/authApiSlice";
-import { useGetTeamsQuery } from "../../../store/api/teamApiSlice";
+import { useGetAllTeamsQuery } from "../../../store/api/teamApiSlice";
 import { useUploadFileMutation } from "../../../store/api/storageApiSlice";
 import { useTheme } from "../../../theme/useTheme";
 import { showToast, getErrorMessage } from "../../../components/ui";
+import { useAppSelector, useAppDispatch } from "../../../store/hooks";
+import { setTimeFormat } from "../../../store/uiSlice";
 
 export const useSettingsModalLogic = (
   initialTab: string,
   onClose: () => void
 ) => {
   const navigate = useNavigate();
-  // Get user from RTK Query
+  const dispatch = useAppDispatch();
+
   const { data: user } = useGetSessionQuery();
-  // Get all users from RTK Query
   const { data: allUsers = [] } = useGetAllUsersQuery();
-  // Get teams from RTK Query
-  const { data: teams = [] } = useGetTeamsQuery();
+  const { data: teams = [] } = useGetAllTeamsQuery();
   const [uploadFile] = useUploadFileMutation();
   const [updateProfile] = useUpdateProfileMutation();
   const [logout] = useLogoutMutation();
   const { theme, setTheme } = useTheme();
+  const currentTimeFormat = useAppSelector((state) => state.ui.timeFormat);
 
   const [activeTab, setActiveTab] = useState("Profile");
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Store pending theme selection (only applied on Save)
   const [pendingTheme, setPendingTheme] = useState<"light" | "dark">(theme);
+  const [pendingTimeFormat, setPendingTimeFormat] = useState<"12h" | "24h">(
+    currentTimeFormat
+  );
 
   const [formData, setFormData] = useState({
     name: "",
@@ -81,14 +85,12 @@ export const useSettingsModalLogic = (
       const fileExt = file.name.split(".").pop();
       const fileName = `${Math.random()}.${fileExt}`;
 
-      // Upload using RTK Query
       const result = await uploadFile({
         bucket: "avatars",
         path: fileName,
         file,
       }).unwrap();
 
-      // Update profile with new avatar URL
       const publicUrlWithTimestamp = `${
         result.publicUrl
       }?t=${new Date().getTime()}`;
@@ -122,9 +124,11 @@ export const useSettingsModalLogic = (
         hasCompletedOnboarding: true,
       }).unwrap();
 
-      // Apply theme only on save
       if (pendingTheme !== theme) {
         setTheme(pendingTheme);
+      }
+      if (pendingTimeFormat !== currentTimeFormat) {
+        dispatch(setTimeFormat(pendingTimeFormat));
       }
 
       showToast.success("Settings saved successfully");
@@ -135,9 +139,15 @@ export const useSettingsModalLogic = (
   };
 
   const handleLogout = async () => {
-    await logout();
-    onClose();
-    navigate("/login");
+    try {
+      await logout();
+      showToast.success("Logged out successfully");
+      onClose();
+      navigate("/login");
+    } catch (error) {
+      showToast.error("Failed to logout");
+      console.error(error);
+    }
   };
 
   return {
@@ -150,6 +160,8 @@ export const useSettingsModalLogic = (
     teams,
     pendingTheme,
     setPendingTheme,
+    pendingTimeFormat,
+    setPendingTimeFormat,
     handleTabChange,
     handleInputChange,
     handlePhotoUpload,

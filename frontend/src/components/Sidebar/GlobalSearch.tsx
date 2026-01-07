@@ -1,5 +1,4 @@
-import React, { useState, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import React from "react";
 import {
   Search,
   CheckCircle2,
@@ -9,12 +8,10 @@ import {
   User as UserIcon,
   X,
 } from "lucide-react";
-import { format, isSameDay, isAfter, subDays, parseISO } from "date-fns";
+import { format } from "date-fns";
 import { Dropdown, type DropdownItem } from "../../components/ui";
-import { useGetTasksQuery } from "../../store/api/taskApiSlice";
-import { useGetProjectsQuery } from "../../store/api/projectApiSlice";
-import { useGetAllTeamsQuery } from "../../store/api/teamApiSlice";
 import type { Task, Project, GlobalSearchProps } from "../../types";
+import { useGlobalSearch } from "../../pages/sidebar/hooks/useGlobalSearch";
 
 const GlobalSearch: React.FC<GlobalSearchProps> = ({
   onClose,
@@ -23,141 +20,25 @@ const GlobalSearch: React.FC<GlobalSearchProps> = ({
   onClick,
   showProjects = true,
 }) => {
-  // Queries
-  const { data: tasks = [] } = useGetTasksQuery();
-  const { data: projects = [] } = useGetProjectsQuery();
-  const { data: allTeams = [] } = useGetAllTeamsQuery();
-  const navigate = useNavigate();
-
-  // State
-  const [searchQuery, setSearchQuery] = useState("");
-  const [sortBy, setSortBy] = useState<"newest" | "oldest" | "alpha">("newest");
-
-  // Filters
-  const [filterCreator, setFilterCreator] = useState<string | null>(null);
-  const [filterProject, setFilterProject] = useState<string | null>(null);
-  const [filterDate, setFilterDate] = useState<string | null>(null);
-
-  // Derived Data
-  const allMembers = useMemo(() => {
-    const membersMap = new Map();
-    allTeams.forEach((team) => {
-      team.members?.forEach((member) => {
-        if (!membersMap.has(member.id)) {
-          membersMap.set(member.id, member);
-        }
-      });
-    });
-    return Array.from(membersMap.values());
-  }, [allTeams]);
-
-  const filteredResults = useMemo(() => {
-    let results: (Task | Project)[] = [];
-
-    const filteredTasks = tasks.filter((task) => {
-      if (searchQuery) {
-        const query = searchQuery.toLowerCase();
-        const matchesTitle =
-          task.title?.toLowerCase().includes(query) ||
-          task.name?.toLowerCase().includes(query);
-        const matchesDesc = task.description?.toLowerCase().includes(query);
-        if (!matchesTitle && !matchesDesc) return false;
-      }
-
-      if (filterCreator) {
-        if (
-          task.creator?.id !== filterCreator &&
-          task.assignee?.name !== filterCreator
-        ) {
-          const creatorId = task.creator?.id;
-          if (creatorId !== filterCreator) return false;
-        }
-      }
-
-      if (filterProject) {
-        const projectId =
-          typeof task.project === "string" ? task.project : task.project?.id;
-        if (projectId !== filterProject) return false;
-      }
-
-      if (filterDate && task.dueDate) {
-        const date = parseISO(task.dueDate);
-        const today = new Date();
-        const startOfToday = new Date(
-          today.getFullYear(),
-          today.getMonth(),
-          today.getDate()
-        );
-
-        if (filterDate === "today") {
-          if (!isSameDay(date, today)) return false;
-        } else if (filterDate === "week") {
-          const sevenDaysAgo = subDays(startOfToday, 7);
-          if (!(isAfter(date, sevenDaysAgo) && !isAfter(date, today)))
-            return false;
-        } else if (filterDate === "month") {
-          const thirtyDaysAgo = subDays(startOfToday, 30);
-          if (!(isAfter(date, thirtyDaysAgo) && !isAfter(date, today)))
-            return false;
-        }
-      }
-
-      return true;
-    });
-
-    let filteredProjects: Project[] = [];
-    if (showProjects) {
-      filteredProjects = projects.filter((project) => {
-        if (filterDate || filterCreator) return false;
-        if (filterProject && project.id !== filterProject) return false;
-        if (searchQuery) {
-          const query = searchQuery.toLowerCase();
-          return (
-            project.name.toLowerCase().includes(query) ||
-            project.key.toLowerCase().includes(query)
-          );
-        }
-        return true;
-      });
-    }
-
-    results = [...filteredTasks, ...filteredProjects];
-
-    return results.sort((a, b) => {
-      if (sortBy === "alpha") {
-        const titleA = ("title" in a ? a.title : a.name) || "";
-        const titleB = ("title" in b ? b.title : b.name) || "";
-        return titleA.localeCompare(titleB);
-      }
-
-      const dateA = new Date(
-        a.createdAt || ("startDate" in a ? a.startDate : undefined) || 0
-      ).getTime();
-      const dateB = new Date(
-        b.createdAt || ("startDate" in b ? b.startDate : undefined) || 0
-      ).getTime();
-
-      return sortBy === "newest" ? dateB - dateA : dateA - dateB;
-    });
-  }, [
-    tasks,
+  const {
     projects,
+    allMembers,
+    filteredResults,
     searchQuery,
-    filterCreator,
-    filterProject,
-    filterDate,
+    setSearchQuery,
     sortBy,
-    showProjects,
-  ]);
-
-  const handleResultClick = (result: Task | Project) => {
-    if ("key" in result) {
-      navigate(`/project/${result.id}`);
-    } else {
-      navigate(`/tasks?taskId=${result.id}`);
-    }
-    if (onClose) onClose();
-  };
+    setSortBy,
+    filterCreator,
+    setFilterCreator,
+    filterProject,
+    setFilterProject,
+    filterDate,
+    setFilterDate,
+    handleResultClick,
+    getCreatorLabel,
+    getProjectLabel,
+    getDateLabel,
+  } = useGlobalSearch(showProjects, onClose);
 
   const sortItems: DropdownItem[] = [
     {
@@ -225,32 +106,11 @@ const GlobalSearch: React.FC<GlobalSearchProps> = ({
     },
   ];
 
-  const getCreatorLabel = () => {
-    if (!filterCreator) return "Created by";
-    const member = allMembers.find((m) => String(m.id) === filterCreator);
-    return member ? `Created by: ${member.name}` : "Created by";
-  };
-
-  const getProjectLabel = () => {
-    if (!filterProject) return "Projects";
-    const project = projects.find((p) => p.id === filterProject);
-    return project ? `Project: ${project.name}` : "Projects";
-  };
-
-  const getDateLabel = () => {
-    if (!filterDate) return "Date";
-    if (filterDate === "today") return "Due Today";
-    if (filterDate === "week") return "Last 7 Days";
-    if (filterDate === "month") return "Last 30 Days";
-    return "Date";
-  };
-
   return (
     <div
       className={`bg-white dark:bg-gray-800 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden flex flex-col max-h-[85vh] ${className}`}
       onClick={onClick}
     >
-      {/* Search Input */}
       <div className="flex items-center gap-3 px-4 py-3 border-b border-gray-100 dark:border-gray-700 flex-shrink-0">
         <Search className="text-gray-400 dark:text-gray-500" size={20} />
         <input
@@ -273,9 +133,7 @@ const GlobalSearch: React.FC<GlobalSearchProps> = ({
         )}
       </div>
 
-      {/* Filters Wrapper */}
       <div className="flex flex-wrap items-center gap-2 px-4 py-3 border-b border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900/50 flex-shrink-0">
-        {/* Sort Filter */}
         <Dropdown
           trigger={
             <button
@@ -297,7 +155,6 @@ const GlobalSearch: React.FC<GlobalSearchProps> = ({
           items={sortItems}
         />
 
-        {/* Creator Filter */}
         <Dropdown
           trigger={
             <button
@@ -316,7 +173,6 @@ const GlobalSearch: React.FC<GlobalSearchProps> = ({
           menuClassName="max-h-[300px] overflow-y-auto w-64"
         />
 
-        {/* Project Filter */}
         {showProjects && (
           <Dropdown
             trigger={
@@ -337,7 +193,6 @@ const GlobalSearch: React.FC<GlobalSearchProps> = ({
           />
         )}
 
-        {/* Date Filter */}
         <Dropdown
           trigger={
             <button
@@ -354,7 +209,6 @@ const GlobalSearch: React.FC<GlobalSearchProps> = ({
         />
       </div>
 
-      {/* Results Section */}
       <div className="flex-1 overflow-y-auto min-h-[300px] max-h-[500px] bg-white dark:bg-gray-800">
         <div className="px-4 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 sticky top-0 bg-white/95 dark:bg-gray-800/95 backdrop-blur z-10 border-b border-gray-50 dark:border-gray-700">
           {filteredResults.length} Result
@@ -485,7 +339,6 @@ const GlobalSearch: React.FC<GlobalSearchProps> = ({
         </div>
       </div>
 
-      {/* Footer */}
       <div className="px-4 py-2 border-t border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 flex items-center justify-between text-xs text-gray-400 dark:text-gray-500 flex-shrink-0">
         <div className="flex items-center gap-4">
           <span className="flex items-center gap-1">

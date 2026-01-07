@@ -1,10 +1,6 @@
 import type React from "react";
 import type { User, MemberItem } from "./user.types";
 
-// ============================================
-// TASK CORE TYPES
-// ============================================
-
 export interface Attachment {
   id: string;
   name: string;
@@ -72,11 +68,9 @@ export interface Task {
   createdAt?: string;
   updatedAt?: string;
   creator?: { id: string; name: string; avatar?: string };
+  actualCost?: number;
+  estimatedCost?: number;
 }
-
-// ============================================
-// TABLE VIEW TYPES
-// ============================================
 
 export interface TableTask {
   id: string;
@@ -110,10 +104,6 @@ export interface ExtendedTableViewProps extends TableViewProps {
   onAddTask?: (status: string) => void;
 }
 
-// ============================================
-// TASK PAYLOAD TYPES
-// ============================================
-
 export interface AttachmentMetadata {
   name: string;
   filePath: string;
@@ -131,11 +121,8 @@ export interface CreateTaskPayload {
   projectId: string;
   dueDate?: string;
   assigneeIds?: string[];
+  actualCost?: number;
 }
-
-// ============================================
-// TASK STATE TYPES
-// ============================================
 
 export interface TaskState {
   activeView: "kanban" | "list";
@@ -144,10 +131,6 @@ export interface TaskState {
   isCreateTaskModalOpen: boolean;
   modalInitialStatus: string | undefined;
 }
-
-// ============================================
-// TASK COMPONENT PROPS
-// ============================================
 
 export interface TaskCardProps {
   task: Task;
@@ -219,10 +202,6 @@ export interface TaskCommentsProps {
   isSubmitting: boolean;
 }
 
-// ============================================
-// TASK MODAL PROPS
-// ============================================
-
 export interface TaskDetailModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -242,10 +221,6 @@ export interface CreateTaskModalProps {
   task?: Task | null;
 }
 
-// ============================================
-// TASK HOOK PROPS
-// ============================================
-
 export interface UseTaskDetailModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -264,10 +239,6 @@ export interface UseCreateTaskModalProps {
   initialStatus?: string;
   task?: Task | null;
 }
-
-// ============================================
-// DASHBOARD TASK TYPES
-// ============================================
 
 export interface LatestTask {
   id: number;

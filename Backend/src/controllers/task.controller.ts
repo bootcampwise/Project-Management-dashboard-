@@ -36,20 +36,16 @@ export class TaskController {
       const { sub: supabaseId } = req.user!;
       const user = await userService.getUserBySupabaseId(supabaseId);
 
-      // Handle multipart/form-data parsing for arrays/objects
       const data = { ...req.body };
 
-      // Parse tags if it's a string (from FormData)
       if (typeof data.tags === "string") {
         try {
           data.tags = JSON.parse(data.tags);
         } catch (e) {
-          // If comma separated string
           data.tags = data.tags.split(",").map((t: string) => t.trim());
         }
       }
 
-      // Parse assigneeIds if it's a string
       if (typeof data.assigneeIds === "string") {
         try {
           data.assigneeIds = JSON.parse(data.assigneeIds);
@@ -58,17 +54,14 @@ export class TaskController {
         }
       }
 
-      // Handle attachments metadata from body (Supabase uploads)
       const files = data.attachments || [];
       console.log("Creating Task with attachments:", files.length);
-
-      // No longer using req.files as uploads are handled by frontend
 
       const task = await taskService.createTask(
         data,
         user.id,
         data.projectId,
-        files
+        files,
       );
       sendSuccess(res, task, "Task created successfully", 201);
     } catch (error: unknown) {
@@ -143,7 +136,7 @@ export class TaskController {
   async assignSubtask(req: Request, res: Response, next: NextFunction) {
     try {
       const { id: taskId, subtaskId } = req.params;
-      const { assigneeId, action } = req.body; // action: 'add' | 'remove'
+      const { assigneeId, action } = req.body;
       const { sub: supabaseId } = req.user!;
       const user = await userService.getUserBySupabaseId(supabaseId);
       const subtask = await taskService.assignSubtask(
@@ -151,14 +144,14 @@ export class TaskController {
         subtaskId,
         user.id,
         assigneeId,
-        action || "add"
+        action || "add",
       );
       sendSuccess(
         res,
         subtask,
         action === "remove"
           ? "Assignee removed from subtask"
-          : "Assignee added to subtask"
+          : "Assignee added to subtask",
       );
     } catch (error: unknown) {
       next(error);
@@ -168,7 +161,7 @@ export class TaskController {
   async toggleSubtaskCompleted(
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ) {
     try {
       const { id: taskId, subtaskId } = req.params;
@@ -179,7 +172,7 @@ export class TaskController {
         taskId,
         subtaskId,
         user.id,
-        completed
+        completed,
       );
       sendSuccess(res, subtask, "Subtask updated successfully");
     } catch (error: unknown) {

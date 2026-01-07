@@ -17,7 +17,6 @@ export const useCreateTaskModal = ({
   initialStatus,
   task,
 }: UseCreateTaskModalProps) => {
-  // RTK Query hooks
   const { data: projects = [], isLoading } = useGetProjectsQuery();
   const { data: teamMembers = [] } = useGetTeamMembersQuery();
   const { data: user } = useGetSessionQuery();
@@ -32,11 +31,11 @@ export const useCreateTaskModal = ({
   const [attachments, setAttachments] = useState<File[]>([]);
   const [selectedProjectId, setSelectedProjectId] = useState("");
   const [dueDate, setDueDate] = useState("");
+  const [actualCost, setActualCost] = useState<string>("$15");
 
-  // Populate state when task prop changes (Edit Mode)
   useEffect(() => {
     if (isOpen && task) {
-      setTitle(task.name || task.title || ""); // Handle both name/title
+      setTitle(task.name || task.title || "");
       setStatus(task.status || initialStatus || "IN_PROGRESS");
       setPriority(task.priority || "MEDIUM");
       setTags(
@@ -45,15 +44,9 @@ export const useCreateTaskModal = ({
           : []
       );
       setDescription(task.description || "");
-      // Attachments handled separately or just new ones? Usually users want to see existing and add new.
-      // For simplicity, we assume this hook manages NEW attachments to upload. Existing ones are displayed in detail view.
-      // If we want to allow deleting existing attachments in edit, we need more logic.
-      // For now, let's keep attachments state for NEW files.
       setAttachments([]);
 
       if (typeof task.project === "string") {
-        // Need to find project ID from name? Or maybe task.project is just ID sometimes?
-        // If it's a string name, we might not find it easily if duplicates.
         const p = projects.find((p) => p.name === task.project);
         if (p) setSelectedProjectId(p.id);
       } else if (task.project?.id) {
@@ -61,16 +54,13 @@ export const useCreateTaskModal = ({
       }
 
       setDueDate(task.dueDate || task.endDate || "");
+      setActualCost(task.actualCost ? `$${task.actualCost}` : "$15");
 
-      // Populate assignees
       if (task.assignees) {
         setAssigneeIds(task.assignees.map((a) => a.id));
       } else if (task.assignee) {
-        // If legacy single assignee, try to find in members
-        // This uses name, which is flaky. Better if task has assignee ID.
       }
     } else if (isOpen && !task) {
-      // Reset if opening in Create Mode
       setTitle("");
       setStatus(initialStatus || "IN_PROGRESS");
       setPriority("MEDIUM");
@@ -79,16 +69,13 @@ export const useCreateTaskModal = ({
       setDescription("");
       setAttachments([]);
       setDueDate("");
+      setActualCost("$15");
       setAssigneeIds([]);
       if (projects.length > 0 && !selectedProjectId)
         setSelectedProjectId(projects[0].id);
     }
-  }, [isOpen, task, projects, initialStatus]); // StartLine: 40 (Inserting after state declarations) -> Actually simpler to append separate useEffect.
+  }, [isOpen, task, projects, initialStatus]);
 
-  // NOTE: I am replacing the existing state usage lines with the above block combined? No, that's messy.
-  // I will just add the useEffect.
-
-  // Assignee Logic
   const [assigneeIds, setAssigneeIds] = useState<string[]>([]);
   const [assigneeSearch, setAssigneeSearch] = useState("");
   const [allUsers, setAllUsers] = useState<
@@ -99,21 +86,17 @@ export const useCreateTaskModal = ({
 
   const selectedProject = projects.find((p) => p.id === selectedProjectId);
 
-  // Aggregate members from project.members and project.teams.members
   const uniqueMembers = React.useMemo(() => {
-    // If we have fetched all users, use them
     if (allUsers.length > 0) {
       return allUsers;
     }
 
     const allMembers: { id: string; name: string; avatar?: string }[] = [];
 
-    // Add direct project members
     if (selectedProject?.members) {
       allMembers.push(...selectedProject.members);
     }
 
-    // Add team members
     if (selectedProject?.teams) {
       selectedProject.teams.forEach((team) => {
         if (team.members) {
@@ -122,7 +105,6 @@ export const useCreateTaskModal = ({
       });
     }
 
-    // Deduplicate by ID
     const uniqueMap = new Map();
     allMembers.forEach((m) => {
       if (!uniqueMap.has(m.id)) {
@@ -139,7 +121,6 @@ export const useCreateTaskModal = ({
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Transform teamMembers to allUsers format for assignee dropdown
   useEffect(() => {
     if (teamMembers.length > 0) {
       setAllUsers(
@@ -152,21 +133,18 @@ export const useCreateTaskModal = ({
     }
   }, [teamMembers]);
 
-  // Set default project when projects load
   useEffect(() => {
     if (isOpen && projects.length > 0 && !selectedProjectId) {
       setSelectedProjectId(projects[0].id);
     }
   }, [isOpen, projects, selectedProjectId]);
 
-  // Update status when initialStatus changes or modal re-opens
   useEffect(() => {
     if (isOpen && initialStatus) {
       setStatus(initialStatus);
     }
   }, [isOpen, initialStatus]);
 
-  // Clear assignees when project changes
   useEffect(() => {
     setAssigneeIds([]);
     setAssigneeSearch("");
@@ -201,7 +179,6 @@ export const useCreateTaskModal = ({
     );
   };
 
-  /* eslint-disable @typescript-eslint/no-unused-vars */
   const handleCreate = async () => {
     if (!title.trim()) {
       showToast.error("Please enter a task title");
@@ -211,12 +188,10 @@ export const useCreateTaskModal = ({
     setIsSubmitting(true);
 
     if (!selectedProjectId && projects.length > 0) {
-      // Fallback if somehow not set
       setSelectedProjectId(projects[0].id);
     }
 
     try {
-      // Upload files to Supabase first
       const uploadedAttachments: {
         name: string;
         filePath: string;
@@ -225,22 +200,17 @@ export const useCreateTaskModal = ({
       }[] = [];
 
       if (attachments.length > 0) {
-        // Use user from RTK Query session
         if (!user?.id) {
           throw new Error("User not authenticated");
         }
 
         for (const file of attachments) {
-          // Skip if it's already an uploaded attachment (checking if it has metadata structure)
-          // But here attachments state is File[], so we assume new uploads.
-
           const fileName = `${Date.now()}-${file.name.replace(
             /[^a-zA-Z0-9.-]/g,
             "_"
           )}`;
           const filePath = `${user.id}/${fileName}`;
 
-          // Upload using RTK Query
           await uploadFile({
             bucket: "attachments",
             path: filePath,
@@ -249,14 +219,13 @@ export const useCreateTaskModal = ({
 
           uploadedAttachments.push({
             name: file.name,
-            filePath: filePath, // Store the path relative to bucket
+            filePath: filePath,
             size: file.size,
             mimeType: file.type,
           });
         }
       }
 
-      // Prepare payload for the API
       const payload: CreateTaskPayload = {
         title,
         status,
@@ -266,19 +235,19 @@ export const useCreateTaskModal = ({
         projectId: selectedProjectId || projects[0]?.id,
         dueDate,
         assigneeIds,
-        attachments: uploadedAttachments, // Send metadata
+        actualCost: actualCost
+          ? parseFloat(actualCost.replace(/[^0-9.]/g, ""))
+          : 0,
+        attachments: uploadedAttachments,
       };
 
       if (task && onUpdate) {
-        // Edit Mode
         await onUpdate(String(task.id), payload);
       } else if (onCreate) {
-        // Create Mode
         await onCreate(payload);
       }
       onClose();
 
-      // Reset form
       setTitle("");
       setStatus("IN_PROGRESS");
       setPriority("MEDIUM");
@@ -288,6 +257,7 @@ export const useCreateTaskModal = ({
       setAttachments([]);
       setSelectedProjectId(projects.length > 0 ? projects[0].id : "");
       setDueDate("");
+      setActualCost("$15");
       setAssigneeIds([]);
       setAssigneeSearch("");
     } catch (error) {
@@ -335,5 +305,7 @@ export const useCreateTaskModal = ({
     filteredMembers,
     handleToggleAssignee,
     uniqueMembers,
+    actualCost,
+    setActualCost,
   };
 };

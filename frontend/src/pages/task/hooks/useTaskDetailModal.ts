@@ -25,22 +25,14 @@ export const useTaskDetailModal = ({
   task: initialTask,
   onEdit,
 }: UseTaskDetailModalProps) => {
-  // Get user from RTK Query
   const { data: user } = useGetSessionQuery();
-
-  // ============================================
-  // RTK QUERY HOOKS
-  // ============================================
   const { data: teamMembers = [] } = useGetTeamMembersQuery();
 
-  // Use useGetTaskQuery to get real-time task data with comments
-  // Skip if modal is closed or no task ID
   const { data: taskData, refetch: refetchTask } = useGetTaskQuery(
     String(initialTask?.id || ""),
     { skip: !isOpen || !initialTask?.id }
   );
 
-  // Mutations
   const [deleteTaskMutation] = useDeleteTaskMutation();
   const [addSubtask] = useAddSubTaskMutation();
   const [deleteSubtask] = useDeleteSubTaskMutation();
@@ -52,12 +44,7 @@ export const useTaskDetailModal = ({
   const [uploadFile] = useUploadFileMutation();
   const [downloadFile] = useLazyDownloadFileQuery();
 
-  // Use the fetched task data, falling back to initial task
   const task = taskData || initialTask;
-
-  // ============================================
-  // STATE
-  // ============================================
   const [newSubtask, setNewSubtask] = useState("");
   const [newComment, setNewComment] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -68,7 +55,6 @@ export const useTaskDetailModal = ({
   );
   const [subtaskAssigneeSearch, setSubtaskAssigneeSearch] = useState("");
 
-  // Filter team members based on search query
   const filteredTeamMembers = useMemo(() => {
     if (!subtaskAssigneeSearch.trim()) {
       return teamMembers;
@@ -80,10 +66,6 @@ export const useTaskDetailModal = ({
         member.email?.toLowerCase().includes(searchLower)
     );
   }, [teamMembers, subtaskAssigneeSearch]);
-
-  // ============================================
-  // HANDLERS
-  // ============================================
 
   const handleEditTask = () => {
     if (task && onEdit) {
@@ -108,7 +90,6 @@ export const useTaskDetailModal = ({
 
     const toastId = showToast.loading("Uploading attachment...");
     try {
-      // 1. Upload to storage using RTK Query
       if (!user?.id) throw new Error("Authentication required");
 
       const fileName = `${Date.now()}-${file.name.replace(
@@ -123,7 +104,6 @@ export const useTaskDetailModal = ({
         file,
       }).unwrap();
 
-      // 2. Save attachment metadata via RTK Query
       await addAttachment({
         taskId: String(task.id),
         name: file.name,
@@ -233,7 +213,6 @@ export const useTaskDetailModal = ({
         const currentTags =
           task.tags?.map((t: NonNullable<Task["tags"]>[number]) => t.text) ||
           [];
-        // Prevent duplicates
         if (currentTags.includes(tagInput.trim())) {
           setTagInput("");
           setIsAddingTag(false);
@@ -256,7 +235,6 @@ export const useTaskDetailModal = ({
     }
   };
 
-  // Simplified tag addition for sub-components
   const handleAddTag = async (tagText: string) => {
     if (!tagText.trim() || !task) return;
     try {
@@ -286,7 +264,6 @@ export const useTaskDetailModal = ({
         return;
       }
 
-      // Get public URL using RTK Query
       const url = await downloadFile({
         bucket: "attachments",
         path: attachment.url,
@@ -305,10 +282,6 @@ export const useTaskDetailModal = ({
       showToast.error(`Failed to download file. ${getErrorMessage(error)}`);
     }
   };
-
-  // ============================================
-  // RETURN
-  // ============================================
 
   return {
     task,

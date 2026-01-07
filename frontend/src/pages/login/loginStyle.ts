@@ -21,6 +21,8 @@ export const loginStyles = {
   logoImage: {
     width: "173px",
     height: "42px",
+    position: "relative",
+    zIndex: 10,
   } as CSSProperties,
 
   loginContainer: {
@@ -68,6 +70,10 @@ export const loginStyles = {
   learnMoreLink: {
     textDecoration: "none",
     fontWeight: 600,
+  } as CSSProperties,
+
+  badgeWrapperStyle: {
+    marginBottom: "16px",
   } as CSSProperties,
 
   bottomBoxContainer: {
@@ -168,7 +174,7 @@ export const loginClasses = {
   bottomBoxOuter: "bg-off-white dark:bg-gray-600 shadow-lg",
   bottomBoxInner: "bg-white dark:bg-gray-800 shadow-glow",
   rightPanel:
-    "w-full md:w-1/2 p-6 md:p-8 flex flex-col justify-start mt-0 bg-white dark:bg-gray-800",
+    "w-full md:w-1/2 p-6 md:p-8 flex flex-col justify-center mt-0 bg-white dark:bg-gray-800",
   formTitle:
     "text-3xl font-semibold text-gray-900 dark:text-white mb-4 text-center",
   form: "space-y-4",

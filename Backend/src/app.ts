@@ -3,13 +3,21 @@ import cors from "cors";
 import routes from "./routes";
 import { errorMiddleware } from "./middlewares/error.middleware";
 import { logger } from "./config/logger";
+import { apiLimiter } from "./middlewares/rateLimiter.middleware";
 
 const app = express();
 
-app.use(cors());
+const corsOptions = {
+  origin: process.env.FRONTEND_URL || "*",
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+};
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use("/uploads", express.static("uploads"));
+app.use("/api", apiLimiter);
 
 app.use((req: Request, res: Response, next: NextFunction) => {
   logger.info(`${req.method} ${req.path}`);

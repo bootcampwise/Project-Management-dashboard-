@@ -18,11 +18,9 @@ export const useTeamFiles = (
   allTeams: Team[] = [],
   enabled: boolean = true
 ) => {
-  // State for files fetched from team's projects
   const [allFiles, setAllFiles] = useState<TeamFile[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Lazy query to fetch files from each project
   const [fetchProjectAttachments] = useLazyGetProjectAttachmentsQuery();
   const [deleteAttachment] = useDeleteAttachmentMutation();
   const [downloadFile] = useLazyDownloadFileQuery();
@@ -32,13 +30,10 @@ export const useTeamFiles = (
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  // Fetch files from all projects belonging to the active team or all teams
-  // Use project IDs as dependency to prevent infinite loops from unstable object references
   const projectsToFetch = activeTeam
     ? activeTeam.projects
     : allTeams.flatMap((t) => t.projects || []);
 
-  // Memoize the project IDs string to use as a stable dependency
   const projectIdsString =
     projectsToFetch
       ?.map((p) => p.id)
@@ -56,7 +51,6 @@ export const useTeamFiles = (
     const fetchFilesFromTeamProjects = async () => {
       setIsLoading(true);
       try {
-        // Fetch files from all team projects in parallel
         const projectIds = projectsToFetch.map((p) => p.id);
         const results = await Promise.all(
           projectIds.map((projectId) =>
@@ -66,11 +60,8 @@ export const useTeamFiles = (
           )
         );
 
-        // Combine all files from all projects
         const combinedFiles = results.flat();
 
-        // Only update if files have actually changed to prevent loops
-        // (Simple length check or deep comparison could be better, but we rely on simple reference update for now)
         setAllFiles(combinedFiles);
       } catch (error) {
         console.error("Error fetching team files:", error);
@@ -81,28 +72,35 @@ export const useTeamFiles = (
     };
 
     fetchFilesFromTeamProjects();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [projectIdsString, fetchProjectAttachments, enabled]);
 
-  // Filter files by active team's member IDs (if active team selected)
   const files = useMemo(() => {
+    const taskAttachments = allFiles.filter((file) => {
+      const filePath = file.url || file.filePath || "";
+
+      if (filePath.includes("/avatars/") || filePath.startsWith("avatars/")) {
+        return false;
+      }
+
+      if (!file.task) {
+        return false;
+      }
+      return true;
+    });
+
     if (!activeTeam) {
-      // If "All Teams", we might still want to filter by valid users, or just show everything found in the projects.
-      // Current requirement implies showing all files from these projects.
-      // We can deduplicate if needed, but file IDs should be unique.
-      return allFiles;
+      return taskAttachments;
     }
 
     if (!activeTeam.memberIds?.length) {
-      return allFiles;
+      return taskAttachments;
     }
 
-    return allFiles.filter(
+    return taskAttachments.filter(
       (file) => file.user?.id && activeTeam.memberIds.includes(file.user.id)
     );
   }, [allFiles, activeTeam]);
 
-  // Close menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
@@ -122,27 +120,20 @@ export const useTeamFiles = (
     return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + " " + sizes[i];
   };
 
-  // ============================================
-  // OPTIMIZED: Get file URL with caching
-  // ============================================
   const getFileUrl = async (file: TeamFile): Promise<string | null> => {
     const filePath = file.url || file.filePath;
     if (!filePath) return null;
 
-    // If it's already a full URL, return it directly (no caching needed)
     if (filePath.startsWith("http://") || filePath.startsWith("https://")) {
       return filePath;
     }
 
     const cleanPath = filePath.startsWith("/") ? filePath.slice(1) : filePath;
 
-    // 1️⃣ Check cache first (instant!)
     const cachedUrl = getCachedFileUrl(cleanPath);
     if (cachedUrl) {
       return cachedUrl;
     }
-
-    // 2️⃣ Not cached - generate signed URL
     try {
       const result = await downloadFile({
         bucket: "attachments",
@@ -150,7 +141,6 @@ export const useTeamFiles = (
       }).unwrap();
 
       if (result) {
-        // 3️⃣ Store in cache for 5 minutes
         setCachedFileUrl(cleanPath, result, 300);
         return result;
       }
@@ -176,14 +166,12 @@ export const useTeamFiles = (
   const handleDeleteFile = async (file: TeamFile) => {
     setDeletingId(file.id);
     try {
-      // 1. Delete from Supabase storage using RTK Query
       const filePath = file.url || file.filePath;
       if (filePath && !filePath.startsWith("http")) {
         const cleanPath = filePath.startsWith("/")
           ? filePath.slice(1)
           : filePath;
 
-        // Clear from URL cache first
         clearCachedFileUrl(cleanPath);
 
         await deleteStorageFile({
@@ -192,10 +180,8 @@ export const useTeamFiles = (
         }).unwrap();
       }
 
-      // 2. Delete from database via RTK Query
       await deleteAttachment(file.id).unwrap();
 
-      // 3. Remove from local state immediately
       setAllFiles((prev) => prev.filter((f) => f.id !== file.id));
 
       showToast.success("File deleted successfully");

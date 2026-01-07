@@ -1,7 +1,3 @@
-/**
- * Status utility functions for task components
- */
-
 export const getStatusColor = (status: string): string => {
   switch (status) {
     case "TODO":

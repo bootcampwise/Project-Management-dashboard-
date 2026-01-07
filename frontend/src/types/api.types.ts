@@ -1,7 +1,3 @@
-// ============================================
-// API TYPES
-// ============================================
-
 export type ApiRequest =
   | string
   | {
@@ -15,10 +11,6 @@ export interface ApiError {
   status?: number;
   data?: unknown;
 }
-
-// ============================================
-// STORAGE API TYPES
-// ============================================
 
 export interface UploadFileParams {
   bucket: string;
@@ -35,10 +27,6 @@ export interface UploadResult {
   path: string;
   publicUrl: string;
 }
-
-// ============================================
-// UTILITY TYPES
-// ============================================
 
 export type CacheItem = {
   url: string;

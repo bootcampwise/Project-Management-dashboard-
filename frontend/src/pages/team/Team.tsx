@@ -1,4 +1,10 @@
 import React from "react";
+import { motion, useReducedMotion } from "framer-motion";
+import {
+  pageVariants,
+  reducedPageVariants,
+  itemVariants,
+} from "../../utils/motion";
 import { useTeam } from "./hooks/useTeam";
 import { teamClasses, teamStyles } from "./teamStyle";
 import Sidebar from "../sidebar/Sidebar";
@@ -41,7 +47,7 @@ const Team: React.FC = () => {
     tabs,
     allTeams,
     activeTeam,
-    teamsLoading,
+    teamsLoading: isLoading,
 
     menuRef,
     handleDeleteTeam,
@@ -49,49 +55,55 @@ const Team: React.FC = () => {
     handleOpenCreateTeamModal,
     handleEditTeam,
     teamToEdit,
-    teamFiles, // Destructure the file hook data
+    teamFiles,
   } = useTeam();
 
-  // Local filter/sort state for Team page
-  const [sortBy, setSortBy] = React.useState<'newest' | 'oldest' | 'alpha'>('newest');
-  const [filterPriority, setFilterPriority] = React.useState<string | null>(null);
+  const shouldReduceMotion = useReducedMotion();
 
-  // Sort projects based on sortBy
+  const [sortBy, setSortBy] = React.useState<"newest" | "oldest" | "alpha">(
+    "newest"
+  );
+  const [filterPriority, setFilterPriority] = React.useState<string | null>(
+    null
+  );
+
   const sortedProjects = React.useMemo(() => {
     const projects = [...(activeTeam?.projects || [])];
     return projects.sort((a, b) => {
-      if (sortBy === 'alpha') {
-        return (a.name || '').localeCompare(b.name || '');
+      if (sortBy === "alpha") {
+        return (a.name || "").localeCompare(b.name || "");
       }
-      if (sortBy === 'oldest') {
-        return new Date(a.startDate || 0).getTime() - new Date(b.startDate || 0).getTime();
+      if (sortBy === "oldest") {
+        return (
+          new Date(a.startDate || 0).getTime() -
+          new Date(b.startDate || 0).getTime()
+        );
       }
-      // newest (default)
-      return new Date(b.startDate || 0).getTime() - new Date(a.startDate || 0).getTime();
+      return (
+        new Date(b.startDate || 0).getTime() -
+        new Date(a.startDate || 0).getTime()
+      );
     });
   }, [activeTeam?.projects, sortBy]);
 
-  // Sort members based on sortBy
   const sortedMembers = React.useMemo(() => {
     const displayMembers = activeTeam
-      ? (activeTeam.members || [])
+      ? activeTeam.members || []
       : Array.from(
         new Map(
-          allTeams.flatMap(t => t.members || []).map(m => [m.id, m])
+          allTeams.flatMap((t) => t.members || []).map((m) => [m.id, m])
         ).values()
       );
 
     return [...displayMembers].sort((a, b) => {
-      if (sortBy === 'alpha') {
-        return (a.name || '').localeCompare(b.name || '');
+      if (sortBy === "alpha") {
+        return (a.name || "").localeCompare(b.name || "");
       }
-      // For members, newest/oldest can use position or just keep current order
       return 0;
     });
   }, [activeTeam, allTeams, sortBy]);
 
-  // Show full page skeleton if initial loading
-  if (teamsLoading) {
+  if (isLoading) {
     return (
       <div className={teamClasses.container}>
         <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
@@ -106,7 +118,6 @@ const Team: React.FC = () => {
 
   return (
     <div className={teamClasses.container}>
-      {/* Mobile menu button */}
       <button
         className={teamClasses.menuButton(sidebarOpen)}
         onClick={() => setSidebarOpen(true)}
@@ -114,21 +125,22 @@ const Team: React.FC = () => {
         <Menu size={22} />
       </button>
 
-      {/* Sidebar */}
       <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
-      {/* Main content */}
       <main className={teamClasses.main}>
-        <div className={teamClasses.mainContent(sidebarOpen)}>
-
-          {/* Header Top Row */}
+        <motion.div
+          className={teamClasses.mainContent(sidebarOpen)}
+          variants={shouldReduceMotion ? reducedPageVariants : pageVariants}
+          initial="initial"
+          animate="animate"
+        >
           <div className={teamClasses.headerWrapper}>
-            {/* Title & Status */}
             <div className={teamClasses.headerTitleWrapper}>
               <div className={teamClasses.headerMenuWrapper} ref={menuRef}>
-                {/* Team Title (Static) */}
                 <div className={teamClasses.headerTitleClickable}>
-                  <h1 className={teamClasses.headerTitle}>{activeTeam?.name || "All Teams"}</h1>
+                  <h1 className={teamClasses.headerTitle}>
+                    {activeTeam?.name || "All Teams"}
+                  </h1>
                 </div>
 
                 {activeTeam && (
@@ -144,65 +156,87 @@ const Team: React.FC = () => {
                         align="right"
                         trigger={
                           <button className={teamClasses.menuIconButton}>
-                            <MoreHorizontal className={teamClasses.menuIconColor} size={18} />
+                            <MoreHorizontal
+                              className={teamClasses.menuIconColor}
+                              size={18}
+                            />
                           </button>
                         }
                         items={[
                           {
-                            key: 'active-team-info',
+                            key: "active-team-info",
                             custom: true,
                             label: (
                               <div className={teamClasses.menuDropdownHeader}>
-                                <p className={teamClasses.menuDropdownLabel}>Active Team</p>
-                                <p className={teamClasses.menuDropdownValue}>{activeTeam.name}</p>
+                                <p className={teamClasses.menuDropdownLabel}>
+                                  Active Team
+                                </p>
+                                <p className={teamClasses.menuDropdownValue}>
+                                  {activeTeam.name}
+                                </p>
                               </div>
-                            )
+                            ),
                           },
                           {
-                            key: 'edit',
-                            label: 'Edit Team',
+                            key: "edit",
+                            label: "Edit Team",
                             icon: <Pencil size={14} />,
-                            onClick: () => handleEditTeam(activeTeam)
+                            onClick: () => handleEditTeam(activeTeam),
                           },
                           {
-                            key: 'delete',
-                            label: 'Delete Team',
+                            key: "delete",
+                            label: "Delete Team",
                             danger: true,
                             icon: <Trash2 size={14} />,
                             onClick: () => {
-                              showToast.custom((t) => (
-                                <div className={teamClasses.toastContainer}>
-                                  <div>
-                                    <h3 className={teamClasses.toastTitle}>Delete Team?</h3>
-                                    <p className={teamClasses.toastDescription}>
-                                      Are you sure you want to delete <span className="font-semibold">{activeTeam.name}</span>? This action cannot be undone.
-                                    </p>
+                              showToast.custom(
+                                (t) => (
+                                  <div className={teamClasses.toastContainer}>
+                                    <div>
+                                      <h3 className={teamClasses.toastTitle}>
+                                        Delete Team?
+                                      </h3>
+                                      <p
+                                        className={teamClasses.toastDescription}
+                                      >
+                                        Are you sure you want to delete{" "}
+                                        <span className="font-semibold">
+                                          {activeTeam.name}
+                                        </span>
+                                        ? This action cannot be undone.
+                                      </p>
+                                    </div>
+                                    <div className={teamClasses.toastActions}>
+                                      <Button
+                                        variant="secondary"
+                                        size="sm"
+                                        onClick={() => showToast.dismiss(t.id)}
+                                        className={
+                                          teamClasses.toastCancelButton
+                                        }
+                                      >
+                                        Cancel
+                                      </Button>
+                                      <Button
+                                        variant="danger"
+                                        size="sm"
+                                        onClick={() => {
+                                          showToast.dismiss(t.id);
+                                          handleDeleteTeam(activeTeam.id);
+                                        }}
+                                        className={
+                                          teamClasses.toastDeleteButton
+                                        }
+                                      >
+                                        Delete
+                                      </Button>
+                                    </div>
                                   </div>
-                                  <div className={teamClasses.toastActions}>
-                                    <Button
-                                      variant="secondary"
-                                      size="sm"
-                                      onClick={() => showToast.dismiss(t.id)}
-                                      className={teamClasses.toastCancelButton}
-                                    >
-                                      Cancel
-                                    </Button>
-                                    <Button
-                                      variant="danger"
-                                      size="sm"
-                                      onClick={() => {
-                                        showToast.dismiss(t.id);
-                                        handleDeleteTeam(activeTeam.id);
-                                      }}
-                                      className={teamClasses.toastDeleteButton}
-                                    >
-                                      Delete
-                                    </Button>
-                                  </div>
-                                </div>
-                              ), teamStyles.toastOptions);
-                            }
-                          }
+                                ),
+                                teamStyles.toastOptions
+                              );
+                            },
+                          },
                         ]}
                       />
                     </div>
@@ -211,7 +245,6 @@ const Team: React.FC = () => {
               </div>
             </div>
 
-            {/* Actions */}
             <div className={teamClasses.actionsWrapper}>
               <Button
                 variant="secondary"
@@ -224,16 +257,19 @@ const Team: React.FC = () => {
                 variant="primary"
                 className={teamClasses.createButton}
                 onClick={handleOpenCreateTeamModal}
-                rightIcon={<ChevronDown size={14} className={teamClasses.createButtonChevron} />}
+                rightIcon={
+                  <ChevronDown
+                    size={14}
+                    className={teamClasses.createButtonChevron}
+                  />
+                }
               >
                 <span>Create</span>
               </Button>
             </div>
           </div>
 
-          {/* Header Bottom Row (Toolbar) */}
           <div className={teamClasses.toolbar}>
-            {/* Tabs */}
             <div className={teamClasses.tabsWrapper}>
               {tabs.map((tab) => (
                 <button
@@ -246,7 +282,6 @@ const Team: React.FC = () => {
               ))}
             </div>
 
-            {/* Tools */}
             <div className={teamClasses.toolsWrapper}>
               <div
                 className={teamClasses.toolItem}
@@ -261,45 +296,73 @@ const Team: React.FC = () => {
                 onChange={setFilterPriority}
                 label="Filters"
                 options={[
-                  { key: 'all', label: 'All', value: null },
-                  { key: 'urgent', label: 'Urgent', value: 'URGENT' },
-                  { key: 'high', label: 'High', value: 'HIGH' },
-                  { key: 'medium', label: 'Medium', value: 'MEDIUM' },
-                  { key: 'low', label: 'Low', value: 'LOW' },
+                  { key: "all", label: "All", value: null },
+                  { key: "urgent", label: "Urgent", value: "URGENT" },
+                  { key: "high", label: "High", value: "HIGH" },
+                  { key: "medium", label: "Medium", value: "MEDIUM" },
+                  { key: "low", label: "Low", value: "LOW" },
                 ]}
               />
               <SortControl
                 value={sortBy}
-                onChange={(value) => setSortBy(value as 'newest' | 'oldest' | 'alpha')}
+                onChange={(value) =>
+                  setSortBy(value as "newest" | "oldest" | "alpha")
+                }
                 options={[
-                  { key: 'newest', label: 'Newest' },
-                  { key: 'oldest', label: 'Oldest' },
-                  { key: 'alpha', label: 'A-Z' },
+                  { key: "newest", label: "Newest" },
+                  { key: "oldest", label: "Oldest" },
+                  { key: "alpha", label: "A-Z" },
                 ]}
               />
             </div>
           </div>
 
-          {/* Content Area */}
-          <div className={teamClasses.contentArea}>
-            {activeTab === "Teams" && <TeamTableView filteredTeamId={activeTeam?.id} sortBy={sortBy} />}
-            {activeTab === "Projects" && <TeamProjects projects={sortedProjects} teamMembers={activeTeam?.members?.map(m => ({ id: String(m.id), name: m.name, avatar: m.avatar }))} />}
-            {activeTab === "Dashboard" && <TeamDashboard />}
-            {activeTab === "Members" && <TeamMembers
-              members={sortedMembers}
-              teamId={activeTeam?.id}
-              allMemberIds={activeTeam?.memberIds || activeTeam?.members?.map(m => String(m.id))}
-            />}
-            {activeTab === "Files" && <TeamFiles
-              allTeams={allTeams}
-              {...teamFiles} // Pass all file-related props from the hook
-            />}
-          </div>
-
-        </div>
+          <motion.div
+            className={teamClasses.contentArea}
+            variants={itemVariants}
+          >
+            {activeTab === "Teams" && (
+              <TeamTableView filteredTeamId={activeTeam?.id} sortBy={sortBy} />
+            )}
+            {activeTab === "Projects" && (
+              <TeamProjects
+                projects={sortedProjects}
+                teamMembers={activeTeam?.members?.map((m) => ({
+                  id: String(m.id),
+                  name: m.name,
+                  avatar: m.avatar,
+                }))}
+              />
+            )}
+            {activeTab === "Dashboard" && (
+              <TeamDashboard teamId={activeTeam?.id} />
+            )}
+            {activeTab === "Members" && (
+              <TeamMembers
+                members={sortedMembers}
+                teamId={activeTeam?.id}
+                allMemberIds={
+                  activeTeam?.memberIds ||
+                  activeTeam?.members?.map((m) => String(m.id))
+                }
+              />
+            )}
+            {activeTab === "Files" && (
+              <TeamFiles allTeams={allTeams} {...teamFiles} />
+            )}
+          </motion.div>
+        </motion.div>
       </main>
-      <SearchPopup isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} showProjects={false} />
-      <CreateTeamModal isOpen={isCreateTeamModalOpen} onClose={() => setIsCreateTeamModalOpen(false)} teamToEdit={teamToEdit} />
+      <SearchPopup
+        isOpen={isSearchOpen}
+        onClose={() => setIsSearchOpen(false)}
+        showProjects={false}
+      />
+      <CreateTeamModal
+        isOpen={isCreateTeamModalOpen}
+        onClose={() => setIsCreateTeamModalOpen(false)}
+        teamToEdit={teamToEdit}
+      />
     </div>
   );
 };

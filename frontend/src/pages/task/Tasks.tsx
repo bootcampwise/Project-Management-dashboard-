@@ -1,5 +1,13 @@
-import React from 'react';
-import Sidebar from '../sidebar/Sidebar';
+import React from "react";
+import { motion, useReducedMotion } from "framer-motion";
+import {
+  pageVariants,
+  reducedPageVariants,
+  itemVariants,
+  listContainerVariants,
+  listItemVariants,
+} from "../../utils/motion";
+import Sidebar from "../sidebar/Sidebar";
 import {
   Badge,
   Button,
@@ -7,17 +15,27 @@ import {
   KanbanBoardSkeleton,
   TableSkeleton,
   ProjectHeaderSkeleton,
-} from '../../components/ui';
-import { Menu, Search, Plus, Calendar, MessageSquare, Paperclip, FileText, Layout, List } from 'lucide-react';
-import TaskDetailModal from '../../components/task/TaskDetailModal';
-import CreateTaskModal from '../../components/task/CreateTaskModal';
-import SearchPopup from '../../components/sidebar/SearchPopup';
-import BoardColumn from '../../components/projectBoard/BoardColumn';
-import SortControl from '../../components/ui/SortControl';
-import FilterControl from '../../components/ui/FilterControl';
-import { useTasksPage } from './hooks/useTasksPage';
-import { DragDropContext } from '@hello-pangea/dnd';
-import { taskClasses } from './taskStyle';
+} from "../../components/ui";
+import {
+  Menu,
+  Search,
+  Plus,
+  Calendar,
+  MessageSquare,
+  Paperclip,
+  FileText,
+  Layout,
+  List,
+} from "lucide-react";
+import TaskDetailModal from "../../components/task/TaskDetailModal";
+import CreateTaskModal from "../../components/task/CreateTaskModal";
+import SearchPopup from "../../components/sidebar/SearchPopup";
+import BoardColumn from "../../components/projectBoard/BoardColumn";
+import SortControl from "../../components/ui/SortControl";
+import FilterControl from "../../components/ui/FilterControl";
+import { useTasksPage } from "./hooks/useTasksPage";
+import { DragDropContext } from "@hello-pangea/dnd";
+import { taskClasses } from "./taskStyle";
 
 const Tasks: React.FC = () => {
   const [isSearchOpen, setIsSearchOpen] = React.useState(false);
@@ -54,7 +72,8 @@ const Tasks: React.FC = () => {
     setFilterPriority,
   } = useTasksPage();
 
-  // Show skeleton while loading
+  const shouldReduceMotion = useReducedMotion();
+
   if (isLoading) {
     return (
       <div className={taskClasses.container}>
@@ -62,7 +81,7 @@ const Tasks: React.FC = () => {
         <main className={taskClasses.main(activeView)}>
           <div className={taskClasses.mainContent(sidebarOpen)}>
             <ProjectHeaderSkeleton />
-            {activeView === 'kanban' ? (
+            {activeView === "kanban" ? (
               <KanbanBoardSkeleton />
             ) : (
               <TableSkeleton />
@@ -75,7 +94,6 @@ const Tasks: React.FC = () => {
 
   return (
     <div className={taskClasses.container}>
-
       <Button
         variant="ghost"
         className={taskClasses.menuButton(sidebarOpen)}
@@ -84,39 +102,38 @@ const Tasks: React.FC = () => {
         <Menu size={22} />
       </Button>
 
-      {/* Sidebar */}
       <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
-      {/* Main content */}
       <main className={taskClasses.main(activeView)}>
-        <div className={taskClasses.mainContent(sidebarOpen)}>
-          {/* Header */}
+        <motion.div
+          className={taskClasses.mainContent(sidebarOpen)}
+          variants={shouldReduceMotion ? reducedPageVariants : pageVariants}
+          initial="initial"
+          animate="animate"
+        >
           <div className={taskClasses.headerWrapper}>
             <h1 className={taskClasses.headerTitle}>Tasks</h1>
 
-            {/* Toolbar */}
             <div className={taskClasses.toolbar}>
-              {/* Left: View Tabs */}
               <div className={taskClasses.viewTabsWrapper}>
                 <Button
                   variant="ghost"
-                  onClick={() => setActiveView('kanban')}
-                  className={taskClasses.viewTab(activeView === 'kanban')}
+                  onClick={() => setActiveView("kanban")}
+                  className={taskClasses.viewTab(activeView === "kanban")}
                 >
                   <Layout size={16} />
                   Kanban
                 </Button>
                 <Button
                   variant="ghost"
-                  onClick={() => setActiveView('list')}
-                  className={taskClasses.viewTab(activeView === 'list')}
+                  onClick={() => setActiveView("list")}
+                  className={taskClasses.viewTab(activeView === "list")}
                 >
                   <List size={16} />
                   List
                 </Button>
               </div>
 
-              {/* Right: Actions */}
               <div className={taskClasses.actionsWrapper}>
                 <div
                   className={`${taskClasses.searchButton} cursor-pointer hover:bg-gray-100 transition-colors`}
@@ -130,22 +147,31 @@ const Tasks: React.FC = () => {
                   onChange={setFilterPriority}
                   label="Filters"
                   options={[
-                    { key: 'all', label: 'All Priorities', value: null },
-                    { key: 'urgent', label: 'Urgent', value: 'URGENT' },
-                    { key: 'high', label: 'High', value: 'HIGH' },
-                    { key: 'medium', label: 'Medium', value: 'MEDIUM' },
-                    { key: 'low', label: 'Low', value: 'LOW' },
+                    { key: "all", label: "All Priorities", value: null },
+                    { key: "urgent", label: "Urgent", value: "URGENT" },
+                    { key: "high", label: "High", value: "HIGH" },
+                    { key: "medium", label: "Medium", value: "MEDIUM" },
+                    { key: "low", label: "Low", value: "LOW" },
                   ]}
                 />
                 <SortControl
                   value={sortBy}
-                  onChange={setSortBy}
+                  onChange={(value) =>
+                    setSortBy(
+                      value as
+                      | "priority"
+                      | "dueDate"
+                      | "newest"
+                      | "oldest"
+                      | "alpha"
+                    )
+                  }
                   options={[
-                    { key: 'newest', label: 'Newest' },
-                    { key: 'oldest', label: 'Oldest' },
-                    { key: 'dueDate', label: 'Due Date' },
-                    { key: 'priority', label: 'Priority' },
-                    { key: 'alpha', label: 'A-Z' },
+                    { key: "newest", label: "Newest" },
+                    { key: "oldest", label: "Oldest" },
+                    { key: "dueDate", label: "Due Date" },
+                    { key: "priority", label: "Priority" },
+                    { key: "alpha", label: "A-Z" },
                   ]}
                 />
                 <Button
@@ -160,11 +186,13 @@ const Tasks: React.FC = () => {
             </div>
           </div>
 
-          {/* Kanban Board */}
-          {activeView === 'kanban' ? (
+          {activeView === "kanban" ? (
             <DragDropContext onDragEnd={handleDragEnd}>
               <div className={taskClasses.kanbanWrapper}>
-                <div className={taskClasses.kanbanBoard}>
+                <motion.div
+                  className={taskClasses.kanbanBoard}
+                  variants={itemVariants}
+                >
                   {visibleColumns.map((col) => (
                     <div
                       key={col.id}
@@ -187,7 +215,6 @@ const Tasks: React.FC = () => {
                     </div>
                   ))}
 
-                  {/* Add Section Button & Dropdown */}
                   <div className={taskClasses.addSectionWrapper}>
                     <Dropdown
                       align="right"
@@ -202,11 +229,13 @@ const Tasks: React.FC = () => {
                       }
                       items={
                         hiddenColumns.length > 0
-                          ? hiddenColumns.map(col => ({
+                          ? hiddenColumns.map((col) => ({
                             key: col.id,
                             label: (
                               <div className="flex items-center gap-2">
-                                <div className={taskClasses.columnDot(col.color)}></div>
+                                <div
+                                  className={taskClasses.columnDot(col.color)}
+                                ></div>
                                 {col.title}
                               </div>
                             ),
@@ -214,26 +243,27 @@ const Tasks: React.FC = () => {
                           }))
                           : [
                             {
-                              key: 'empty',
+                              key: "empty",
                               custom: true,
                               label: (
                                 <div className={taskClasses.addSectionEmpty}>
                                   All sections visible
                                 </div>
-                              )
-                            }
+                              ),
+                            },
                           ]
                       }
                     />
                   </div>
-                </div>
+                </motion.div>
               </div>
             </DragDropContext>
           ) : (
-            /* List View */
             <div className={taskClasses.listWrapper}>
-              <div className={taskClasses.listContainer}>
-                {/* Table Header */}
+              <motion.div
+                className={taskClasses.listContainer}
+                variants={itemVariants}
+              >
                 <div className={taskClasses.listHeader}>
                   <div>Task Name</div>
                   <div>Project</div>
@@ -243,52 +273,73 @@ const Tasks: React.FC = () => {
                   <div>Status</div>
                 </div>
 
-                {/* Table Rows */}
-                <div className={taskClasses.listBody}>
+                <motion.div
+                  className={taskClasses.listBody}
+                  variants={listContainerVariants}
+                  initial="hidden"
+                  animate="show"
+                >
                   {getAllSortedTasks().map((task) => {
-                    // Find the column for this task to get color/title
-                    const taskColumn = columns.find(c => c.id === task.status) || { color: 'bg-gray-400', title: task.status };
+                    const taskColumn = columns.find(
+                      (c) => c.id === task.status
+                    ) || { color: "bg-gray-400", title: task.status };
                     return (
-                      <div
+                      <motion.div
                         key={task.id}
                         onClick={() => handleTaskClick(task)}
                         className={taskClasses.listRow}
+                        variants={listItemVariants}
                       >
-                        {/* Task Name */}
                         <div>
-                          <div className={taskClasses.taskName}>{task.title || task.name}</div>
+                          <div className={taskClasses.taskName}>
+                            {task.title || task.name}
+                          </div>
                           {task.description && (
-                            <div className={taskClasses.taskDescription}>{task.description}</div>
+                            <div className={taskClasses.taskDescription}>
+                              {task.description}
+                            </div>
                           )}
-                          {/* Stats */}
                           <div className={taskClasses.taskStats}>
-                            {typeof task.subtasks === 'number' && task.subtasks > 0 && (
-                              <div className={taskClasses.taskStat}>
-                                <FileText size={11} />
-                                <span>{task.subtasks}</span>
-                              </div>
-                            )}
-                            {(typeof task.comments === 'number' ? task.comments : task.comments?.length || 0) > 0 && (
-                              <div className={taskClasses.taskStat}>
-                                <MessageSquare size={11} />
-                                <span>{typeof task.comments === 'number' ? task.comments : task.comments?.length}</span>
-                              </div>
-                            )}
-                            {(typeof task.attachments === 'number' ? task.attachments : task.attachments?.length || 0) > 0 && (
-                              <div className={taskClasses.taskStat}>
-                                <Paperclip size={11} />
-                                <span>{typeof task.attachments === 'number' ? task.attachments : task.attachments?.length}</span>
-                              </div>
-                            )}
+                            {typeof task.subtasks === "number" &&
+                              task.subtasks > 0 && (
+                                <div className={taskClasses.taskStat}>
+                                  <FileText size={11} />
+                                  <span>{task.subtasks}</span>
+                                </div>
+                              )}
+                            {(typeof task.comments === "number"
+                              ? task.comments
+                              : task.comments?.length || 0) > 0 && (
+                                <div className={taskClasses.taskStat}>
+                                  <MessageSquare size={11} />
+                                  <span>
+                                    {typeof task.comments === "number"
+                                      ? task.comments
+                                      : task.comments?.length}
+                                  </span>
+                                </div>
+                              )}
+                            {(typeof task.attachments === "number"
+                              ? task.attachments
+                              : task.attachments?.length || 0) > 0 && (
+                                <div className={taskClasses.taskStat}>
+                                  <Paperclip size={11} />
+                                  <span>
+                                    {typeof task.attachments === "number"
+                                      ? task.attachments
+                                      : task.attachments?.length}
+                                  </span>
+                                </div>
+                              )}
                           </div>
                         </div>
 
-                        {/* Project */}
                         <div className={taskClasses.projectName}>
-                          {typeof task.project === 'string' ? task.project : task.project?.name || '-'}
+                          {typeof task.project === "string"
+                            ? task.project
+                            : task.project?.name || "-"}
                         </div>
 
-                        {/* Assignee */}
                         <div className={taskClasses.assigneesWrapper}>
                           {(task.assignees || []).map((assignee, idx) => (
                             <div
@@ -303,23 +354,25 @@ const Tasks: React.FC = () => {
                                   className={taskClasses.assigneeImage}
                                 />
                               ) : (
-                                (assignee.name || 'U').charAt(0).toUpperCase()
+                                (assignee.name || "U").charAt(0).toUpperCase()
                               )}
                             </div>
                           ))}
                         </div>
 
-                        {/* Due Date */}
                         <div className={taskClasses.dueDateWrapper}>
                           {task.dueDate ? (
                             <>
                               <Calendar size={12} />
                               <span>
-                                {new Date(task.dueDate).toLocaleDateString('en-US', {
-                                  month: 'short',
-                                  day: 'numeric',
-                                  year: 'numeric'
-                                })}
+                                {new Date(task.dueDate).toLocaleDateString(
+                                  "en-US",
+                                  {
+                                    month: "short",
+                                    day: "numeric",
+                                    year: "numeric",
+                                  }
+                                )}
                               </span>
                             </>
                           ) : (
@@ -327,38 +380,51 @@ const Tasks: React.FC = () => {
                           )}
                         </div>
 
-                        {/* Priority */}
                         <div>
                           {task.priority && (
-                            <Badge variant={
-                              task.priority === "URGENT" || task.priority === "HIGH" ? "danger" :
-                                task.priority === "MEDIUM" ? "warning" :
-                                  task.priority === "LOW" ? "success" : "default"
-                            }>
-                              {task.priority.charAt(0) + task.priority.slice(1).toLowerCase()}
+                            <Badge
+                              variant={
+                                task.priority === "URGENT" ||
+                                  task.priority === "HIGH"
+                                  ? "danger"
+                                  : task.priority === "MEDIUM"
+                                    ? "warning"
+                                    : task.priority === "LOW"
+                                      ? "success"
+                                      : "default"
+                              }
+                            >
+                              {task.priority.charAt(0) +
+                                task.priority.slice(1).toLowerCase()}
                             </Badge>
                           )}
                         </div>
 
-                        {/* Status */}
                         <div className={taskClasses.statusWrapper}>
                           <div
                             className={taskClasses.statusDot}
-                            style={{ backgroundColor: taskColumn.color.startsWith('bg-') ? undefined : taskColumn.color }}
+                            style={{
+                              backgroundColor: taskColumn.color.startsWith(
+                                "bg-"
+                              )
+                                ? undefined
+                                : taskColumn.color,
+                            }}
                           />
-                          <span className={taskClasses.statusText}>{taskColumn.title}</span>
+                          <span className={taskClasses.statusText}>
+                            {taskColumn.title}
+                          </span>
                         </div>
-                      </div>
+                      </motion.div>
                     );
                   })}
-                </div>
-              </div>
+                </motion.div>
+              </motion.div>
             </div>
           )}
-        </div>
+        </motion.div>
       </main>
 
-      {/* Task Detail Modal */}
       <TaskDetailModal
         isOpen={!!selectedTask}
         onClose={closeTaskDetail}
@@ -366,7 +432,6 @@ const Tasks: React.FC = () => {
         onEdit={handleEditTask}
       />
 
-      {/* Create Task Modal */}
       <CreateTaskModal
         isOpen={isCreateTaskModalOpen}
         initialStatus={modalInitialStatus}

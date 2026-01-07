@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Search,
   Bell,
@@ -6,11 +7,12 @@ import {
   FilePlus2,
   ChevronDown,
   UserPlus,
-  Settings
+  Settings,
+  LayoutDashboard,
 } from "lucide-react";
 
 import SidebarItem from "../../components/sidebar/SidebarItem";
-import { LetterIcon, SidebarSkeleton } from "../../components/ui"
+import { LetterIcon, SidebarSkeleton } from "../../components/ui";
 import { useSidebar } from "./hooks/useSidebar";
 import SettingsModal from "../../components/sidebar/SettingsModal";
 import NotificationsPopup from "../../components/sidebar/NotificationsPopup";
@@ -22,22 +24,32 @@ import type { SidebarProps, CreateProjectPayload } from "../../types";
 import { sidebarClasses } from "./sidebarStyle";
 import { IMAGES } from "../../constants/images";
 
-import { useCreateProjectMutation, useGetProjectsQuery } from "../../store/api/projectApiSlice";
-import { useGetTeamsQuery } from "../../store/api/teamApiSlice";
+import {
+  useCreateProjectMutation,
+  useGetProjectsQuery,
+} from "../../store/api/projectApiSlice";
+import { useGetAllTeamsQuery } from "../../store/api/teamApiSlice";
+import { useGetNotificationsQuery } from "../../store/api/notificationApiSlice";
 import { showToast, getErrorMessage } from "../../components/ui";
 
 const Sidebar: React.FC<SidebarProps> = ({ open, onClose }) => {
-
-  const { sections, isSettingsOpen, setIsSettingsOpen, toggleSection } = useSidebar();
+  const { sections, isSettingsOpen, setIsSettingsOpen, toggleSection } =
+    useSidebar();
   const [createProject] = useCreateProjectMutation();
-  const { data: projects = [], isLoading: isProjectsLoading } = useGetProjectsQuery();
-  const { data: teams = [], isLoading: isTeamsLoading } = useGetTeamsQuery();
+  const { data: projects = [], isLoading: isProjectsLoading } =
+    useGetProjectsQuery();
+  const { data: teams = [], isLoading: isTeamsLoading } = useGetAllTeamsQuery();
+  const { data: notifications = [] } = useGetNotificationsQuery(undefined, {
+    pollingInterval: 30000,
+    refetchOnFocus: true,
+  });
+  const unreadNotificationCount = notifications.filter((n) => !n.isRead).length;
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isCreateProjectOpen, setIsCreateProjectOpen] = useState(false);
   const [isTemplateLibraryOpen, setIsTemplateLibraryOpen] = useState(false);
   const [isTeamModalOpen, setIsTeamModalOpen] = useState(false);
-  const [settingsInitialTab, setSettingsInitialTab] = useState('Profile');
+  const [settingsInitialTab, setSettingsInitialTab] = useState("Profile");
 
   const handleOpenTemplateLibrary = () => {
     setIsCreateProjectOpen(false);
@@ -49,7 +61,9 @@ const Sidebar: React.FC<SidebarProps> = ({ open, onClose }) => {
     setIsCreateProjectOpen(true);
   };
 
-  const handleCreateProject = async (data: CreateProjectPayload): Promise<void> => {
+  const handleCreateProject = async (
+    data: CreateProjectPayload
+  ): Promise<void> => {
     try {
       await createProject(data).unwrap();
       showToast.success("Project created successfully!");
@@ -59,25 +73,31 @@ const Sidebar: React.FC<SidebarProps> = ({ open, onClose }) => {
     }
   };
 
-
   return (
     <>
-      {/* Overlay */}
-      {open && (
-        <div
-          className={sidebarClasses.overlay}
-          onClick={onClose}
-        />
-      )}
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            className={sidebarClasses.overlay}
+            onClick={onClose}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+          />
+        )}
+      </AnimatePresence>
 
-      {/* Sidebar Panel */}
-      <aside className={sidebarClasses.aside(open)}>
-        {/* Show full skeleton while loading */}
-        {(isTeamsLoading || isProjectsLoading) ? (
+      <motion.aside
+        className={sidebarClasses.aside(open)}
+        initial={false}
+        animate={{ x: open ? 0 : -280 }}
+        transition={{ type: "spring", stiffness: 300, damping: 30 }}
+      >
+        {isTeamsLoading || isProjectsLoading ? (
           <SidebarSkeleton />
         ) : (
           <>
-            {/* Header */}
             <div className={sidebarClasses.header}>
               <div className={sidebarClasses.logoWrapper}>
                 <img
@@ -85,25 +105,23 @@ const Sidebar: React.FC<SidebarProps> = ({ open, onClose }) => {
                   alt="Logo"
                   className={sidebarClasses.logoImage}
                 />
-                <span className={sidebarClasses.logoText}>
-                  Defcon systems
-                </span>
+                <span className={sidebarClasses.logoText}>Defcon systems</span>
                 <ChevronDown size={14} className={sidebarClasses.chevronIcon} />
               </div>
 
-              {/* Collapse Button */}
               <button
                 className={sidebarClasses.collapseButton}
                 onClick={onClose}
               >
-                <img src={IMAGES.collapse} alt="Collapse" className={sidebarClasses.collapseImage} />
+                <img
+                  src={IMAGES.collapse}
+                  alt="Collapse"
+                  className={sidebarClasses.collapseImage}
+                />
               </button>
             </div>
 
-            {/* Scrollable Content */}
             <div className={sidebarClasses.scrollableContent}>
-
-              {/* Main */}
               <div className={sidebarClasses.mainSection}>
                 <SidebarItem
                   icon={Search}
@@ -112,10 +130,24 @@ const Sidebar: React.FC<SidebarProps> = ({ open, onClose }) => {
                   onClick={() => setIsSearchOpen(true)}
                 />
                 <SidebarItem
+                  icon={LayoutDashboard}
+                  label="Dashboard"
+                  to="/dashboard"
+                />
+                <SidebarItem
                   icon={Bell}
                   label="Notifications"
                   isActive={isNotificationsOpen}
                   onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
+                  badge={
+                    unreadNotificationCount > 0 ? (
+                      <span className="flex items-center justify-center min-w-[18px] h-[18px] px-1 text-[10px] font-bold text-white bg-red-500 rounded-full">
+                        {unreadNotificationCount > 9
+                          ? "9+"
+                          : unreadNotificationCount}
+                      </span>
+                    ) : undefined
+                  }
                 />
                 <SidebarItem icon={CheckCircle2} label="Tasks" to="/tasks" />
                 <SidebarItem
@@ -125,13 +157,9 @@ const Sidebar: React.FC<SidebarProps> = ({ open, onClose }) => {
                 />
               </div>
 
-              {/* Teamspaces */}
               <div>
-                <div className={sidebarClasses.teamspacesTitle}>
-                  Teamspaces
-                </div>
+                <div className={sidebarClasses.teamspacesTitle}>Teamspaces</div>
 
-                {/* Dynamic Teams Section */}
                 <SidebarItem
                   label="Teams"
                   badge={<LetterIcon letter="T" />}
@@ -161,7 +189,6 @@ const Sidebar: React.FC<SidebarProps> = ({ open, onClose }) => {
 
                 <div className={sidebarClasses.spacer} />
 
-                {/* Dynamic Projects Section */}
                 <SidebarItem
                   label="Projects"
                   badge={<LetterIcon letter="P" />}
@@ -191,13 +218,12 @@ const Sidebar: React.FC<SidebarProps> = ({ open, onClose }) => {
               </div>
             </div>
 
-            {/* Footer */}
             <div className={sidebarClasses.footer}>
               <SidebarItem
                 icon={UserPlus}
                 label="Invite teammates"
                 onClick={() => {
-                  setSettingsInitialTab('Members');
+                  setSettingsInitialTab("Members");
                   setIsSettingsOpen(true);
                 }}
               />
@@ -205,17 +231,27 @@ const Sidebar: React.FC<SidebarProps> = ({ open, onClose }) => {
                 icon={Settings}
                 label="Setting"
                 onClick={() => {
-                  setSettingsInitialTab('Profile');
+                  setSettingsInitialTab("Profile");
                   setIsSettingsOpen(true);
                 }}
               />
             </div>
           </>
         )}
-      </aside>
-      <SettingsModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} initialTab={settingsInitialTab} />
-      <NotificationsPopup isOpen={isNotificationsOpen} onClose={() => setIsNotificationsOpen(false)} />
-      <SearchPopup isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
+      </motion.aside>
+      <SettingsModal
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
+        initialTab={settingsInitialTab}
+      />
+      <NotificationsPopup
+        isOpen={isNotificationsOpen}
+        onClose={() => setIsNotificationsOpen(false)}
+      />
+      <SearchPopup
+        isOpen={isSearchOpen}
+        onClose={() => setIsSearchOpen(false)}
+      />
       <CreateProjectModal
         isOpen={isCreateProjectOpen}
         onClose={() => setIsCreateProjectOpen(false)}

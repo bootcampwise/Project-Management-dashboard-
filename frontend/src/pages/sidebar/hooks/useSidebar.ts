@@ -12,8 +12,6 @@ export const useSidebar = () => {
   const { sidebarOpen, isSettingsOpen, sidebarSections } = useAppSelector(
     (state) => state.ui
   );
-
-  // Centralized Resize Logic
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth < 768) {
@@ -22,22 +20,16 @@ export const useSidebar = () => {
         dispatch(setSidebarOpen(true));
       }
     };
-
-    // Set initial state
     handleResize();
-
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, [dispatch]);
 
   return {
-    // State
     open: sidebarOpen,
     sidebarOpen,
     isSettingsOpen,
     sections: sidebarSections,
-
-    // Actions
     onClose: () => dispatch(setSidebarOpen(false)),
     toggleSidebar: () => dispatch(toggleSidebar()),
     setSidebarOpen: (open: boolean) => dispatch(setSidebarOpen(open)),

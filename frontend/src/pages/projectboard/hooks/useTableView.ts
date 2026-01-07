@@ -148,21 +148,16 @@ export const useTableView = (tasks: Task[] = []) => {
   };
 };
 
-// Helper to format date
 const formatDate = (dateString?: string) => {
   if (!dateString) return "";
   const date = new Date(dateString);
   return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
 };
 
-// Helper to map Task to TableTask
 const mapTaskToTableTask = (task: Task) => {
   const tags = task.labels || task.tags || [];
   const mappedLabels = tags.map((tag: string | { text: string }) => {
     const labelText = typeof tag === "string" ? tag : tag.text;
-
-    // Always generate color based on text to ensure variety and consistency
-    // This overrides the backend default of "blue" for everything
     const defaults = getTagColor(labelText);
     const labelBg = defaults.bg;
     const labelColor = defaults.text;
@@ -185,7 +180,6 @@ const mapTaskToTableTask = (task: Task) => {
     labels: mappedLabels,
     comments: task.comments || 0,
     attachments: task.attachments || 0,
-    // Map missing fields for instant modal display
     creator: task.creator,
     status: task.status,
     priority: task.priority,

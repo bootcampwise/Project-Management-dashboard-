@@ -1,9 +1,5 @@
 import type { Task } from "./task.types";
 
-// ============================================
-// BOARD TYPES
-// ============================================
-
 export interface BoardColumn {
   id: string;
   title: string;
@@ -14,6 +10,8 @@ export interface BoardColumn {
 export interface BoardViewProps {
   tasks: Task[];
   onTaskClick?: (task: Task) => void;
+  onEditTask?: (task: Task) => void;
+  onDeleteTask?: (task: Task) => void;
   onAddTask?: (status: string) => void;
   visibleFields?: Record<string, boolean>;
 }

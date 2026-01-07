@@ -51,7 +51,7 @@ export const projectboardClasses = {
     "w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 flex items-center gap-2",
 
   statusBadge:
-    "flex items-center gap-1.5 px-2.5 py-1 bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-sm font-medium rounded-full",
+    "flex items-center gap-1.5 px-2.5 py-1 bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-white text-sm font-medium rounded-full",
   statusDot: "w-2 h-2 rounded-full bg-green-500",
 
   actionsWrapper: "flex items-center gap-3",

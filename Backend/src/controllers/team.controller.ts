@@ -12,10 +12,8 @@ export class TeamController {
       const { name, projectIds = [], memberIds = [] } = req.body;
       const { sub: supabaseId } = req.user!;
 
-      // Get the internal user ID from Supabase ID
       const user = await userService.getUserBySupabaseId(supabaseId);
 
-      // Ensure the creator is always included in the team's memberIds
       const allMemberIds = memberIds.includes(user.id)
         ? memberIds
         : [...memberIds, user.id];
@@ -50,10 +48,7 @@ export class TeamController {
   async getUserTeams(req: Request, res: Response, next: NextFunction) {
     try {
       const { sub: userId } = req.user!;
-
-      // Get internal user ID from Supabase ID
       const user = await userService.getUserBySupabaseId(userId);
-
       const teams = await teamService.getUserTeams(user.id);
       sendSuccess(res, teams);
     } catch (error) {
@@ -90,19 +85,69 @@ export class TeamController {
     }
   }
 
-  /**
-   * One-time sync endpoint to fix existing project-team relationships.
-   * This repairs the bidirectional many-to-many link for projects created before the fix.
-   */
   async syncProjectTeams(req: Request, res: Response, next: NextFunction) {
     try {
       const result = await teamService.syncProjectTeamRelationships();
       sendSuccess(
         res,
         result,
-        "Project-Team relationships synchronized successfully"
+        "Project-Team relationships synchronized successfully",
       );
     } catch (error) {
+      next(error);
+    }
+  }
+
+  async getTeamMemberStats(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { id } = req.params;
+      const stats = await teamService.getTeamMemberStats(id);
+      sendSuccess(res, stats);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async getTeamOverviewStats(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { id } = req.params;
+      const projectId = req.query.projectId as string | undefined;
+
+      const stats = await teamService.getTeamOverviewStats(id, projectId);
+      sendSuccess(res, stats);
+    } catch (error: unknown) {
+      next(error);
+    }
+  }
+
+  async getTopEarningProjects(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { id } = req.params;
+      const { range } = req.query;
+
+      const data = await teamService.getTopEarningProjects(id, range as string);
+      sendSuccess(res, data);
+    } catch (error: unknown) {
+      next(error);
+    }
+  }
+
+  async getYearlyIncomeOverview(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) {
+    try {
+      const { id } = req.params;
+      const { year } = req.query;
+
+      const parsedYear = year
+        ? parseInt(year as string)
+        : new Date().getFullYear();
+
+      const data = await teamService.getYearlyIncomeOverview(id, parsedYear);
+      sendSuccess(res, data);
+    } catch (error: unknown) {
       next(error);
     }
   }

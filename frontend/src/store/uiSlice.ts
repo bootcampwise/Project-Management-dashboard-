@@ -1,9 +1,15 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import type { Project, Task, UiState } from "../types";
 
-// ============================================
-// UI STATE - All UI-related state
-// ============================================
+const getStoredTimeFormat = (): "12h" | "24h" => {
+  if (typeof window !== "undefined") {
+    const stored = localStorage.getItem("timeFormat");
+    if (stored === "12h" || stored === "24h") {
+      return stored;
+    }
+  }
+  return "12h";
+};
 
 const initialState: UiState = {
   sidebarOpen: typeof window !== "undefined" && window.innerWidth >= 768,
@@ -19,13 +25,13 @@ const initialState: UiState = {
   activeTab: "Board",
   selectedTask: null,
   activeView: "kanban",
+  timeFormat: getStoredTimeFormat(),
 };
 
 const uiSlice = createSlice({
   name: "ui",
   initialState,
   reducers: {
-    // Sidebar
     toggleSidebar: (state) => {
       state.sidebarOpen = !state.sidebarOpen;
     },
@@ -40,12 +46,9 @@ const uiSlice = createSlice({
         !state.sidebarSections[action.payload];
     },
 
-    // Settings
     setSettingsOpen: (state, action: PayloadAction<boolean>) => {
       state.isSettingsOpen = action.payload;
     },
-
-    // Project UI
     setActiveProject: (state, action: PayloadAction<Project | null>) => {
       state.activeProject = action.payload;
     },
@@ -62,12 +65,18 @@ const uiSlice = createSlice({
       state.isTemplateLibraryOpen = action.payload;
     },
 
-    // Task UI
     setSelectedTask: (state, action: PayloadAction<Task | null>) => {
       state.selectedTask = action.payload;
     },
     setActiveView: (state, action: PayloadAction<"kanban" | "list">) => {
       state.activeView = action.payload;
+    },
+
+    setTimeFormat: (state, action: PayloadAction<"12h" | "24h">) => {
+      state.timeFormat = action.payload;
+      if (typeof window !== "undefined") {
+        localStorage.setItem("timeFormat", action.payload);
+      }
     },
   },
 });
@@ -84,6 +93,7 @@ export const {
   setTemplateLibraryOpen,
   setSelectedTask,
   setActiveView,
+  setTimeFormat,
 } = uiSlice.actions;
 
 export default uiSlice.reducer;

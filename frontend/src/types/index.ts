@@ -1,11 +1,10 @@
-// ============================================
-// BARREL EXPORT - All Types
-// ============================================
+export type {
+  User,
+  AuthState,
+  MemberItem,
+  ForgotPasswordProps,
+} from "./user.types";
 
-// User & Auth Types
-export type { User, AuthState, MemberItem } from "./user.types";
-
-// Task Types
 export type {
   Attachment,
   SubTask,
@@ -33,7 +32,6 @@ export type {
   LatestTask,
 } from "./task.types";
 
-// Project Types
 export type {
   Project,
   CreateProjectPayload,
@@ -44,7 +42,6 @@ export type {
   UseCreateProjectModalProps,
 } from "./project.types";
 
-// Team Types
 export type {
   TeamMember,
   Team,
@@ -58,9 +55,15 @@ export type {
   TeamFilesProps,
   TeamStatCardProps,
   TeamTableViewProps,
+  TopEarningProps,
+  TeamOverviewChartProps,
+  TeamDashboardProps,
+  TopEarningProject,
+  YearlyOverviewData,
+  TeamMemberStats,
+  TeamStats,
 } from "./team.types";
 
-// Calendar Types
 export type {
   CalendarTask,
   CalendarEvent,
@@ -77,7 +80,6 @@ export type {
   UseCalendarViewProps,
 } from "./calendar.types";
 
-// Board Types
 export type {
   BoardColumn,
   BoardViewProps,
@@ -85,7 +87,6 @@ export type {
   BoardColumnState,
 } from "./board.types";
 
-// UI Types
 export type {
   UiState,
   SidebarProps,
@@ -118,7 +119,6 @@ export type {
   DropdownProps,
 } from "./ui.types";
 
-// API Types
 export type {
   ApiRequest,
   ApiError,
@@ -128,9 +128,32 @@ export type {
   CacheItem,
 } from "./api.types";
 
-// Dashboard Types
 export type {
   TopTasksMember,
   DashboardStatCardProps,
   ChartTooltipProps,
+  TopCompletedTasksProps,
+  TimeRange,
+  StatsGridProps,
+  CompletionChartProps,
+  ScheduleCalendarProps,
+  LatestTasksProps,
+  BudgetChartProps,
 } from "./dashboard.types";
+
+export type {
+  Notification,
+  NotificationActor,
+  NotificationItemProps,
+} from "./notification.types";
+
+export type {
+  CustomFieldType,
+  CustomField,
+  CustomFieldValue,
+  CreateCustomFieldPayload,
+  SetCustomFieldValuePayload,
+  TaskCustomFieldsProps,
+  FieldInputProps,
+  AddFieldModalProps,
+} from "./customField.types";

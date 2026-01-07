@@ -1,26 +1,38 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { showToast, getErrorMessage } from "../../../components/ui";
 import {
   useLoginMutation,
   useLoginWithGoogleMutation,
 } from "../../../store/api/authApiSlice";
 
+type AuthView = "login" | "forgot-password";
+
 export const useLogin = () => {
   const navigate = useNavigate();
+  const location = useLocation();
 
-  // RTK Query mutations for auth
+  useEffect(() => {
+    const accountDeleted = localStorage.getItem("accountDeleted");
+    if (accountDeleted === "true") {
+      localStorage.removeItem("accountDeleted");
+      showToast.success("Account deleted successfully");
+    }
+  }, []);
+
+  const from =
+    (location.state as { from?: { pathname: string } })?.from?.pathname ||
+    "/dashboard";
+
   const [login, { isLoading: isEmailLoading, error: emailError }] =
     useLoginMutation();
   const [loginWithGoogle, { isLoading: isGoogleLoading }] =
     useLoginWithGoogleMutation();
 
-  // Form state
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isHovered, setIsHovered] = useState(false);
-
-  // Combined loading state
+  const [view, setView] = useState<AuthView>("login");
   const isLoading = isEmailLoading || isGoogleLoading;
 
   const handleGoogleSignIn = () => {
@@ -30,12 +42,24 @@ export const useLogin = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await login({ email, password }).unwrap();
+      const user = await login({ email, password }).unwrap();
       showToast.success("Login successfully");
-      navigate("/dashboard");
+
+      if (!user.hasCompletedOnboarding) {
+        navigate("/welcome", { replace: true });
+      } else {
+        navigate(from, { replace: true });
+      }
     } catch (error) {
       showToast.error(`Failed to login. ${getErrorMessage(error)}`);
     }
+  };
+
+  const handleForgotPassword = () => {
+    setView("forgot-password");
+  };
+  const handleBackToLogin = () => {
+    setView("login");
   };
 
   return {
@@ -50,5 +74,9 @@ export const useLogin = () => {
     handleGoogleSignIn,
     handleSubmit,
     navigate,
+    authView: view,
+    setAuthView: setView,
+    handleForgotPassword,
+    handleBackToLogin,
   };
 };

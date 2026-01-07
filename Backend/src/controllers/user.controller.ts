@@ -6,7 +6,6 @@ import { UpdateUserInput } from "../types/user.types";
 const userService = new UserService();
 
 export class UserController {
-  // Get user profile (create user if not exists)
   async getProfile(req: Request, res: Response, next: NextFunction) {
     try {
       const currentUserId = req.user?.sub;
@@ -14,7 +13,6 @@ export class UserController {
         return res.status(401).json({ error: "Unauthorized" });
       }
 
-      // Ensure user exists, create if not
       const user = await userService.findOrCreateUser(
         currentUserId,
         req.user?.email || "",
@@ -28,7 +26,6 @@ export class UserController {
     }
   }
 
-  // Get all users
   async getAllUsers(req: Request, res: Response, next: NextFunction) {
     try {
       const users = await userService.getAllUsers();
@@ -38,7 +35,6 @@ export class UserController {
     }
   }
 
-  // Update user profile
   async updateProfile(req: Request, res: Response, next: NextFunction) {
     try {
       const currentUserId = req.user?.sub;
@@ -55,7 +51,6 @@ export class UserController {
     }
   }
 
-  // Delete user account
   async deleteAccount(req: Request, res: Response, next: NextFunction) {
     try {
       const currentUserId = req.user?.sub;
@@ -65,6 +60,22 @@ export class UserController {
 
       await userService.deleteUser(currentUserId);
       sendSuccess(res, null, "Account deleted successfully");
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async checkEmailExists(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { email } = req.body;
+
+      if (!email || typeof email !== "string") {
+        return res.status(400).json({ error: "Email is required" });
+      }
+
+      const user = await userService.findByEmail(email);
+
+      res.json({ exists: !!user });
     } catch (error) {
       next(error);
     }

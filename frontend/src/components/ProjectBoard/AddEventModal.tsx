@@ -1,43 +1,59 @@
-import React from 'react';
-import { X, Type } from 'lucide-react';
-import { IconButton, Select, Input, Textarea } from '../ui';
-import type { AddEventModalProps } from '../../types';
+import React from "react";
+import { X, Type } from "lucide-react";
+import { IconButton, Select, Input, Textarea } from "../ui";
+import type { AddEventModalProps } from "../../types";
 import { useAddEventModal } from "../../pages/projectboard/hooks/useAddEventModal";
 
-
-const AddEventModal: React.FC<AddEventModalProps> = ({ isOpen, onClose, onAdd, onUpdate, projectId, event }) => {
+const AddEventModal: React.FC<AddEventModalProps> = ({
+  isOpen,
+  onClose,
+  onAdd,
+  onUpdate,
+  projectId,
+  event,
+}) => {
   const {
-    title, setTitle,
-    eventType, setEventType,
-    date, setDate,
-    startTime, setStartTime,
-    endTime, setEndTime,
-    description, setDescription,
+    title,
+    setTitle,
+    eventType,
+    setEventType,
+    date,
+    setDate,
+    startTime,
+    setStartTime,
+    endTime,
+    setEndTime,
+    description,
+    setDescription,
     isLoading,
     isEditMode,
-    handleSubmit
+    handleSubmit,
   } = useAddEventModal({ onClose, onAdd, onUpdate, projectId, event });
 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm" onClick={onClose}>
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm"
+      onClick={onClose}
+    >
       <div
         className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-lg mx-4 flex flex-col max-h-[90vh]"
-        onClick={e => e.stopPropagation()}
+        onClick={(e) => e.stopPropagation()}
       >
-        {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-700">
           <h2 className="text-xl font-bold text-gray-800 dark:text-white">
-            {isEditMode ? 'Edit Event' : 'Add Event in Calendar'}
+            {isEditMode ? "Edit Event" : "Add Event in Calendar"}
           </h2>
-          <IconButton icon={<X size={20} />} onClick={onClose} className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300" disabled={isLoading} />
+          <IconButton
+            icon={<X size={20} />}
+            onClick={onClose}
+            className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300"
+            disabled={isLoading}
+          />
         </div>
 
-        {/* Body */}
         <div className="p-6 overflow-y-auto space-y-5">
-
-          {/* Title */}
           <Input
             type="text"
             label="Title"
@@ -48,7 +64,6 @@ const AddEventModal: React.FC<AddEventModalProps> = ({ isOpen, onClose, onAdd, o
             disabled={isLoading}
           />
 
-          {/* Event Type */}
           <div>
             <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5 flex items-center gap-2">
               <Type size={16} className="text-gray-400 dark:text-gray-500" />
@@ -59,16 +74,15 @@ const AddEventModal: React.FC<AddEventModalProps> = ({ isOpen, onClose, onAdd, o
               onChange={(e) => setEventType(e.target.value)}
               disabled={isLoading}
               options={[
-                { value: 'MEETING', label: 'Meeting' },
-                { value: 'HOLIDAY', label: 'Holiday' },
-                { value: 'EVENT', label: 'Event' },
-                { value: 'DEADLINE', label: 'Deadline' },
-                { value: 'REMINDER', label: 'Reminder' }
+                { value: "MEETING", label: "Meeting" },
+                { value: "HOLIDAY", label: "Holiday" },
+                { value: "EVENT", label: "Event" },
+                { value: "DEADLINE", label: "Deadline" },
+                { value: "REMINDER", label: "Reminder" },
               ]}
             />
           </div>
 
-          {/* Date */}
           <Input
             type="date"
             label="Date"
@@ -78,12 +92,11 @@ const AddEventModal: React.FC<AddEventModalProps> = ({ isOpen, onClose, onAdd, o
             disabled={isLoading}
           />
 
-          {/* Time Range */}
           <div className="grid grid-cols-2 gap-4">
             <Input
               type="time"
               label="Start Time"
-              required={eventType !== 'HOLIDAY'}
+              required={eventType !== "HOLIDAY"}
               value={startTime}
               onChange={(e) => setStartTime(e.target.value)}
               disabled={isLoading}
@@ -97,7 +110,6 @@ const AddEventModal: React.FC<AddEventModalProps> = ({ isOpen, onClose, onAdd, o
             />
           </div>
 
-          {/* Description */}
           <Textarea
             label="Description"
             value={description}
@@ -106,10 +118,8 @@ const AddEventModal: React.FC<AddEventModalProps> = ({ isOpen, onClose, onAdd, o
             placeholder="Enter about your event or meeting etc"
             disabled={isLoading}
           />
-
         </div>
 
-        {/* Footer */}
         <div className="px-6 py-4 border-t border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900/50 rounded-b-xl flex items-center justify-end gap-3">
           <button
             onClick={onClose}
@@ -126,13 +136,25 @@ const AddEventModal: React.FC<AddEventModalProps> = ({ isOpen, onClose, onAdd, o
             {isLoading ? (
               <>
                 <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                    fill="none"
+                  />
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  />
                 </svg>
-                <span>{isEditMode ? 'Saving...' : 'Adding...'}</span>
+                <span>{isEditMode ? "Saving..." : "Adding..."}</span>
               </>
             ) : (
-              <span>{isEditMode ? 'Save Changes' : 'Add Event'}</span>
+              <span>{isEditMode ? "Save Changes" : "Add Event"}</span>
             )}
           </button>
         </div>
@@ -142,4 +164,3 @@ const AddEventModal: React.FC<AddEventModalProps> = ({ isOpen, onClose, onAdd, o
 };
 
 export default AddEventModal;
-

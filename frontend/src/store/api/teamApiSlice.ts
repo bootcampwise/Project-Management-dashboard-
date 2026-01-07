@@ -5,20 +5,16 @@ import type {
   User,
   CreateTeamPayload,
   UpdateTeamPayload,
+  TopEarningProject,
+  YearlyOverviewData,
+  TeamMemberStats,
+  TeamStats,
 } from "../../types";
-
-// ============================================
-// TEAM API ENDPOINTS
-// ============================================
 
 export const teamApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
-    // ----------------------------------------
-    // GET ALL TEAM MEMBERS (Users)
-    // ----------------------------------------
     getTeamMembers: builder.query<TeamMember[], void>({
       query: () => "/users/",
-      // Transform the API response to match our TeamMember type
       transformResponse: (users: User[]): TeamMember[] => {
         return users.map((user) => ({
           id: user.id,
@@ -27,18 +23,14 @@ export const teamApiSlice = apiSlice.injectEndpoints({
           position: user.jobTitle || "Member",
           groups: user.department ? [user.department] : [],
           location: "Faisalabad",
-          avatar: user.avatar || `https://i.pravatar.cc/150?u=${user.id}`,
+          avatar: user.avatar || undefined,
         }));
       },
       providesTags: ["User"],
     }),
 
-    // ----------------------------------------
-    // GET ALL TEAMS (for current user)
-    // ----------------------------------------
     getTeams: builder.query<Team[], void>({
       query: () => "/teams/my-teams",
-      // Teams update infrequently - longer cache is fine
       keepUnusedDataFor: 180,
       providesTags: (result) =>
         result
@@ -49,9 +41,6 @@ export const teamApiSlice = apiSlice.injectEndpoints({
           : [{ type: "Team", id: "LIST" }],
     }),
 
-    // ----------------------------------------
-    // GET ALL TEAMS (all teams in database)
-    // ----------------------------------------
     getAllTeams: builder.query<Team[], void>({
       query: () => "/teams/all",
       keepUnusedDataFor: 180,
@@ -64,9 +53,11 @@ export const teamApiSlice = apiSlice.injectEndpoints({
           : [{ type: "Team", id: "ALL_LIST" }],
     }),
 
-    // ----------------------------------------
-    // CREATE A NEW TEAM
-    // ----------------------------------------
+    getTeam: builder.query<Team, string>({
+      query: (id) => `/teams/${id}`,
+      providesTags: (_result, _error, id) => [{ type: "Team", id }],
+    }),
+
     createTeam: builder.mutation<Team, CreateTeamPayload>({
       query: (newTeam) => ({
         url: "/teams",
@@ -79,9 +70,6 @@ export const teamApiSlice = apiSlice.injectEndpoints({
       ],
     }),
 
-    // ----------------------------------------
-    // UPDATE A TEAM
-    // ----------------------------------------
     updateTeam: builder.mutation<Team, { id: string; data: UpdateTeamPayload }>(
       {
         query: ({ id, data }) => ({
@@ -97,9 +85,6 @@ export const teamApiSlice = apiSlice.injectEndpoints({
       }
     ),
 
-    // ----------------------------------------
-    // DELETE A TEAM
-    // ----------------------------------------
     deleteTeam: builder.mutation<void, string>({
       query: (id) => ({
         url: `/teams/${id}`,
@@ -110,18 +95,70 @@ export const teamApiSlice = apiSlice.injectEndpoints({
         { type: "Team", id: "ALL_LIST" },
       ],
     }),
+
+    getTeamMemberStats: builder.query<TeamMemberStats[], string>({
+      query: (teamId) => `/teams/${teamId}/member-stats`,
+      keepUnusedDataFor: 120,
+      providesTags: (_result, _error, teamId) => [{ type: "Team", id: teamId }],
+    }),
+
+    getTeamStats: builder.query<
+      TeamStats,
+      { teamId: string; projectId?: string }
+    >({
+      query: ({ teamId, projectId }) => {
+        let url = `/teams/${teamId}/stats`;
+        if (projectId && projectId !== "all") {
+          url += `?projectId=${projectId}`;
+        }
+        return url;
+      },
+      keepUnusedDataFor: 120,
+      providesTags: (_result, _error, arg) => [
+        { type: "Team", id: arg.teamId },
+      ],
+    }),
+
+    getTopEarning: builder.query<
+      TopEarningProject[],
+      { teamId: string; range?: string }
+    >({
+      query: ({ teamId, range }) => {
+        let url = `/teams/${teamId}/top-earning`;
+        if (range) {
+          url += `?range=${range}`;
+        }
+        return url;
+      },
+      providesTags: (_result, _error, arg) => [
+        { type: "Team", id: arg.teamId },
+      ],
+    }),
+
+    getYearlyOverview: builder.query<
+      YearlyOverviewData[],
+      { teamId: string; year: number }
+    >({
+      query: ({ teamId, year }) =>
+        `/teams/${teamId}/income-overview?year=${year}`,
+      providesTags: (_result, _error, arg) => [
+        { type: "Team", id: arg.teamId },
+      ],
+    }),
   }),
 });
 
-// ============================================
-// EXPORT HOOKS
-// ============================================
-
 export const {
-  useGetTeamMembersQuery, // const { data: members } = useGetTeamMembersQuery()
-  useGetTeamsQuery, // const { data: teams } = useGetTeamsQuery() - user's teams
-  useGetAllTeamsQuery, // const { data: allTeams } = useGetAllTeamsQuery() - all teams
-  useCreateTeamMutation, // const [createTeam] = useCreateTeamMutation()
+  useGetTeamMembersQuery,
+  useGetTeamsQuery,
+  useGetTeamQuery,
+  useGetAllTeamsQuery,
+  useCreateTeamMutation,
   useUpdateTeamMutation,
   useDeleteTeamMutation,
+  useGetTeamMemberStatsQuery,
+  useGetTeamStatsQuery,
+  useGetTopEarningQuery,
+  useGetYearlyOverviewQuery,
+  usePrefetch: usePrefetchTeam,
 } = teamApiSlice;

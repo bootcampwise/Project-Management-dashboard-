@@ -1,0 +1,27 @@
+{
+  "name": "3rd-project",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "cypress run",
+    "cy:open": "cypress open",
+    "cy:run": "cypress run"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Muhammadirfan818/Project-Management-Dashboard.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Muhammadirfan818/Project-Management-Dashboard/issues"
+  },
+  "homepage": "https://github.com/Muhammadirfan818/Project-Management-Dashboard#readme",
+  "devDependencies": {
+    "cypress": "^15.8.1",
+    "typescript": "^5.9.3"
+  }
+}

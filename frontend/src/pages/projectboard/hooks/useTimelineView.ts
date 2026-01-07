@@ -9,58 +9,144 @@ import {
 } from "../../../store/api/calendarApiSlice";
 import { showToast, getErrorMessage } from "../../../components/ui";
 import type { UseTimelineViewProps } from "../../../types";
+import { useAppSelector } from "../../../store/hooks";
 
-export const useTimelineView = ({ projectId }: UseTimelineViewProps = {}) => {
+export const useTimelineView = ({
+  projectId,
+  projectIds,
+}: UseTimelineViewProps = {}) => {
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [currentDate] = useState(new Date());
+  const timeFormat = useAppSelector((state) => state.ui.timeFormat);
 
-  // RTK Query hooks
   const [fetchTodayEvents, { isLoading }] = useLazyGetTodayEventsQuery();
   const [deleteEventMutation] = useDeleteEventMutation();
   const [updateEventMutation] = useUpdateEventMutation();
 
-  // Day hours for the timeline (8:00 AM - 5:00 PM in 12-hour format)
-  const dayHours = [
-    "8 AM",
-    "9 AM",
-    "10 AM",
-    "11 AM",
-    "12 PM",
-    "1 PM",
-    "2 PM",
-    "3 PM",
-    "4 PM",
-    "5 PM",
-  ];
+  const formatHourLabel = (hour: number): string => {
+    if (timeFormat === "24h") {
+      return `${hour.toString().padStart(2, "0")}:00`;
+    }
+    if (hour === 0 || hour === 24) return "12 AM";
+    if (hour === 12) return "12 PM";
+    if (hour < 12) return `${hour} AM`;
+    return `${hour - 12} PM`;
+  };
 
-  // Fetch today's events
+  const dayHours = (() => {
+    const MAX_HOURS_DISPLAY = 10;
+
+    let minHour = 8;
+    let maxHour = 17;
+
+    if (events.length > 0) {
+      const eventHours: number[] = [];
+
+      events.forEach((event) => {
+        const startHour = new Date(event.start).getHours();
+        eventHours.push(startHour);
+
+        if (event.end) {
+          const endHour = new Date(event.end).getHours();
+          const endMinute = new Date(event.end).getMinutes();
+          eventHours.push(endMinute > 0 ? endHour + 1 : endHour);
+        }
+      });
+
+      const eventMinHour = Math.min(...eventHours);
+      const eventMaxHour = Math.max(...eventHours);
+
+      const eventSpan = eventMaxHour - eventMinHour;
+
+      if (eventSpan >= MAX_HOURS_DISPLAY) {
+        minHour = Math.max(0, eventMinHour - 1);
+        maxHour = Math.min(24, eventMaxHour + 1);
+      } else {
+        const eventCenter = Math.floor((eventMinHour + eventMaxHour) / 2);
+        const halfDisplay = Math.floor(MAX_HOURS_DISPLAY / 2);
+
+        minHour = Math.max(0, eventCenter - halfDisplay);
+        maxHour = minHour + MAX_HOURS_DISPLAY - 1;
+
+        if (maxHour > 24) {
+          maxHour = 24;
+          minHour = maxHour - MAX_HOURS_DISPLAY + 1;
+        }
+        if (eventMinHour < minHour) {
+          minHour = Math.max(0, eventMinHour - 1);
+          maxHour = minHour + MAX_HOURS_DISPLAY - 1;
+        }
+        if (eventMaxHour > maxHour) {
+          maxHour = Math.min(24, eventMaxHour + 1);
+          minHour = maxHour - MAX_HOURS_DISPLAY + 1;
+        }
+      }
+    }
+
+    const hours: string[] = [];
+    for (let h = minHour; h <= maxHour; h++) {
+      hours.push(formatHourLabel(h));
+    }
+    return hours;
+  })();
+
+  const startingHour = (() => {
+    if (dayHours.length === 0) return 8;
+    const firstLabel = dayHours[0];
+    if (timeFormat === "24h") {
+      return parseInt(firstLabel.split(":")[0], 10);
+    } else {
+      const match = firstLabel.match(/(\d+)\s*(AM|PM)/i);
+      if (!match) return 8;
+      let hour = parseInt(match[1], 10);
+      const period = match[2].toUpperCase();
+      if (period === "PM" && hour !== 12) hour += 12;
+      if (period === "AM" && hour === 12) hour = 0;
+      return hour;
+    }
+  })();
+
   const loadTodayEvents = useCallback(async () => {
-    if (!projectId) return;
+    const idsToFetch =
+      projectIds && projectIds.length > 0
+        ? projectIds
+        : projectId
+        ? [projectId]
+        : [];
+
+    if (idsToFetch.length === 0) return;
 
     try {
-      const result = await fetchTodayEvents(projectId).unwrap();
-      setEvents(result);
+      const promises = idsToFetch.map((id) => fetchTodayEvents(id).unwrap());
+      const results = await Promise.all(promises);
+
+      const allEvents = results.flat();
+      const uniqueEvents = allEvents.filter(
+        (event, index, self) =>
+          index === self.findIndex((e) => e.id === event.id)
+      );
+
+      uniqueEvents.sort(
+        (a, b) => new Date(a.start).getTime() - new Date(b.start).getTime()
+      );
+
+      setEvents(uniqueEvents);
     } catch (error) {
       showToast.error(
         `Failed to fetch today's events. ${getErrorMessage(error)}`
       );
     }
-  }, [projectId, fetchTodayEvents]);
+  }, [projectId, projectIds, fetchTodayEvents]);
 
-  // Fetch events on mount and when projectId changes
   useEffect(() => {
     loadTodayEvents();
   }, [loadTodayEvents]);
 
-  // Calculate the grid column position based on event start/end time
   const getEventGridPosition = (event: CalendarEvent) => {
     const startDate = new Date(event.start);
     const startHour = startDate.getHours();
+    const colStart = Math.max(1, startHour - startingHour + 1);
 
-    // Timeline starts at 8:00 (column 1)
-    const colStart = Math.max(1, startHour - 7);
-
-    // Calculate column span based on end time
     let colSpan = 1;
     if (event.end) {
       const endDate = new Date(event.end);
@@ -74,7 +160,7 @@ export const useTimelineView = ({ projectId }: UseTimelineViewProps = {}) => {
       colSpan = Math.max(1, colSpan);
     }
 
-    const maxCol = 10;
+    const maxCol = dayHours.length;
     if (colStart > maxCol) return null;
     if (colStart < 1) return null;
 
@@ -85,7 +171,6 @@ export const useTimelineView = ({ projectId }: UseTimelineViewProps = {}) => {
     return { colStart, colSpan };
   };
 
-  // Map event type to color
   const getEventTypeColor = (type: string): string => {
     switch (type) {
       case "MEETING":
@@ -103,7 +188,6 @@ export const useTimelineView = ({ projectId }: UseTimelineViewProps = {}) => {
     }
   };
 
-  // Get Tailwind classes for event colors
   const getColorClasses = (color: string) => {
     switch (color) {
       case "orange":
@@ -124,26 +208,23 @@ export const useTimelineView = ({ projectId }: UseTimelineViewProps = {}) => {
     }
   };
 
-  // Format time from ISO string
   const formatEventTime = (start: string, end?: string) => {
     const startDate = new Date(start);
-    const startFormatted = format(startDate, "h:mm");
+    const timeFormatPattern = timeFormat === "24h" ? "HH:mm" : "h:mm";
+    const startFormatted = format(startDate, timeFormatPattern);
 
     if (end) {
       const endDate = new Date(end);
-      const endFormatted = format(endDate, "h:mm");
+      const endFormatted = format(endDate, timeFormatPattern);
       return `${startFormatted}-${endFormatted}`;
     }
 
     return startFormatted;
   };
 
-  // Refresh events
   const refreshEvents = () => {
     loadTodayEvents();
   };
-
-  // Delete an event with toast notification
   const deleteEvent = async (eventId: string, eventTitle: string) => {
     showToast.promise(
       deleteEventMutation(eventId)
@@ -159,7 +240,6 @@ export const useTimelineView = ({ projectId }: UseTimelineViewProps = {}) => {
     );
   };
 
-  // Update an event
   const updateEvent = async (eventId: string, data: UpdateEventPayload) => {
     try {
       const updatedEvent = await updateEventMutation({

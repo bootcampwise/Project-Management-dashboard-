@@ -7,13 +7,10 @@ import type { Task, BoardColumn } from "../../../types";
 export const useTasks = () => {
   const dispatch = useAppDispatch();
 
-  // UI State from Redux
   const { activeView, sidebarOpen } = useAppSelector((state) => state.ui);
 
-  // Tasks from RTK Query
   const { data: tasks = [], isLoading } = useGetTasksQuery();
 
-  // Organize tasks into columns by status
   const columns: BoardColumn[] = useMemo(() => {
     const columnConfig = [
       { id: "TODO", title: "To-Do", color: "bg-blue-500" },
@@ -46,18 +43,13 @@ export const useTasks = () => {
   };
 
   return {
-    // States
     sidebarOpen,
     setSidebarOpen: (open: boolean) => dispatch(setSidebarOpen(open)),
     activeView,
     setActiveView: (view: "kanban" | "list") => dispatch(setActiveView(view)),
-
-    // Data
     columns,
     tasks,
     isLoading,
-
-    // Helpers
     getPriorityColor,
   };
 };

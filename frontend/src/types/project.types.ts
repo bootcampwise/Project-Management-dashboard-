@@ -1,9 +1,5 @@
 import type { TeamFile } from "./team.types";
 
-// ============================================
-// PROJECT TYPES
-// ============================================
-
 export interface Project {
   id: string;
   name: string;
@@ -32,6 +28,11 @@ export interface Project {
   updatedAt?: string;
   completedTasks?: number;
   totalTasks?: number;
+  budget?: {
+    totalBudget: number;
+    spent: number;
+    currency: string;
+  };
 }
 
 export interface CreateProjectPayload {
@@ -62,10 +63,6 @@ export interface ProjectEarning {
   iconColor: "teal" | "blue" | "orange" | "gray";
 }
 
-// ============================================
-// PROJECT MODAL PROPS
-// ============================================
-
 export interface CreateProjectModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -78,10 +75,6 @@ export interface TemplateLibraryModalProps {
   onClose: () => void;
   onSelectTemplate: () => void;
 }
-
-// ============================================
-// PROJECT HOOK PROPS
-// ============================================
 
 export interface UseCreateProjectModalProps {
   isOpen: boolean;

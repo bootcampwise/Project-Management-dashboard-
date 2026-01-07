@@ -1,8 +1,6 @@
 export const sidebarClasses = {
-  // Overlay
   overlay: "fixed inset-0 bg-black/40 z-40 md:hidden",
 
-  // Sidebar Panel
   aside: (open: boolean) => `
     fixed md:static z-50
     top-0 left-0 h-full
@@ -15,7 +13,6 @@ export const sidebarClasses = {
     }
   `,
 
-  // Header
   header: "h-14 px-4 flex items-center justify-between mb-2",
 
   logoWrapper:
@@ -28,15 +25,12 @@ export const sidebarClasses = {
     "text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 p-1 rounded-md hover:bg-gray-200/50 dark:hover:bg-gray-800/50",
   collapseImage: "w-8 h-8 object-contain opacity-60 hover:opacity-100",
 
-  // Content
   scrollableContent: "flex-1 overflow-y-auto px-2 space-y-6",
   mainSection: "space-y-0.5",
 
-  // Teamspaces
   teamspacesTitle:
     "px-4 text-xs font-semibold text-gray-400 dark:text-gray-500 mb-2",
   spacer: "h-2",
 
-  // Footer
   footer: "p-2 border-t border-gray-200 dark:border-gray-700",
 };

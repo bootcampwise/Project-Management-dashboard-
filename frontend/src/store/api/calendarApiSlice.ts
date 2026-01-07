@@ -6,21 +6,26 @@ import type {
   UpdateEventPayload,
 } from "../../types";
 
-// Re-export types for backward compatibility
 export type { EventType, CreateEventPayload, UpdateEventPayload };
 
-// Alias for API usage
 export type CalendarEvent = CalendarEventApi;
-
-// ============================================
-// CALENDAR API ENDPOINTS
-// ============================================
 
 export const calendarApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
-    // ----------------------------------------
-    // GET EVENTS BY PROJECT
-    // ----------------------------------------
+    getAllEvents: builder.query<CalendarEvent[], void>({
+      query: () => `/calendar`,
+      providesTags: (result) =>
+        result
+          ? [
+              ...result.map(({ id }) => ({
+                type: "CalendarEvent" as const,
+                id,
+              })),
+              { type: "CalendarEvent", id: "LIST" },
+            ]
+          : [{ type: "CalendarEvent", id: "LIST" }],
+    }),
+
     getProjectEvents: builder.query<CalendarEvent[], string>({
       query: (projectId) => `/calendar/project/${projectId}`,
       providesTags: (result, _error, projectId) =>
@@ -35,9 +40,6 @@ export const calendarApiSlice = apiSlice.injectEndpoints({
           : [{ type: "CalendarEvent", id: `PROJECT-${projectId}` }],
     }),
 
-    // ----------------------------------------
-    // GET EVENTS BY DATE RANGE
-    // ----------------------------------------
     getEventsByDateRange: builder.query<
       CalendarEvent[],
       { projectId: string; startDate: string; endDate: string }
@@ -49,9 +51,6 @@ export const calendarApiSlice = apiSlice.injectEndpoints({
       ],
     }),
 
-    // ----------------------------------------
-    // GET TODAY'S EVENTS (for timeline)
-    // ----------------------------------------
     getTodayEvents: builder.query<CalendarEvent[], string>({
       query: (projectId) => `/calendar/project/${projectId}/today`,
       providesTags: (_result, _error, projectId) => [
@@ -59,9 +58,6 @@ export const calendarApiSlice = apiSlice.injectEndpoints({
       ],
     }),
 
-    // ----------------------------------------
-    // GET SINGLE EVENT
-    // ----------------------------------------
     getEvent: builder.query<CalendarEvent, string>({
       query: (eventId) => `/calendar/${eventId}`,
       providesTags: (_result, _error, eventId) => [
@@ -69,9 +65,6 @@ export const calendarApiSlice = apiSlice.injectEndpoints({
       ],
     }),
 
-    // ----------------------------------------
-    // CREATE EVENT
-    // ----------------------------------------
     createEvent: builder.mutation<CalendarEvent, CreateEventPayload>({
       query: (event) => ({
         url: "/calendar",
@@ -83,9 +76,6 @@ export const calendarApiSlice = apiSlice.injectEndpoints({
       ],
     }),
 
-    // ----------------------------------------
-    // UPDATE EVENT
-    // ----------------------------------------
     updateEvent: builder.mutation<
       CalendarEvent,
       { id: string; data: UpdateEventPayload }
@@ -100,9 +90,6 @@ export const calendarApiSlice = apiSlice.injectEndpoints({
       ],
     }),
 
-    // ----------------------------------------
-    // DELETE EVENT
-    // ----------------------------------------
     deleteEvent: builder.mutation<void, string>({
       query: (eventId) => ({
         url: `/calendar/${eventId}`,
@@ -113,11 +100,8 @@ export const calendarApiSlice = apiSlice.injectEndpoints({
   }),
 });
 
-// ============================================
-// EXPORT HOOKS
-// ============================================
-
 export const {
+  useGetAllEventsQuery,
   useGetProjectEventsQuery,
   useGetEventsByDateRangeQuery,
   useLazyGetEventsByDateRangeQuery,

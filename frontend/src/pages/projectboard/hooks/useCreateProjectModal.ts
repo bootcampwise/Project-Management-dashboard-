@@ -8,7 +8,6 @@ export const useCreateProjectModal = ({
   onClose,
   onCreate,
 }: UseCreateProjectModalProps) => {
-  // Get teams from RTK Query
   const { data: teams = [] } = useGetTeamsQuery();
 
   const [projectName, setProjectName] = useState("");
@@ -36,7 +35,6 @@ export const useCreateProjectModal = ({
         privacy,
       });
       onClose();
-      // Reset form
       setProjectName("");
       setDescription("");
       setDueDate("");
@@ -44,7 +42,6 @@ export const useCreateProjectModal = ({
       setPrivacy("public");
     } catch (error: unknown) {
       console.error("Failed to create project:", error);
-      // Error handling usually done by parent or global handler, but we can toast
     } finally {
       setIsCreating(false);
     }

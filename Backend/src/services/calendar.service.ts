@@ -16,7 +16,6 @@ export class CalendarService {
     description?: string;
     projectId?: string;
   }) {
-    // Basic validation
     if (!data.title || !data.start || !data.type) {
       throw new Error("Missing required event fields");
     }
@@ -27,18 +26,20 @@ export class CalendarService {
     return this.calendarRepository.findByProjectId(projectId);
   }
 
-  // Get events for a specific date range (calendar month/week view)
+  async getEventsForProjects(projectIds: string[]) {
+    return this.calendarRepository.findByProjectIds(projectIds);
+  }
+
   async getEventsByDateRange(
     projectId: string,
     startDate: string,
-    endDate: string
+    endDate: string,
   ) {
     const start = new Date(startDate);
     const end = new Date(endDate);
     return this.calendarRepository.findByDateRange(projectId, start, end);
   }
 
-  // Get today's events for timeline
   async getTodayEvents(projectId: string) {
     const todayStart = new Date();
     todayStart.setUTCHours(0, 0, 0, 0);
@@ -49,11 +50,10 @@ export class CalendarService {
     return this.calendarRepository.findTodayEvents(
       projectId,
       todayStart,
-      todayEnd
+      todayEnd,
     );
   }
 
-  // Get a single event by ID
   async getEventById(id: string) {
     return this.calendarRepository.findById(id);
   }
@@ -66,7 +66,7 @@ export class CalendarService {
       start?: Date;
       end?: Date;
       description?: string;
-    }
+    },
   ) {
     return this.calendarRepository.update(id, data);
   }

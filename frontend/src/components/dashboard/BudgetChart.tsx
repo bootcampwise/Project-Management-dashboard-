@@ -1,76 +1,271 @@
-"use client"
+"use client";
 
-import { ArrowUpRight } from "lucide-react"
-import { Area, AreaChart, CartesianGrid, XAxis, YAxis, ResponsiveContainer, Tooltip } from "recharts"
-import type { ChartTooltipProps } from "../../types"
+import { useMemo } from "react";
+import { ArrowUpRight, ArrowDownRight } from "lucide-react";
+import {
+  Area,
+  AreaChart,
+  CartesianGrid,
+  XAxis,
+  YAxis,
+  ResponsiveContainer,
+  Tooltip,
+} from "recharts";
+import type { ChartTooltipProps, BudgetChartProps } from "../../types";
 
-const chartData = [
-  { day: "01", budget: 500000, expenses: 200000 },
-  { day: "02", budget: 600000, expenses: 300000 },
-  { day: "03", budget: 550000, expenses: 280000 },
-  { day: "04", budget: 700000, expenses: 400000 },
-  { day: "05", budget: 900000, expenses: 550000 },
-  { day: "06", budget: 1200000, expenses: 800000 },
-  { day: "07", budget: 1500000, expenses: 1100000 },
-  { day: "08", budget: 1800000, expenses: 1400000 },
-  { day: "09", budget: 2000000, expenses: 1600000 },
-  { day: "10", budget: 2200000, expenses: 1800000 },
-  { day: "11", budget: 2500000, expenses: 2100000 },
-  { day: "12", budget: 2800000, expenses: 2400000 },
-  { day: "13", budget: 2600000, expenses: 2200000 },
-  { day: "14", budget: 2400000, expenses: 2000000 },
-  { day: "15", budget: 3000000, expenses: 2500000 }, // Peak
-  { day: "16", budget: 3200000, expenses: 2700000 },
-  { day: "17", budget: 2800000, expenses: 2300000 },
-  { day: "18", budget: 2500000, expenses: 2000000 },
-  { day: "19", budget: 2200000, expenses: 1800000 },
-  { day: "20", budget: 2600000, expenses: 2100000 },
-  { day: "21", budget: 2900000, expenses: 2400000 },
-  { day: "22", budget: 3100000, expenses: 2600000 },
-  { day: "23", budget: 3300000, expenses: 2800000 },
-  { day: "24", budget: 3500000, expenses: 3000000 },
-  { day: "25", budget: 3400000, expenses: 3100000 },
-  { day: "26", budget: 3600000, expenses: 3300000 },
-  { day: "27", budget: 3500000, expenses: 3200000 },
-  { day: "28", budget: 3700000, expenses: 3400000 },
-  { day: "29", budget: 3800000, expenses: 3500000 },
-  { day: "30", budget: 3900000, expenses: 3600000 },
-]
+const CHART_COLORS = {
+  budget: "var(--chart-budget)",
+  expenses: "var(--chart-expenses)",
+  grid: "var(--chart-grid)",
+  axisText: "var(--chart-axis-text)",
+  cursor: "var(--chart-cursor)",
+};
 
-const CustomTooltip = ({ active, payload }: ChartTooltipProps) => {
+const CustomTooltip = ({ active, payload, label }: ChartTooltipProps) => {
   if (active && payload && payload.length) {
     return (
       <div className="bg-white dark:bg-gray-800 p-3 rounded-lg shadow-lg border border-gray-100 dark:border-gray-700 text-sm">
+        <div className="text-gray-400 dark:text-gray-500 text-xs mb-2 font-medium">
+          {label}
+        </div>
         <div className="flex items-center gap-2 mb-1">
-          <div className="w-2 h-2 rounded-full bg-[#93C5FD]"></div>
-          <span className="text-gray-600 dark:text-gray-300 font-medium">567k</span>
+          <div className="w-2 h-2 rounded-full bg-blue-300"></div>
+          <span className="text-gray-600 dark:text-gray-300 font-medium">
+            Budget: ${payload[0].value?.toLocaleString()}
+          </span>
         </div>
-        <div className="flex items-center gap-2 mb-2">
-          <div className="w-2 h-2 rounded-full bg-[#004e76]"></div>
-          <span className="text-gray-600 dark:text-gray-300 font-medium">103k</span>
-        </div>
-        <div className="text-gray-400 dark:text-gray-500 text-xs text-center border-t border-gray-100 dark:border-gray-700 pt-2 mt-1">
-          Aug 15,2025
+        <div className="flex items-center gap-2">
+          <div className="w-2 h-2 rounded-full bg-blue-800"></div>
+          <span className="text-gray-600 dark:text-gray-300 font-medium">
+            Expenses: ${payload[1].value?.toLocaleString()}
+          </span>
         </div>
       </div>
-    )
+    );
   }
-  return null
-}
+  return null;
+};
 
-export function BudgetChart() {
+export function BudgetChart({
+  tasks = [],
+  projects = [],
+  range = "M",
+  date = new Date(),
+}: BudgetChartProps) {
+  const { chartData, percentage, totalBudget, totalExpenses, rangeLabel } =
+    useMemo(() => {
+      let daysCount = 30;
+      let label = "Last 30 Days";
+
+      switch (range) {
+        case "D":
+          daysCount = 1;
+          label = "Today";
+          break;
+        case "W":
+          daysCount = 7;
+          label = "Last 7 Days";
+          break;
+        case "M":
+          daysCount = 30;
+          label = "Last 30 Days";
+          break;
+        case "6M":
+          daysCount = 180;
+          label = "Last 6 Months";
+          break;
+        case "Y":
+          daysCount = 365;
+          label = "Last Year";
+          break;
+      }
+
+      let data;
+
+      if (range === "D") {
+        const anchorDate = new Date(date);
+        anchorDate.setHours(0, 0, 0, 0);
+
+        const intervals = [0, 4, 8, 12, 16, 20, 23];
+
+        let cumulativeExpenses = 0;
+
+        tasks.forEach((task) => {
+          const taskDate = task.createdAt
+            ? new Date(task.createdAt)
+            : new Date();
+          if (taskDate < anchorDate) {
+            cumulativeExpenses += task.actualCost || 0;
+          }
+        });
+
+        data = intervals.map((hour) => {
+          const pointDate = new Date(anchorDate);
+          pointDate.setHours(hour, hour === 23 ? 59 : 0, 0, 0);
+
+          const dailyBudget = projects.reduce((sum, project) => {
+            const pStart = project.startDate
+              ? new Date(project.startDate)
+              : project.createdAt
+                ? new Date(project.createdAt)
+                : new Date(0);
+
+            if (pStart <= anchorDate) {
+              return sum + (project.budget?.totalBudget || 900);
+            }
+            return sum;
+          }, 0);
+
+          const hourTasks = tasks.filter((t) => {
+            const tDate = t.createdAt ? new Date(t.createdAt) : new Date();
+            return tDate >= anchorDate && tDate <= pointDate;
+          });
+
+          const hourExpenses = hourTasks.reduce(
+            (sum, t) => sum + (t.actualCost || 0),
+            0
+          );
+
+          const label =
+            hour === 0
+              ? "12am"
+              : hour === 12
+                ? "12pm"
+                : hour === 23
+                  ? "11pm"
+                  : hour > 12
+                    ? `${hour - 12}pm`
+                    : `${hour}am`;
+
+          return {
+            day: label,
+            fullDate: pointDate,
+            fullDateStr: pointDate.toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit",
+            }),
+            budget: dailyBudget,
+            expenses: cumulativeExpenses + hourExpenses,
+          };
+        });
+      } else {
+        const dates = Array.from({ length: daysCount }, (_, i) => {
+          const d = new Date(date);
+          d.setDate(d.getDate() - (daysCount - 1 - i));
+          d.setHours(0, 0, 0, 0);
+          return d;
+        });
+
+        let cumulativeExpenses = 0;
+        const startDate = dates[0];
+
+        tasks.forEach((task) => {
+          const taskDate = task.createdAt
+            ? new Date(task.createdAt)
+            : new Date();
+          if (taskDate < startDate) {
+            cumulativeExpenses += task.actualCost || 0;
+          }
+        });
+
+        data = dates.map((date) => {
+          const dailyBudget = projects.reduce((sum, project) => {
+            const pStart = project.startDate
+              ? new Date(project.startDate)
+              : project.createdAt
+                ? new Date(project.createdAt)
+                : new Date(0);
+
+            if (
+              pStart <= date ||
+              pStart.toDateString() === date.toDateString()
+            ) {
+              return sum + (project.budget?.totalBudget || 900);
+            }
+            return sum;
+          }, 0);
+
+          const dayTasks = tasks.filter((t) => {
+            const tDate = t.createdAt ? new Date(t.createdAt) : new Date();
+            return (
+              tDate.getDate() === date.getDate() &&
+              tDate.getMonth() === date.getMonth() &&
+              tDate.getFullYear() === date.getFullYear()
+            );
+          });
+
+          dayTasks.forEach((task) => {
+            cumulativeExpenses += task.actualCost || 0;
+          });
+
+          let dayLabel = date.getDate().toString().padStart(2, "0");
+          if (range === "6M" || range === "Y") {
+            dayLabel = date.toLocaleDateString("en-US", {
+              month: "short",
+              day: "numeric",
+            });
+          }
+
+          return {
+            day: dayLabel,
+            fullDate: date,
+            fullDateStr: date.toLocaleDateString("en-US", {
+              weekday: "short",
+              year: "numeric",
+              month: "short",
+              day: "numeric",
+            }),
+            budget: dailyBudget,
+            expenses: cumulativeExpenses,
+          };
+        });
+      }
+
+      const finalBudget = data[data.length - 1].budget;
+      const finalExpenses = data[data.length - 1].expenses;
+
+      const pct =
+        finalBudget > 0
+          ? ((finalExpenses / finalBudget) * 100).toFixed(1)
+          : "0.0";
+
+      return {
+        chartData: data,
+        percentage: pct,
+        totalBudget: finalBudget,
+        totalExpenses: finalExpenses,
+        rangeLabel: label,
+      };
+    }, [tasks, projects, range]);
+
+  const isOverBudget = totalExpenses > totalBudget;
+
   return (
     <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100/60 dark:border-gray-700/60 p-4 h-full flex flex-col justify-between">
-      {/* Header */}
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-xl font-semibold text-gray-800 dark:text-white">Budget and Expenses</h3>
-        <div className="flex items-center gap-1 bg-green-50 dark:bg-green-900/30 px-2 py-1 rounded text-sm text-green-600 dark:text-green-400 font-medium">
-          <ArrowUpRight size={16} />
-          <span>54.7%</span>
+        <div>
+          <h3 className="text-xl font-semibold text-gray-800 dark:text-white">
+            Budget and Expenses
+          </h3>
+          <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+            {rangeLabel}
+          </p>
+        </div>
+        <div
+          className={`flex items-center gap-1 px-2 py-1 rounded text-sm font-medium ${isOverBudget
+            ? "bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400"
+            : "bg-green-50 dark:bg-green-900/30 text-green-600 dark:text-green-400"
+            }`}
+        >
+          {isOverBudget ? (
+            <ArrowDownRight size={16} />
+          ) : (
+            <ArrowUpRight size={16} />
+          )}
+          <span>{percentage}% Used</span>
         </div>
       </div>
 
-      {/* Chart */}
       <div className="h-[220px] w-full">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart
@@ -79,66 +274,97 @@ export function BudgetChart() {
           >
             <defs>
               <linearGradient id="colorBudget" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#93C5FD" stopOpacity={0.3} />
-                <stop offset="95%" stopColor="#93C5FD" stopOpacity={0} />
+                <stop
+                  offset="5%"
+                  stopColor={CHART_COLORS.budget}
+                  stopOpacity={0.3}
+                />
+                <stop
+                  offset="95%"
+                  stopColor={CHART_COLORS.budget}
+                  stopOpacity={0}
+                />
               </linearGradient>
               <linearGradient id="colorExpenses" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#004e76" stopOpacity={0.3} />
-                <stop offset="95%" stopColor="#004e76" stopOpacity={0} />
+                <stop
+                  offset="5%"
+                  stopColor={CHART_COLORS.expenses}
+                  stopOpacity={0.3}
+                />
+                <stop
+                  offset="95%"
+                  stopColor={CHART_COLORS.expenses}
+                  stopOpacity={0}
+                />
               </linearGradient>
             </defs>
-            <CartesianGrid vertical={false} stroke="#E5E7EB" strokeDasharray="3 30" />
+            <CartesianGrid
+              vertical={false}
+              stroke={CHART_COLORS.grid}
+              strokeDasharray="3 30"
+            />
             <XAxis
               dataKey="day"
               axisLine={false}
               tickLine={false}
-              tick={{ fill: '#9CA3AF', fontSize: 12 }}
+              tick={{ fill: CHART_COLORS.axisText, fontSize: 12 }}
               dy={10}
             />
             <YAxis
               axisLine={false}
               tickLine={false}
-              tick={{ fill: '#9CA3AF', fontSize: 12 }}
-              ticks={[0, 50000, 100000, 500000, 1000000, 5000000]}
+              tick={{ fill: CHART_COLORS.axisText, fontSize: 12 }}
               tickFormatter={(value) => {
-                if (value === 0) return '0';
-                if (value >= 1000000) return `${value / 1000000}M`;
-                if (value >= 1000) return `${value / 1000}k`;
+                if (value === 0) return "0";
+                if (value >= 1000000) return `${(value / 1000000).toFixed(1)}M`;
+                if (value >= 1000) return `${(value / 1000).toFixed(0)}k`;
                 return value;
               }}
             />
-            <Tooltip content={<CustomTooltip />} cursor={{ stroke: '#9CA3AF', strokeWidth: 1, strokeDasharray: '4 4' }} />
+            <Tooltip
+              content={<CustomTooltip />}
+              cursor={{
+                stroke: CHART_COLORS.cursor,
+                strokeWidth: 1,
+                strokeDasharray: "4 4",
+              }}
+            />
             <Area
               type="monotone"
               dataKey="budget"
-              stroke="#93C5FD"
+              stroke={CHART_COLORS.budget}
               fillOpacity={1}
               fill="url(#colorBudget)"
               strokeWidth={2}
+              activeDot={{ r: 4, strokeWidth: 0 }}
             />
             <Area
               type="monotone"
               dataKey="expenses"
-              stroke="#004e76"
+              stroke={CHART_COLORS.expenses}
               fillOpacity={1}
               fill="url(#colorExpenses)"
               strokeWidth={2}
+              activeDot={{ r: 4, strokeWidth: 0 }}
             />
           </AreaChart>
         </ResponsiveContainer>
       </div>
 
-      {/* Legend */}
       <div className="flex items-center justify-center gap-6 mt-2">
         <div className="flex items-center gap-2">
-          <div className="w-2.5 h-2.5 rounded-full bg-[#93C5FD]" />
-          <span className="text-sm text-gray-500 dark:text-gray-400">Budget</span>
+          <div className="w-2.5 h-2.5 rounded-full bg-blue-300" />
+          <span className="text-sm text-gray-500 dark:text-gray-400">
+            Total Budget
+          </span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-2.5 h-2.5 rounded-full bg-[#004e76]" />
-          <span className="text-sm text-gray-500 dark:text-gray-400">Expenses</span>
+          <div className="w-2.5 h-2.5 rounded-full bg-blue-800" />
+          <span className="text-sm text-gray-500 dark:text-gray-400">
+            Total Expenses
+          </span>
         </div>
       </div>
     </div>
-  )
+  );
 }

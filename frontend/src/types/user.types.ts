@@ -1,5 +1,3 @@
-// User and authentication related types
-
 export interface User {
   id: string;
   email: string;
@@ -18,10 +16,15 @@ export interface AuthState {
   error: string | null;
 }
 
-// Flexible member type to handle both User and TeamMember
 export interface MemberItem {
   id: string | number;
   name: string;
   email?: string;
   avatar?: string;
+}
+
+export interface ForgotPasswordProps {
+  initialEmail?: string;
+  onBack: () => void;
+  onSuccess: () => void;
 }

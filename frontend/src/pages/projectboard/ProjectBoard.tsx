@@ -1,4 +1,10 @@
 import React from "react";
+import { motion, useReducedMotion } from "framer-motion";
+import {
+  pageVariants,
+  reducedPageVariants,
+  itemVariants,
+} from "../../utils/motion";
 import Sidebar from "../sidebar/Sidebar";
 import {
   Menu,
@@ -19,7 +25,7 @@ import BoardView from "../../components/projectBoard/BoardView";
 import TableView from "../../components/projectBoard/TableView";
 import CalendarView from "../../components/projectBoard/CalendarView";
 import TimelineView from "../../components/projectBoard/TimelineView";
-import TaskDetailModal from '../../components/task/TaskDetailModal';
+import TaskDetailModal from "../../components/task/TaskDetailModal";
 import CreateProjectModal from "../../components/projectBoard/CreateProjectModal";
 import CreateTeamModal from "../../components/team/CreateTeamModal";
 import TemplateLibraryModal from "../../components/projectBoard/TemplateLibraryModal";
@@ -40,17 +46,12 @@ import FilterControl from "../../components/ui/FilterControl";
 
 const ProjectBoard: React.FC = () => {
   const {
-    // Data
     activeProject,
     projectTasks,
     selectedTask,
     tabs,
-
-    // Loading states
     isLoading,
     tasksLoading,
-
-    // UI States
     sidebarOpen,
     activeTab,
     isCreateModalOpen,
@@ -61,8 +62,6 @@ const ProjectBoard: React.FC = () => {
     isAddEventModalOpen,
     modalInitialStatus,
     taskToEdit,
-
-    // Setters
     setSidebarOpen,
     setActiveTab,
     setIsCreateModalOpen,
@@ -73,72 +72,74 @@ const ProjectBoard: React.FC = () => {
     setIsAddEventModalOpen,
     setSelectedTask,
     setTaskToEdit,
-
-    // Handlers
     handleCreateProject,
     handleOpenTemplateLibrary,
     handleSelectTemplate,
     handleEditTask,
+    handleDeleteTask,
     handleTableTaskClick,
     handleAddTask,
     handleOpenAddEvent,
     handleCreateTask,
     handleUpdateTask,
     handleDeleteProject,
+    handleUpdateProjectStatus,
   } = useProjectBoard();
 
-  // Local filter/sort state for ProjectBoard page
-  const [sortBy, setSortBy] = React.useState<'newest' | 'oldest' | 'alpha'>('newest');
-  const [filterPriority, setFilterPriority] = React.useState<string | null>(null);
+  const shouldReduceMotion = useReducedMotion();
 
-  // Visible fields state for Table view
-  const [visibleFields, setVisibleFields] = React.useState<Record<string, boolean>>({
+  const [sortBy, setSortBy] = React.useState<"newest" | "oldest" | "alpha">(
+    "newest"
+  );
+  const [filterPriority, setFilterPriority] = React.useState<string | null>(
+    null
+  );
+  const [isStatusDropdownOpen, setIsStatusDropdownOpen] = React.useState(false);
+
+  const [visibleFields, setVisibleFields] = React.useState<
+    Record<string, boolean>
+  >({
     assignee: true,
     dueDate: true,
     label: true,
   });
 
   const toggleField = (field: string) => {
-    setVisibleFields(prev => ({ ...prev, [field]: !prev[field] }));
+    setVisibleFields((prev) => ({ ...prev, [field]: !prev[field] }));
   };
 
-  // Apply filter and sort to project tasks
   const filteredAndSortedTasks = React.useMemo(() => {
     let tasks = [...projectTasks];
 
-    // Filter by priority
     if (filterPriority) {
-      tasks = tasks.filter(t => t.priority === filterPriority);
+      tasks = tasks.filter((t) => t.priority === filterPriority);
     }
 
-    // Sort
-    const getCreationTime = (t: typeof tasks[0]) => {
+    const getCreationTime = (t: (typeof tasks)[0]) => {
       if (t.createdAt) return new Date(t.createdAt).getTime();
       if (t.updatedAt) return new Date(t.updatedAt).getTime();
       return 0;
     };
 
     return tasks.sort((a, b) => {
-      if (sortBy === 'alpha') {
-        const nameA = a.name || a.title || '';
-        const nameB = b.name || b.title || '';
+      if (sortBy === "alpha") {
+        const nameA = a.name || a.title || "";
+        const nameB = b.name || b.title || "";
         return nameA.localeCompare(nameB);
       }
-      if (sortBy === 'oldest') {
+      if (sortBy === "oldest") {
         return getCreationTime(a) - getCreationTime(b);
       }
-      // newest (default)
       return getCreationTime(b) - getCreationTime(a);
     });
   }, [projectTasks, filterPriority, sortBy]);
 
   const renderContent = () => {
-    // Show skeleton while loading
     if (tasksLoading) {
       switch (activeTab) {
-        case 'Board':
+        case "Board":
           return <KanbanBoardSkeleton />;
-        case 'Table':
+        case "Table":
           return <TableSkeleton />;
         default:
           return <KanbanBoardSkeleton />;
@@ -146,29 +147,62 @@ const ProjectBoard: React.FC = () => {
     }
 
     switch (activeTab) {
-      case 'Board':
-        return <BoardView tasks={filteredAndSortedTasks} onTaskClick={setSelectedTask} onAddTask={handleAddTask} visibleFields={visibleFields} />;
-      case 'Table':
-        return <TableView tasks={filteredAndSortedTasks} onTaskClick={handleTableTaskClick} visibleFields={visibleFields} onAddTask={handleAddTask} />;
-      case 'Calendar':
+      case "Board":
+        return (
+          <BoardView
+            tasks={filteredAndSortedTasks}
+            onTaskClick={setSelectedTask}
+            onEditTask={handleEditTask}
+            onDeleteTask={handleDeleteTask}
+            onAddTask={handleAddTask}
+            visibleFields={visibleFields}
+          />
+        );
+      case "Table":
+        return (
+          <TableView
+            tasks={filteredAndSortedTasks}
+            onTaskClick={handleTableTaskClick}
+            visibleFields={visibleFields}
+            onAddTask={handleAddTask}
+          />
+        );
+      case "Calendar":
         return <CalendarView projectId={activeProject?.id} />;
-      case 'Timeline':
+      case "Timeline":
         return <TimelineView projectId={activeProject?.id} />;
-      case 'Dashboard':
+      case "Dashboard":
         return (
           <div className={projectboardClasses.dashboardWrapper}>
-            <h2 className={projectboardClasses.dashboardTitle}>Project Teams</h2>
+            <h2 className={projectboardClasses.dashboardTitle}>
+              Project Teams
+            </h2>
             <div className="text-gray-500">
               {activeProject?.members && activeProject.members.length > 0 ? (
                 <div className={projectboardClasses.membersGrid}>
                   {activeProject.members.map((member) => (
-                    <div key={member.id} className={projectboardClasses.memberCard}>
+                    <div
+                      key={member.id}
+                      className={projectboardClasses.memberCard}
+                    >
                       <div className={projectboardClasses.memberAvatar}>
-                        {member.avatar ? <img src={member.avatar} alt={member.name} className="w-full h-full object-cover" /> : (member.name?.[0] || 'U')}
+                        {member.avatar ? (
+                          <img
+                            src={member.avatar}
+                            alt={member.name}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          member.name?.[0] || "U"
+                        )}
                       </div>
                       <div>
-                        <p className={projectboardClasses.memberName}>{member.name}</p>
-                        <p className={projectboardClasses.memberRole}>Project Member</p>
+                        <p className={projectboardClasses.memberName}>
+                          {member.name}
+                        </p>
+                        <p className={projectboardClasses.memberRole}>
+                          Project Member
+                        </p>
                       </div>
                     </div>
                   ))}
@@ -184,7 +218,6 @@ const ProjectBoard: React.FC = () => {
     }
   };
 
-  // Show full page skeleton if initial loading
   if (isLoading) {
     return (
       <div className={projectboardClasses.container}>
@@ -200,7 +233,6 @@ const ProjectBoard: React.FC = () => {
 
   return (
     <div className={projectboardClasses.container}>
-      {/* Mobile menu button */}
       <Button
         variant="ghost"
         className={projectboardClasses.menuButton(sidebarOpen)}
@@ -209,20 +241,22 @@ const ProjectBoard: React.FC = () => {
         <Menu size={22} />
       </Button>
 
-      {/* Sidebar */}
       <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
-      {/* Main content */}
       <main className={projectboardClasses.main}>
-        <div className={projectboardClasses.mainContent(sidebarOpen)}>
-
-          {/* Header Top Row */}
+        <motion.div
+          className={projectboardClasses.mainContent(sidebarOpen)}
+          variants={shouldReduceMotion ? reducedPageVariants : pageVariants}
+          initial="initial"
+          animate="animate"
+        >
           <div className={projectboardClasses.headerWrapper}>
-            {/* Title & Status */}
             <div className={projectboardClasses.headerTitleWrapper}>
               <div className={projectboardClasses.headerMenuWrapper}>
                 <div className={projectboardClasses.headerTitleClickable}>
-                  <h1 className={projectboardClasses.headerTitle}>{activeProject?.name || "No Projects"}</h1>
+                  <h1 className={projectboardClasses.headerTitle}>
+                    {activeProject?.name || "No Projects"}
+                  </h1>
                 </div>
 
                 <Star className={projectboardClasses.starIcon} size={18} />
@@ -232,60 +266,146 @@ const ProjectBoard: React.FC = () => {
                     align="right"
                     trigger={
                       <button className={projectboardClasses.menuIconButton}>
-                        <MoreHorizontal className={projectboardClasses.menuIconColor} size={18} />
+                        <MoreHorizontal
+                          className={projectboardClasses.menuIconColor}
+                          size={18}
+                        />
                       </button>
                     }
                     items={[
                       {
-                        key: 'active-header',
+                        key: "active-header",
                         custom: true,
                         label: (
-                          <div className={projectboardClasses.menuDropdownHeader}>
-                            <p className={projectboardClasses.menuDropdownLabel}>Active Project</p>
-                            <p className={projectboardClasses.menuDropdownValue}>{activeProject?.name || "None"}</p>
+                          <div
+                            className={projectboardClasses.menuDropdownHeader}
+                          >
+                            <p
+                              className={projectboardClasses.menuDropdownLabel}
+                            >
+                              Active Project
+                            </p>
+                            <p
+                              className={projectboardClasses.menuDropdownValue}
+                            >
+                              {activeProject?.name || "None"}
+                            </p>
                           </div>
-                        )
+                        ),
                       },
-                      { key: 'switch', label: 'Switch Project', icon: <ChevronRight size={14} />, onClick: () => { /* Logic? */ } },
                       {
-                        key: 'delete',
-                        label: 'Delete Project',
+                        key: "switch",
+                        label: "Switch Project",
+                        icon: <ChevronRight size={14} />,
+                        onClick: () => { },
+                      },
+                      {
+                        key: "delete",
+                        label: "Delete Project",
                         danger: true,
                         icon: <Trash2 size={14} />,
                         onClick: () => {
-                          if (activeProject) handleDeleteProject(activeProject.id);
-                        }
-                      }
+                          if (activeProject)
+                            handleDeleteProject(activeProject.id);
+                        },
+                      },
                     ]}
                   />
                 </div>
               </div>
-              <div className={projectboardClasses.statusBadge}>
-                <div className={projectboardClasses.statusDot}></div>
-                <span>{activeProject?.status || "On track"}</span>
+              <div className="relative">
+                <div
+                  className={`${projectboardClasses.statusBadge} cursor-pointer hover:opacity-80 transition-opacity`}
+                  onClick={() => setIsStatusDropdownOpen(!isStatusDropdownOpen)}
+                >
+                  <div
+                    className={`w-2 h-2 rounded-full ${activeProject?.status === "COMPLETED"
+                      ? "bg-emerald-500"
+                      : activeProject?.status === "ON_HOLD"
+                        ? "bg-yellow-500"
+                        : activeProject?.status === "CANCELED"
+                          ? "bg-red-500"
+                          : "bg-green-500"
+                      }`}
+                  ></div>
+                  <span>{activeProject?.status || "ACTIVE"}</span>
+                  <ChevronDown size={14} className="ml-1" />
+                </div>
+
+                {isStatusDropdownOpen && (
+                  <div className="absolute top-full left-0 mt-1 w-40 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50 overflow-hidden">
+                    {[
+                      {
+                        value: "ACTIVE",
+                        label: "Active",
+                        color: "bg-green-500",
+                      },
+                      {
+                        value: "ON_HOLD",
+                        label: "On Hold",
+                        color: "bg-yellow-500",
+                      },
+                      {
+                        value: "COMPLETED",
+                        label: "Completed",
+                        color: "bg-emerald-500",
+                      },
+                      {
+                        value: "CANCELED",
+                        label: "Canceled",
+                        color: "bg-red-500",
+                      },
+                    ].map((status) => (
+                      <button
+                        key={status.value}
+                        className={`w-full px-4 py-2 text-left text-sm flex items-center gap-2 hover:bg-gray-100 dark:hover:bg-gray-700 ${activeProject?.status === status.value
+                          ? "bg-blue-50 dark:bg-blue-900/20 text-blue-600"
+                          : "text-gray-700 dark:text-gray-300"
+                          }`}
+                        onClick={() => {
+                          handleUpdateProjectStatus(status.value);
+                          setIsStatusDropdownOpen(false);
+                        }}
+                      >
+                        <div
+                          className={`w-2 h-2 rounded-full ${status.color}`}
+                        ></div>
+                        {status.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
 
-            {/* Actions */}
             <div className={projectboardClasses.actionsWrapper}>
-              {/* Avatars */}
               <div className={projectboardClasses.avatarsWrapper}>
                 {(() => {
-                  // Combine members from project and teams
                   const allMembers = [
                     ...(activeProject?.members || []),
-                    ...(activeProject?.teams?.flatMap(t => t.members || []) || [])
+                    ...(activeProject?.teams?.flatMap((t) => t.members || []) ||
+                      []),
                   ];
 
-                  // Deduplicate by ID
-                  const uniqueMembers = Array.from(new Map(allMembers.filter(m => m).map(m => [m!.id, m])).values());
+                  const uniqueMembers = Array.from(
+                    new Map(
+                      allMembers.filter((m) => m).map((m) => [m!.id, m])
+                    ).values()
+                  );
 
                   return (
                     <>
                       {uniqueMembers.slice(0, 4).map((member, i) => (
-                        <div key={member!.id || i} className={projectboardClasses.avatar}>
+                        <div
+                          key={member!.id || i}
+                          className={projectboardClasses.avatar}
+                        >
                           {member!.avatar ? (
-                            <img src={member!.avatar} alt={member!.name} className={projectboardClasses.avatarImage} />
+                            <img
+                              src={member!.avatar}
+                              alt={member!.name}
+                              className={projectboardClasses.avatarImage}
+                            />
                           ) : (
                             <div className={projectboardClasses.avatarFallback}>
                               {member!.name?.[0] || <User size={16} />}
@@ -314,16 +434,19 @@ const ProjectBoard: React.FC = () => {
                 variant="primary"
                 className={projectboardClasses.createButton}
                 onClick={() => setIsCreateModalOpen(true)}
-                rightIcon={<ChevronDown size={14} className={projectboardClasses.createButtonChevron} />}
+                rightIcon={
+                  <ChevronDown
+                    size={14}
+                    className={projectboardClasses.createButtonChevron}
+                  />
+                }
               >
                 <span>Create</span>
               </Button>
             </div>
           </div>
 
-          {/* Header Bottom Row (Toolbar) */}
           <div className={projectboardClasses.toolbar}>
-            {/* Tabs */}
             <div className={projectboardClasses.tabsWrapper}>
               {tabs.map((tab) => (
                 <Button
@@ -347,7 +470,6 @@ const ProjectBoard: React.FC = () => {
               </Button>
             </div>
 
-            {/* Tools */}
             <div className={projectboardClasses.toolsWrapper}>
               <div
                 className={projectboardClasses.toolItem}
@@ -362,20 +484,22 @@ const ProjectBoard: React.FC = () => {
                 onChange={setFilterPriority}
                 label="Filter"
                 options={[
-                  { key: 'all', label: 'All', value: null },
-                  { key: 'urgent', label: 'Urgent', value: 'URGENT' },
-                  { key: 'high', label: 'High', value: 'HIGH' },
-                  { key: 'medium', label: 'Medium', value: 'MEDIUM' },
-                  { key: 'low', label: 'Low', value: 'LOW' },
+                  { key: "all", label: "All", value: null },
+                  { key: "urgent", label: "Urgent", value: "URGENT" },
+                  { key: "high", label: "High", value: "HIGH" },
+                  { key: "medium", label: "Medium", value: "MEDIUM" },
+                  { key: "low", label: "Low", value: "LOW" },
                 ]}
               />
               <SortControl
                 value={sortBy}
-                onChange={setSortBy}
+                onChange={(val) =>
+                  setSortBy(val as "newest" | "oldest" | "alpha")
+                }
                 options={[
-                  { key: 'newest', label: 'Newest' },
-                  { key: 'oldest', label: 'Oldest' },
-                  { key: 'alpha', label: 'A-Z' },
+                  { key: "newest", label: "Newest" },
+                  { key: "oldest", label: "Oldest" },
+                  { key: "alpha", label: "A-Z" },
                 ]}
               />
               <Dropdown
@@ -387,51 +511,63 @@ const ProjectBoard: React.FC = () => {
                   </div>
                 }
                 items={[
-                  { key: 'header', label: 'Toggle Columns', header: true },
+                  { key: "header", label: "Toggle Columns", header: true },
                   {
-                    key: 'assignee',
+                    key: "assignee",
                     label: (
                       <div className="flex items-center justify-between w-full">
                         <span>Assignee</span>
-                        {visibleFields.assignee ? <Eye size={14} className="text-blue-500" /> : <EyeOff size={14} className="text-gray-400" />}
+                        {visibleFields.assignee ? (
+                          <Eye size={14} className="text-blue-500" />
+                        ) : (
+                          <EyeOff size={14} className="text-gray-400" />
+                        )}
                       </div>
                     ),
-                    onClick: () => toggleField('assignee')
+                    onClick: () => toggleField("assignee"),
                   },
                   {
-                    key: 'dueDate',
+                    key: "dueDate",
                     label: (
                       <div className="flex items-center justify-between w-full">
                         <span>Due Date</span>
-                        {visibleFields.dueDate ? <Eye size={14} className="text-blue-500" /> : <EyeOff size={14} className="text-gray-400" />}
+                        {visibleFields.dueDate ? (
+                          <Eye size={14} className="text-blue-500" />
+                        ) : (
+                          <EyeOff size={14} className="text-gray-400" />
+                        )}
                       </div>
                     ),
-                    onClick: () => toggleField('dueDate')
+                    onClick: () => toggleField("dueDate"),
                   },
                   {
-                    key: 'label',
+                    key: "label",
                     label: (
                       <div className="flex items-center justify-between w-full">
                         <span>Labels</span>
-                        {visibleFields.label ? <Eye size={14} className="text-blue-500" /> : <EyeOff size={14} className="text-gray-400" />}
+                        {visibleFields.label ? (
+                          <Eye size={14} className="text-blue-500" />
+                        ) : (
+                          <EyeOff size={14} className="text-gray-400" />
+                        )}
                       </div>
                     ),
-                    onClick: () => toggleField('label')
+                    onClick: () => toggleField("label"),
                   },
                 ]}
               />
             </div>
           </div>
 
-          {/* Content Area */}
-          <div className={projectboardClasses.contentArea}>
+          <motion.div
+            className={projectboardClasses.contentArea}
+            variants={itemVariants}
+          >
             {renderContent()}
-          </div>
-
-        </div>
+          </motion.div>
+        </motion.div>
       </main>
 
-      {/* Modals */}
       <CreateProjectModal
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
@@ -476,12 +612,14 @@ const ProjectBoard: React.FC = () => {
         isOpen={isAddEventModalOpen}
         onClose={() => setIsAddEventModalOpen(false)}
         projectId={activeProject?.id}
-        onAdd={(_event) => {
-          // Events will be refreshed automatically when the calendar/timeline components fetch data
-        }}
+        onAdd={(_event) => { }}
       />
 
-      <SearchPopup isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} showProjects={true} />
+      <SearchPopup
+        isOpen={isSearchOpen}
+        onClose={() => setIsSearchOpen(false)}
+        showProjects={true}
+      />
     </div>
   );
 };

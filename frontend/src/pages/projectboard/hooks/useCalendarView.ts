@@ -24,13 +24,9 @@ export const useCalendarView = ({ projectId }: UseCalendarViewProps = {}) => {
   const [viewMode, setViewMode] = useState<"month" | "day">("month");
   const [currentDate, setCurrentDate] = useState<Date>(new Date());
   const [events, setEvents] = useState<CalendarEvent[]>([]);
-
-  // RTK Query hooks
   const [fetchEvents, { isLoading }] = useLazyGetEventsByDateRangeQuery();
   const [deleteEventMutation] = useDeleteEventMutation();
   const [updateEventMutation] = useUpdateEventMutation();
-
-  // Fetch events for the current month
   const loadEvents = useCallback(async () => {
     if (!projectId) return;
 
@@ -52,12 +48,9 @@ export const useCalendarView = ({ projectId }: UseCalendarViewProps = {}) => {
     }
   }, [projectId, currentDate, fetchEvents]);
 
-  // Fetch events when projectId or month changes
   useEffect(() => {
     loadEvents();
   }, [loadEvents]);
-
-  // Navigation Handlers
   const handleNext = () => {
     if (viewMode === "day") {
       setCurrentDate((d) => addDays(d, 1));
@@ -88,12 +81,9 @@ export const useCalendarView = ({ projectId }: UseCalendarViewProps = {}) => {
     setViewMode("day");
   };
 
-  // Refresh events after adding a new one
   const refreshEvents = () => {
     loadEvents();
   };
-
-  // Delete an event
   const deleteEvent = async (eventId: string, eventTitle: string) => {
     showToast.promise(
       deleteEventMutation(eventId)
@@ -109,7 +99,6 @@ export const useCalendarView = ({ projectId }: UseCalendarViewProps = {}) => {
     );
   };
 
-  // Update an event
   const updateEvent = async (eventId: string, data: UpdateEventPayload) => {
     try {
       const updatedEvent = await updateEventMutation({
@@ -117,7 +106,6 @@ export const useCalendarView = ({ projectId }: UseCalendarViewProps = {}) => {
         data,
       }).unwrap();
 
-      // Update in local state
       setEvents((prev) =>
         prev.map((e) => (e.id === eventId ? { ...e, ...updatedEvent } : e))
       );
@@ -129,7 +117,6 @@ export const useCalendarView = ({ projectId }: UseCalendarViewProps = {}) => {
     }
   };
 
-  // Calendar calculations
   const monthStart = startOfMonth(currentDate);
   const monthEnd = endOfMonth(monthStart);
   const startDate = startOfWeek(monthStart, { weekStartsOn: 1 });
@@ -142,7 +129,6 @@ export const useCalendarView = ({ projectId }: UseCalendarViewProps = {}) => {
 
   const weekDays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
-  // Map event type to color
   const getEventTypeColor = (type: string): string => {
     switch (type) {
       case "MEETING":

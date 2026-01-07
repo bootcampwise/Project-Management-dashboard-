@@ -22,7 +22,6 @@ export const useTasksPage = () => {
     getPriorityColor,
   } = useTasks();
 
-  // RTK Query mutations
   const [createTask] = useCreateTaskMutation();
   const [updateTask] = useUpdateTaskMutation();
   const [updateTaskStatus] = useUpdateTaskStatusMutation();
@@ -37,7 +36,6 @@ export const useTasksPage = () => {
 
   const [searchParams, setSearchParams] = useSearchParams();
 
-  // Watch for taskId in URL and open modal
   useEffect(() => {
     const taskIdFromUrl = searchParams.get("taskId");
     if (taskIdFromUrl && tasks.length > 0) {
@@ -48,7 +46,6 @@ export const useTasksPage = () => {
     }
   }, [searchParams, tasks]);
 
-  // Column State
   const [columns, setColumns] = useState([
     {
       id: "BACKLOG",
@@ -110,30 +107,23 @@ export const useTasksPage = () => {
 
   const [isAddSectionOpen, setIsAddSectionOpen] = useState(false);
 
-  // Filter & Sort State
   const [sortBy, setSortBy] = useState<
     "newest" | "oldest" | "dueDate" | "priority" | "alpha"
   >("newest");
   const [filterPriority, setFilterPriority] = useState<string | null>(null);
 
-  // Derived Data
   const visibleColumns = columns.filter((col) => col.isVisible);
   const hiddenColumns = columns.filter((col) => !col.isVisible);
 
   const getTasksByStatus = (status: string) => {
     let filtered = tasks.filter((task) => task.status === status);
 
-    // Filter by Priority
     if (filterPriority) {
       filtered = filtered.filter((t) => t.priority === filterPriority);
     }
-
-    // Sort
     const sorted = filtered.sort((a, b) => {
-      // Helper for creation date with fallback to updatedAt or 0
       const getCreationTime = (t: typeof a) => {
         if (t.createdAt) return new Date(t.createdAt).getTime();
-        // Fallback to updatedAt if createdAt is missing
         if (t.updatedAt) return new Date(t.updatedAt).getTime();
         return 0;
       };
@@ -162,30 +152,25 @@ export const useTasksPage = () => {
       if (sortBy === "oldest") {
         return getCreationTime(a) - getCreationTime(b);
       }
-      // newest (default)
       return getCreationTime(b) - getCreationTime(a);
     });
 
     return sorted;
   };
 
-  // Get ALL tasks sorted (for List view - ignores status grouping)
   const getAllSortedTasks = () => {
     let filtered = [...tasks];
 
-    // Filter by Priority
     if (filterPriority) {
       filtered = filtered.filter((t) => t.priority === filterPriority);
     }
 
-    // Helper for creation date
     const getCreationTime = (t: Task) => {
       if (t.createdAt) return new Date(t.createdAt).getTime();
       if (t.updatedAt) return new Date(t.updatedAt).getTime();
       return 0;
     };
 
-    // Sort
     return filtered.sort((a, b) => {
       if (sortBy === "alpha") {
         const nameA = a.name || a.title || "";
@@ -211,12 +196,10 @@ export const useTasksPage = () => {
       if (sortBy === "oldest") {
         return getCreationTime(a) - getCreationTime(b);
       }
-      // newest (default)
       return getCreationTime(b) - getCreationTime(a);
     });
   };
 
-  // Handlers
   const handleToggleColumn = (columnId: string) => {
     setColumns((prev) =>
       prev.map((col) =>
@@ -344,7 +327,6 @@ export const useTasksPage = () => {
   };
 
   return {
-    // Global State (from useTasks)
     tasks,
     isLoading,
     sidebarOpen,
@@ -352,8 +334,6 @@ export const useTasksPage = () => {
     activeView,
     setActiveView,
     getPriorityColor,
-
-    // Local Page State
     selectedTask,
     taskToEdit,
     isCreateTaskModalOpen,
@@ -367,8 +347,6 @@ export const useTasksPage = () => {
     setSortBy,
     filterPriority,
     setFilterPriority,
-
-    // Handlers
     handleTaskClick,
     handleOpenCreateTask,
     handleCreateTask,

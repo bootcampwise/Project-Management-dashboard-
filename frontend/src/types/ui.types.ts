@@ -2,36 +2,26 @@ import type React from "react";
 import type { Task } from "./task.types";
 import type { Project } from "./project.types";
 
-// ============================================
-// UI STATE TYPES
-// ============================================
-
 export interface UiState {
-  // Sidebar
   sidebarOpen: boolean;
   sidebarSections: {
     mobileApp: boolean;
     diadora: boolean;
   };
 
-  // Settings Modal
   isSettingsOpen: boolean;
 
-  // Project-related UI
   activeProject: Project | null;
   activeTab: string;
   isCreateProjectModalOpen: boolean;
   isTeamModalOpen: boolean;
   isTemplateLibraryOpen: boolean;
 
-  // Task-related UI
   selectedTask: Task | null;
   activeView: "kanban" | "list";
-}
 
-// ============================================
-// SIDEBAR TYPES
-// ============================================
+  timeFormat: "12h" | "24h";
+}
 
 export interface SidebarProps {
   open: boolean;
@@ -49,10 +39,6 @@ export interface SidebarItemProps {
   badge?: string | React.ReactNode;
   to?: string;
 }
-
-// ============================================
-// MODAL & POPUP PROPS
-// ============================================
 
 export interface NotificationsPopupProps {
   isOpen: boolean;
@@ -81,10 +67,6 @@ export interface ModalProps {
   showCloseButton?: boolean;
   closeOnBackdrop?: boolean;
 }
-
-// ============================================
-// FORM CONTROL TYPES
-// ============================================
 
 export interface SortOption {
   key: string;
@@ -141,10 +123,6 @@ export interface TextareaProps
   error?: string;
   helperText?: string;
 }
-
-// ============================================
-// UI COMPONENT PROPS
-// ============================================
 
 export interface SkeletonProps {
   className?: string;
@@ -246,6 +224,7 @@ export interface DropdownItem {
   header?: boolean;
   custom?: boolean;
   preventClose?: boolean;
+  className?: string;
 }
 
 export interface DropdownProps {
