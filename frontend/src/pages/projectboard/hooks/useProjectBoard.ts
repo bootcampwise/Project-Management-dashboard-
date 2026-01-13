@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../../store/hooks";
 import {
@@ -10,7 +10,7 @@ import {
   setSidebarOpen,
   setSelectedTask,
 } from "../../../store/uiSlice";
-import { Layout, Table, Calendar, List } from "lucide-react";
+import { LayoutGrid, Table2, Calendar, Layers } from "lucide-react";
 import type {
   Task,
   CreateProjectPayload,
@@ -34,6 +34,7 @@ import {
   useDeleteTaskMutation,
 } from "../../../store/api/taskApiSlice";
 import { useGetSessionQuery } from "../../../store/api/authApiSlice";
+import { useGetTeamsQuery } from "../../../store/api/teamApiSlice";
 
 export const useProjectBoard = () => {
   const { projectId: routeProjectId } = useParams();
@@ -55,6 +56,7 @@ export const useProjectBoard = () => {
     useGetProjectsQuery();
   const { data: tasks = [] } = useGetTasksQuery();
   const { data: user, isLoading: sessionLoading } = useGetSessionQuery();
+  const { data: teams = [] } = useGetTeamsQuery();
   const [createProject] = useCreateProjectMutation();
   const [deleteProject] = useDeleteProjectMutation();
   const [updateProject] = useUpdateProjectMutation();
@@ -70,6 +72,30 @@ export const useProjectBoard = () => {
   const [taskToEdit, setTaskToEdit] = useState<Task | null>(null);
   const [isProjectDropdownOpen, setIsProjectDropdownOpen] = useState(false);
   const [isMenuDropdownOpen, setIsMenuDropdownOpen] = useState(false);
+  const projectDropdownRef = useRef<HTMLDivElement>(null);
+  const menuDropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        projectDropdownRef.current &&
+        !projectDropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsProjectDropdownOpen(false);
+      }
+      if (
+        menuDropdownRef.current &&
+        !menuDropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsMenuDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   useEffect(() => {
     dispatch(setSelectedTask(null));
@@ -115,10 +141,10 @@ export const useProjectBoard = () => {
   }, [activeProject?.id, user?.id]);
 
   const tabs = [
-    { id: "Board", icon: Layout },
-    { id: "Table", icon: Table },
+    { id: "Board", icon: LayoutGrid },
+    { id: "Table", icon: Table2 },
     { id: "Calendar", icon: Calendar },
-    { id: "Timeline", icon: List },
+    { id: "Timeline", icon: Layers },
   ];
 
   const projectTasks = tasks.filter((task) => {
@@ -250,7 +276,10 @@ export const useProjectBoard = () => {
   };
 
   return {
+    user,
     projects,
+    teams,
+    hasTeams: teams.length > 0,
     activeProject,
     projectTasks,
     selectedTask,
@@ -270,6 +299,8 @@ export const useProjectBoard = () => {
     taskToEdit,
     isProjectDropdownOpen,
     isMenuDropdownOpen,
+    projectDropdownRef,
+    menuDropdownRef,
 
     setSidebarOpen: (open: boolean) => dispatch(setSidebarOpen(open)),
     setActiveTab: (tab: string) => dispatch(setActiveTab(tab)),

@@ -19,6 +19,9 @@ const BoardColumn: React.FC<BoardColumnProps> = ({
   onToggle,
   onHide,
   visibleFields,
+  cardVariant,
+  currentUserId,
+  isTeamMember = false,
 }) => {
   const { isMenuOpen, setIsMenuOpen } = useBoardColumn();
 
@@ -96,7 +99,7 @@ const BoardColumn: React.FC<BoardColumnProps> = ({
         </div>
       </div>
 
-      <Droppable droppableId={status || title}>
+      <Droppable droppableId={status || title} isDropDisabled={!isTeamMember}>
         {(provided) => (
           <div
             className="flex-1 overflow-y-auto pr-2 custom-scrollbar"
@@ -108,6 +111,7 @@ const BoardColumn: React.FC<BoardColumnProps> = ({
                 key={task.id}
                 draggableId={String(task.id)}
                 index={index}
+                isDragDisabled={!isTeamMember}
               >
                 {(provided) => (
                   <div
@@ -149,17 +153,29 @@ const BoardColumn: React.FC<BoardColumnProps> = ({
                             : 0
                       }
                       subtasks={
-                        typeof task.subtasks === "number"
-                          ? task.subtasks
-                          : Array.isArray(task.subtasks)
-                            ? task.subtasks.length
+                        Array.isArray(task.subtasks)
+                          ? task.subtasks.length
+                          : typeof task.subtasks === "number"
+                            ? task.subtasks
                             : 0
+                      }
+                      completedSubtasks={
+                        Array.isArray(task.subtasks)
+                          ? task.subtasks.filter((st) => st.completed).length
+                          : 0
                       }
                       date={task.date || task.dueDate || ""}
                       onClick={() => onTaskClick && onTaskClick(task)}
                       onEdit={() => onEditTask && onEditTask(task)}
                       onDelete={() => onDeleteTask && onDeleteTask(task)}
                       visibleFields={visibleFields}
+                      variant={cardVariant}
+                      isTaskCreator={
+                        currentUserId
+                          ? task.creator?.id === currentUserId
+                          : false
+                      }
+                      isTeamMember={isTeamMember}
                     />
                   </div>
                 )}
@@ -167,13 +183,15 @@ const BoardColumn: React.FC<BoardColumnProps> = ({
             ))}
             {provided.placeholder}
 
-            <button
-              onClick={() => onAddTask && onAddTask(status || title)}
-              className="flex items-center gap-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 p-2 rounded-md transition-colors mt-2 text-sm font-medium w-full text-left"
-            >
-              <Plus size={16} />
-              <span>Add task</span>
-            </button>
+            {isTeamMember && (
+              <button
+                onClick={() => onAddTask && onAddTask(status || title)}
+                className="flex items-center gap-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 p-2 rounded-md transition-colors mt-2 text-sm font-medium w-full text-left"
+              >
+                <Plus size={16} />
+                <span>Add task</span>
+              </button>
+            )}
           </div>
         )}
       </Droppable>

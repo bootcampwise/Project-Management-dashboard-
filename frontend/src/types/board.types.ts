@@ -14,6 +14,9 @@ export interface BoardViewProps {
   onDeleteTask?: (task: Task) => void;
   onAddTask?: (status: string) => void;
   visibleFields?: Record<string, boolean>;
+  cardVariant?: "simple" | "detailed";
+  currentUserId?: string;
+  isTeamMember?: boolean;
 }
 
 export interface BoardColumnProps {
@@ -30,6 +33,9 @@ export interface BoardColumnProps {
   onToggle?: () => void;
   onHide?: () => void;
   visibleFields?: Record<string, boolean>;
+  cardVariant?: "simple" | "detailed";
+  currentUserId?: string;
+  isTeamMember?: boolean;
 }
 
 export interface BoardColumnState {

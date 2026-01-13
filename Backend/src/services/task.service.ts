@@ -108,10 +108,6 @@ export class TaskService {
     }
 
     const attachmentUrls = await this.taskRepository.hardDelete(taskId);
-
-    console.log(
-      `[TaskService] Deleted task ${taskId} with ${attachmentUrls.length} attachments`,
-    );
   }
 
   async updateTaskStatus(taskId: string, userId: string, status: string) {

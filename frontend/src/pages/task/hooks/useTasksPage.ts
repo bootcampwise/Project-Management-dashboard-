@@ -8,6 +8,7 @@ import {
   useUpdateTaskStatusMutation,
   useDeleteTaskMutation,
 } from "../../../store/api/taskApiSlice";
+import { useGetTeamsQuery } from "../../../store/api/teamApiSlice";
 import { showToast, getErrorMessage } from "../../../components/ui";
 import { useTasks } from "./useTasks";
 
@@ -21,6 +22,9 @@ export const useTasksPage = () => {
     setActiveView,
     getPriorityColor,
   } = useTasks();
+
+  const { data: teams = [] } = useGetTeamsQuery();
+  const hasTeams = teams.length > 0;
 
   const [createTask] = useCreateTaskMutation();
   const [updateTask] = useUpdateTaskMutation();
@@ -361,5 +365,6 @@ export const useTasksPage = () => {
     handleDragEnd,
     getTasksByStatus,
     getAllSortedTasks,
+    hasTeams,
   };
 };

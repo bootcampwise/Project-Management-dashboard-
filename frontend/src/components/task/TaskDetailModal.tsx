@@ -14,6 +14,7 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
   onClose,
   task: initialTask,
   onEdit,
+  isTeamMember = false,
 }) => {
   const {
     task,
@@ -36,9 +37,12 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
     handleAddComment,
     handleAddTag,
     handleDownload,
+    isSubtaskSubmitting,
+    isTagSubmitting,
   } = useTaskDetailModal({ isOpen, onClose, task: initialTask, onEdit });
 
   const handleDeleteTask = () => {
+    if (!isTeamMember) return;
     showToast.confirm({
       title: "Delete Task?",
       message: `Are you sure you want to delete "${task?.name || ""}"? This action cannot be undone.`,
@@ -63,10 +67,16 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
           onEdit={handleEditTask}
           onDelete={handleDeleteTask}
           onClose={onClose}
+          isTeamMember={isTeamMember}
         />
 
         <div className="p-8 pb-10">
-          <TaskProperties task={task} onAddTag={handleAddTag} />
+          <TaskProperties
+            task={task}
+            onAddTag={handleAddTag}
+            isTeamMember={isTeamMember}
+            isSubmitting={isTagSubmitting}
+          />
           <TaskDescription description={task.description} />
 
           <TaskAttachments
@@ -75,6 +85,7 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
             }
             onUpload={handleFileChange}
             onDownload={handleDownload}
+            isTeamMember={isTeamMember}
           />
 
           <TaskSubtasks
@@ -88,6 +99,8 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
             onToggle={handleToggleSubtask}
             onDelete={handleDeleteSubtask}
             onAssign={handleAssignSubtask}
+            isTeamMember={isTeamMember}
+            isSubmitting={isSubtaskSubmitting}
           />
 
           <TaskComments
@@ -97,6 +110,7 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
             setNewComment={setNewComment}
             onAddComment={handleAddComment}
             isSubmitting={isSubmitting}
+            isTeamMember={isTeamMember}
           />
         </div>
       </div>

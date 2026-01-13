@@ -67,6 +67,7 @@ export interface CreateProjectModalProps {
   isOpen: boolean;
   onClose: () => void;
   onOpenTemplateLibrary: () => void;
+  onOpenTeamModal: () => void;
   onCreate: (data: CreateProjectPayload) => Promise<void>;
 }
 

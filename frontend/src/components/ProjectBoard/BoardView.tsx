@@ -13,6 +13,9 @@ const BoardView: React.FC<BoardViewProps> = ({
   onDeleteTask,
   onAddTask,
   visibleFields,
+  cardVariant,
+  currentUserId,
+  isTeamMember = false,
 }) => {
   const {
     visibleColumns,
@@ -34,7 +37,9 @@ const BoardView: React.FC<BoardViewProps> = ({
         {visibleColumns.map((col) => (
           <div
             key={col.id}
-            className={`h-full transition-all duration-300 ${col.collapsed ? "w-12 min-w-[48px]" : "flex-1 min-w-[280px]"}`}
+            className={`h-full transition-all duration-300 ${
+              col.collapsed ? "w-12 min-w-[48px]" : "flex-1 min-w-[280px]"
+            }`}
           >
             <BoardColumn
               title={col.title}
@@ -50,6 +55,9 @@ const BoardView: React.FC<BoardViewProps> = ({
               onToggle={() => handleToggleColumn(col.id)}
               onHide={() => handleHideColumn(col.id)}
               visibleFields={visibleFields}
+              cardVariant={cardVariant}
+              currentUserId={currentUserId}
+              isTeamMember={isTeamMember}
             />
           </div>
         ))}

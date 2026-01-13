@@ -215,7 +215,8 @@ const AddFieldModal: React.FC<AddFieldModalProps> = ({
               <button
                 type="button"
                 onClick={() => setOptions([...options, ""])}
-                className="text-sm text-blue-600 hover:text-blue-700"
+                disabled={options.some((opt) => !opt.trim())}
+                className="text-sm text-blue-600 hover:text-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 + Add Option
               </button>

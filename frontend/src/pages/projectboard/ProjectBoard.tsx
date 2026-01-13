@@ -46,6 +46,7 @@ import FilterControl from "../../components/ui/FilterControl";
 
 const ProjectBoard: React.FC = () => {
   const {
+    user,
     activeProject,
     projectTasks,
     selectedTask,
@@ -84,6 +85,7 @@ const ProjectBoard: React.FC = () => {
     handleUpdateTask,
     handleDeleteProject,
     handleUpdateProjectStatus,
+    hasTeams,
   } = useProjectBoard();
 
   const shouldReduceMotion = useReducedMotion();
@@ -95,6 +97,23 @@ const ProjectBoard: React.FC = () => {
     null,
   );
   const [isStatusDropdownOpen, setIsStatusDropdownOpen] = React.useState(false);
+  const statusDropdownRef = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        statusDropdownRef.current &&
+        !statusDropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsStatusDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   const [visibleFields, setVisibleFields] = React.useState<
     Record<string, boolean>
@@ -134,6 +153,10 @@ const ProjectBoard: React.FC = () => {
     });
   }, [projectTasks, filterPriority, sortBy]);
 
+  const isTeamMember = React.useMemo(() => {
+    return activeProject?.members?.some((m) => m.id === user?.id) || false;
+  }, [activeProject, user]);
+
   const renderContent = () => {
     if (tasksLoading) {
       switch (activeTab) {
@@ -156,6 +179,9 @@ const ProjectBoard: React.FC = () => {
             onDeleteTask={handleDeleteTask}
             onAddTask={handleAddTask}
             visibleFields={visibleFields}
+            cardVariant="detailed"
+            currentUserId={user?.id}
+            isTeamMember={isTeamMember}
           />
         );
       case "Table":
@@ -164,7 +190,7 @@ const ProjectBoard: React.FC = () => {
             tasks={filteredAndSortedTasks}
             onTaskClick={handleTableTaskClick}
             visibleFields={visibleFields}
-            onAddTask={handleAddTask}
+            onAddTask={isTeamMember ? handleAddTask : undefined}
           />
         );
       case "Calendar":
@@ -263,7 +289,7 @@ const ProjectBoard: React.FC = () => {
 
                 <div className="relative">
                   <Dropdown
-                    align="right"
+                    align="left"
                     trigger={
                       <button className={projectboardClasses.menuIconButton}>
                         <MoreHorizontal
@@ -299,24 +325,31 @@ const ProjectBoard: React.FC = () => {
                         icon: <ChevronRight size={14} />,
                         onClick: () => {},
                       },
-                      {
-                        key: "delete",
-                        label: "Delete Project",
-                        danger: true,
-                        icon: <Trash2 size={14} />,
-                        onClick: () => {
-                          if (activeProject)
-                            handleDeleteProject(activeProject.id);
-                        },
-                      },
+                      ...(isTeamMember
+                        ? [
+                            {
+                              key: "delete",
+                              label: "Delete Project",
+                              danger: true,
+                              icon: <Trash2 size={14} />,
+                              onClick: () => {
+                                if (activeProject)
+                                  handleDeleteProject(activeProject.id);
+                              },
+                            },
+                          ]
+                        : []),
                     ]}
                   />
                 </div>
               </div>
-              <div className="relative">
+              <div className="relative" ref={statusDropdownRef}>
                 <div
-                  className={`${projectboardClasses.statusBadge} cursor-pointer hover:opacity-80 transition-opacity`}
-                  onClick={() => setIsStatusDropdownOpen(!isStatusDropdownOpen)}
+                  className={`${projectboardClasses.statusBadge} ${isTeamMember ? "cursor-pointer hover:opacity-80" : "cursor-default"} transition-opacity`}
+                  onClick={() =>
+                    isTeamMember &&
+                    setIsStatusDropdownOpen(!isStatusDropdownOpen)
+                  }
                 >
                   <div
                     className={`w-2 h-2 rounded-full ${
@@ -436,6 +469,8 @@ const ProjectBoard: React.FC = () => {
                 variant="primary"
                 className={projectboardClasses.createButton}
                 onClick={() => setIsCreateModalOpen(true)}
+                disabled={!hasTeams}
+                title={!hasTeams ? "Create a team first" : "Create Project"}
                 rightIcon={
                   <ChevronDown
                     size={14}
@@ -467,6 +502,10 @@ const ProjectBoard: React.FC = () => {
                 className={projectboardClasses.addTabButton}
                 onClick={handleOpenAddEvent}
                 leftIcon={<Plus size={16} />}
+                disabled={!isTeamMember}
+                title={
+                  !isTeamMember ? "You are not a member of this project" : "Add"
+                }
               >
                 <span>Add</span>
               </Button>
@@ -574,6 +613,10 @@ const ProjectBoard: React.FC = () => {
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
         onOpenTemplateLibrary={handleOpenTemplateLibrary}
+        onOpenTeamModal={() => {
+          setIsCreateModalOpen(false);
+          setIsTeamModalOpen(true);
+        }}
         onCreate={handleCreateProject}
       />
 
@@ -596,6 +639,7 @@ const ProjectBoard: React.FC = () => {
         onClose={() => setSelectedTask(null)}
         task={selectedTask}
         onEdit={handleEditTask}
+        isTeamMember={isTeamMember}
       />
 
       <CreateTaskModal

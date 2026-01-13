@@ -1,6 +1,6 @@
 export const projectboardClasses = {
   container: "flex h-screen bg-white dark:bg-gray-900 relative font-sans",
-  main: "flex-1 overflow-y-auto bg-white dark:bg-gray-900 flex flex-col",
+  main: "flex-1 overflow-x-hidden overflow-y-auto bg-white dark:bg-gray-900 flex flex-col",
   mainContent: (sidebarOpen: boolean) =>
     `transition-all duration-300 flex-1 flex flex-col ${
       !sidebarOpen ? "pt-16 md:pt-0 md:pl-16" : ""
@@ -12,7 +12,7 @@ export const projectboardClasses = {
     }`,
 
   headerWrapper:
-    "px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex flex-col md:flex-row md:items-center justify-between gap-4",
+    "px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex flex-col md:flex-row md:items-center justify-between gap-4 overflow-visible",
   headerTitleWrapper: "flex items-center gap-4",
   headerMenuWrapper: "flex items-center gap-2 relative",
   headerTitleClickable:
@@ -71,15 +71,15 @@ export const projectboardClasses = {
 
   toolbar:
     "px-6 border-b border-gray-200 dark:border-gray-700 flex flex-col md:flex-row md:items-center justify-between gap-4",
-  tabsWrapper: "flex items-center gap-6 overflow-x-auto no-scrollbar",
+  tabsWrapper: "flex items-center gap-8 overflow-x-auto no-scrollbar -mb-px",
   tab: (isActive: boolean) =>
-    `flex items-center gap-2 py-3 border-b-2 text-sm font-medium transition-colors ${
+    `flex items-center gap-2 py-3 text-sm font-medium transition-colors relative ${
       isActive
-        ? "border-gray-800 dark:border-white text-gray-800 dark:text-white"
-        : "border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
+        ? "text-gray-900 dark:text-white after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-gray-400 dark:after:bg-white after:rounded-full"
+        : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
     }`,
   addTabButton:
-    "flex items-center gap-1 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 text-sm font-medium py-3 ml-2 cursor-pointer",
+    "flex items-center gap-1 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 text-sm font-medium py-3 cursor-pointer",
 
   toolsWrapper: "flex items-center gap-4 py-2",
   toolItem:

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   useGetTeamMembersQuery,
   useGetTeamsQuery,
@@ -30,6 +30,23 @@ export const useCreateTeamModal = (
   const [selectedProjectIds, setSelectedProjectIds] = useState<string[]>([]);
   const [isProjectDropdownOpen, setIsProjectDropdownOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const projectDropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        projectDropdownRef.current &&
+        !projectDropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsProjectDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   const isEditing = !!teamToEdit;
 
@@ -49,8 +66,8 @@ export const useCreateTeamModal = (
 
   const filteredMembers = members.filter(
     (member) =>
-      member.name.toLowerCase().includes(membersInput.toLowerCase()) ||
-      member.email.toLowerCase().includes(membersInput.toLowerCase()),
+      member.name.toLowerCase().includes(membersInput.trim().toLowerCase()) ||
+      member.email.toLowerCase().includes(membersInput.trim().toLowerCase()),
   );
 
   const toggleMemberSelection = (member: TeamMember) => {
@@ -134,6 +151,7 @@ export const useCreateTeamModal = (
     selectedProjectIds,
     isProjectDropdownOpen,
     setIsProjectDropdownOpen,
+    projectDropdownRef,
     handleProjectToggle,
     isSubmitting,
     handleCreateOrUpdateTeam,

@@ -64,7 +64,6 @@ Backend/
 This project follows a **Layered Architecture** (Controller-Service-Repository) pattern:
 
 - **Controller Layer** (`src/controllers/*.controller.ts`):
-
   - Handles incoming HTTP requests
   - Validates input data
   - Calls schema validation
@@ -72,14 +71,12 @@ This project follows a **Layered Architecture** (Controller-Service-Repository) 
   - Sends HTTP responses (using standardized format)
 
 - **Service Layer** (`src/services/*.service.ts`):
-
   - Contains all business logic
   - Orchestrates data operations
   - Handles complex validations and calculations
   - Independent of HTTP layer (req/res)
 
 - **Repository Layer** (`src/repositories/*.repository.ts`):
-
   - Handles direct database interactions using Prisma
   - Abducts database queries from business logic
   - Provides clean data access methods

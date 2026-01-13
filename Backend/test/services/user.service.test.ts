@@ -52,7 +52,7 @@ interface MockUserWithSettings {
 }
 
 const createMockUserWithSettings = (
-  overrides: Partial<MockUserWithSettings> = {}
+  overrides: Partial<MockUserWithSettings> = {},
 ): MockUserWithSettings => ({
   id: "1",
   supabaseId: "supabase-123",
@@ -77,7 +77,7 @@ const createMockUserWithSettings = (
 });
 
 const createMockUserBase = (
-  overrides: Partial<MockUserBase> = {}
+  overrides: Partial<MockUserBase> = {},
 ): MockUserBase => ({
   id: "1",
   email: "user@test.com",
@@ -147,7 +147,9 @@ describe("UserService", () => {
 
       expect(result).to.deep.equal(mockUser);
       expect(
-        userRepositoryStub.findUnique.calledWith({ supabaseId: "supabase-123" })
+        userRepositoryStub.findUnique.calledWith({
+          supabaseId: "supabase-123",
+        }),
       ).to.be.true;
     });
 
@@ -175,7 +177,7 @@ describe("UserService", () => {
       const result = await userService.findByEmail("user@test.com");
       expect(result).to.deep.equal(mockUser);
       expect(
-        userRepositoryStub.findUnique.calledWith({ email: "user@test.com" })
+        userRepositoryStub.findUnique.calledWith({ email: "user@test.com" }),
       ).to.be.true;
     });
 
@@ -200,7 +202,7 @@ describe("UserService", () => {
       const result = await userService.findOrCreateUser(
         "supabase-123",
         "user@test.com",
-        "New Name"
+        "New Name",
       );
 
       expect(result).to.deep.equal(existingUser);
@@ -219,7 +221,7 @@ describe("UserService", () => {
       const result = await userService.findOrCreateUser(
         "supabase-123",
         "newuser@test.com",
-        "New User"
+        "New User",
       );
 
       expect(result).to.deep.equal(newUser);

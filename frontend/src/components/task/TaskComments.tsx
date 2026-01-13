@@ -9,6 +9,7 @@ const TaskComments: React.FC<TaskCommentsProps> = ({
   setNewComment,
   onAddComment,
   isSubmitting,
+  isTeamMember = false,
 }) => {
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -52,34 +53,36 @@ const TaskComments: React.FC<TaskCommentsProps> = ({
         </div>
       )}
 
-      <div className="border border-gray-200 dark:border-gray-700 rounded-xl p-3 flex items-start gap-3 shadow-sm hover:shadow-md dark:shadow-gray-900/50 transition-shadow focus-within:ring-1 focus-within:ring-blue-100 dark:focus-within:ring-blue-900 focus-within:border-blue-300 dark:focus-within:border-blue-700 bg-white dark:bg-gray-800">
-        {user?.avatar ? (
-          <img
-            src={user.avatar}
-            alt={user.name}
-            className="w-8 h-8 rounded-full flex-shrink-0 object-cover"
+      {isTeamMember && (
+        <div className="border border-gray-200 dark:border-gray-700 rounded-xl p-3 flex items-start gap-3 shadow-sm hover:shadow-md dark:shadow-gray-900/50 transition-shadow focus-within:ring-1 focus-within:ring-blue-100 dark:focus-within:ring-blue-900 focus-within:border-blue-300 dark:focus-within:border-blue-700 bg-white dark:bg-gray-800">
+          {user?.avatar ? (
+            <img
+              src={user.avatar}
+              alt={user.name}
+              className="w-8 h-8 rounded-full flex-shrink-0 object-cover"
+            />
+          ) : (
+            <div className="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-gray-500 dark:text-gray-400 text-xs font-bold flex-shrink-0">
+              {(user?.name || "Me").charAt(0)}
+            </div>
+          )}
+          <textarea
+            placeholder="Add a comment..."
+            className="flex-1 outline-none text-sm min-h-[40px] resize-none py-1.5 placeholder-gray-400 dark:placeholder-gray-500 bg-transparent text-gray-700 dark:text-gray-200"
+            rows={1}
+            value={newComment}
+            onChange={(e) => setNewComment(e.target.value)}
+            onKeyDown={handleKeyDown}
           />
-        ) : (
-          <div className="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-gray-500 dark:text-gray-400 text-xs font-bold flex-shrink-0">
-            {(user?.name || "Me").charAt(0)}
-          </div>
-        )}
-        <textarea
-          placeholder="Add a comment..."
-          className="flex-1 outline-none text-sm min-h-[40px] resize-none py-1.5 placeholder-gray-400 dark:placeholder-gray-500 bg-transparent text-gray-700 dark:text-gray-200"
-          rows={1}
-          value={newComment}
-          onChange={(e) => setNewComment(e.target.value)}
-          onKeyDown={handleKeyDown}
-        />
-        <button
-          onClick={onAddComment}
-          disabled={!newComment.trim() || isSubmitting}
-          className={`p-1 transition-colors ${!newComment.trim() || isSubmitting ? "text-gray-300 dark:text-gray-600 cursor-not-allowed" : "text-gray-400 dark:text-gray-500 hover:text-blue-600 dark:hover:text-blue-400"}`}
-        >
-          <Send size={16} />
-        </button>
-      </div>
+          <button
+            onClick={onAddComment}
+            disabled={!newComment.trim() || isSubmitting}
+            className={`p-1 transition-colors ${!newComment.trim() || isSubmitting ? "text-gray-300 dark:text-gray-600 cursor-not-allowed" : "text-gray-400 dark:text-gray-500 hover:text-blue-600 dark:hover:text-blue-400"}`}
+          >
+            <Send size={16} />
+          </button>
+        </div>
+      )}
     </div>
   );
 };

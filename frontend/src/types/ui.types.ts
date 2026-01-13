@@ -38,6 +38,7 @@ export interface SidebarItemProps {
   onClick?: () => void;
   badge?: string | React.ReactNode;
   to?: string;
+  disabled?: boolean;
 }
 
 export interface NotificationsPopupProps {
@@ -165,6 +166,8 @@ export interface TagProps {
   onRemove?: () => void;
   size?: "sm" | "md";
   className?: string;
+  backgroundColor?: string;
+  color?: string;
 }
 
 export interface StatusDotProps {

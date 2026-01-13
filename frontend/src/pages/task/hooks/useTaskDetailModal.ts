@@ -34,12 +34,13 @@ export const useTaskDetailModal = ({
   );
 
   const [deleteTaskMutation] = useDeleteTaskMutation();
-  const [addSubtask] = useAddSubTaskMutation();
+  const [addSubtask, { isLoading: isSubtaskSubmitting }] =
+    useAddSubTaskMutation();
   const [deleteSubtask] = useDeleteSubTaskMutation();
   const [toggleSubtask] = useToggleSubTaskMutation();
   const [assignSubtask] = useAssignSubTaskMutation();
   const [addComment] = useAddCommentMutation();
-  const [addTag] = useAddTagMutation();
+  const [addTag, { isLoading: isTagSubmitting }] = useAddTagMutation();
   const [addAttachment] = useAddAttachmentMutation();
   const [uploadFile] = useUploadFileMutation();
   const [downloadFile] = useLazyDownloadFileQuery();
@@ -59,7 +60,7 @@ export const useTaskDetailModal = ({
     if (!subtaskAssigneeSearch.trim()) {
       return teamMembers;
     }
-    const searchLower = subtaskAssigneeSearch.toLowerCase();
+    const searchLower = subtaskAssigneeSearch.trim().toLowerCase();
     return teamMembers.filter(
       (member) =>
         member.name?.toLowerCase().includes(searchLower) ||
@@ -311,5 +312,7 @@ export const useTaskDetailModal = ({
     handleTagSubmit,
     handleAddTag,
     handleDownload,
+    isSubtaskSubmitting,
+    isTagSubmitting,
   };
 };

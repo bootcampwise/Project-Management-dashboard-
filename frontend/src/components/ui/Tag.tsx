@@ -32,11 +32,31 @@ const getTagColor = (
       border: "border-orange-100",
     },
     { bg: "bg-cyan-50", text: "text-cyan-700", border: "border-cyan-100" },
+    { bg: "bg-lime-50", text: "text-lime-700", border: "border-lime-100" },
+    {
+      bg: "bg-emerald-50",
+      text: "text-emerald-700",
+      border: "border-emerald-100",
+    },
+    {
+      bg: "bg-fuchsia-50",
+      text: "text-fuchsia-700",
+      border: "border-fuchsia-100",
+    },
+    { bg: "bg-rose-50", text: "text-rose-700", border: "border-rose-100" },
+    {
+      bg: "bg-violet-50",
+      text: "text-violet-700",
+      border: "border-violet-100",
+    },
   ];
-  const hash = tagText
-    .split("")
-    .reduce((acc, char) => acc + char.charCodeAt(0), 0);
-  return colors[hash % colors.length];
+
+  let hash = 0;
+  for (let i = 0; i < tagText.length; i++) {
+    hash = tagText.charCodeAt(i) + ((hash << 5) - hash);
+  }
+
+  return colors[Math.abs(hash) % colors.length];
 };
 
 const sizeClasses = {
@@ -49,20 +69,85 @@ export const Tag: React.FC<TagProps> = ({
   onRemove,
   size = "md",
   className = "",
+  backgroundColor,
+  color,
 }) => {
-  const colors = getTagColor(text);
+  const fallbackColors = getTagColor(text);
+
+  let finalClassName =
+    `
+    inline-flex items-center gap-1.5 rounded-full font-medium border
+    ${sizeClasses[size]}
+    ${className}
+  `
+      .trim()
+      .replace(/\s+/g, " ") + " ";
+
+  let style: React.CSSProperties = {};
+
+  const isInvalidBg = (bg: string | undefined, textCol: string | undefined) => {
+    if (!bg) return true;
+    const lowerBg = bg.toLowerCase().trim();
+    const lowerCol = (textCol || "").toLowerCase().trim();
+
+    const isWhiteOrTransparent = [
+      "#ffffff",
+      "#fff",
+      "white",
+      "transparent",
+      "rgba(0,0,0,0)",
+      "rgba(255,255,255,0)",
+    ].includes(lowerBg);
+
+    const isDefaultBlueBg = lowerBg === "bg-blue-100" || lowerBg === "blue-100";
+    const isDefaultBlueCol = lowerCol === "blue" || lowerCol.includes("blue");
+
+    if (isDefaultBlueBg && isDefaultBlueCol) return true;
+
+    return isWhiteOrTransparent;
+  };
+
+  let normalizedBg = backgroundColor;
+  if (
+    normalizedBg &&
+    !normalizedBg.startsWith("bg-") &&
+    !normalizedBg.startsWith("#") &&
+    !normalizedBg.startsWith("rgba") &&
+    /^[a-z]+-\d+$/.test(normalizedBg)
+  ) {
+    normalizedBg = `bg-${normalizedBg}`;
+  }
+
+  const hasBgData =
+    normalizedBg &&
+    normalizedBg.trim() !== "" &&
+    !isInvalidBg(normalizedBg, color);
+  const isBgClass = hasBgData && normalizedBg!.startsWith("bg-");
+  const isTextClass = color && color.startsWith("text-");
+
+  if (hasBgData) {
+    if (isBgClass) {
+      finalClassName += `${normalizedBg} `;
+    } else {
+      style = { ...style, backgroundColor: backgroundColor };
+      finalClassName += "border-transparent ";
+    }
+
+    if (color) {
+      if (isTextClass) {
+        finalClassName += `${color} `;
+      } else {
+        style = { ...style, color: color };
+      }
+    } else {
+      finalClassName += "text-gray-800 dark:text-gray-200 ";
+    }
+  } else {
+    finalClassName += `${fallbackColors.bg} ${fallbackColors.text} ${fallbackColors.border} `;
+  }
 
   return (
-    <span
-      className={`
-        inline-flex items-center gap-1.5 rounded-full font-medium border
-        ${sizeClasses[size]}
-        ${colors.bg} ${colors.text} ${colors.border}
-        ${className}
-      `
-        .trim()
-        .replace(/\s+/g, " ")}
-    >
+    <span className={finalClassName} style={style}>
       {text}
       {onRemove && (
         <button

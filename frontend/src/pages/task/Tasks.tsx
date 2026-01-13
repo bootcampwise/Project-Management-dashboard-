@@ -70,6 +70,7 @@ const Tasks: React.FC = () => {
     setSortBy,
     filterPriority,
     setFilterPriority,
+    hasTeams,
   } = useTasksPage();
 
   const shouldReduceMotion = useReducedMotion();
@@ -179,6 +180,8 @@ const Tasks: React.FC = () => {
                   onClick={() => handleOpenCreateTask()}
                   className={taskClasses.newTaskButton}
                   leftIcon={<Plus size={16} />}
+                  disabled={!hasTeams}
+                  title={!hasTeams ? "Create a team first" : "New Task"}
                 >
                   New Task
                 </Button>
@@ -208,9 +211,15 @@ const Tasks: React.FC = () => {
                         onTaskClick={handleTaskClick}
                         onEditTask={handleEditTask}
                         onDeleteTask={handleDeleteTask}
-                        onAddTask={(status) => handleOpenCreateTask(status)}
+                        onAddTask={
+                          hasTeams
+                            ? (status) => handleOpenCreateTask(status)
+                            : undefined
+                        }
                         onToggle={() => handleToggleColumn(col.id)}
                         onHide={() => handleHideColumn(col.id)}
+                        visibleFields={{ project: false, label: false }}
+                        cardVariant="simple"
                       />
                     </div>
                   ))}
@@ -223,6 +232,7 @@ const Tasks: React.FC = () => {
                           variant="ghost"
                           className={taskClasses.addSectionButton}
                           leftIcon={<Plus size={16} />}
+                          disabled={!hasTeams}
                         >
                           <span>Add section</span>
                         </Button>

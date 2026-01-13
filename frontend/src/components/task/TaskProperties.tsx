@@ -1,11 +1,16 @@
 import React, { useRef, useState } from "react";
-import { Plus } from "lucide-react";
+import { Plus, Loader2 } from "lucide-react";
 import { Tag } from "../ui";
 import type { TaskPropertiesProps, User } from "../../types";
 import { getStatusColor, formatStatus } from "../../utils/statusUtils";
 import TaskCustomFields from "./TaskCustomFields";
 
-const TaskProperties: React.FC<TaskPropertiesProps> = ({ task, onAddTag }) => {
+const TaskProperties: React.FC<TaskPropertiesProps> = ({
+  task,
+  onAddTag,
+  isTeamMember = false,
+  isSubmitting = false,
+}) => {
   const [isAddingTag, setIsAddingTag] = useState(false);
   const [tagInput, setTagInput] = useState("");
   const tagInputRef = useRef<HTMLInputElement>(null);
@@ -143,30 +148,38 @@ const TaskProperties: React.FC<TaskPropertiesProps> = ({ task, onAddTag }) => {
           {task.tags &&
             task.tags.map((tag) => <Tag key={tag.id} text={tag.text} />)}
 
-          {isAddingTag ? (
-            <input
-              ref={tagInputRef}
-              type="text"
-              className="px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:border-blue-500 w-24 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200"
-              placeholder="New tag..."
-              value={tagInput}
-              onChange={(e) => setTagInput(e.target.value)}
-              onKeyDown={handleTagSubmit}
-              onBlur={() => {
-                if (!tagInput.trim()) setIsAddingTag(false);
-              }}
-            />
-          ) : (
-            <button
-              onClick={() => {
-                setIsAddingTag(true);
-                setTimeout(() => tagInputRef.current?.focus(), 0);
-              }}
-              className="text-gray-400 hover:text-gray-600 transition-colors"
-            >
-              <Plus size={16} />
-            </button>
+          {isSubmitting && (
+            <div className="px-2 py-1">
+              <Loader2 className="animate-spin text-gray-400" size={16} />
+            </div>
           )}
+
+          {!isSubmitting &&
+            isTeamMember &&
+            (isAddingTag ? (
+              <input
+                ref={tagInputRef}
+                type="text"
+                className="px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:border-blue-500 w-24 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200"
+                placeholder="New tag..."
+                value={tagInput}
+                onChange={(e) => setTagInput(e.target.value)}
+                onKeyDown={handleTagSubmit}
+                onBlur={() => {
+                  if (!tagInput.trim()) setIsAddingTag(false);
+                }}
+              />
+            ) : (
+              <button
+                onClick={() => {
+                  setIsAddingTag(true);
+                  setTimeout(() => tagInputRef.current?.focus(), 0);
+                }}
+                className="text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <Plus size={16} />
+              </button>
+            ))}
         </div>
       </div>
 

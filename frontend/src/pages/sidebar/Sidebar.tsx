@@ -28,7 +28,7 @@ import {
   useCreateProjectMutation,
   useGetProjectsQuery,
 } from "../../store/api/projectApiSlice";
-import { useGetAllTeamsQuery } from "../../store/api/teamApiSlice";
+import { useGetTeamsQuery } from "../../store/api/teamApiSlice";
 import { useGetNotificationsQuery } from "../../store/api/notificationApiSlice";
 import { showToast, getErrorMessage } from "../../components/ui";
 
@@ -38,7 +38,7 @@ const Sidebar: React.FC<SidebarProps> = ({ open, onClose }) => {
   const [createProject] = useCreateProjectMutation();
   const { data: projects = [], isLoading: isProjectsLoading } =
     useGetProjectsQuery();
-  const { data: teams = [], isLoading: isTeamsLoading } = useGetAllTeamsQuery();
+  const { data: teams = [], isLoading: isTeamsLoading } = useGetTeamsQuery();
   const { data: notifications = [] } = useGetNotificationsQuery(undefined, {
     pollingInterval: 30000,
     refetchOnFocus: true,
@@ -154,6 +154,7 @@ const Sidebar: React.FC<SidebarProps> = ({ open, onClose }) => {
                   icon={FilePlus2}
                   label="Create Project"
                   onClick={() => setIsCreateProjectOpen(true)}
+                  disabled={!teams || teams.length === 0}
                 />
               </div>
 
@@ -222,6 +223,7 @@ const Sidebar: React.FC<SidebarProps> = ({ open, onClose }) => {
               <SidebarItem
                 icon={UserPlus}
                 label="Invite teammates"
+                disabled={!teams || teams.length === 0}
                 onClick={() => {
                   setSettingsInitialTab("Members");
                   setIsSettingsOpen(true);
@@ -257,6 +259,10 @@ const Sidebar: React.FC<SidebarProps> = ({ open, onClose }) => {
         onClose={() => setIsCreateProjectOpen(false)}
         onCreate={handleCreateProject}
         onOpenTemplateLibrary={handleOpenTemplateLibrary}
+        onOpenTeamModal={() => {
+          setIsCreateProjectOpen(false);
+          setIsTeamModalOpen(true);
+        }}
       />
       <TemplateLibraryModal
         isOpen={isTemplateLibraryOpen}

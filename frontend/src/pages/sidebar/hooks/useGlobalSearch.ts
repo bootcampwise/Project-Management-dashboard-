@@ -38,8 +38,8 @@ export const useGlobalSearch = (
     let results: (Task | Project)[] = [];
 
     const filteredTasks = tasks.filter((task) => {
-      if (searchQuery) {
-        const query = searchQuery.toLowerCase();
+      if (searchQuery.trim()) {
+        const query = searchQuery.trim().toLowerCase();
         const matchesTitle =
           task.title?.toLowerCase().includes(query) ||
           task.name?.toLowerCase().includes(query);
@@ -93,8 +93,8 @@ export const useGlobalSearch = (
       filteredProjects = projects.filter((project) => {
         if (filterDate || filterCreator) return false;
         if (filterProject && project.id !== filterProject) return false;
-        if (searchQuery) {
-          const query = searchQuery.toLowerCase();
+        if (searchQuery.trim()) {
+          const query = searchQuery.trim().toLowerCase();
           return (
             project.name.toLowerCase().includes(query) ||
             project.key.toLowerCase().includes(query)

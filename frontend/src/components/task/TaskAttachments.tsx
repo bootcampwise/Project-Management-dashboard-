@@ -6,6 +6,7 @@ const TaskAttachments: React.FC<TaskAttachmentsProps> = ({
   attachments,
   onUpload,
   onDownload,
+  isTeamMember = false,
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -43,18 +44,22 @@ const TaskAttachments: React.FC<TaskAttachmentsProps> = ({
           </div>
         ))}
 
-        <button
-          onClick={() => fileInputRef.current?.click()}
-          className="w-12 h-12 border border-dashed border-gray-300 dark:border-gray-600 rounded-xl flex items-center justify-center text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:border-gray-400 dark:hover:border-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all"
-        >
-          <Plus size={20} />
-        </button>
-        <input
-          type="file"
-          ref={fileInputRef}
-          className="hidden"
-          onChange={onUpload}
-        />
+        {isTeamMember && (
+          <>
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              className="w-12 h-12 border border-dashed border-gray-300 dark:border-gray-600 rounded-xl flex items-center justify-center text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:border-gray-400 dark:hover:border-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all"
+            >
+              <Plus size={20} />
+            </button>
+            <input
+              type="file"
+              ref={fileInputRef}
+              className="hidden"
+              onChange={onUpload}
+            />
+          </>
+        )}
       </div>
     </div>
   );

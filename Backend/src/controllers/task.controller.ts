@@ -55,7 +55,6 @@ export class TaskController {
       }
 
       const files = data.attachments || [];
-      console.log("Creating Task with attachments:", files.length);
 
       const task = await taskService.createTask(
         data,

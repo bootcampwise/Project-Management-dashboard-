@@ -56,6 +56,7 @@ const Team: React.FC = () => {
     handleEditTeam,
     teamToEdit,
     teamFiles,
+    myTeams,
   } = useTeam();
 
   const shouldReduceMotion = useReducedMotion();
@@ -257,6 +258,12 @@ const Team: React.FC = () => {
                 variant="primary"
                 className={teamClasses.createButton}
                 onClick={handleOpenCreateTeamModal}
+                disabled={!myTeams || myTeams.length === 0}
+                title={
+                  !myTeams || myTeams.length === 0
+                    ? "You must belong to a team to create one"
+                    : "Create Team"
+                }
                 rightIcon={
                   <ChevronDown
                     size={14}

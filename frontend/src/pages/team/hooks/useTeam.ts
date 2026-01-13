@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 import {
   useGetAllTeamsQuery,
+  useGetTeamsQuery,
   useDeleteTeamMutation,
   usePrefetchTeam,
 } from "../../../store/api/teamApiSlice";
@@ -12,6 +13,7 @@ import { useTeamFiles } from "./useTeamFiles";
 export const useTeam = () => {
   const { data: allTeams = [], isLoading: teamsLoading } =
     useGetAllTeamsQuery();
+  const { data: myTeams = [] } = useGetTeamsQuery();
   const [deleteTeam] = useDeleteTeamMutation();
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -172,5 +174,6 @@ export const useTeam = () => {
     handleDeleteTeam,
     handleToggleTeamFavorite,
     teamFiles,
+    myTeams,
   };
 };

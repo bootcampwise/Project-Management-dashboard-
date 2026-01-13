@@ -49,9 +49,9 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
 
   const filteredUsers = allUsers.filter(
     (user) =>
-      user.name?.toLowerCase().includes(memberSearch.toLowerCase()) ||
-      user.email?.toLowerCase().includes(memberSearch.toLowerCase()) ||
-      user.jobTitle?.toLowerCase().includes(memberSearch.toLowerCase()),
+      user.name?.toLowerCase().includes(memberSearch.trim().toLowerCase()) ||
+      user.email?.toLowerCase().includes(memberSearch.trim().toLowerCase()) ||
+      user.jobTitle?.toLowerCase().includes(memberSearch.trim().toLowerCase()),
   );
 
   const handleInviteClick = () => {

@@ -31,7 +31,7 @@ export const useCreateTaskModal = ({
   const [attachments, setAttachments] = useState<File[]>([]);
   const [selectedProjectId, setSelectedProjectId] = useState("");
   const [dueDate, setDueDate] = useState("");
-  const [actualCost, setActualCost] = useState<string>("$15");
+  const [actualCost, setActualCost] = useState<string>("15");
 
   useEffect(() => {
     if (isOpen && task) {
@@ -54,7 +54,7 @@ export const useCreateTaskModal = ({
       }
 
       setDueDate(task.dueDate || task.endDate || "");
-      setActualCost(task.actualCost ? `$${task.actualCost}` : "$15");
+      setActualCost(task.actualCost ? String(task.actualCost) : "15");
 
       if (task.assignees) {
         setAssigneeIds(task.assignees.map((a) => a.id));
@@ -69,7 +69,7 @@ export const useCreateTaskModal = ({
       setDescription("");
       setAttachments([]);
       setDueDate("");
-      setActualCost("$15");
+      setActualCost("15");
       setAssigneeIds([]);
       if (projects.length > 0 && !selectedProjectId)
         setSelectedProjectId(projects[0].id);
@@ -116,7 +116,9 @@ export const useCreateTaskModal = ({
   }, [selectedProject, allUsers]);
 
   const filteredMembers = uniqueMembers.filter((member) =>
-    (member.name || "").toLowerCase().includes(assigneeSearch.toLowerCase()),
+    (member.name || "")
+      .toLowerCase()
+      .includes(assigneeSearch.trim().toLowerCase()),
   );
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -257,7 +259,7 @@ export const useCreateTaskModal = ({
       setAttachments([]);
       setSelectedProjectId(projects.length > 0 ? projects[0].id : "");
       setDueDate("");
-      setActualCost("$15");
+      setActualCost("15");
       setAssigneeIds([]);
       setAssigneeSearch("");
     } catch (error) {

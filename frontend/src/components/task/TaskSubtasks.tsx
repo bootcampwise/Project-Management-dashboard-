@@ -1,5 +1,12 @@
 import React, { useState } from "react";
-import { CheckCircle2, Trash2, UserPlus, X, Search } from "lucide-react";
+import {
+  CheckCircle2,
+  Trash2,
+  UserPlus,
+  X,
+  Search,
+  Loader2,
+} from "lucide-react";
 import type { TaskSubtasksProps } from "../../types";
 
 const TaskSubtasks: React.FC<TaskSubtasksProps> = ({
@@ -13,6 +20,8 @@ const TaskSubtasks: React.FC<TaskSubtasksProps> = ({
   onToggle,
   onDelete,
   onAssign,
+  isTeamMember = false,
+  isSubmitting = false,
 }) => {
   const [assigningSubtaskId, setAssigningSubtaskId] = useState<string | null>(
     null,
@@ -64,8 +73,11 @@ const TaskSubtasks: React.FC<TaskSubtasksProps> = ({
           >
             <div className="flex items-center gap-3">
               <button
-                onClick={() => onToggle(subtask.id, !subtask.completed)}
-                className="focus:outline-none"
+                onClick={() =>
+                  isTeamMember && onToggle(subtask.id, !subtask.completed)
+                }
+                className={`focus:outline-none ${!isTeamMember ? "cursor-default" : ""}`}
+                disabled={!isTeamMember}
               >
                 <CheckCircle2
                   size={18}
@@ -110,11 +122,12 @@ const TaskSubtasks: React.FC<TaskSubtasksProps> = ({
               <div className="relative">
                 <button
                   onClick={() =>
+                    isTeamMember &&
                     setAssigningSubtaskId(
                       assigningSubtaskId === subtask.id ? null : subtask.id,
                     )
                   }
-                  className="focus:outline-none flex items-center"
+                  className={`focus:outline-none flex items-center ${!isTeamMember ? "cursor-default" : ""}`}
                   title={
                     subtask.assignees?.length
                       ? `Assigned to ${subtask.assignees
@@ -144,9 +157,11 @@ const TaskSubtasks: React.FC<TaskSubtasksProps> = ({
                       )}
                     </div>
                   ) : (
-                    <div className="w-6 h-6 rounded-full border-2 border-dashed border-gray-300 flex items-center justify-center text-gray-400 hover:border-gray-400 hover:text-gray-500 transition-colors opacity-0 group-hover:opacity-100">
-                      <UserPlus size={12} />
-                    </div>
+                    isTeamMember && (
+                      <div className="w-6 h-6 rounded-full border-2 border-dashed border-gray-300 flex items-center justify-center text-gray-400 hover:border-gray-400 hover:text-gray-500 transition-colors opacity-0 group-hover:opacity-100">
+                        <UserPlus size={12} />
+                      </div>
+                    )
                   )}
                 </button>
 
@@ -253,13 +268,15 @@ const TaskSubtasks: React.FC<TaskSubtasksProps> = ({
                 )}
               </div>
 
-              <button
-                onClick={() => onDelete(subtask.id)}
-                className="p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors opacity-0 group-hover:opacity-100"
-                title="Delete subtask"
-              >
-                <Trash2 size={14} />
-              </button>
+              {isTeamMember && (
+                <button
+                  onClick={() => onDelete(subtask.id)}
+                  className="p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors opacity-0 group-hover:opacity-100"
+                  title="Delete subtask"
+                >
+                  <Trash2 size={14} />
+                </button>
+              )}
 
               <span className="text-xs text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity">
                 {new Date(subtask.createdAt || Date.now()).toLocaleDateString(
@@ -272,17 +289,28 @@ const TaskSubtasks: React.FC<TaskSubtasksProps> = ({
         ))}
       </div>
 
-      <div className="flex items-center gap-3 mt-4 px-1 py-1 group">
-        <div className="w-4 h-4 rounded border border-gray-300 dark:border-gray-600 group-hover:border-gray-400 dark:group-hover:border-gray-500 transition-colors"></div>
-        <input
-          type="text"
-          placeholder="Add a subtask..."
-          className="flex-1 text-sm outline-none placeholder-gray-400 dark:placeholder-gray-500 bg-transparent py-1 text-gray-700 dark:text-gray-200"
-          value={newSubtask}
-          onChange={(e) => setNewSubtask(e.target.value)}
-          onKeyDown={onAddSubtask}
-        />
-      </div>
+      {isTeamMember && (
+        <div className="flex items-center gap-3 mt-4 px-1 py-1 group">
+          <div className="w-4 h-4 flex items-center justify-center">
+            {isSubmitting ? (
+              <Loader2 className="animate-spin text-blue-500" size={16} />
+            ) : (
+              <div className="w-4 h-4 rounded border border-gray-300 dark:border-gray-600 group-hover:border-gray-400 dark:group-hover:border-gray-500 transition-colors"></div>
+            )}
+          </div>
+          <input
+            type="text"
+            placeholder={
+              isSubmitting ? "Adding subtask..." : "Add a subtask..."
+            }
+            className="flex-1 text-sm outline-none placeholder-gray-400 dark:placeholder-gray-500 bg-transparent py-1 text-gray-700 dark:text-gray-200"
+            value={newSubtask}
+            onChange={(e) => setNewSubtask(e.target.value)}
+            onKeyDown={onAddSubtask}
+            disabled={isSubmitting}
+          />
+        </div>
+      )}
     </div>
   );
 };

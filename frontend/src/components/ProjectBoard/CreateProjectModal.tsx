@@ -1,5 +1,5 @@
 import React from "react";
-import { X, Sparkles } from "lucide-react";
+import { X, Sparkles, Plus } from "lucide-react";
 import { IconButton, Input, Select, Textarea } from "../ui";
 import type { CreateProjectModalProps } from "../../types";
 import { useCreateProjectModal } from "../../pages/projectboard/hooks/useCreateProjectModal";
@@ -8,6 +8,7 @@ const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
   isOpen,
   onClose,
   onOpenTemplateLibrary,
+  onOpenTeamModal,
   onCreate,
 }) => {
   const {
@@ -79,15 +80,35 @@ const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
           </div>
 
           <div className="grid grid-cols-2 gap-4 mb-5">
-            <Select
-              label="Select a team"
-              value={selectedTeamId}
-              onChange={(e) => setSelectedTeamId(e.target.value)}
-              options={[
-                { value: "", label: "Select a team", disabled: true },
-                ...teams.map((team) => ({ value: team.id, label: team.name })),
-              ]}
-            />
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                Select a team
+              </label>
+              {teams.length === 0 ? (
+                <button
+                  type="button"
+                  onClick={onOpenTeamModal}
+                  className="w-full flex items-center justify-center gap-2 px-3 py-2.5 border border-dashed border-blue-300 dark:border-blue-600 bg-blue-50 dark:bg-blue-900/30 rounded-md text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors"
+                >
+                  <Plus size={16} />
+                  <span className="text-sm font-medium">
+                    Create a Team First
+                  </span>
+                </button>
+              ) : (
+                <Select
+                  value={selectedTeamId}
+                  onChange={(e) => setSelectedTeamId(e.target.value)}
+                  options={[
+                    { value: "", label: "Select a team", disabled: true },
+                    ...teams.map((team) => ({
+                      value: team.id,
+                      label: team.name,
+                    })),
+                  ]}
+                />
+              )}
+            </div>
 
             <Select
               label="Privacy"
@@ -109,6 +130,7 @@ const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
               label="Due Date"
               value={dueDate}
               onChange={(e) => setDueDate(e.target.value)}
+              min={new Date().toISOString().split("T")[0]}
             />
           </div>
 

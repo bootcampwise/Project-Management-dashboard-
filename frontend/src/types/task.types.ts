@@ -148,22 +148,29 @@ export interface TaskCardComponentProps {
   comments?: number;
   attachments?: number;
   subtasks?: number;
+  completedSubtasks?: number;
   date?: string;
   onClick?: () => void;
   onEdit?: () => void;
   onDelete?: () => void;
   visibleFields?: Record<string, boolean>;
+  variant?: "simple" | "detailed";
+  isTaskCreator?: boolean;
+  isTeamMember?: boolean;
 }
 
 export interface TaskDetailHeaderProps {
   onEdit: () => void;
   onDelete: () => void;
   onClose: () => void;
+  isTeamMember?: boolean;
 }
 
 export interface TaskPropertiesProps {
   task: Task;
   onAddTag: (tag: string) => void;
+  isTeamMember?: boolean;
+  isSubmitting?: boolean;
 }
 
 export interface TaskDescriptionProps {
@@ -174,6 +181,7 @@ export interface TaskAttachmentsProps {
   attachments: Attachment[];
   onUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onDownload: (e: React.MouseEvent, attachment: Attachment) => void;
+  isTeamMember?: boolean;
 }
 
 export interface TaskSubtasksProps {
@@ -191,6 +199,8 @@ export interface TaskSubtasksProps {
     userId: string,
     action: "add" | "remove",
   ) => void;
+  isTeamMember?: boolean;
+  isSubmitting?: boolean;
 }
 
 export interface TaskCommentsProps {
@@ -200,6 +210,7 @@ export interface TaskCommentsProps {
   setNewComment: (value: string) => void;
   onAddComment: () => void;
   isSubmitting: boolean;
+  isTeamMember?: boolean;
 }
 
 export interface TaskDetailModalProps {
@@ -207,6 +218,7 @@ export interface TaskDetailModalProps {
   onClose: () => void;
   task: Task | null;
   onEdit?: (task: Task) => void;
+  isTeamMember?: boolean;
 }
 
 export interface CreateTaskModalProps {
